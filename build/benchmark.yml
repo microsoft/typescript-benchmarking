@@ -27,16 +27,16 @@ variables:
   nodeVersion: '16.x'
 
   # https://learn.microsoft.com/en-us/azure/devops/pipelines/process/resources?view=azure-devops&tabs=example#variables-1
-  ts-baseline-ref: $[ resources.repositories.ts-baseline.ref ]
-  ts-baseline-name: $[ resources.repositories.ts-baseline.name ]
-  ts-baseline-id: $[ resources.repositories.ts-baseline.id ]
-  ts-baseline-type: $[ resources.repositories.ts-baseline.type ]
-  ts-baseline-url: $[ resources.repositories.ts-baseline.url ]
-  ts-other-ref: $[ resources.repositories.ts-other.ref ]
-  ts-other-name: $[ resources.repositories.ts-other.name ]
-  ts-other-id: $[ resources.repositories.ts-other.id ]
-  ts-other-type: $[ resources.repositories.ts-other.type ]
-  ts-other-url: $[ resources.repositories.ts-other.url ]
+  ts-baseline-ref: $[ resources.repositories['ts-baseline'].ref ]
+  ts-baseline-name: $[ resources.repositories['ts-baseline'].name ]
+  ts-baseline-id: $[ resources.repositories['ts-baseline'].id ]
+  ts-baseline-type: $[ resources.repositories['ts-baseline'].type ]
+  ts-baseline-url: $[ resources.repositories['ts-baseline'].url ]
+  ts-other-ref: $[ resources.repositories['ts-other'].ref ]
+  ts-other-name: $[ resources.repositories['ts-other'].name ]
+  ts-other-id: $[ resources.repositories['ts-other'].id ]
+  ts-other-type: $[ resources.repositories['ts-other'].type ]
+  ts-other-url: $[ resources.repositories['ts-other'].url ]
 
   # - name: azureSubscription
   #   value: 'TypeScript Internal Services'
