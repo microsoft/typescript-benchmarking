@@ -17,14 +17,16 @@ parameters:
   # TODO: Accept objects instead?
   - name: TSPERF_HOSTS
     type: string
-    default: '--host node@18.10.0 --host node@16.17.1 --host node@14.21.3'
+    # default: '--host node@18.10.0 --host node@16.17.1 --host node@14.21.3'
+    default: 'node@18.10.0, node@16.17.1, node@14.21.3'
   - name: TSPERF_ITERATIONS
     type: number
     default: 10
   # TODO: the default set should probably be defined by the benchmarking repo
   - name: TSPERF_SCENARIOS
     type: string
-    default: '--scenario Angular --scenario Monaco --scenario TFS --scenario material-ui --scenario Compiler-Unions --scenario xstate'
+    # default: '--scenario Angular --scenario Monaco --scenario TFS --scenario material-ui --scenario Compiler-Unions --scenario xstate'
+    default: 'Angular, Monaco, TFS, material-ui, Compiler-Unions, xstate'
 
 resources:
   repositories:
@@ -103,33 +105,35 @@ jobs:
       - bash: sudo pyperf system tune
         displayName: Tune system
 
-      - bash: node internal/scripts/perf/bin/ts-perf host install ${{ parameters.TSPERF_HOSTS }}
-        displayName: Install hosts
-
       - bash: |
           cd ../ts-main
           npm ci
           npm run build:compiler
         displayName: Build typescript
 
-      - bash: |
-          # local variables
-          CHECKOUT=../ts-main
-          COMMIT=$( git -C ${CHECKOUT} rev-parse HEAD )
-          COMMIT_SHORT=$( git -C ${CHECKOUT} rev-parse --short HEAD )
-          DATE=$( git -C ${CHECKOUT} log -1 --format=%cI )
-          TIMESTAMP_DIR=$( date -d ${DATE} -u +%Y/%m/%d )
+      - ${{ each host in split(parameters.TSPERF_HOSTS, ', ') }}:
+          - bash: node internal/scripts/perf/bin/ts-perf host install --host ${{ host }}
+            displayName: Install ${{ host }}
 
-          node internal/scripts/perf/bin/ts-perf benchmark tsc \
-            --cpus ${TSPERF_AGENT_BENCHMARK_CPU} \
-            --iterations ${{ parameters.TSPERF_ITERATIONS }} \
-            --tsc ${CHECKOUT}/built/local/tsc.js \
-            ${{ parameters.TSPERF_SCENARIOS }} \
-            --date ${DATE} \
-            --repositoryType git \
-            --repositoryUrl ${REPOSITORY_URI} \
-            --repositoryBranch ${BRANCH} \
-            --repositoryCommit ${COMMIT} \
-            --repositoryDate ${DATE} \
-            ${{ parameters.TSPERF_HOSTS }}
-        displayName: Run tsc benchmarks
+          - ${{ each scenario in split(parameters.TSPERF_SCENARIOS, ', ') }}:
+              - bash: |
+                  # local variables
+                  CHECKOUT=../ts-main
+                  COMMIT=$( git -C ${CHECKOUT} rev-parse HEAD )
+                  COMMIT_SHORT=$( git -C ${CHECKOUT} rev-parse --short HEAD )
+                  DATE=$( git -C ${CHECKOUT} log -1 --format=%cI )
+                  TIMESTAMP_DIR=$( date -d ${DATE} -u +%Y/%m/%d )
+
+                  node internal/scripts/perf/bin/ts-perf benchmark tsc \
+                    --cpus ${TSPERF_AGENT_BENCHMARK_CPU} \
+                    --iterations ${{ parameters.TSPERF_ITERATIONS }} \
+                    --tsc ${CHECKOUT}/built/local/tsc.js \
+                    --host ${{ host }} \
+                    --scenario ${{ scenario }} \
+                    --date ${DATE} \
+                    --repositoryType git \
+                    --repositoryUrl ${REPOSITORY_URI} \
+                    --repositoryBranch ${BRANCH} \
+                    --repositoryCommit ${COMMIT} \
+                    --repositoryDate ${DATE} \
+                displayName: Run tsc benchmarks (${{ host }}, ${{ scenario }})
