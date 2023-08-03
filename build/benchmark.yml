@@ -16,7 +16,9 @@ resources:
   pipelines:
     - pipeline: ts-main-pipeline
       source: 'TypeScript pipeline trigger'
-      trigger: true
+      trigger:
+        branches:
+          - main
 
 variables:
   # This is just the version of node used to build TypeScript, run ts-perf, etc.
