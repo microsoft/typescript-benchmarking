@@ -1,11 +1,30 @@
 pr: none
 trigger: none
 
+resources:
+  repositories:
+    - repository: ts-baseline
+      type: github
+      endpoint: Microsoft
+      name: microsoft/TypeScript
+    - repository: ts-other
+      type: github
+      endpoint: Microsoft
+      name: microsoft/TypeScript
+
+  # https://stackoverflow.com/a/63276774
+  pipelines:
+    - pipeline: ts-main-pipeline
+      source: 'TypeScript pipeline trigger'
+      trigger: true
+
 variables:
   # This is just the version of node used to build TypeScript, run ts-perf, etc.
   # The actual benchmarked node version is controlled by ts-perf.
-  - name: nodeVersion
-    value: '16.x'
+  nodeVersion: '16.x'
+  baselineRef: $[ resources.repositories['ts-baseline'].ref ]
+  otherRef: $[ resources.repositories['ts-other'].ref ]
+
   # - name: azureSubscription
   #   value: 'TypeScript Internal Services'
   # - name: KeyVaultName
@@ -26,23 +45,6 @@ parameters:
     type: string
     default: '--scenario Angular --scenario Monaco --scenario TFS --scenario material-ui --scenario Compiler-Unions --scenario xstate'
 
-resources:
-  repositories:
-    - repository: ts-baseline
-      type: github
-      endpoint: Microsoft
-      name: microsoft/TypeScript
-    - repository: ts-other
-      type: github
-      endpoint: Microsoft
-      name: microsoft/TypeScript
-
-  # https://stackoverflow.com/a/63276774
-  pipelines:
-    - pipeline: ts-main-pipeline
-      source: 'TypeScript pipeline trigger'
-      trigger: true
-
 jobs:
   - job: Benchmark
     pool:
@@ -62,6 +64,11 @@ jobs:
       #     azureSubscription: $(azureSubscription)
       #     KeyVaultName: $(KeyVaultName)
       #     SecretsFilter: $(SecretsFilter)
+
+      - bash: |
+          echo baselineRef=$(baselineRef)
+          echo otherRef=$(otherRef)
+          echo Build.Reason=$(Build.Reason)
 
       - bash: git config --global core.longpaths true
         displayName: Enable git long paths
