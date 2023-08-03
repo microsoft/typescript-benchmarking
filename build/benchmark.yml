@@ -1,0 +1,135 @@
+pr: none
+trigger: none
+
+variables:
+  # This is just the version of node used to build TypeScript, run ts-perf, etc.
+  # The actual benchmarked node version is controlled by ts-perf.
+  - name: nodeVersion
+    value: '16.x'
+  # - name: azureSubscription
+  #   value: 'TypeScript Internal Services'
+  # - name: KeyVaultName
+  #   value: 'jststeam-passwords'
+  # - name: SecretsFilter
+  #   value: 'tslab1-mseng-PAT, tsperf-azure-storage-connection-string'
+
+parameters:
+  # TODO: Accept objects instead?
+  - name: TSPERF_HOSTS
+    type: string
+    default: '--host node@18.10.0 --host node@16.17.1 --host node@14.21.3'
+  - name: TSPERF_ITERATIONS
+    type: number
+    default: 10
+  # TODO: the default set should probably be defined by the benchmarking repo
+  - name: TSPERF_SCENARIOS
+    type: string
+    default: '--scenario Angular --scenario Monaco --scenario TFS --scenario material-ui --scenario Compiler-Unions --scenario xstate'
+
+resources:
+  repositories:
+    - repository: ts-main
+      type: github
+      endpoint: Microsoft
+      name: microsoft/TypeScript
+    # - repository: ts-pr
+    #   type: github
+    #   endpoint: Microsoft
+    #   name: microsoft/TypeScript
+
+  # https://stackoverflow.com/a/63276774
+  pipelines:
+    - pipeline: ts-main-pipeline
+      source: 'TypeScript pipeline trigger'
+      trigger: true
+
+jobs:
+  - job: Benchmark
+    pool:
+      name: ts-perf-ddfun
+    # TODO: does this hurt perf?
+    workspace:
+      clean: all
+
+    # TODO: matrix over parameterized tests
+
+    steps:
+      # TODO: figure out what perms are missing here
+      # https://learn.microsoft.com/en-us/azure/devops/pipelines/release/key-vault-in-own-project?view=azure-devops&tabs=portal#query-and-use-secrets-in-your-pipeline
+      # - task: AzureKeyVault@1
+      #   inputs:
+      #     # This info has been present in CI logs for years; consider these not secret.
+      #     azureSubscription: $(azureSubscription)
+      #     KeyVaultName: $(KeyVaultName)
+      #     SecretsFilter: $(SecretsFilter)
+
+      - bash: git config --global core.longpaths true
+        displayName: Enable git long paths
+
+      # These paths are relative to $(Pipeline.Workspace), which is the parent
+      # directory of $(Build.SourcesDirectory), the default working directory.
+      - checkout: self
+        path: typescript-benchmarking
+        fetchDepth: 1
+        clean: true
+      - checkout: ts-main
+        path: ts-main
+        fetchDepth: 1
+        clean: true
+
+      - task: NodeTool@0
+        inputs:
+          versionSpec: $(nodeVersion)
+        displayName: 'Install Node $(nodeVersion)'
+
+      # The existence of this AzDo project/repository is not secret.
+      # TODO: figure out the delete this is needed; how does the regular checkout step do a clean shallow clone?
+      # Maybe this should instead use a service connection? (But, this is temporary anyway.)
+      - bash: |
+          rm -rf internal
+          git clone --depth=1 https://mseng:${PAT}@mseng.visualstudio.com/Typescript/_git/Typescript internal
+        env:
+          PAT: $(tslab1-mseng-PAT)
+        displayName: Clone internal repo
+
+      # TODO: is yarn installed?
+      - bash: |
+          cd internal/scripts/perf
+          yarn install --frozen-lockfile --prefer-offline
+          yarn gulp build
+        displayName: Build ts-perf
+
+      # This is provided by the agent.
+      - bash: sudo pyperf system tune
+        displayName: Tune system
+
+      - bash: node internal/scripts/perf/bin/ts-perf host install ${{ parameters.TSPERF_HOSTS }}
+        displayName: Install hosts
+
+      - bash: |
+          cd ../ts-main
+          npm ci
+          npm run build:compiler
+        displayName: Build typescript
+
+      - bash: |
+          # local variables
+          CHECKOUT=../ts-main
+          COMMIT=$( git -C ${CHECKOUT} rev-parse HEAD )
+          COMMIT_SHORT=$( git -C ${CHECKOUT} rev-parse --short HEAD )
+          DATE=$( git -C ${CHECKOUT} log -1 --format=%cI )
+          TIMESTAMP_DIR=$( date -d ${DATE} -u +%Y/%m/%d )
+
+          node internal/scripts/perf/bin/ts-perf benchmark tsc \
+            --cpus ${TSPERF_AGENT_BENCHMARK_CPU} \
+            --iterations ${{ parameters.TSPERF_ITERATIONS }} \
+            --tsc ${CHECKOUT}/built/local/tsc.js \
+            ${{ parameters.TSPERF_SCENARIOS }} \
+            --date ${DATE} \
+            --repositoryType git \
+            --repositoryUrl ${REPOSITORY_URI} \
+            --repositoryBranch ${BRANCH} \
+            --repositoryCommit ${COMMIT} \
+            --repositoryDate ${DATE} \
+            ${{ parameters.TSPERF_HOSTS }}
+        displayName: Run tsc benchmarks

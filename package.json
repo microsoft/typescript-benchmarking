@@ -1,0 +1,10 @@
+{
+    "name": "typescript-benchmarking",
+    "version": "0.0.0",
+    "private": true,
+    "author": "Microsoft Corp.",
+    "license": "MIT",
+    "devDependencies": {
+        "dprint": "^0.39.1"
+    }
+}
