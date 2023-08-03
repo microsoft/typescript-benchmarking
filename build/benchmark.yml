@@ -23,9 +23,9 @@ variables:
   # The actual benchmarked node version is controlled by ts-perf.
   nodeVersion: '16.x'
   baselineRef: $[ resources.repositories['ts-baseline'].ref ]
-  baselineVersion: $[ resources.repositories['ts-baseline'].version ]
+  baselineCommit: $[ resources.repositories['ts-baseline'].commit ]
   otherRef: $[ resources.repositories['ts-other'].ref ]
-  otherVersion: $[ resources.repositories['ts-other'].version ]
+  otherCommit: $[ resources.repositories['ts-other'].commit ]
 
   # - name: azureSubscription
   #   value: 'TypeScript Internal Services'
@@ -69,9 +69,9 @@ jobs:
 
       - bash: |
           echo baselineRef=$(baselineRef)
-          echo baselineVersion=$(baselineVersion)
+          echo baselineCommit=$(baselineCommit)
           echo otherRef=$(otherRef)
-          echo otherVersion=$(otherVersion)
+          echo otherCommit=$(otherCommit)
           echo Build.Reason=$(Build.Reason)
 
       - bash: git config --global core.longpaths true
