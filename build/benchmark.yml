@@ -28,14 +28,14 @@ parameters:
 
 resources:
   repositories:
-    - repository: ts-main
+    - repository: ts-baseline
       type: github
       endpoint: Microsoft
       name: microsoft/TypeScript
-    # - repository: ts-pr
-    #   type: github
-    #   endpoint: Microsoft
-    #   name: microsoft/TypeScript
+    - repository: ts-other
+      type: github
+      endpoint: Microsoft
+      name: microsoft/TypeScript
 
   # https://stackoverflow.com/a/63276774
   pipelines:
@@ -72,8 +72,8 @@ jobs:
         path: typescript-benchmarking
         fetchDepth: 1
         clean: true
-      - checkout: ts-main
-        path: ts-main
+      - checkout: ts-baseline
+        path: ts-baseline
         fetchDepth: 1
         clean: true
 
@@ -107,14 +107,14 @@ jobs:
         displayName: Install hosts
 
       - bash: |
-          cd ../ts-main
+          cd $(Agent.BuildDirectory)/ts-baseline
           npm ci
           npm run build:compiler
         displayName: Build typescript
 
       - bash: |
           # local variables
-          CHECKOUT=../ts-main
+          CHECKOUT=$(Agent.BuildDirectory)/ts-baseline
           COMMIT=$( git -C ${CHECKOUT} rev-parse HEAD )
           COMMIT_SHORT=$( git -C ${CHECKOUT} rev-parse --short HEAD )
           DATE=$( git -C ${CHECKOUT} log -1 --format=%cI )
