@@ -59,6 +59,7 @@ variables:
 # from main. Pipelines also doesn't statically provide us with the "commit"
 # parameter from a manual UI run, leaving us with only the ref, which may still
 # say main even if the commit is old. TODO: work out these details
+# Also, we should consider self.ref (only allow when also main?)
 #
 # To actually run the benchmark, we'll:
 # - Configuration job
@@ -72,7 +73,7 @@ variables:
 #     - Run benchmark twice if PR, comment (or whatever new infra we need)
 #     - Run benchmark once on designated baseline machine if main, upload blob.
 
-# name: $(why).$(Date:yyyyMMdd).$(Rev:r)
+name: $(ts-ref).$(Date:yyyyMMdd).$(Rev:r)
 # Hide the commit message from the run name; it'll just always say that the
 # build came from the benchmarking repo's commit.
 appendCommitMessageToRunName: false
