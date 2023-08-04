@@ -44,18 +44,6 @@ variables:
 
   ts-ref: $[ resources.repositories['TypeScript'].ref ]
 
-  ${{ if eq(variables['ts-ref'], 'refs/pull/main') }}:
-    ${{ if eq(variables['Build.Reason'], 'ResourceTrigger') }}:
-      why: main
-    ${{ else }}:
-      why: main-manual
-  # There's no way to trigger the pipeline this way from the UI, only via the
-  # pipeline run API by giving it { "resources": { "repositories": { "TypeScript": { "refName": "refs/pull/<number>/merge" } } } }
-  ${{ elseif and(startsWith(variables['ts-ref'], 'refs/pull/'), endsWith(variables['ts-ref'], '/merge')) }}:
-    why: pr.${{ split(variables['ts-ref'], '/')[2] }}
-  ${{ else }}:
-    why: unknown # TODO: fail?
-
 # TODO: Generally, this pipeline should work like this:
 #
 # If the ref is "refs/heads/main", then we are processing a new commit to main,
@@ -64,6 +52,8 @@ variables:
 # If it's "refs/pull/<number>/merge", then we are processing a PR. HEAD will
 # be the merge commit of the PR into main, where HEAD^1 will be the version
 # of main that should be compared. We should run both for each benchmark.
+# There's no way to trigger the pipeline this way from the UI, only via the
+# pipeline run API by giving it { "resources": { "repositories": { "TypeScript": { "refName": "refs/pull/<number>/merge" } } } }
 #
 # There's some ambiguity here in that we may want to manually rerun old commits
 # from main. Pipelines also doesn't statically provide us with the "commit"
@@ -82,7 +72,7 @@ variables:
 #     - Run benchmark twice if PR, comment (or whatever new infra we need)
 #     - Run benchmark once on designated baseline machine if main, upload blob.
 
-name: $(why).$(Date:yyyyMMdd).$(Rev:r)
+# name: $(why).$(Date:yyyyMMdd).$(Rev:r)
 # Hide the commit message from the run name; it'll just always say that the
 # build came from the benchmarking repo's commit.
 appendCommitMessageToRunName: false
@@ -106,6 +96,21 @@ jobs:
       #     azureSubscription: $(azureSubscription)
       #     KeyVaultName: $(KeyVaultName)
       #     SecretsFilter: $(SecretsFilter)
+
+      - bash: |
+          if [[ "$(ts-ref)" == "refs/heads/main" ]]; then
+            if [[ "$(Build.Reason)" == "ResourceTrigger" ]]; then
+              WHY="main"
+            else
+              WHY="main-manual"
+            fi
+          elif [[ "$(ts-ref)" =~ refs/pull/([0-9]+)/merge ]]; then
+            WHY="pr.${BASH_REMATCH[1]}"
+          else
+            WHY="unknown"
+          fi
+          echo ${WHY}
+          echo ${WHY}.$(Date:yyyyMMdd).$(Rev:r)
 
       - bash: git config --global core.longpaths true
         displayName: Enable git long paths
