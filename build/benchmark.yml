@@ -36,7 +36,6 @@ parameters:
   # TODO: the default set should probably be defined by the benchmarking repo
   - name: TSPERF_SCENARIOS
     type: string
-    default: '--scenario Angular --scenario Monaco --scenario TFS --scenario material-ui --scenario Compiler-Unions --scenario xstate'
     # default: '--scenario Angular --scenario Monaco --scenario TFS --scenario material-ui --scenario Compiler-Unions --scenario xstate'
     default: 'Angular, Monaco, TFS, material-ui, Compiler-Unions, xstate'
 
