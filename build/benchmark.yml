@@ -44,11 +44,10 @@ variables:
 
   ts-ref: $[ resources.repositories['TypeScript'].ref ]
 
-  $[ if eq(variables['ts-ref'], 'refs/pull/main') ]:
-    $[ if eq(variables['Build.Reason'], 'ResourceTrigger') ]:
-      why: main
-    $[ else ]:
-      why: main-manual
+  $[ if and(eq(variables['ts-ref'], 'refs/pull/main'), eq(variables['Build.Reason'], 'ResourceTrigger')) ]:
+    why: main
+  $[ elseif and(eq(variables['ts-ref'], 'refs/pull/main'), eq(variables['Build.Reason'], 'Manual')) ]:
+    why: main-manual
   # There's no way to trigger the pipeline this way from the UI, only via the
   # pipeline run API by giving it { "resources": { "repositories": { "TypeScript": { "refName": "refs/pull/<number>/merge" } } } }
   $[ elseif and(startsWith(variables['ts-ref'], 'refs/pull/'), endsWith(variables['ts-ref'], '/merge')) ]:
