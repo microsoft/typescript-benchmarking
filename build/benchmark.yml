@@ -44,15 +44,15 @@ variables:
 
   ts-ref: $[ resources.repositories['TypeScript'].ref ]
 
-  ${{ if eq(resources.repositories['TypeScript'].ref, 'refs/pull/main') }}:
+  ${{ if eq(variables['ts-ref'], 'refs/pull/main') }}:
     ${{ if eq(variables['Build.Reason'], 'ResourceTrigger') }}:
       why: main
     ${{ else }}:
       why: main-manual
   # There's no way to trigger the pipeline this way from the UI, only via the
   # pipeline run API by giving it { "resources": { "repositories": { "TypeScript": { "refName": "refs/pull/<number>/merge" } } } }
-  ${{ elseif and(startsWith(resources.repositories['TypeScript'].ref, 'refs/pull/'), endsWith(resources.repositories['TypeScript'].ref, '/merge')) }}:
-    why: pr.${{ split(resources.repositories['TypeScript'].ref, '/')[2] }}
+  ${{ elseif and(startsWith(variables['ts-ref'], 'refs/pull/'), endsWith(variables['ts-ref'], '/merge')) }}:
+    why: pr.${{ split(variables['ts-ref'], '/')[2] }}
   ${{ else }}:
     why: unknown # TODO: fail?
 
@@ -106,10 +106,6 @@ jobs:
       #     azureSubscription: $(azureSubscription)
       #     KeyVaultName: $(KeyVaultName)
       #     SecretsFilter: $(SecretsFilter)
-
-      - bash: |
-          echo ts-ref=$(ts-ref)
-        displayName: Print info
 
       - bash: git config --global core.longpaths true
         displayName: Enable git long paths
