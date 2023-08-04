@@ -43,17 +43,7 @@ variables:
   nodeVersion: '16.x'
 
   ts-ref: $[ resources.repositories['TypeScript'].ref ]
-
-  ${{ if and(eq(variables['ts-ref'], 'refs/pull/main'), eq(variables['Build.Reason'], 'ResourceTrigger')) }}:
-    why: main
-  ${{ elseif and(eq(variables['ts-ref'], 'refs/pull/main'), eq(variables['Build.Reason'], 'Manual')) }}:
-    why: main-manual
-  # There's no way to trigger the pipeline this way from the UI, only via the
-  # pipeline run API by giving it { "resources": { "repositories": { "TypeScript": { "refName": "refs/pull/<number>/merge" } } } }
-  ${{ elseif and(startsWith(variables['ts-ref'], 'refs/pull/'), endsWith(variables['ts-ref'], '/merge')) }}:
-    why: ${{ format('pr.{0}', split(variables['ts-ref'], '/')[2]) }}
-  ${{ else }}:
-    why: unknown # TODO: fail?
+  why: $[ replace(replace(replace(resources.repositories['TypeScript'].ref, '/merge', ''), 'refs/pull/', 'pr.'), 'refs/heads/', '') ]
 
 # TODO: Generally, this pipeline should work like this:
 #
@@ -108,21 +98,6 @@ jobs:
       #     azureSubscription: $(azureSubscription)
       #     KeyVaultName: $(KeyVaultName)
       #     SecretsFilter: $(SecretsFilter)
-
-      - bash: |
-          if [[ "$(ts-ref)" == "refs/heads/main" ]]; then
-            if [[ "$(Build.Reason)" == "ResourceTrigger" ]]; then
-              WHY="main"
-            else
-              WHY="main-manual"
-            fi
-          elif [[ "$(ts-ref)" =~ refs/pull/([0-9]+)/merge ]]; then
-            WHY="pr.${BASH_REMATCH[1]}"
-          else
-            WHY="unknown"
-          fi
-          echo ${WHY}
-          echo ${WHY}.$(Date:yyyyMMdd).$(Rev:r)
 
       - bash: git config --global core.longpaths true
         displayName: Enable git long paths
