@@ -44,14 +44,14 @@ variables:
 
   ts-ref: $[ resources.repositories['TypeScript'].ref ]
 
-  ${{ if and(eq(resources.repositories['TypeScript'].ref, 'refs/pull/main'), eq(variables['Build.Reason'], 'ResourceTrigger')) }}:
+  ${{ if and(eq(variables['ts-ref'], 'refs/pull/main'), eq(variables['Build.Reason'], 'ResourceTrigger')) }}:
     why: main
-  ${{ elseif and(eq(resources.repositories['TypeScript'].ref, 'refs/pull/main'), eq(variables['Build.Reason'], 'Manual')) }}:
+  ${{ elseif and(eq(variables['ts-ref'], 'refs/pull/main'), eq(variables['Build.Reason'], 'Manual')) }}:
     why: main-manual
   # There's no way to trigger the pipeline this way from the UI, only via the
   # pipeline run API by giving it { "resources": { "repositories": { "TypeScript": { "refName": "refs/pull/<number>/merge" } } } }
-  ${{ elseif and(startsWith(resources.repositories['TypeScript'].ref, 'refs/pull/'), endsWith(resources.repositories['TypeScript'].ref, '/merge')) }}:
-    why: ${{ format('pr.{0}', split(resources.repositories['TypeScript'].ref, '/')[2]) }}
+  ${{ elseif and(startsWith(variables['ts-ref'], 'refs/pull/'), endsWith(variables['ts-ref'], '/merge')) }}:
+    why: ${{ format('pr.{0}', split(variables['ts-ref'], '/')[2]) }}
   ${{ else }}:
     why: unknown # TODO: fail?
 
