@@ -3,11 +3,7 @@ trigger: none
 
 resources:
   repositories:
-    - repository: ts-baseline
-      type: github
-      endpoint: Microsoft
-      name: microsoft/TypeScript
-    - repository: ts-other
+    - repository: TypeScript
       type: github
       endpoint: Microsoft
       name: microsoft/TypeScript
@@ -21,23 +17,6 @@ resources:
           include:
             - main
 
-variables:
-  # This is just the version of node used to build TypeScript, run ts-perf, etc.
-  # The actual benchmarked node version is controlled by ts-perf.
-  nodeVersion: '16.x'
-
-  # https://learn.microsoft.com/en-us/azure/devops/pipelines/process/resources?view=azure-devops&tabs=example#variables-1
-  ts-baseline-ref: $[ resources.repositories['ts-baseline'].ref ]
-  ts-baseline-name: $[ resources.repositories['ts-baseline'].name ]
-  ts-baseline-id: $[ resources.repositories['ts-baseline'].id ]
-  ts-baseline-type: $[ resources.repositories['ts-baseline'].type ]
-  ts-baseline-url: $[ resources.repositories['ts-baseline'].url ]
-  ts-other-ref: $[ resources.repositories['ts-other'].ref ]
-  ts-other-name: $[ resources.repositories['ts-other'].name ]
-  ts-other-id: $[ resources.repositories['ts-other'].id ]
-  ts-other-type: $[ resources.repositories['ts-other'].type ]
-  ts-other-url: $[ resources.repositories['ts-other'].url ]
-
   # - name: azureSubscription
   #   value: 'TypeScript Internal Services'
   # - name: KeyVaultName
@@ -46,7 +25,7 @@ variables:
   #   value: 'tslab1-mseng-PAT, tsperf-azure-storage-connection-string'
 
 parameters:
-  # TODO: Accept objects instead?
+  # TODO: Accept objects instead? Or, split on comma?
   - name: TSPERF_HOSTS
     type: string
     default: '--host node@18.10.0 --host node@16.17.1 --host node@14.21.3'
@@ -57,6 +36,56 @@ parameters:
   - name: TSPERF_SCENARIOS
     type: string
     default: '--scenario Angular --scenario Monaco --scenario TFS --scenario material-ui --scenario Compiler-Unions --scenario xstate'
+
+variables:
+  # This is just the version of node used to build TypeScript, run ts-perf, etc.
+  # The actual benchmarked node version is controlled by ts-perf.
+  nodeVersion: '16.x'
+
+  ts-ref: $[ resources.repositories['ts'].ref ]
+
+  ${{ if eq(variables['ts-ref'], 'refs/pull/main') }}:
+    ${{ if eq(variables['Build.Reason'], 'ResourceTrigger') }}:
+      why: main
+    ${{ else }}:
+      why: main-manual
+  # There's no way to trigger the pipeline this way from the UI, only via the
+  # pipeline run API by giving it { "resources": { "repositories": { "TypeScript": { "refName": "refs/pull/<number>/merge" } } } }
+  ${{ elseif and(startsWith(variables['ts-ref'], 'refs/pull/'), endsWith(variables['ts-ref'], '/merge')) }}:
+    why: pr.${{ split(variables['ts-ref'], '/')[2] }}
+  ${{ else }}:
+    why: unknown # TODO: fail?
+
+# TODO: Generally, this pipeline should work like this:
+#
+# If the ref is "refs/heads/main", then we are processing a new commit to main,
+# and should only run it once on a specific host, and upload to the blob store.
+#
+# If it's "refs/pull/<number>/merge", then we are processing a PR. HEAD will
+# be the merge commit of the PR into main, where HEAD^1 will be the version
+# of main that should be compared. We should run both for each benchmark.
+#
+# There's some ambiguity here in that we may want to manually rerun old commits
+# from main. Pipelines also doesn't statically provide us with the "commit"
+# parameter from a manual UI run, leaving us with only the ref, which may still
+# say main even if the commit is old. TODO: work out these details
+#
+# To actually run the benchmark, we'll:
+# - Configuration job
+#   - Run on public agents; no need to use our pool for that.
+#   - Clone the benchmark repo.
+#   - Generate the build configuration from the parameters, the benchmark repo,
+#     and info like the current time, commit refs/
+#   - Generate a matrix of builds for each host/benchmark.
+# - For each over the matrix
+#   - In each build, clone everything, build everything, run benchmark.
+#     - Run benchmark twice if PR, comment (or whatever new infra we need)
+#     - Run benchmark once on designated baseline machine if main, upload blob.
+
+name: $(why).$(Date:yyyyMMdd).$(Rev:r)
+# Hide the commit message from the run name; it'll just always say that the
+# build came from the benchmarking repo's commit.
+appendCommitMessageToRunName: false
 
 jobs:
   - job: Benchmark
@@ -78,32 +107,29 @@ jobs:
       #     KeyVaultName: $(KeyVaultName)
       #     SecretsFilter: $(SecretsFilter)
 
-      - bash: |
-          echo Build.Reason=$(Build.Reason)
-          echo ts-baseline-ref=$(ts-baseline-ref)
-          echo ts-baseline-name=$(ts-baseline-name)
-          echo ts-baseline-id=$(ts-baseline-id)
-          echo ts-baseline-type=$(ts-baseline-type)
-          echo ts-baseline-url=$(ts-baseline-url)
-          echo ts-other-ref=$(ts-other-ref)
-          echo ts-other-name=$(ts-other-name)
-          echo ts-other-id=$(ts-other-id)
-          echo ts-other-type=$(ts-other-type)
-          echo ts-other-url=$(ts-other-url)
-
       - bash: git config --global core.longpaths true
         displayName: Enable git long paths
 
       # These paths are relative to $(Pipeline.Workspace), which is the parent
       # directory of $(Build.SourcesDirectory), the default working directory.
+      # TODO: pull these paths out as variables for reuse
       - checkout: self
         path: typescript-benchmarking
         fetchDepth: 1
         clean: true
-      - checkout: ts-baseline
-        path: ts-baseline
-        fetchDepth: 1
+      - checkout: TypeScript
+        path: TypeScript
+        fetchDepth: 2 # For PRs, we want the merge base to compare against. (TODO: only do this on PRs?)
         clean: true
+
+      - bash: |
+          cd $(Pipeline.Workspace)/TypeScript
+          echo HEAD
+          git log -1 HEAD
+          echo HEAD^1
+          git log -1 HEAD^1
+          echo HEAD^2
+          git log -1 HEAD^2
 
       - task: NodeTool@0
         inputs:
@@ -111,8 +137,8 @@ jobs:
         displayName: 'Install Node $(nodeVersion)'
 
       # The existence of this AzDo project/repository is not secret.
-      # TODO: figure out the delete this is needed; how does the regular checkout step do a clean shallow clone?
-      # Maybe this should instead use a service connection? (But, this is temporary anyway.)
+      # TODO: figure out why the delete is needed; how does the regular checkout step do a clean shallow clone?
+      # Maybe this should instead use a service connection + checkout? (But, this is temporary anyway.)
       - bash: |
           rm -rf internal
           git clone --depth=1 https://mseng:${PAT}@mseng.visualstudio.com/Typescript/_git/Typescript internal
@@ -135,14 +161,14 @@ jobs:
         displayName: Install hosts
 
       - bash: |
-          cd $(Agent.BuildDirectory)/ts-baseline
+          cd $(Pipeline.Workspace)/TypeScript
           npm ci
           npm run build:compiler
         displayName: Build typescript
 
       - bash: |
           # local variables
-          CHECKOUT=$(Agent.BuildDirectory)/ts-baseline
+          CHECKOUT=$(Pipeline.Workspace)/TypeScript
           COMMIT=$( git -C ${CHECKOUT} rev-parse HEAD )
           COMMIT_SHORT=$( git -C ${CHECKOUT} rev-parse --short HEAD )
           DATE=$( git -C ${CHECKOUT} log -1 --format=%cI )
@@ -161,3 +187,5 @@ jobs:
             --repositoryDate ${DATE} \
             ${{ parameters.TSPERF_HOSTS }}
         displayName: Run tsc benchmarks
+
+      # TODO: other benchmark kinds
