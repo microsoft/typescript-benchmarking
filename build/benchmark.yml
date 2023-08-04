@@ -145,8 +145,8 @@ jobs:
       # TODO: is yarn installed?
       - bash: |
           cd internal/scripts/perf
-          yarn install --frozen-lockfile --prefer-offline
-          yarn gulp build
+          npx yarn install --frozen-lockfile --prefer-offline
+          npx yarn gulp build
         displayName: Build ts-perf
 
       # This is provided by the agent.
