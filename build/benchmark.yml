@@ -98,7 +98,7 @@ jobs:
       matrix:
         ${{ each host in split(parameters.TSPERF_HOSTS, ', ') }}:
           ${{ each scenario in split(parameters.TSPERF_SCENARIOS, ', ') }}:
-            ${{ format('{0}-{1}', host, scenario) }}:
+            ${{ format('{0}_{1}', host, scenario) }}:
               host: ${{ host }}
               scenario: ${{ scenario }}
 
@@ -145,7 +145,6 @@ jobs:
           PAT: $(tslab1-mseng-PAT)
         displayName: Clone internal repo
 
-      # TODO: is yarn installed?
       - bash: |
           cd internal/scripts/perf
           npx yarn install --frozen-lockfile --prefer-offline
@@ -170,9 +169,10 @@ jobs:
           CHECKOUT=$(Pipeline.Workspace)/TypeScript
           COMMIT=$( git -C ${CHECKOUT} rev-parse HEAD )
           COMMIT_SHORT=$( git -C ${CHECKOUT} rev-parse --short HEAD )
-          # TODO: use the same date in all parts of the matrix
           DATE=$( git -C ${CHECKOUT} log -1 --format=%cI )
           TIMESTAMP_DIR=$( date -d ${DATE} -u +%Y/%m/%d )
+
+          mkdir artifacts
 
           node internal/scripts/perf/bin/ts-perf benchmark tsc \
             --cpus ${TSPERF_AGENT_BENCHMARK_CPU} \
@@ -183,9 +183,14 @@ jobs:
             --date ${DATE} \
             --repositoryType git \
             --repositoryUrl ${REPOSITORY_URI} \
-            --repositoryBranch ${BRANCH} \
+            --repositoryBranch $(ts-ref) \
             --repositoryCommit ${COMMIT} \
-            --repositoryDate ${DATE}
+            --repositoryDate ${DATE} \
+            --save artifacts/$(host)_$(scenario).benchmark
         displayName: Run tsc benchmarks
+
+      - publish: artifacts
+        artifact: Benchmarks
+        displayName: Publish benchmarks
 
       # TODO: other benchmark kinds
