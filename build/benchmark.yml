@@ -44,6 +44,18 @@ variables:
 
   ts-ref: $[ resources.repositories['TypeScript'].ref ]
 
+  $[ if eq(variables['ts-ref'], 'refs/pull/main') ]:
+    $[ if eq(variables['Build.Reason'], 'ResourceTrigger') ]:
+      why: main
+    $[ else ]:
+      why: main-manual
+  # There's no way to trigger the pipeline this way from the UI, only via the
+  # pipeline run API by giving it { "resources": { "repositories": { "TypeScript": { "refName": "refs/pull/<number>/merge" } } } }
+  $[ elseif and(startsWith(variables['ts-ref'], 'refs/pull/'), endsWith(variables['ts-ref'], '/merge')) ]:
+    why: $[ coalesce('pr.', split(variables['ts-ref'], '/')[2]) ]
+  $[ else ]:
+    why: unknown # TODO: fail?
+
 # TODO: Generally, this pipeline should work like this:
 #
 # If the ref is "refs/heads/main", then we are processing a new commit to main,
@@ -73,7 +85,7 @@ variables:
 #     - Run benchmark twice if PR, comment (or whatever new infra we need)
 #     - Run benchmark once on designated baseline machine if main, upload blob.
 
-name: $(ts-ref).$(Date:yyyyMMdd).$(Rev:r)
+name: $(why).$(Date:yyyyMMdd).$(Rev:r)
 # Hide the commit message from the run name; it'll just always say that the
 # build came from the benchmarking repo's commit.
 appendCommitMessageToRunName: false
