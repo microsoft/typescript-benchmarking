@@ -87,8 +87,8 @@ jobs:
     pool:
       name: ts-perf-ddfun
     # TODO: does this hurt perf?
-    workspace:
-      clean: all
+    # workspace:
+    #   clean: all
 
     # https://github.com/microsoft/azure-pipelines-yaml/issues/20#issuecomment-491349961
     strategy:
