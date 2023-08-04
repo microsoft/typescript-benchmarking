@@ -28,7 +28,8 @@ parameters:
   # TODO: Accept objects instead? Or, split on comma?
   - name: TSPERF_HOSTS
     type: string
-    default: '--host node@18.10.0 --host node@16.17.1 --host node@14.21.3'
+    # default: '--host node@18.10.0 --host node@16.17.1 --host node@14.21.3'
+    default: 'node@18.10.0, node@16.17.1, node@14.21.3'
   - name: TSPERF_ITERATIONS
     type: number
     default: 10
@@ -36,14 +37,17 @@ parameters:
   - name: TSPERF_SCENARIOS
     type: string
     default: '--scenario Angular --scenario Monaco --scenario TFS --scenario material-ui --scenario Compiler-Unions --scenario xstate'
+    # default: '--scenario Angular --scenario Monaco --scenario TFS --scenario material-ui --scenario Compiler-Unions --scenario xstate'
+    default: 'Angular, Monaco, TFS, material-ui, Compiler-Unions, xstate'
 
 variables:
   # This is just the version of node used to build TypeScript, run ts-perf, etc.
   # The actual benchmarked node version is controlled by ts-perf.
   nodeVersion: '16.x'
 
-  ts-ref: $[ resources.repositories['TypeScript'].ref ]
+  ref: $[ resources.repositories['TypeScript'].ref ]
   why: $[ replace(replace(replace(resources.repositories['TypeScript'].ref, '/merge', ''), 'refs/pull/', 'pr.'), 'refs/heads/', '') ]
+  isPR: $[ startsWith(resources.repositories['TypeScript'].ref, 'refs/pull/') ]
 
 # TODO: Generally, this pipeline should work like this:
 #
@@ -79,13 +83,28 @@ name: $(why)-$(Date:yyyyMMdd).$(Rev:r)
 # build came from the benchmarking repo's commit.
 appendCommitMessageToRunName: false
 
+pool:
+  vmImage: 'ubuntu-latest'
+
 jobs:
+  - job: Configure
+    steps:
+
   - job: Benchmark
     pool:
       name: ts-perf-ddfun
     # TODO: does this hurt perf?
     workspace:
       clean: all
+
+    # https://github.com/microsoft/azure-pipelines-yaml/issues/20#issuecomment-491349961
+    strategy:
+      matrix:
+        ${{ each host in split(parameters.TSPERF_HOSTS, ', ') }}:
+          ${{ each scenario in split(parameters.TSPERF_SCENARIOS, ', ') }}:
+            ${{ format('{0}-{1}', host, scenario) }}:
+              host: ${{ host }}
+              scenario: ${{ scenario }}
 
     # TODO: matrix over parameterized tests
 
@@ -114,15 +133,6 @@ jobs:
         fetchDepth: 2 # For PRs, we want the merge base to compare against. (TODO: only do this on PRs?)
         clean: true
 
-      - bash: |
-          cd $(Pipeline.Workspace)/TypeScript
-          echo HEAD
-          git log -1 HEAD
-          echo HEAD^1
-          git log -1 HEAD^1
-          echo HEAD^2
-          git log -1 HEAD^2
-
       - task: NodeTool@0
         inputs:
           versionSpec: $(nodeVersion)
@@ -131,6 +141,7 @@ jobs:
       # The existence of this AzDo project/repository is not secret.
       # TODO: figure out why the delete is needed; how does the regular checkout step do a clean shallow clone?
       # Maybe this should instead use a service connection + checkout? (But, this is temporary anyway.)
+      # TODO: also, this sometimes fails to clone; add a retry?
       - bash: |
           rm -rf internal
           git clone --depth=1 https://mseng:${PAT}@mseng.visualstudio.com/Typescript/_git/Typescript internal
@@ -163,6 +174,7 @@ jobs:
           CHECKOUT=$(Pipeline.Workspace)/TypeScript
           COMMIT=$( git -C ${CHECKOUT} rev-parse HEAD )
           COMMIT_SHORT=$( git -C ${CHECKOUT} rev-parse --short HEAD )
+          # TODO: use the same date in all parts of the matrix
           DATE=$( git -C ${CHECKOUT} log -1 --format=%cI )
           TIMESTAMP_DIR=$( date -d ${DATE} -u +%Y/%m/%d )
 
@@ -170,14 +182,14 @@ jobs:
             --cpus ${TSPERF_AGENT_BENCHMARK_CPU} \
             --iterations ${{ parameters.TSPERF_ITERATIONS }} \
             --tsc ${CHECKOUT}/built/local/tsc.js \
-            ${{ parameters.TSPERF_SCENARIOS }} \
+            --host $(host) \
+            --scenario $(scenario) \
             --date ${DATE} \
             --repositoryType git \
             --repositoryUrl ${REPOSITORY_URI} \
             --repositoryBranch ${BRANCH} \
             --repositoryCommit ${COMMIT} \
-            --repositoryDate ${DATE} \
-            ${{ parameters.TSPERF_HOSTS }}
+            --repositoryDate ${DATE}
         displayName: Run tsc benchmarks
 
       # TODO: other benchmark kinds
