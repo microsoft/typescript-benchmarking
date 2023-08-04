@@ -83,13 +83,7 @@ name: $(why)-$(Date:yyyyMMdd).$(Rev:r)
 # build came from the benchmarking repo's commit.
 appendCommitMessageToRunName: false
 
-pool:
-  vmImage: 'ubuntu-latest'
-
 jobs:
-  - job: Configure
-    steps:
-
   - job: Benchmark
     pool:
       name: ts-perf-ddfun
