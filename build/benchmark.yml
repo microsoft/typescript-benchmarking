@@ -42,7 +42,7 @@ variables:
   # The actual benchmarked node version is controlled by ts-perf.
   nodeVersion: '16.x'
 
-  ts-ref: $[ resources.repositories['ts'].ref ]
+  ts-ref: $[ resources.repositories['TypeScript'].ref ]
 
   ${{ if eq(variables['ts-ref'], 'refs/pull/main') }}:
     ${{ if eq(variables['Build.Reason'], 'ResourceTrigger') }}:
