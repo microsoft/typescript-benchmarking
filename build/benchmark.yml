@@ -40,6 +40,9 @@ parameters:
     default: 'Angular, Monaco, TFS, material-ui, Compiler-Unions, xstate'
 
 variables:
+  Codeql.Enabled: false
+  skipComponentGovernanceDetection: true
+
   # This is just the version of node used to build TypeScript, run ts-perf, etc.
   # The actual benchmarked node version is controlled by ts-perf.
   nodeVersion: '16.x'
