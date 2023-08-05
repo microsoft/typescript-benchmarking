@@ -196,7 +196,7 @@ jobs:
 
       # TODO: other benchmark kinds
 
-  - job: Process results
+  - job: ProcessResults
     dependsOn: Benchmark
     pool:
       vmImage: ubuntu-latest
