@@ -190,7 +190,7 @@ jobs:
         displayName: Run tsc benchmarks
 
       - publish: artifacts
-        artifact: Benchmarks
+        artifact: Benchmark_$(host)_$(scenario)
         displayName: Publish benchmarks
 
       # TODO: other benchmark kinds
