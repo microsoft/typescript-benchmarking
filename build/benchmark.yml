@@ -172,6 +172,7 @@ jobs:
           DATE=$( git -C ${CHECKOUT} log -1 --format=%cI )
           TIMESTAMP_DIR=$( date -d ${DATE} -u +%Y/%m/%d )
 
+          rm -rf artifacts
           mkdir artifacts
 
           node internal/scripts/perf/bin/ts-perf benchmark tsc \
@@ -194,3 +195,16 @@ jobs:
         displayName: Publish benchmarks
 
       # TODO: other benchmark kinds
+
+  - job: Process results
+    dependsOn: Benchmark
+    pool:
+      vmImage: ubuntu-latest
+
+    steps:
+      - download: current
+        patterns: '**/*.benchmark'
+        displayName: Download benchmarks
+
+      - bash: ls -lh
+        displayName: List artifacts
