@@ -200,12 +200,14 @@ jobs:
     dependsOn: Benchmark
     pool:
       vmImage: ubuntu-latest
+    workspace:
+      clean: all
 
     steps:
-      - checkout: none # TODO: temporary; remove
+      - checkout: none # TODO: temporary; will likely need to clone something to process results
 
       - download: current
         displayName: Download benchmarks
 
-      - bash: ls -lh
+      - bash: ls -lhR $(Pipeline.Workspace)
         displayName: List artifacts
