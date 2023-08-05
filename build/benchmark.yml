@@ -202,8 +202,9 @@ jobs:
       vmImage: ubuntu-latest
 
     steps:
+      - checkout: none # TODO: temporary; remove
+
       - download: current
-        patterns: '**/*.benchmark'
         displayName: Download benchmarks
 
       - bash: ls -lh
