@@ -184,7 +184,7 @@ jobs:
             --date ${DATE} \
             --repositoryType git \
             --repositoryUrl ${REPOSITORY_URI} \
-            --repositoryBranch $(ts-ref) \
+            --repositoryBranch $(ref) \
             --repositoryCommit ${COMMIT} \
             --repositoryDate ${DATE} \
             --save artifacts/$(host)_$(scenario).benchmark
