@@ -88,7 +88,59 @@ name: $(why)-$(Date:yyyyMMdd).$(Rev:r)
 appendCommitMessageToRunName: false
 
 jobs:
+  - job: Setup
+    pool:
+      vmImage: ubuntu-latest
+
+    steps:
+      - checkout: TypeScript
+        path: TypeScript
+        fetchDepth: 2 # For PRs, we want the merge base to compare against. (TODO: only do this on PRs?)
+        clean: true
+
+      - bash: |
+          mkdir artifacts
+          CHECKOUT=$(Pipeline.Workspace)/TypeScript
+
+          build_typescript() {
+            NAME=$1
+            OUTPUT=$2
+
+            pushd ${CHECKOUT}
+
+            COMMIT=$( git -C ${CHECKOUT} rev-parse HEAD )
+            COMMIT_SHORT=$( git -C ${CHECKOUT} rev-parse --short HEAD )
+            DATE=$( git -C ${CHECKOUT} log -1 --format=%cI )
+            TIMESTAMP_DIR=$( date -d ${DATE} -u +%Y/%m/%d )
+
+            echo "##vso[task.setvariable variable=${NAME}_COMMIT;isOutput=true]${COMMIT}"
+            echo "##vso[task.setvariable variable=${NAME}_COMMIT_SHORT;isOutput=true]${COMMIT_SHORT}"
+            echo "##vso[task.setvariable variable=${NAME}_DATE;isOutput=true]${DATE}"
+            echo "##vso[task.setvariable variable=${NAME}_TIMESTAMP_DIR;isOutput=true]${TIMESTAMP_DIR}"
+
+            npm ci
+            npm run clean
+            npm run build:compiler
+            mv built/local ${OUTPUT}
+
+            popd
+          }
+
+          if [[ $(ref) == refs/pull/* ]]; then
+            build_typescript PR $(Build.SourcesDirectory)/artifacts/built-pr
+            git -C ${CHECKOUT} switch --detach HEAD^1
+          fi
+          build_typescript MAIN $(Build.SourcesDirectory)/artifacts/built-main
+
+      # TODO: should this be a build cache so that it's not preserved?
+      - publish: artifacts
+        artifact: BuiltTypeScript
+        displayName: Publish built TypeScript
+
+      # TODO: build dynamic matrix from parameters/variables
+
   - job: Benchmark
+    dependsOn: Setup
     pool:
       name: ts-perf-ddfun
     # TODO: does this hurt perf?
@@ -104,7 +156,15 @@ jobs:
               host: ${{ host }}
               scenario: ${{ scenario }}
 
-    # TODO: matrix over parameterized tests
+    variables:
+      MAIN_COMMIT: $[ dependencies.Setup.outputs['passOutput.MAIN_COMMIT'] ]
+      MAIN_COMMIT_SHORT: $[ dependencies.Setup.outputs['passOutput.MAIN_COMMIT_SHORT'] ]
+      MAIN_DATE: $[ dependencies.Setup.outputs['passOutput.MAIN_DATE'] ]
+      MAIN_TIMESTAMP_DIR: $[ dependencies.Setup.outputs['passOutput.MAIN_TIMESTAMP_DIR'] ]
+      PR_COMMIT: $[ dependencies.Setup.outputs['passOutput.PR_COMMIT'] ]
+      PR_COMMIT_SHORT: $[ dependencies.Setup.outputs['passOutput.PR_COMMIT_SHORT'] ]
+      PR_DATE: $[ dependencies.Setup.outputs['passOutput.PR_DATE'] ]
+      PR_TIMESTAMP_DIR: $[ dependencies.Setup.outputs['passOutput.PR_TIMESTAMP_DIR'] ]
 
     steps:
       # TODO: figure out what perms are missing here
@@ -126,10 +186,10 @@ jobs:
         path: typescript-benchmarking
         fetchDepth: 1
         clean: true
-      - checkout: TypeScript
-        path: TypeScript
-        fetchDepth: 2 # For PRs, we want the merge base to compare against. (TODO: only do this on PRs?)
-        clean: true
+
+      - publish: artifacts
+        artifact: BuiltTypeScript
+        displayName: Download built TypeScript
 
       - task: NodeTool@0
         inputs:
@@ -169,40 +229,38 @@ jobs:
       - bash: |
           rm -rf artifacts
           mkdir artifacts
-          CHECKOUT=$(Pipeline.Workspace)/TypeScript
 
           run_benchmark () {
-            COMMIT=$( git -C ${CHECKOUT} rev-parse HEAD )
-            COMMIT_SHORT=$( git -C ${CHECKOUT} rev-parse --short HEAD )
-            DATE=$( git -C ${CHECKOUT} log -1 --format=%cI )
-            TIMESTAMP_DIR=$( date -d ${DATE} -u +%Y/%m/%d )
-
             node internal/scripts/perf/bin/ts-perf benchmark tsc \
               --cpus ${TSPERF_AGENT_BENCHMARK_CPU} \
               --iterations ${{ parameters.TSPERF_ITERATIONS }} \
-              --tsc ${CHECKOUT}/built/local/tsc.js \
               --host $(host) \
               --scenario $(scenario) \
-              --date ${DATE} \
-              --repositoryType git \
-              --repositoryUrl ${REPOSITORY_URI} \
-              --repositoryBranch $(ref) \
-              --repositoryCommit ${COMMIT} \
-              --repositoryDate ${DATE} \
               "$@"
           }
 
           if [[ $(ref) == refs/pull/* ]]; then
             echo Running PR benchmark
-            run_benchmark --save artifacts/pr_$(host)_$(scenario).benchmark
-            git -C ${CHECKOUT} switch --detach HEAD^1
+            run_benchmark \
+              --tsc $(Pipeline.Workspace)/built-pr/tsc.js \
+              --save artifacts/pr_$(host)_$(scenario).benchmark \
+              --date $(PR_DATE) \
+              --repositoryType git \
+              --repositoryUrl ${REPOSITORY_URI} \
+              --repositoryBranch $(ref) \
+              --repositoryCommit $(PR_COMMIT) \
+              --repositoryDate $(PR_DATE)
             echo Running baseline benchmark
-            run_benchmark --save artifacts/main_$(host)_$(scenario).benchmark
-          else
-            # TODO: publish blob
-            # TODO: only trigger on ResourceTrigger or explicit parameter true
-            run_benchmark --save artifacts/$(host)_$(scenario).benchmark
           fi
+          run_benchmark \
+            --tsc $(Pipeline.Workspace)/built-main/tsc.js \
+            --save artifacts/main_$(host)_$(scenario).benchmark \
+            --date $(MAIN_DATE) \
+            --repositoryType git \
+            --repositoryUrl ${REPOSITORY_URI} \
+            --repositoryBranch $(ref) \
+            --repositoryCommit $(MAIN_COMMIT) \
+            --repositoryDate $(MAIN_DATE)
         displayName: Run tsc benchmarks
 
       - publish: artifacts
@@ -244,8 +302,9 @@ jobs:
 
       - bash: |
           shopt -s globstar
+          mkdir output
+
           if [[ $(ref) == refs/pull/* ]]; then
-            mkdir output
             node internal/scripts/perf/bin/ts-perf merge --output output/pr.benchmark artifacts/pr_*.benchmark
             node internal/scripts/perf/bin/ts-perf merge --output output/main.benchmark artifacts/main_*.benchmark
 
@@ -262,4 +321,5 @@ jobs:
 
       - publish: artifacts
         artifact: Benchmarks
+        patterns: '**/*.benchmark'
         displayName: Publish benchmarks
