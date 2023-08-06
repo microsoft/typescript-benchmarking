@@ -95,6 +95,7 @@ jobs:
     steps:
       - checkout: TypeScript
         path: TypeScript
+        fetchTags: false
         fetchDepth: 2 # For PRs, we want the merge base to compare against. (TODO: only do this on PRs?)
         clean: true
 
