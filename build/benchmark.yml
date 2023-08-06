@@ -317,7 +317,7 @@ jobs:
               --baseline output/main.tsc.benchmark \
               --load output/pr.tsc.benchmark
           else
-            node internal/scripts/perf/bin/ts-perf merge --output output/main.benchmark artifacts/*.tsc.benchmark
+            node internal/scripts/perf/bin/ts-perf merge --output output/main.tsc.benchmark artifacts/*.tsc.benchmark
             # TODO: publish blob, only on ResourceTrigger or explicit parameter true
             node internal/scripts/perf/bin/ts-perf benchmark tsc \
               --tsc $(Pipeline.Workspace)/BuiltTypeScript/main/tsc.js \
