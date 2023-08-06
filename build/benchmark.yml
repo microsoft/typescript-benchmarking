@@ -145,8 +145,8 @@ jobs:
     pool:
       name: ts-perf-ddfun
     # TODO: does this hurt perf?
-    # workspace:
-    #   clean: all
+    workspace:
+      clean: all
 
     # https://github.com/microsoft/azure-pipelines-yaml/issues/20#issuecomment-491349961
     strategy:
@@ -185,6 +185,7 @@ jobs:
       # TODO: pull these paths out as variables for reuse
       - checkout: self
         path: typescript-benchmarking
+        fetchTags: false
         fetchDepth: 1
         clean: true
 
@@ -283,6 +284,11 @@ jobs:
           mv $(Pipeline.Workspace)/**/*.benchmark artifacts
         displayName: Move artifacts
 
+      # TODO: We only need this because ts-perf requires it even for loading existing benchmarks
+      - download: current
+        artifact: BuiltTypeScript
+        displayName: Download built TypeScript
+
       - bash: |
           rm -rf internal
           git clone --depth=1 --branch=gabritto/mergeBenchmark https://mseng:${PAT}@mseng.visualstudio.com/Typescript/_git/Typescript internal
@@ -305,12 +311,14 @@ jobs:
             node internal/scripts/perf/bin/ts-perf merge --output output/main.benchmark artifacts/main_*.benchmark
 
             node internal/scripts/perf/bin/ts-perf benchmark tsc \
+              --tsc $(Pipeline.Workspace)/BuiltTypeScript/main/tsc.js \
               --baseline output/main.benchmark \
               --load output/pr.benchmark
           else
             node internal/scripts/perf/bin/ts-perf merge --output output/main.benchmark artifacts/*.benchmark
             # TODO: publish blob, only on ResourceTrigger or explicit parameter true
             node internal/scripts/perf/bin/ts-perf benchmark tsc \
+              --tsc $(Pipeline.Workspace)/BuiltTypeScript/main/tsc.js \
               --load output/main.benchmark
           fi
         displayName: Merge benchmarks
