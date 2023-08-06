@@ -27,8 +27,11 @@ resources:
 parameters:
   # TODO: allow custom preset
   - name: TSPERF_PRESET
-    type: string
-    default: 'full'
+    displayName: Preset
+    values:
+      - full
+      - fast
+    default: full
 
 variables:
   Codeql.Enabled: false
