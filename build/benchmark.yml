@@ -372,13 +372,16 @@ jobs:
       TSPERF_RUN_STARTUP: $[ dependencies.Setup.outputs['generateMatrix.TSPERF_RUN_STARTUP'] ]
 
     steps:
-      - checkout: none
-
       - download: current
         patterns: '**/*.benchmark'
         displayName: Download benchmarks
 
+      # Azure Pipelines haphazardly drops all artifacts into pipeline workspace with no
+      # way to customize where they're placed. To deal with this, we download the benchmarks
+      # first and move them somewhere else, before doing any other steps that would download
+      # further artifacts.
       - bash: |
+          shopt -s globstar # TODO: this wasn't here before but it seemed to have worked
           mkdir artifacts
           mv $(Pipeline.Workspace)/**/*.benchmark artifacts
         displayName: Move artifacts
@@ -399,10 +402,12 @@ jobs:
           npx yarn gulp build
         displayName: Build ts-perf
 
+      - bash: mkdir output
+        displayName: Create output directory
+
       # TODO: these steps are needlessly repetitive; clean up
       - bash: |
           shopt -s globstar
-          mkdir -p output
 
           if [[ $(REF) == refs/pull/* ]]; then
             node internal/scripts/perf/bin/ts-perf merge --output output/pr.tsc.benchmark artifacts/pr_*.tsc.benchmark
@@ -412,6 +417,16 @@ jobs:
               --tsc $(Pipeline.Workspace)/BuiltTypeScript/main/tsc.js \
               --baseline output/main.tsc.benchmark \
               --load output/pr.tsc.benchmark
+
+            echo "<h2>Compiler</h2>" >> comment.html
+            node internal/scripts/perf/bin/ts-perf benchmark tsc \
+              --tsc $(Pipeline.Workspace)/BuiltTypeScript/main/tsc.js \
+              --baseline output/main.tsc.benchmark \
+              --load output/pr.tsc.benchmark \
+              --baselineName main \
+              --benchmarkName pr \
+              --format html-fragment \
+              --quiet >> comment.html
           else
             node internal/scripts/perf/bin/ts-perf merge --output output/main.tsc.benchmark artifacts/*.tsc.benchmark
             # TODO: publish blob, only on ResourceTrigger or explicit parameter true
@@ -424,7 +439,6 @@ jobs:
 
       - bash: |
           shopt -s globstar
-          mkdir -p output
 
           if [[ $(REF) == refs/pull/* ]]; then
             node internal/scripts/perf/bin/ts-perf merge --output output/pr.tsserver.benchmark artifacts/pr_*.tsserver.benchmark
@@ -434,6 +448,16 @@ jobs:
               --tsserver $(Pipeline.Workspace)/BuiltTypeScript/main/tsserver.js \
               --baseline output/main.tsserver.benchmark \
               --load output/pr.tsserver.benchmark
+
+            echo "<h2>TSServer</h2>" >> comment.html
+            node internal/scripts/perf/bin/ts-perf benchmark tsserver \
+              --tsserver $(Pipeline.Workspace)/BuiltTypeScript/main/tsserver.js \
+              --baseline output/main.tsserver.benchmark \
+              --load output/pr.tsserver.benchmark
+              --baselineName main \
+              --benchmarkName pr \
+              --format html-fragment \
+              --quiet >> comment.html
           else
             node internal/scripts/perf/bin/ts-perf merge --output output/main.tsserver.benchmark artifacts/*.tsserver.benchmark
             # TODO: publish blob, only on ResourceTrigger or explicit parameter true
@@ -446,7 +470,6 @@ jobs:
 
       - bash: |
           shopt -s globstar
-          mkdir -p output
 
           if [[ $(REF) == refs/pull/* ]]; then
             node internal/scripts/perf/bin/ts-perf merge --output output/pr.startup.benchmark artifacts/pr_*.startup.benchmark
@@ -456,6 +479,16 @@ jobs:
               --builtDir $(Pipeline.Workspace)/BuiltTypeScript/main \
               --baseline output/main.tsserver.benchmark \
               --load output/pr.tsserver.benchmark
+
+            echo "<h2>Startup</h2>" >> comment.html
+            node internal/scripts/perf/bin/ts-perf benchmark startup \
+              --builtDir $(Pipeline.Workspace)/BuiltTypeScript/main \
+              --baseline output/main.tsserver.benchmark \
+              --load output/pr.tsserver.benchmark
+              --baselineName main \
+              --benchmarkName pr \
+              --format html-fragment \
+              --quiet >> comment.html
           else
             node internal/scripts/perf/bin/ts-perf merge --output output/main.startup.benchmark artifacts/*.startup.benchmark
             node internal/scripts/perf/bin/ts-perf benchmark startup \
@@ -465,16 +498,25 @@ jobs:
         displayName: Merge startup benchmarks
         condition: and(succeeded(), eq(variables['TSPERF_RUN_STARTUP'], true))
 
+      # - checkout: self
+      #   path: typescript-benchmarking
+      #   fetchTags: false
+      #   fetchDepth: 1
+      #   clean: true
+
       - bash: |
-          echo TODO
+          cat comment.html
         displayName: Publish PR comment
         condition: and(succeeded(), eq(variables['IS_PR'], true))
 
       - bash: |
-          echo TODO
+          ls -lh output
+          # TODO: actually upload
         displayName: Upload benchmarks to blob store
         condition: and(succeeded(), eq(variables['SHOULD_UPLOAD'], true))
 
       - publish: output
         artifact: Benchmarks
         displayName: Publish benchmarks
+
+      # TODO: some sort of on-failure run which replies to PRs

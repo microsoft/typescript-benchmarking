@@ -4,8 +4,12 @@
     "private": true,
     "author": "Microsoft Corp.",
     "license": "MIT",
+    "packageManager": "npm@8.19.4",
     "devDependencies": {
+        "@octokit/rest": "^19.0.13",
         "@types/node": "^20.4.8",
-        "dprint": "^0.39.1"
+        "azure-devops-node-api": "^12.1.0",
+        "dprint": "^0.39.1",
+        "node-fetch": "^3.3.2"
     }
 }
