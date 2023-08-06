@@ -221,12 +221,6 @@ jobs:
         displayName: Install hosts
 
       - bash: |
-          cd $(Pipeline.Workspace)/TypeScript
-          npm ci
-          npm run build:compiler
-        displayName: Build typescript
-
-      - bash: |
           rm -rf artifacts
           mkdir artifacts
 
