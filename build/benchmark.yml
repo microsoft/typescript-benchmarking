@@ -161,7 +161,7 @@ jobs:
 
     # https://stackoverflow.com/a/69345058
     strategy:
-      matrix: $[ dependencies.Setup.outputs['generateMatrix.matrix'] ]
+      matrix: $[ dependencies.Setup.outputs['generateMatrix.MATRIX'] ]
 
     variables:
       MAIN_COMMIT: $[ dependencies.Setup.outputs['buildTypeScript.MAIN_COMMIT'] ]
@@ -226,8 +226,9 @@ jobs:
       - bash: node internal/scripts/perf/bin/ts-perf host install --host $(TSPERF_HOST)
         displayName: Install hosts
 
+      # TODO: these steps are needlessly repetitive; clean up
       - bash: |
-          mkdir artifacts
+          mkdir -p artifacts
 
           run_benchmark () {
             node internal/scripts/perf/bin/ts-perf benchmark tsc \
@@ -260,14 +261,86 @@ jobs:
             --repositoryBranch $(REF) \
             --repositoryCommit $(MAIN_COMMIT) \
             --repositoryDate $(MAIN_DATE)
-        displayName: Run tsc benchmarks
+        displayName: Run tsc benchmark
         condition: and(succeeded(), eq(variables['TSPERF_KIND'], 'tsc'))
+
+        - bash: |
+          mkdir -p artifacts
+
+          run_benchmark () {
+            node internal/scripts/perf/bin/ts-perf benchmark tsserver \
+              --cpus ${TSPERF_AGENT_BENCHMARK_CPU} \
+              --iterations $(TSPERF_ITERATIONS) \
+              --host $(TSPERF_HOST) \
+              --scenario $(TSPERF_SCENARIO) \
+              "$@"
+          }
+
+          if [[ $(REF) == refs/pull/* ]]; then
+            echo Running PR benchmark
+            run_benchmark \
+              --tsserver $(Pipeline.Workspace)/BuiltTypeScript/pr/tsserver.js \
+              --save artifacts/pr_$(TSPERF_HOST)_$(TSPERF_SCENARIO).tsserver.benchmark \
+              --date $(PR_DATE) \
+              --repositoryType git \
+              --repositoryUrl ${REPOSITORY_URI} \
+              --repositoryBranch $(REF) \
+              --repositoryCommit $(PR_COMMIT) \
+              --repositoryDate $(PR_DATE)
+            echo Running baseline benchmark
+          fi
+          run_benchmark \
+            --tsserver $(Pipeline.Workspace)/BuiltTypeScript/main/tsserver.js \
+            --save artifacts/main_$(TSPERF_HOST)_$(TSPERF_SCENARIO).tsserver.benchmark \
+            --date $(MAIN_DATE) \
+            --repositoryType git \
+            --repositoryUrl ${REPOSITORY_URI} \
+            --repositoryBranch $(REF) \
+            --repositoryCommit $(MAIN_COMMIT) \
+            --repositoryDate $(MAIN_DATE)
+        displayName: Run tsserver benchmark
+        condition: and(succeeded(), eq(variables['TSPERF_KIND'], 'tsserver'))
+
+        - bash: |
+          mkdir -p artifacts
+
+          run_benchmark () {
+            node internal/scripts/perf/bin/ts-perf benchmark startup \
+              --cpus ${TSPERF_AGENT_BENCHMARK_CPU} \
+              --iterations $(TSPERF_ITERATIONS) \
+              --host $(TSPERF_HOST) \
+              --scenario $(TSPERF_SCENARIO) \
+              "$@"
+          }
+
+          if [[ $(REF) == refs/pull/* ]]; then
+            echo Running PR benchmark
+            run_benchmark \
+              --builtDir $(Pipeline.Workspace)/BuiltTypeScript/pr \
+              --save artifacts/pr_$(TSPERF_HOST)_$(TSPERF_SCENARIO).startup.benchmark \
+              --date $(PR_DATE) \
+              --repositoryType git \
+              --repositoryUrl ${REPOSITORY_URI} \
+              --repositoryBranch $(REF) \
+              --repositoryCommit $(PR_COMMIT) \
+              --repositoryDate $(PR_DATE)
+            echo Running baseline benchmark
+          fi
+          run_benchmark \
+            --builtDir $(Pipeline.Workspace)/BuiltTypeScript/main \
+            --save artifacts/main_$(TSPERF_HOST)_$(TSPERF_SCENARIO).startup.benchmark \
+            --date $(MAIN_DATE) \
+            --repositoryType git \
+            --repositoryUrl ${REPOSITORY_URI} \
+            --repositoryBranch $(REF) \
+            --repositoryCommit $(MAIN_COMMIT) \
+            --repositoryDate $(MAIN_DATE)
+        displayName: Run startup benchmark
+        condition: and(succeeded(), eq(variables['TSPERF_KIND'], 'startup'))
 
       - publish: artifacts
         artifact: Benchmark_$(TSPERF_HOST)_$(TSPERF_SCENARIO)
         displayName: Publish benchmarks
-
-      # TODO: other benchmark kinds
 
   - job: ProcessResults
     dependsOn: Benchmark
@@ -275,6 +348,12 @@ jobs:
       vmImage: ubuntu-latest
     workspace:
       clean: all # Always start with a clean slate.
+
+
+    variables:
+      TSPERF_RUN_TSC: $[ dependencies.Setup.outputs['generateMatrix.TSPERF_RUN_TSC'] ]
+      TSPERF_RUN_TSSERVER: $[ dependencies.Setup.outputs['generateMatrix.TSPERF_RUN_TSSERVER'] ]
+      TSPERF_RUN_STARTUP: $[ dependencies.Setup.outputs['generateMatrix.TSPERF_RUN_STARTUP'] ]
 
     steps:
       - checkout: none
@@ -304,9 +383,10 @@ jobs:
           npx yarn gulp build
         displayName: Build ts-perf
 
+      # TODO: these steps are needlessly repetitive; clean up
       - bash: |
           shopt -s globstar
-          mkdir output
+          mkdir -p output
 
           if [[ $(REF) == refs/pull/* ]]; then
             node internal/scripts/perf/bin/ts-perf merge --output output/pr.tsc.benchmark artifacts/pr_*.tsc.benchmark
@@ -323,8 +403,53 @@ jobs:
               --tsc $(Pipeline.Workspace)/BuiltTypeScript/main/tsc.js \
               --load output/main.tsc.benchmark
           fi
-        displayName: Merge benchmarks
+        displayName: Merge tsc benchmarks
+        condition: and(succeeded(), eq(variables['TSPERF_RUN_TSC'], true))
 
-      - publish: artifacts
+      - bash: |
+          shopt -s globstar
+          mkdir -p output
+
+          if [[ $(REF) == refs/pull/* ]]; then
+            node internal/scripts/perf/bin/ts-perf merge --output output/pr.tsserver.benchmark artifacts/pr_*.tsserver.benchmark
+            node internal/scripts/perf/bin/ts-perf merge --output output/main.tsserver.benchmark artifacts/main_*.tsserver.benchmark
+
+            node internal/scripts/perf/bin/ts-perf benchmark tsserver \
+              --tsserver $(Pipeline.Workspace)/BuiltTypeScript/main/tsserver.js \
+              --baseline output/main.tsserver.benchmark \
+              --load output/pr.tsserver.benchmark
+          else
+            node internal/scripts/perf/bin/ts-perf merge --output output/main.tsserver.benchmark artifacts/*.tsserver.benchmark
+            # TODO: publish blob, only on ResourceTrigger or explicit parameter true
+            node internal/scripts/perf/bin/ts-perf benchmark tsserver \
+              --tsserver $(Pipeline.Workspace)/BuiltTypeScript/main/tsserver.js \
+              --load output/main.tsserver.benchmark
+          fi
+        displayName: Merge tsserver benchmarks
+        condition: and(succeeded(), eq(variables['TSPERF_RUN_TSSERVER'], true))
+
+      - bash: |
+          shopt -s globstar
+          mkdir -p output
+
+          if [[ $(REF) == refs/pull/* ]]; then
+            node internal/scripts/perf/bin/ts-perf merge --output output/pr.startup.benchmark artifacts/pr_*.startup.benchmark
+            node internal/scripts/perf/bin/ts-perf merge --output output/main.startup.benchmark artifacts/main_*.startup.benchmark
+
+            node internal/scripts/perf/bin/ts-perf benchmark startup \
+              --builtDir $(Pipeline.Workspace)/BuiltTypeScript/main \
+              --baseline output/main.tsserver.benchmark \
+              --load output/pr.tsserver.benchmark
+          else
+            node internal/scripts/perf/bin/ts-perf merge --output output/main.startup.benchmark artifacts/*.startup.benchmark
+            # TODO: publish blob, only on ResourceTrigger or explicit parameter true
+            node internal/scripts/perf/bin/ts-perf benchmark startup \
+              --builtDir $(Pipeline.Workspace)/BuiltTypeScript/main \
+              --load output/main.tsserver.benchmark
+          fi
+        displayName: Merge startup benchmarks
+        condition: and(succeeded(), eq(variables['TSPERF_RUN_STARTUP'], true))
+
+      - publish: output
         artifact: Benchmarks
         displayName: Publish benchmarks
