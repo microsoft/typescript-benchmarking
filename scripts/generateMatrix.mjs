@@ -34,7 +34,7 @@ const presets = {
             "scenarios": ["tsc-startup", "tsserver-startup", "tsserverlibrary-startup", "typescript-startup"],
         },
     },
-    "fast": {
+    "faster": {
         "tsc": {
             "hosts": ["node@16.17.1"],
             "iterations": 10,

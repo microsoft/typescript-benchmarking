@@ -1,3 +1,38 @@
+# This pipeline handles all TypeScript benchmarking. Supported situations are:
+#
+# - Pushes to microsoft/TypeScript's main branch. This is triggered indirectly
+#   via the ts-main-pipeline resource. In this situation, BuildReason will be
+#   ResourceTrigger, and we will upload the results to the blob store.
+# - On manual trigger via the API, with a payload like:
+#   {
+#     "resources": {
+#       "repositories": {
+#         "TypeScript": { "refName": "refs/heads/main", "version": "<commit hash>" }
+#       }
+#     },
+#     "templateParameters": {
+#       "UPLOAD_BLOBS": true
+#     }
+#   }
+#   In this situation, we'll treat this as a backfill run on main and upload
+#   the results to the blob store.
+# - On manual trigger via the API, with a payload like:
+#   {
+#     "resources": {
+#       "repositories": {
+#         "TypeScript": { "refName": "refs/pull/<number>/merge" }
+#       }
+#     }
+#   }
+#   In this situation, we'll treat this as a PR run, comparing the pull request
+#   against its merge base with main. Its results will be published back to the
+#   pull request as a comment. Note that this payload is not one that the UI
+#   supports, but it's possible to manually trigger it via the API, in which
+#   case the UI will properly render all details about the resources.
+#
+# TODO: We should also support running on release branches, both for new
+# commits and for backfilling.
+
 pr: none
 trigger: none
 
@@ -30,8 +65,13 @@ parameters:
     displayName: Preset
     values:
       - full
-      - fast
+      - faster
     default: full
+
+  - name: UPLOAD_BLOBS
+    displayName: Upload blobs
+    type: boolean
+    default: false
 
 variables:
   Codeql.Enabled: false
@@ -42,37 +82,13 @@ variables:
   NODE_VERSION: '16.x'
 
   REF: $[ resources.repositories['TypeScript'].ref ]
+  # TODO: can we use variables['REF'] below?
   PRETTY_REF: $[ replace(replace(replace(resources.repositories['TypeScript'].ref, '/merge', ''), 'refs/pull/', 'pr.'), 'refs/heads/', '') ]
   IS_PR: $[ startsWith(resources.repositories['TypeScript'].ref, 'refs/pull/') ]
-
-# TODO: Generally, this pipeline should work like this:
-#
-# If the ref is "refs/heads/main", then we are processing a new commit to main,
-# and should only run it once on a specific host, and upload to the blob store.
-#
-# If it's "refs/pull/<number>/merge", then we are processing a PR. HEAD will
-# be the merge commit of the PR into main, where HEAD^1 will be the version
-# of main that should be compared. We should run both for each benchmark.
-# There's no way to trigger the pipeline this way from the UI, only via the
-# pipeline run API by giving it { "resources": { "repositories": { "TypeScript": { "refName": "refs/pull/<number>/merge" } } } }
-#
-# There's some ambiguity here in that we may want to manually rerun old commits
-# from main. Pipelines also doesn't statically provide us with the "commit"
-# parameter from a manual UI run, leaving us with only the ref, which may still
-# say main even if the commit is old. TODO: work out these details
-# Also, we should consider self.ref (only allow when also main?)
-#
-# To actually run the benchmark, we'll:
-# - Configuration job
-#   - Run on public agents; no need to use our pool for that.
-#   - Clone the benchmark repo.
-#   - Generate the build configuration from the parameters, the benchmark repo,
-#     and info like the current time, commit refs/
-#   - Generate a matrix of builds for each host/benchmark.
-# - For each over the matrix
-#   - In each build, clone everything, build everything, run benchmark.
-#     - Run benchmark twice if PR, comment (or whatever new infra we need)
-#     - Run benchmark once on designated baseline machine if main, upload blob.
+  # Only upload if the provided ref is explicitly main, and either we're triggered by a push to main, or the parameter says we should.
+  # This means that main pushes will automatically upload, but we can still queue builds off of main with a specific commit in the API.
+  # TODO: what about release branches?
+  SHOULD_UPLOAD: $[ and(eq(resources.repositories['TypeScript'].ref, 'refs/heads/main'), or(eq(variables['Build.Reason'], 'ResourceTrigger'), ${{ parameters.UPLOAD_BLOBS }})) ]
 
 name: $(PRETTY_REF)-$(Date:yyyyMMdd).$(Rev:r)
 # Hide the commit message from the run name; it'll just always say that the
@@ -205,7 +221,6 @@ jobs:
         displayName: 'Install Node $(NODE_VERSION)'
 
       # The existence of this AzDo project/repository is not secret.
-      # TODO: figure out why the delete is needed; how does the regular checkout step do a clean shallow clone?
       # Maybe this should instead use a service connection + checkout? (But, this is temporary anyway.)
       # TODO: also, this sometimes fails to clone; add a retry?
       - bash: git clone --depth=1 https://mseng:${PAT}@mseng.visualstudio.com/Typescript/_git/Typescript internal
@@ -441,13 +456,22 @@ jobs:
               --load output/pr.tsserver.benchmark
           else
             node internal/scripts/perf/bin/ts-perf merge --output output/main.startup.benchmark artifacts/*.startup.benchmark
-            # TODO: publish blob, only on ResourceTrigger or explicit parameter true
             node internal/scripts/perf/bin/ts-perf benchmark startup \
               --builtDir $(Pipeline.Workspace)/BuiltTypeScript/main \
               --load output/main.tsserver.benchmark
           fi
         displayName: Merge startup benchmarks
         condition: and(succeeded(), eq(variables['TSPERF_RUN_STARTUP'], true))
+
+      - bash: |
+          echo TODO
+        displayName: Publish PR comment
+        condition: and(succeeded(), eq(variables['IS_PR'], true))
+
+      - bash: |
+          echo TODO
+        displayName: Upload benchmarks to blob store
+        condition: and(succeeded(), eq(variables['SHOULD_UPLOAD'], true))
 
       - publish: output
         artifact: Benchmarks
