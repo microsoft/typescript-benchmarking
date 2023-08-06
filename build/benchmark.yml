@@ -127,10 +127,10 @@ jobs:
           }
 
           if [[ $(ref) == refs/pull/* ]]; then
-            build_typescript PR $(Build.SourcesDirectory)/artifacts/built-pr
+            build_typescript PR $(Build.SourcesDirectory)/artifacts/pr
             git -C ${CHECKOUT} switch --detach HEAD^1
           fi
-          build_typescript MAIN $(Build.SourcesDirectory)/artifacts/built-main
+          build_typescript MAIN $(Build.SourcesDirectory)/artifacts/main
 
       # TODO: should this be a build cache so that it's not preserved?
       - publish: artifacts
@@ -236,7 +236,7 @@ jobs:
           if [[ $(ref) == refs/pull/* ]]; then
             echo Running PR benchmark
             run_benchmark \
-              --tsc $(Pipeline.Workspace)/built-pr/tsc.js \
+              --tsc $(Pipeline.Workspace)/BuiltTypeScript/pr/tsc.js \
               --save artifacts/pr_$(host)_$(scenario).benchmark \
               --date $(PR_DATE) \
               --repositoryType git \
@@ -247,7 +247,7 @@ jobs:
             echo Running baseline benchmark
           fi
           run_benchmark \
-            --tsc $(Pipeline.Workspace)/built-main/tsc.js \
+            --tsc $(Pipeline.Workspace)/BuiltTypeScript/main/tsc.js \
             --save artifacts/main_$(host)_$(scenario).benchmark \
             --date $(MAIN_DATE) \
             --repositoryType git \
