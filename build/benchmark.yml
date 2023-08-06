@@ -358,7 +358,9 @@ jobs:
         displayName: Publish benchmarks
 
   - job: ProcessResults
-    dependsOn: Benchmark
+    dependsOn:
+      - Setup
+      - Benchmark
     pool:
       vmImage: ubuntu-latest
     workspace:
