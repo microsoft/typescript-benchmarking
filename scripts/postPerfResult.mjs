@@ -19,9 +19,14 @@ async function main() {
     const postedComment = process.env.STATUS_COMMENT;
     if (!postedComment) throw new Error("STATUS_COMMENT environment variable not set.");
 
-    const [auth, fragment, includeArtifact] = process.argv.slice(2);
-    if (!auth) throw new Error("First argument must be a GitHub auth token.");
-    if (!fragment) throw new Error("Second argument must be a path to an HTML fragment.");
+    const auth = process.env.GH_TOKEN;
+    if (!auth) throw new Error("GH_TOKEN environment variable not set.");
+
+    const artifactName = process.env.ARTIFACT_NAME;
+    if (!artifactName) throw new Error("ARTIFACT_NAME environment variable not set.");
+
+    const [fragment, includeArtifact] = process.argv.slice(2);
+    if (!fragment) throw new Error("First argument must be a path to an HTML fragment.");
 
     const gh = new Octokit({ auth });
     try {
@@ -37,17 +42,17 @@ async function main() {
                 ado.getHandlerFromToken(""),
             ); // Empty token, anon auth
             const build = await cli.getBuildApi();
-            const artifact = await build.getArtifact("typescript", +buildId, "benchmark");
+            const artifact = await build.getArtifact("typescript", +buildId, artifactName);
             assert(artifact.resource?.url);
             const updatedUrl = new URL(artifact.resource.url);
-            updatedUrl.search = `artifactName=benchmark&fileId=${artifact.resource.data}&fileName=manifest`;
+            updatedUrl.search = `artifactName=${artifactName}&fileId=${artifact.resource.data}&fileName=manifest`;
             const resp = await (await fetch(`${updatedUrl}`)).json();
             for (const file of /** @type {any} */ (resp).items) {
                 if (/[\\/]linux\.benchmark$/.test(file.path)) {
                     const benchmarkUrl = new URL(artifact.resource.url);
-                    benchmarkUrl.search = `artifactName=benchmark&fileId=${file.blob.id}&fileName=linux.benchmark`;
+                    benchmarkUrl.search = `artifactName=${artifactName}&fileId=${file.blob.id}&fileName=linux.benchmark`;
                     benchmarkText =
-                        `\n<details><summary>Developer Information:</summary><p><a href="${benchmarkUrl.href}">Download Benchmark</a></p></details>\n`;
+                        `\n<details><summary>Developer Information:</summary><p><a href="${benchmarkUrl.href}">Download Benchmarks</a></p></details>\n`;
                     break;
                 }
             }

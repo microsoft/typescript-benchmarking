@@ -33,6 +33,9 @@
 # TODO: We should also support running on release branches, both for new
 # commits and for backfilling.
 
+# General TODOs:
+# - The extra info for the benchmarks is empty.
+
 pr: none
 trigger: none
 
@@ -498,16 +501,29 @@ jobs:
         displayName: Merge startup benchmarks
         condition: and(succeeded(), eq(variables['TSPERF_RUN_STARTUP'], true))
 
+      - bash: |
+          cat comment.html
+        displayName: Publish PR comment
+        condition: and(succeeded(), eq(variables['IS_PR'], true))
+
       # - checkout: self
       #   path: typescript-benchmarking
       #   fetchTags: false
       #   fetchDepth: 1
       #   clean: true
 
-      - bash: |
-          cat comment.html
-        displayName: Publish PR comment
-        condition: and(succeeded(), eq(variables['IS_PR'], true))
+      # - bash: |
+      #     cd $(Pipeline.Workspace)/typescript-benchmarking
+      #     npm ci
+      #     node ./scripts/postPerfResult.mjs comment.html
+      #   displayName: Publish PR comment
+      #   condition: and(succeeded(), eq(variables['IS_PR'], true))
+      #   env:
+      #     SOURCE_ISSUE: ...
+      #     REQUESTING_USER: ...
+      #     BUILD_BUILDID: ...
+      #     STATUS_COMMENT: ...
+      #     GH_TOKEN: ...
 
       - bash: |
           ls -lh output
