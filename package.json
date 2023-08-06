@@ -5,6 +5,7 @@
     "author": "Microsoft Corp.",
     "license": "MIT",
     "devDependencies": {
+        "@types/node": "^20.4.8",
         "dprint": "^0.39.1"
     }
 }

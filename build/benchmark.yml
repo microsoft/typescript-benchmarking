@@ -25,19 +25,10 @@ resources:
   #   value: 'tslab1-mseng-PAT, tsperf-azure-storage-connection-string'
 
 parameters:
-  # TODO: Accept objects instead? Or, split on comma?
-  - name: TSPERF_HOSTS
+  # TODO: allow custom preset
+  - name: TSPERF_PRESET
     type: string
-    # default: '--host node@18.10.0 --host node@16.17.1 --host node@14.21.3'
-    default: 'node@18.10.0, node@16.17.1, node@14.21.3'
-  - name: TSPERF_ITERATIONS
-    type: number
-    default: 10
-  # TODO: the default set should probably be defined by the benchmarking repo
-  - name: TSPERF_SCENARIOS
-    type: string
-    # default: '--scenario Angular --scenario Monaco --scenario TFS --scenario material-ui --scenario Compiler-Unions --scenario xstate'
-    default: 'Angular, Monaco, TFS, material-ui, Compiler-Unions, xstate'
+    default: 'full'
 
 variables:
   Codeql.Enabled: false
@@ -93,15 +84,26 @@ jobs:
       clean: all # Always start with a clean slate.
 
     steps:
+      - checkout: self
+        path: typescript-benchmarking
+        fetchTags: false
+        fetchDepth: 1
+        clean: true
+
       - checkout: TypeScript
         path: TypeScript
         fetchTags: false
         fetchDepth: 2 # For PRs, we want the merge base to compare against.
         clean: true
 
+      - task: NodeTool@0
+        inputs:
+          versionSpec: $(NODE_VERSION)
+        displayName: 'Install Node $(NODE_VERSION)'
+
       - bash: |
           mkdir artifacts
-          CHECKOUT=$(Pipeline.Workspace)/TypeScript
+          CHECKOUT=$(Pipeline.Workspace)/TypeScript.
 
           build_typescript() {
             NAME=$1
@@ -139,7 +141,11 @@ jobs:
         artifact: BuiltTypeScript
         displayName: Publish built TypeScript
 
-      # TODO: build dynamic matrix from parameters/variables
+      - bash: |
+          # TODO: pass in custom preset parameters
+          cd $(Pipeline.Workspace)/typescript-benchmarking
+          node ./scripts/generateMatrix.mjs ${{ parameters.TSPERF_PRESET }}
+        displayName: Generate matrix
 
   - job: Benchmark
     dependsOn: Setup
@@ -148,14 +154,9 @@ jobs:
     workspace:
       clean: all # Always start with a clean slate.
 
-    # https://github.com/microsoft/azure-pipelines-yaml/issues/20#issuecomment-491349961
+    # https://stackoverflow.com/a/69345058
     strategy:
-      matrix:
-        ${{ each host in split(parameters.TSPERF_HOSTS, ', ') }}:
-          ${{ each scenario in split(parameters.TSPERF_SCENARIOS, ', ') }}:
-            ${{ format('{0}_{1}', host, scenario) }}:
-              host: ${{ host }}
-              scenario: ${{ scenario }}
+      matrix: $[ dependencies.Setup.outputs['passOutput.matrix'] ]
 
     variables:
       MAIN_COMMIT: $[ dependencies.Setup.outputs['passOutput.MAIN_COMMIT'] ]
@@ -217,7 +218,7 @@ jobs:
       - bash: sudo pyperf system tune
         displayName: Tune system
 
-      - bash: node internal/scripts/perf/bin/ts-perf host install --host $(host)
+      - bash: node internal/scripts/perf/bin/ts-perf host install --host $(TSPERF_HOST)
         displayName: Install hosts
 
       - bash: |
@@ -226,9 +227,9 @@ jobs:
           run_benchmark () {
             node internal/scripts/perf/bin/ts-perf benchmark tsc \
               --cpus ${TSPERF_AGENT_BENCHMARK_CPU} \
-              --iterations ${{ parameters.TSPERF_ITERATIONS }} \
-              --host $(host) \
-              --scenario $(scenario) \
+              --iterations $(TSPERF_ITERATIONS) \
+              --host $(TSPERF_HOST) \
+              --scenario $(TSPERF_SCENARIO) \
               "$@"
           }
 
@@ -236,7 +237,7 @@ jobs:
             echo Running PR benchmark
             run_benchmark \
               --tsc $(Pipeline.Workspace)/BuiltTypeScript/pr/tsc.js \
-              --save artifacts/pr_$(host)_$(scenario).tsc.benchmark \
+              --save artifacts/pr_$(TSPERF_HOST)_$(TSPERF_SCENARIO).tsc.benchmark \
               --date $(PR_DATE) \
               --repositoryType git \
               --repositoryUrl ${REPOSITORY_URI} \
@@ -247,7 +248,7 @@ jobs:
           fi
           run_benchmark \
             --tsc $(Pipeline.Workspace)/BuiltTypeScript/main/tsc.js \
-            --save artifacts/main_$(host)_$(scenario).tsc.benchmark \
+            --save artifacts/main_$(TSPERF_HOST)_$(TSPERF_SCENARIO).tsc.benchmark \
             --date $(MAIN_DATE) \
             --repositoryType git \
             --repositoryUrl ${REPOSITORY_URI} \
@@ -255,9 +256,10 @@ jobs:
             --repositoryCommit $(MAIN_COMMIT) \
             --repositoryDate $(MAIN_DATE)
         displayName: Run tsc benchmarks
+        condition: and(succeeded(), eq(variables['TSPERF_KIND'], 'tsc'))
 
       - publish: artifacts
-        artifact: Benchmark_$(host)_$(scenario)
+        artifact: Benchmark_$(TSPERF_HOST)_$(TSPERF_SCENARIO)
         displayName: Publish benchmarks
 
       # TODO: other benchmark kinds
