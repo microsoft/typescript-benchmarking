@@ -132,6 +132,7 @@ jobs:
             git -C ${CHECKOUT} switch --detach HEAD^1
           fi
           build_typescript MAIN $(Build.SourcesDirectory)/artifacts/main
+        displayName: Build TypeScript
 
       # TODO: should this be a build cache so that it's not preserved?
       - publish: artifacts
