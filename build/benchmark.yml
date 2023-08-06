@@ -106,7 +106,7 @@ jobs:
 
       - bash: |
           mkdir artifacts
-          CHECKOUT=$(Pipeline.Workspace)/TypeScript.
+          CHECKOUT=$(Pipeline.Workspace)/TypeScript
 
           build_typescript() {
             NAME=$1
