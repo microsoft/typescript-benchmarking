@@ -98,6 +98,7 @@ jobs:
           cd $(Pipeline.Workspace)/typescript-benchmarking
           node ./scripts/generateMatrix.mjs ${{ parameters.TSPERF_PRESET }}
         displayName: Generate matrix
+        name: generateMatrix
 
       - checkout: TypeScript
         path: TypeScript
@@ -144,6 +145,7 @@ jobs:
           fi
           build_typescript MAIN $(Build.SourcesDirectory)/artifacts/main
         displayName: Build TypeScript
+        name: buildTypeScript
 
       # TODO: should this be a build cache so that it's not preserved?
       - publish: artifacts
@@ -159,17 +161,17 @@ jobs:
 
     # https://stackoverflow.com/a/69345058
     strategy:
-      matrix: $[ dependencies.Setup.outputs['passOutput.matrix'] ]
+      matrix: $[ dependencies.Setup.outputs['generateMatrix.matrix'] ]
 
     variables:
-      MAIN_COMMIT: $[ dependencies.Setup.outputs['passOutput.MAIN_COMMIT'] ]
-      MAIN_COMMIT_SHORT: $[ dependencies.Setup.outputs['passOutput.MAIN_COMMIT_SHORT'] ]
-      MAIN_DATE: $[ dependencies.Setup.outputs['passOutput.MAIN_DATE'] ]
-      MAIN_TIMESTAMP_DIR: $[ dependencies.Setup.outputs['passOutput.MAIN_TIMESTAMP_DIR'] ]
-      PR_COMMIT: $[ dependencies.Setup.outputs['passOutput.PR_COMMIT'] ]
-      PR_COMMIT_SHORT: $[ dependencies.Setup.outputs['passOutput.PR_COMMIT_SHORT'] ]
-      PR_DATE: $[ dependencies.Setup.outputs['passOutput.PR_DATE'] ]
-      PR_TIMESTAMP_DIR: $[ dependencies.Setup.outputs['passOutput.PR_TIMESTAMP_DIR'] ]
+      MAIN_COMMIT: $[ dependencies.Setup.outputs['buildTypeScript.MAIN_COMMIT'] ]
+      MAIN_COMMIT_SHORT: $[ dependencies.Setup.outputs['buildTypeScript.MAIN_COMMIT_SHORT'] ]
+      MAIN_DATE: $[ dependencies.Setup.outputs['buildTypeScript.MAIN_DATE'] ]
+      MAIN_TIMESTAMP_DIR: $[ dependencies.Setup.outputs['buildTypeScript.MAIN_TIMESTAMP_DIR'] ]
+      PR_COMMIT: $[ dependencies.Setup.outputs['buildTypeScript.PR_COMMIT'] ]
+      PR_COMMIT_SHORT: $[ dependencies.Setup.outputs['buildTypeScript.PR_COMMIT_SHORT'] ]
+      PR_DATE: $[ dependencies.Setup.outputs['buildTypeScript.PR_DATE'] ]
+      PR_TIMESTAMP_DIR: $[ dependencies.Setup.outputs['buildTypeScript.PR_TIMESTAMP_DIR'] ]
 
     steps:
       # TODO: figure out what perms are missing here
