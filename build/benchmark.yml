@@ -264,83 +264,83 @@ jobs:
         displayName: Run tsc benchmark
         condition: and(succeeded(), eq(variables['TSPERF_KIND'], 'tsc'))
 
-        - bash: |
-          mkdir -p artifacts
+      - bash: |
+        mkdir -p artifacts
 
-          run_benchmark () {
-            node internal/scripts/perf/bin/ts-perf benchmark tsserver \
-              --cpus ${TSPERF_AGENT_BENCHMARK_CPU} \
-              --iterations $(TSPERF_ITERATIONS) \
-              --host $(TSPERF_HOST) \
-              --scenario $(TSPERF_SCENARIO) \
-              "$@"
-          }
+        run_benchmark () {
+          node internal/scripts/perf/bin/ts-perf benchmark tsserver \
+            --cpus ${TSPERF_AGENT_BENCHMARK_CPU} \
+            --iterations $(TSPERF_ITERATIONS) \
+            --host $(TSPERF_HOST) \
+            --scenario $(TSPERF_SCENARIO) \
+            "$@"
+        }
 
-          if [[ $(REF) == refs/pull/* ]]; then
-            echo Running PR benchmark
-            run_benchmark \
-              --tsserver $(Pipeline.Workspace)/BuiltTypeScript/pr/tsserver.js \
-              --save artifacts/pr_$(TSPERF_HOST)_$(TSPERF_SCENARIO).tsserver.benchmark \
-              --date $(PR_DATE) \
-              --repositoryType git \
-              --repositoryUrl ${REPOSITORY_URI} \
-              --repositoryBranch $(REF) \
-              --repositoryCommit $(PR_COMMIT) \
-              --repositoryDate $(PR_DATE)
-            echo Running baseline benchmark
-          fi
+        if [[ $(REF) == refs/pull/* ]]; then
+          echo Running PR benchmark
           run_benchmark \
-            --tsserver $(Pipeline.Workspace)/BuiltTypeScript/main/tsserver.js \
-            --save artifacts/main_$(TSPERF_HOST)_$(TSPERF_SCENARIO).tsserver.benchmark \
-            --date $(MAIN_DATE) \
+            --tsserver $(Pipeline.Workspace)/BuiltTypeScript/pr/tsserver.js \
+            --save artifacts/pr_$(TSPERF_HOST)_$(TSPERF_SCENARIO).tsserver.benchmark \
+            --date $(PR_DATE) \
             --repositoryType git \
             --repositoryUrl ${REPOSITORY_URI} \
             --repositoryBranch $(REF) \
-            --repositoryCommit $(MAIN_COMMIT) \
-            --repositoryDate $(MAIN_DATE)
-        displayName: Run tsserver benchmark
-        condition: and(succeeded(), eq(variables['TSPERF_KIND'], 'tsserver'))
+            --repositoryCommit $(PR_COMMIT) \
+            --repositoryDate $(PR_DATE)
+          echo Running baseline benchmark
+        fi
+        run_benchmark \
+          --tsserver $(Pipeline.Workspace)/BuiltTypeScript/main/tsserver.js \
+          --save artifacts/main_$(TSPERF_HOST)_$(TSPERF_SCENARIO).tsserver.benchmark \
+          --date $(MAIN_DATE) \
+          --repositoryType git \
+          --repositoryUrl ${REPOSITORY_URI} \
+          --repositoryBranch $(REF) \
+          --repositoryCommit $(MAIN_COMMIT) \
+          --repositoryDate $(MAIN_DATE)
+      displayName: Run tsserver benchmark
+      condition: and(succeeded(), eq(variables['TSPERF_KIND'], 'tsserver'))
 
-        - bash: |
-          mkdir -p artifacts
+      - bash: |
+        mkdir -p artifacts
 
-          run_benchmark () {
-            node internal/scripts/perf/bin/ts-perf benchmark startup \
-              --cpus ${TSPERF_AGENT_BENCHMARK_CPU} \
-              --iterations $(TSPERF_ITERATIONS) \
-              --host $(TSPERF_HOST) \
-              --scenario $(TSPERF_SCENARIO) \
-              "$@"
-          }
+        run_benchmark () {
+          node internal/scripts/perf/bin/ts-perf benchmark startup \
+            --cpus ${TSPERF_AGENT_BENCHMARK_CPU} \
+            --iterations $(TSPERF_ITERATIONS) \
+            --host $(TSPERF_HOST) \
+            --scenario $(TSPERF_SCENARIO) \
+            "$@"
+        }
 
-          if [[ $(REF) == refs/pull/* ]]; then
-            echo Running PR benchmark
-            run_benchmark \
-              --builtDir $(Pipeline.Workspace)/BuiltTypeScript/pr \
-              --save artifacts/pr_$(TSPERF_HOST)_$(TSPERF_SCENARIO).startup.benchmark \
-              --date $(PR_DATE) \
-              --repositoryType git \
-              --repositoryUrl ${REPOSITORY_URI} \
-              --repositoryBranch $(REF) \
-              --repositoryCommit $(PR_COMMIT) \
-              --repositoryDate $(PR_DATE)
-            echo Running baseline benchmark
-          fi
+        if [[ $(REF) == refs/pull/* ]]; then
+          echo Running PR benchmark
           run_benchmark \
-            --builtDir $(Pipeline.Workspace)/BuiltTypeScript/main \
-            --save artifacts/main_$(TSPERF_HOST)_$(TSPERF_SCENARIO).startup.benchmark \
-            --date $(MAIN_DATE) \
+            --builtDir $(Pipeline.Workspace)/BuiltTypeScript/pr \
+            --save artifacts/pr_$(TSPERF_HOST)_$(TSPERF_SCENARIO).startup.benchmark \
+            --date $(PR_DATE) \
             --repositoryType git \
             --repositoryUrl ${REPOSITORY_URI} \
             --repositoryBranch $(REF) \
-            --repositoryCommit $(MAIN_COMMIT) \
-            --repositoryDate $(MAIN_DATE)
-        displayName: Run startup benchmark
-        condition: and(succeeded(), eq(variables['TSPERF_KIND'], 'startup'))
+            --repositoryCommit $(PR_COMMIT) \
+            --repositoryDate $(PR_DATE)
+          echo Running baseline benchmark
+        fi
+        run_benchmark \
+          --builtDir $(Pipeline.Workspace)/BuiltTypeScript/main \
+          --save artifacts/main_$(TSPERF_HOST)_$(TSPERF_SCENARIO).startup.benchmark \
+          --date $(MAIN_DATE) \
+          --repositoryType git \
+          --repositoryUrl ${REPOSITORY_URI} \
+          --repositoryBranch $(REF) \
+          --repositoryCommit $(MAIN_COMMIT) \
+          --repositoryDate $(MAIN_DATE)
+      displayName: Run startup benchmark
+      condition: and(succeeded(), eq(variables['TSPERF_KIND'], 'startup'))
 
-      - publish: artifacts
-        artifact: Benchmark_$(TSPERF_HOST)_$(TSPERF_SCENARIO)
-        displayName: Publish benchmarks
+    - publish: artifacts
+      artifact: Benchmark_$(TSPERF_HOST)_$(TSPERF_SCENARIO)
+      displayName: Publish benchmarks
 
   - job: ProcessResults
     dependsOn: Benchmark
