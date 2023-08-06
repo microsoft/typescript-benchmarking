@@ -165,29 +165,42 @@ jobs:
         displayName: Build typescript
 
       - bash: |
-          # local variables
-          CHECKOUT=$(Pipeline.Workspace)/TypeScript
-          COMMIT=$( git -C ${CHECKOUT} rev-parse HEAD )
-          COMMIT_SHORT=$( git -C ${CHECKOUT} rev-parse --short HEAD )
-          DATE=$( git -C ${CHECKOUT} log -1 --format=%cI )
-          TIMESTAMP_DIR=$( date -d ${DATE} -u +%Y/%m/%d )
-
           rm -rf artifacts
           mkdir artifacts
+          CHECKOUT=$(Pipeline.Workspace)/TypeScript
 
-          node internal/scripts/perf/bin/ts-perf benchmark tsc \
-            --cpus ${TSPERF_AGENT_BENCHMARK_CPU} \
-            --iterations ${{ parameters.TSPERF_ITERATIONS }} \
-            --tsc ${CHECKOUT}/built/local/tsc.js \
-            --host $(host) \
-            --scenario $(scenario) \
-            --date ${DATE} \
-            --repositoryType git \
-            --repositoryUrl ${REPOSITORY_URI} \
-            --repositoryBranch $(ref) \
-            --repositoryCommit ${COMMIT} \
-            --repositoryDate ${DATE} \
-            --save artifacts/$(host)_$(scenario).benchmark
+          run_benchmark () {
+            COMMIT=$( git -C ${CHECKOUT} rev-parse HEAD )
+            COMMIT_SHORT=$( git -C ${CHECKOUT} rev-parse --short HEAD )
+            DATE=$( git -C ${CHECKOUT} log -1 --format=%cI )
+            TIMESTAMP_DIR=$( date -d ${DATE} -u +%Y/%m/%d )
+
+            node internal/scripts/perf/bin/ts-perf benchmark tsc \
+              --cpus ${TSPERF_AGENT_BENCHMARK_CPU} \
+              --iterations ${{ parameters.TSPERF_ITERATIONS }} \
+              --tsc ${CHECKOUT}/built/local/tsc.js \
+              --host $(host) \
+              --scenario $(scenario) \
+              --date ${DATE} \
+              --repositoryType git \
+              --repositoryUrl ${REPOSITORY_URI} \
+              --repositoryBranch $(ref) \
+              --repositoryCommit ${COMMIT} \
+              --repositoryDate ${DATE} \
+              "$@"
+          }
+
+          if [[ $(ref) == refs/pull/* ]]; then
+            echo Running PR benchmark
+            run_benchmark --save artifacts/pr_$(host)_$(scenario).benchmark
+            git -C ${CHECKOUT} switch --detach HEAD^1
+            echo Running baseline benchmark
+            run_benchmark --save artifacts/main_$(host)_$(scenario).benchmark
+          else
+            # TODO: publish blob
+            # TODO: only trigger on ResourceTrigger or explicit parameter true
+            run_benchmark --save artifacts/$(host)_$(scenario).benchmark
+          fi
         displayName: Run tsc benchmarks
 
       - publish: artifacts
