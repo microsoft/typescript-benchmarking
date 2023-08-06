@@ -45,11 +45,11 @@ variables:
 
   # This is just the version of node used to build TypeScript, run ts-perf, etc.
   # The actual benchmarked node version is controlled by ts-perf.
-  nodeVersion: '16.x'
+  NODE_VERSION: '16.x'
 
-  ref: $[ resources.repositories['TypeScript'].ref ]
-  why: $[ replace(replace(replace(resources.repositories['TypeScript'].ref, '/merge', ''), 'refs/pull/', 'pr.'), 'refs/heads/', '') ]
-  isPR: $[ startsWith(resources.repositories['TypeScript'].ref, 'refs/pull/') ]
+  REF: $[ resources.repositories['TypeScript'].ref ]
+  PRETTY_REF: $[ replace(replace(replace(resources.repositories['TypeScript'].ref, '/merge', ''), 'refs/pull/', 'pr.'), 'refs/heads/', '') ]
+  IS_PR: $[ startsWith(resources.repositories['TypeScript'].ref, 'refs/pull/') ]
 
 # TODO: Generally, this pipeline should work like this:
 #
@@ -79,10 +79,8 @@ variables:
 #   - In each build, clone everything, build everything, run benchmark.
 #     - Run benchmark twice if PR, comment (or whatever new infra we need)
 #     - Run benchmark once on designated baseline machine if main, upload blob.
-#
-# TODO: Can we build ts-perf, typescript, in a starter step, then share it as artifacts?
 
-name: $(why)-$(Date:yyyyMMdd).$(Rev:r)
+name: $(PRETTY_REF)-$(Date:yyyyMMdd).$(Rev:r)
 # Hide the commit message from the run name; it'll just always say that the
 # build came from the benchmarking repo's commit.
 appendCommitMessageToRunName: false
@@ -91,12 +89,14 @@ jobs:
   - job: Setup
     pool:
       vmImage: ubuntu-latest
+    workspace:
+      clean: all # Always start with a clean slate.
 
     steps:
       - checkout: TypeScript
         path: TypeScript
         fetchTags: false
-        fetchDepth: 2 # For PRs, we want the merge base to compare against. (TODO: only do this on PRs?)
+        fetchDepth: 2 # For PRs, we want the merge base to compare against.
         clean: true
 
       - bash: |
@@ -127,7 +127,7 @@ jobs:
             popd
           }
 
-          if [[ $(ref) == refs/pull/* ]]; then
+          if [[ $(REF) == refs/pull/* ]]; then
             build_typescript PR $(Build.SourcesDirectory)/artifacts/pr
             git -C ${CHECKOUT} switch --detach HEAD^1
           fi
@@ -145,9 +145,8 @@ jobs:
     dependsOn: Setup
     pool:
       name: ts-perf-ddfun
-    # TODO: does this hurt perf?
     workspace:
-      clean: all
+      clean: all # Always start with a clean slate.
 
     # https://github.com/microsoft/azure-pipelines-yaml/issues/20#issuecomment-491349961
     strategy:
@@ -196,16 +195,14 @@ jobs:
 
       - task: NodeTool@0
         inputs:
-          versionSpec: $(nodeVersion)
-        displayName: 'Install Node $(nodeVersion)'
+          versionSpec: $(NODE_VERSION)
+        displayName: 'Install Node $(NODE_VERSION)'
 
       # The existence of this AzDo project/repository is not secret.
       # TODO: figure out why the delete is needed; how does the regular checkout step do a clean shallow clone?
       # Maybe this should instead use a service connection + checkout? (But, this is temporary anyway.)
       # TODO: also, this sometimes fails to clone; add a retry?
-      - bash: |
-          rm -rf internal
-          git clone --depth=1 https://mseng:${PAT}@mseng.visualstudio.com/Typescript/_git/Typescript internal
+      - bash: git clone --depth=1 https://mseng:${PAT}@mseng.visualstudio.com/Typescript/_git/Typescript internal
         env:
           PAT: $(tslab1-mseng-PAT)
         displayName: Clone internal repo
@@ -224,7 +221,6 @@ jobs:
         displayName: Install hosts
 
       - bash: |
-          rm -rf artifacts
           mkdir artifacts
 
           run_benchmark () {
@@ -236,26 +232,26 @@ jobs:
               "$@"
           }
 
-          if [[ $(ref) == refs/pull/* ]]; then
+          if [[ $(REF) == refs/pull/* ]]; then
             echo Running PR benchmark
             run_benchmark \
               --tsc $(Pipeline.Workspace)/BuiltTypeScript/pr/tsc.js \
-              --save artifacts/pr_$(host)_$(scenario).benchmark \
+              --save artifacts/pr_$(host)_$(scenario).tsc.benchmark \
               --date $(PR_DATE) \
               --repositoryType git \
               --repositoryUrl ${REPOSITORY_URI} \
-              --repositoryBranch $(ref) \
+              --repositoryBranch $(REF) \
               --repositoryCommit $(PR_COMMIT) \
               --repositoryDate $(PR_DATE)
             echo Running baseline benchmark
           fi
           run_benchmark \
             --tsc $(Pipeline.Workspace)/BuiltTypeScript/main/tsc.js \
-            --save artifacts/main_$(host)_$(scenario).benchmark \
+            --save artifacts/main_$(host)_$(scenario).tsc.benchmark \
             --date $(MAIN_DATE) \
             --repositoryType git \
             --repositoryUrl ${REPOSITORY_URI} \
-            --repositoryBranch $(ref) \
+            --repositoryBranch $(REF) \
             --repositoryCommit $(MAIN_COMMIT) \
             --repositoryDate $(MAIN_DATE)
         displayName: Run tsc benchmarks
@@ -271,7 +267,7 @@ jobs:
     pool:
       vmImage: ubuntu-latest
     workspace:
-      clean: all
+      clean: all # Always start with a clean slate.
 
     steps:
       - checkout: none
@@ -290,9 +286,7 @@ jobs:
         artifact: BuiltTypeScript
         displayName: Download built TypeScript
 
-      - bash: |
-          rm -rf internal
-          git clone --depth=1 --branch=gabritto/mergeBenchmark https://mseng:${PAT}@mseng.visualstudio.com/Typescript/_git/Typescript internal
+      - bash: git clone --depth=1 --branch=gabritto/mergeBenchmark https://mseng:${PAT}@mseng.visualstudio.com/Typescript/_git/Typescript internal
         env:
           PAT: $(tslab1-mseng-PAT)
         displayName: Clone internal repo
@@ -307,20 +301,20 @@ jobs:
           shopt -s globstar
           mkdir output
 
-          if [[ $(ref) == refs/pull/* ]]; then
-            node internal/scripts/perf/bin/ts-perf merge --output output/pr.benchmark artifacts/pr_*.benchmark
-            node internal/scripts/perf/bin/ts-perf merge --output output/main.benchmark artifacts/main_*.benchmark
+          if [[ $(REF) == refs/pull/* ]]; then
+            node internal/scripts/perf/bin/ts-perf merge --output output/pr.tsc.benchmark artifacts/pr_*.tsc.benchmark
+            node internal/scripts/perf/bin/ts-perf merge --output output/main.tsc.benchmark artifacts/main_*.tsc.benchmark
 
             node internal/scripts/perf/bin/ts-perf benchmark tsc \
               --tsc $(Pipeline.Workspace)/BuiltTypeScript/main/tsc.js \
-              --baseline output/main.benchmark \
-              --load output/pr.benchmark
+              --baseline output/main.tsc.benchmark \
+              --load output/pr.tsc.benchmark
           else
-            node internal/scripts/perf/bin/ts-perf merge --output output/main.benchmark artifacts/*.benchmark
+            node internal/scripts/perf/bin/ts-perf merge --output output/main.benchmark artifacts/*.tsc.benchmark
             # TODO: publish blob, only on ResourceTrigger or explicit parameter true
             node internal/scripts/perf/bin/ts-perf benchmark tsc \
               --tsc $(Pipeline.Workspace)/BuiltTypeScript/main/tsc.js \
-              --load output/main.benchmark
+              --load output/main.tsc.benchmark
           fi
         displayName: Merge benchmarks
 
