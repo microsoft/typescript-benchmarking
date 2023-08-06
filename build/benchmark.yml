@@ -93,6 +93,12 @@ jobs:
         fetchDepth: 1
         clean: true
 
+      - bash: |
+          # TODO: pass in custom preset parameters
+          cd $(Pipeline.Workspace)/typescript-benchmarking
+          node ./scripts/generateMatrix.mjs ${{ parameters.TSPERF_PRESET }}
+        displayName: Generate matrix
+
       - checkout: TypeScript
         path: TypeScript
         fetchTags: false
@@ -143,12 +149,6 @@ jobs:
       - publish: artifacts
         artifact: BuiltTypeScript
         displayName: Publish built TypeScript
-
-      - bash: |
-          # TODO: pass in custom preset parameters
-          cd $(Pipeline.Workspace)/typescript-benchmarking
-          node ./scripts/generateMatrix.mjs ${{ parameters.TSPERF_PRESET }}
-        displayName: Generate matrix
 
   - job: Benchmark
     dependsOn: Setup
