@@ -280,6 +280,7 @@ jobs:
       - checkout: none
 
       - download: current
+        patterns: '**/*.benchmark'
         displayName: Download benchmarks
 
       - bash: |
@@ -321,5 +322,4 @@ jobs:
 
       - publish: artifacts
         artifact: Benchmarks
-        patterns: '**/*.benchmark'
         displayName: Publish benchmarks
