@@ -525,6 +525,7 @@ jobs:
       - bash: |
           ls -lh output
           # TODO: actually upload
+          # TODO: files need to be named correctly for the blob store
         displayName: Upload benchmarks to blob store
         condition: and(succeeded(), eq(variables['SHOULD_UPLOAD'], true))
 
