@@ -477,8 +477,8 @@ jobs:
 
             node internal/scripts/perf/bin/ts-perf benchmark startup \
               --builtDir $(Pipeline.Workspace)/BuiltTypeScript/main \
-              --baseline output/main.tsserver.benchmark \
-              --load output/pr.tsserver.benchmark
+              --baseline output/main.startup.benchmark \
+              --load output/pr.startup.benchmark
 
             echo "<h2>Startup</h2>" >> comment.html
             node internal/scripts/perf/bin/ts-perf benchmark startup \
@@ -493,7 +493,7 @@ jobs:
             node internal/scripts/perf/bin/ts-perf merge --output output/main.startup.benchmark artifacts/*.startup.benchmark
             node internal/scripts/perf/bin/ts-perf benchmark startup \
               --builtDir $(Pipeline.Workspace)/BuiltTypeScript/main \
-              --load output/main.tsserver.benchmark
+              --load output/main.startup.benchmark
           fi
         displayName: Merge startup benchmarks
         condition: and(succeeded(), eq(variables['TSPERF_RUN_STARTUP'], true))
