@@ -35,6 +35,7 @@
 
 # General TODOs:
 # - The extra info for the benchmarks is empty.
+# - On PRs, rerun ts-perf to show the difference for one benchmark.
 
 pr: none
 trigger: none
@@ -456,7 +457,7 @@ jobs:
             node internal/scripts/perf/bin/ts-perf benchmark tsserver \
               --tsserver $(Pipeline.Workspace)/BuiltTypeScript/main/tsserver.js \
               --baseline output/main.tsserver.benchmark \
-              --load output/pr.tsserver.benchmark
+              --load output/pr.tsserver.benchmark \
               --baselineName main \
               --benchmarkName pr \
               --format html-fragment \
@@ -486,8 +487,8 @@ jobs:
             echo "<h2>Startup</h2>" >> comment.html
             node internal/scripts/perf/bin/ts-perf benchmark startup \
               --builtDir $(Pipeline.Workspace)/BuiltTypeScript/main \
-              --baseline output/main.tsserver.benchmark \
-              --load output/pr.tsserver.benchmark
+              --baseline output/main.startup.benchmark \
+              --load output/pr.startup.benchmark \
               --baselineName main \
               --benchmarkName pr \
               --format html-fragment \
