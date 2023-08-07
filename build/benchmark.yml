@@ -411,8 +411,6 @@ jobs:
 
       # TODO: these steps are needlessly repetitive; clean up
       - bash: |
-          shopt -s globstar
-
           if [[ $(REF) == refs/pull/* ]]; then
             node internal/scripts/perf/bin/ts-perf merge --output output/pr.tsc.benchmark artifacts/pr_*.tsc.benchmark
             node internal/scripts/perf/bin/ts-perf merge --output output/main.tsc.benchmark artifacts/main_*.tsc.benchmark
@@ -442,8 +440,6 @@ jobs:
         condition: and(succeeded(), eq(variables['TSPERF_RUN_TSC'], true))
 
       - bash: |
-          shopt -s globstar
-
           if [[ $(REF) == refs/pull/* ]]; then
             node internal/scripts/perf/bin/ts-perf merge --output output/pr.tsserver.benchmark artifacts/pr_*.tsserver.benchmark
             node internal/scripts/perf/bin/ts-perf merge --output output/main.tsserver.benchmark artifacts/main_*.tsserver.benchmark
@@ -473,8 +469,6 @@ jobs:
         condition: and(succeeded(), eq(variables['TSPERF_RUN_TSSERVER'], true))
 
       - bash: |
-          shopt -s globstar
-
           if [[ $(REF) == refs/pull/* ]]; then
             node internal/scripts/perf/bin/ts-perf merge --output output/pr.startup.benchmark artifacts/pr_*.startup.benchmark
             node internal/scripts/perf/bin/ts-perf merge --output output/main.startup.benchmark artifacts/main_*.startup.benchmark
