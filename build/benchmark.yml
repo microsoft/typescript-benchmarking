@@ -11,7 +11,7 @@
 #       }
 #     },
 #     "templateParameters": {
-#       "UPLOAD_BLOBS": true
+#       "FOR_BASELINE": true
 #     }
 #   }
 #   In this situation, we'll treat this as a backfill run on main and upload
@@ -72,8 +72,8 @@ parameters:
       - faster
     default: full
 
-  - name: UPLOAD_BLOBS
-    displayName: Upload blobs
+  - name: FOR_BASELINE
+    displayName: Benchmark run is for baseline tracking; uses a designated machine and uploads. Only uploads when TypeScript's ref is "refs/heads/main".
     type: boolean
     default: false
 
@@ -92,7 +92,7 @@ variables:
   # Only upload if the provided ref is explicitly main, and either we're triggered by a push to main, or the parameter says we should.
   # This means that main pushes will automatically upload, but we can still queue builds off of main with a specific commit in the API.
   # TODO: what about release branches?
-  SHOULD_UPLOAD: $[ and(eq(resources.repositories['TypeScript'].ref, 'refs/heads/main'), or(eq(variables['Build.Reason'], 'ResourceTrigger'), ${{ parameters.UPLOAD_BLOBS }})) ]
+  SHOULD_UPLOAD: $[ and(eq(resources.repositories['TypeScript'].ref, 'refs/heads/main'), or(eq(variables['Build.Reason'], 'ResourceTrigger'), ${{ parameters.FOR_BASELINE }})) ]
 
 name: $(PRETTY_REF)-$(Date:yyyyMMdd).$(Rev:r)
 # Hide the commit message from the run name; it'll just always say that the
@@ -176,6 +176,8 @@ jobs:
     dependsOn: Setup
     pool:
       name: ts-perf-ddfun
+      ${{ if paramters.FOR_BASELINE }}:
+        demands: Agent.Name -equals ts-perf1
     workspace:
       clean: all # Always start with a clean slate.
 
