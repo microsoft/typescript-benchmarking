@@ -543,7 +543,7 @@ jobs:
       - bash: |
           cd $(Pipeline.Workspace)/typescript-benchmarking
           npm ci
-          node ./scripts/postPerfResult.mjs comment.html
+          node ./scripts/postPerfResult.mjs $(Build.SourcesDirectory)/comment.html
         displayName: Publish PR comment
         condition: and(succeeded(), eq(variables['IS_PR'], true))
         env:
