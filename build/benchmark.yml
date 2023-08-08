@@ -213,8 +213,7 @@ jobs:
     dependsOn: Setup
     pool:
       name: ts-perf-ddfun
-      demands:
-        - $[ dependencies.Setup.outputs['generateDemands.DEMANDS'] ]
+      demands: $(DEMANDS)
     workspace:
       clean: all # Always start with a clean slate.
 
@@ -223,6 +222,7 @@ jobs:
       matrix: $[ dependencies.Setup.outputs['generateMatrix.MATRIX'] ]
 
     variables:
+      DEMANDS: $[ dependencies.Setup.outputs['generateDemands.DEMANDS'] ]
       MAIN_COMMIT: $[ dependencies.Setup.outputs['buildTypeScript.MAIN_COMMIT'] ]
       MAIN_COMMIT_SHORT: $[ dependencies.Setup.outputs['buildTypeScript.MAIN_COMMIT_SHORT'] ]
       MAIN_DATE: $[ dependencies.Setup.outputs['buildTypeScript.MAIN_DATE'] ]
