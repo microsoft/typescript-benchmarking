@@ -307,7 +307,7 @@ jobs:
           fi
           run_benchmark \
             --tsc $(Pipeline.Workspace)/BuiltTypeScript/baseline/tsc.js \
-            --save artifacts/BASELINE_$(TSPERF_HOST)_$(TSPERF_SCENARIO).tsc.benchmark \
+            --save artifacts/baseline_$(TSPERF_HOST)_$(TSPERF_SCENARIO).tsc.benchmark \
             --date $(BASELINE_DATE) \
             --repositoryType git \
             --repositoryUrl ${REPOSITORY_URI} \
@@ -344,7 +344,7 @@ jobs:
           fi
           run_benchmark \
             --tsserver $(Pipeline.Workspace)/BuiltTypeScript/baseline/tsserver.js \
-            --save artifacts/BASELINE_$(TSPERF_HOST)_$(TSPERF_SCENARIO).tsserver.benchmark \
+            --save artifacts/baseline_$(TSPERF_HOST)_$(TSPERF_SCENARIO).tsserver.benchmark \
             --date $(BASELINE_DATE) \
             --repositoryType git \
             --repositoryUrl ${REPOSITORY_URI} \
@@ -381,7 +381,7 @@ jobs:
           fi
           run_benchmark \
             --builtDir $(Pipeline.Workspace)/BuiltTypeScript/baseline \
-            --save artifacts/BASELINE_$(TSPERF_HOST)_$(TSPERF_SCENARIO).startup.benchmark \
+            --save artifacts/baseline_$(TSPERF_HOST)_$(TSPERF_SCENARIO).startup.benchmark \
             --date $(BASELINE_DATE) \
             --repositoryType git \
             --repositoryUrl ${REPOSITORY_URI} \
@@ -447,7 +447,7 @@ jobs:
       - bash: |
           if [[ $(REF) == refs/pull/* ]]; then
             node internal/scripts/perf/bin/ts-perf merge --output output/pr.tsc.benchmark artifacts/pr_*.tsc.benchmark
-            node internal/scripts/perf/bin/ts-perf merge --output output/baseline.tsc.benchmark artifacts/BASELINE_*.tsc.benchmark
+            node internal/scripts/perf/bin/ts-perf merge --output output/baseline.tsc.benchmark artifacts/baseline_*.tsc.benchmark
 
             node internal/scripts/perf/bin/ts-perf benchmark tsc \
               --tsc $(Pipeline.Workspace)/BuiltTypeScript/baseline/tsc.js \
@@ -476,7 +476,7 @@ jobs:
       - bash: |
           if [[ $(REF) == refs/pull/* ]]; then
             node internal/scripts/perf/bin/ts-perf merge --output output/pr.tsserver.benchmark artifacts/pr_*.tsserver.benchmark
-            node internal/scripts/perf/bin/ts-perf merge --output output/baseline.tsserver.benchmark artifacts/BASELINE_*.tsserver.benchmark
+            node internal/scripts/perf/bin/ts-perf merge --output output/baseline.tsserver.benchmark artifacts/baseline_*.tsserver.benchmark
 
             node internal/scripts/perf/bin/ts-perf benchmark tsserver \
               --tsserver $(Pipeline.Workspace)/BuiltTypeScript/baseline/tsserver.js \
@@ -505,7 +505,7 @@ jobs:
       - bash: |
           if [[ $(REF) == refs/pull/* ]]; then
             node internal/scripts/perf/bin/ts-perf merge --output output/pr.startup.benchmark artifacts/pr_*.startup.benchmark
-            node internal/scripts/perf/bin/ts-perf merge --output output/baseline.startup.benchmark artifacts/BASELINE_*.startup.benchmark
+            node internal/scripts/perf/bin/ts-perf merge --output output/baseline.startup.benchmark artifacts/baseline_*.startup.benchmark
 
             node internal/scripts/perf/bin/ts-perf benchmark startup \
               --builtDir $(Pipeline.Workspace)/BuiltTypeScript/baseline \
