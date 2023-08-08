@@ -34,7 +34,24 @@ const presets = {
             "scenarios": ["tsc-startup", "tsserver-startup", "tsserverlibrary-startup", "typescript-startup"],
         },
     },
-    "faster": {
+    "regular": {
+        "tsc": {
+            "hosts": ["node@16.17.1"],
+            "iterations": 6,
+            "scenarios": ["Angular", "Monaco", "TFS", "material-ui", "Compiler-Unions", "xstate"],
+        },
+        "tsserver": {
+            "hosts": ["node@16.17.1"],
+            "iterations": 6,
+            "scenarios": ["Compiler-UnionsTSServer", "CompilerTSServer", "xstateTSServer"],
+        },
+        "startup": {
+            "hosts": ["node@16.17.1"],
+            "iterations": 6,
+            "scenarios": ["tsc-startup", "tsserver-startup", "tsserverlibrary-startup", "typescript-startup"],
+        },
+    },
+    "tsc-only": {
         "tsc": {
             "hosts": ["node@16.17.1"],
             "iterations": 6,

@@ -8,8 +8,6 @@
     "devDependencies": {
         "@octokit/rest": "^19.0.13",
         "@types/node": "^20.4.8",
-        "azure-devops-node-api": "^12.1.0",
-        "dprint": "^0.39.1",
-        "node-fetch": "^3.3.2"
+        "dprint": "^0.39.1"
     }
 }

@@ -11,7 +11,7 @@
 #       }
 #     },
 #     "templateParameters": {
-#       "FOR_BASELINE": true
+#       "BASELINE_RUN": true
 #     }
 #   }
 #   In this situation, we'll treat this as a backfill run on main and upload
@@ -41,6 +41,8 @@ pr: none
 trigger: none
 
 resources:
+  # Note that the repository identifiers are known to external callers; don't
+  # change them without ensuring everything is updated.
   repositories:
     - repository: TypeScript
       type: github
@@ -69,13 +71,28 @@ parameters:
     displayName: Preset
     values:
       - full
-      - faster
+      - regular
+      - tsc-only
     default: full
 
-  - name: FOR_BASELINE
-    displayName: Benchmark run is for baseline tracking; uses a designated machine and uploads. Only uploads when TypeScript's ref is "refs/heads/main".
+  - name: BASELINE_RUN
+    displayName: This build is for baseline tracking and will be uploaded
     type: boolean
     default: false
+
+  # PR trigger params
+  - name: REQUESTING_USER
+    displayName: User to tag when the results are ready
+    type: string
+    default: ''
+  - name: SOURCE_ISSUE
+    displayName: PR ID in github
+    type: number
+    default: 0
+  - name: STATUS_COMMENT
+    displayName: Typescript-bot comment ID indicating that the run started
+    type: number
+    default: 0
 
 variables:
   Codeql.Enabled: false
@@ -92,7 +109,7 @@ variables:
   # Only upload if the provided ref is explicitly main, and either we're triggered by a push to main, or the parameter says we should.
   # This means that main pushes will automatically upload, but we can still queue builds off of main with a specific commit in the API.
   # TODO: what about release branches?
-  SHOULD_UPLOAD: $[ and(eq(resources.repositories['TypeScript'].ref, 'refs/heads/main'), or(eq(variables['Build.Reason'], 'ResourceTrigger'), ${{ parameters.FOR_BASELINE }})) ]
+  SHOULD_UPLOAD: $[ and(eq(resources.repositories['TypeScript'].ref, 'refs/heads/main'), or(eq(variables['Build.Reason'], 'ResourceTrigger'), ${{ parameters.BASELINE_RUN }})) ]
 
 name: $(PRETTY_REF)-$(Date:yyyyMMdd).$(Rev:r)
 # Hide the commit message from the run name; it'll just always say that the
@@ -176,7 +193,7 @@ jobs:
     dependsOn: Setup
     pool:
       name: ts-perf-ddfun
-      ${{ if parameters.FOR_BASELINE }}:
+      ${{ if parameters.BASELINE_RUN }}:
         demands: Agent.Name -equals ts-perf1
     workspace:
       clean: all # Always start with a clean slate.
@@ -498,29 +515,30 @@ jobs:
         displayName: Merge startup benchmarks
         condition: and(succeeded(), eq(variables['TSPERF_RUN_STARTUP'], true))
 
+      - publish: output
+        artifact: Benchmarks
+        displayName: Publish benchmarks
+
+      - checkout: self
+        path: typescript-benchmarking
+        fetchTags: false
+        fetchDepth: 1
+        clean: true
+
       - bash: |
-          cat comment.html
+          cd $(Pipeline.Workspace)/typescript-benchmarking
+          npm ci
+          node ./scripts/postPerfResult.mjs comment.html
         displayName: Publish PR comment
         condition: and(succeeded(), eq(variables['IS_PR'], true))
+        env:
+          # BUILD_BUILDID: already in env via $(Build.BuildId)
+          SOURCE_ISSUE: ${{ parameters.SOURCE_ISSUE }}
+          REQUESTING_USER: ${{ parameters.REQUESTING_USER }}
+          STATUS_COMMENT: ${{ parameters.STATUS_COMMENT }}
+          GH_TOKEN: $(GH_TOKEN)
 
-      # - checkout: self
-      #   path: typescript-benchmarking
-      #   fetchTags: false
-      #   fetchDepth: 1
-      #   clean: true
-
-      # - bash: |
-      #     cd $(Pipeline.Workspace)/typescript-benchmarking
-      #     npm ci
-      #     node ./scripts/postPerfResult.mjs comment.html
-      #   displayName: Publish PR comment
-      #   condition: and(succeeded(), eq(variables['IS_PR'], true))
-      #   env:
-      #     SOURCE_ISSUE: ...
-      #     REQUESTING_USER: ...
-      #     BUILD_BUILDID: ...
-      #     STATUS_COMMENT: ...
-      #     GH_TOKEN: ...
+      # TODO: some sort of on-failure run which replies to PRs
 
       - bash: |
           ls -lh output
@@ -528,9 +546,3 @@ jobs:
           # TODO: files need to be named correctly for the blob store
         displayName: Upload benchmarks to blob store
         condition: and(succeeded(), eq(variables['SHOULD_UPLOAD'], true))
-
-      - publish: output
-        artifact: Benchmarks
-        displayName: Publish benchmarks
-
-      # TODO: some sort of on-failure run which replies to PRs

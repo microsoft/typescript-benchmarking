@@ -1,10 +1,7 @@
 import {
     Octokit,
 } from "@octokit/rest";
-import assert from "assert";
-import ado from "azure-devops-node-api";
 import fs from "fs";
-import fetch from "node-fetch";
 
 async function main() {
     const source = process.env.SOURCE_ISSUE;
@@ -25,7 +22,7 @@ async function main() {
     const artifactName = process.env.ARTIFACT_NAME;
     if (!artifactName) throw new Error("ARTIFACT_NAME environment variable not set.");
 
-    const [fragment, includeArtifact] = process.argv.slice(2);
+    const [fragment] = process.argv.slice(2);
     if (!fragment) throw new Error("First argument must be a path to an HTML fragment.");
 
     const gh = new Octokit({ auth });
@@ -34,36 +31,15 @@ async function main() {
         const outputTableText = fs.readFileSync(fragment, { encoding: "utf8" });
         console.log(`Fragment contents:\n${outputTableText}`);
 
-        let benchmarkText = "";
-        if (includeArtifact === "--include-artifact") {
-            // post a link to the benchmark file
-            const cli = new ado.WebApi(
-                "https://typescript.visualstudio.com/defaultcollection",
-                ado.getHandlerFromToken(""),
-            ); // Empty token, anon auth
-            const build = await cli.getBuildApi();
-            const artifact = await build.getArtifact("typescript", +buildId, artifactName);
-            assert(artifact.resource?.url);
-            const updatedUrl = new URL(artifact.resource.url);
-            updatedUrl.search = `artifactName=${artifactName}&fileId=${artifact.resource.data}&fileName=manifest`;
-            const resp = await (await fetch(`${updatedUrl}`)).json();
-            for (const file of /** @type {any} */ (resp).items) {
-                if (/[\\/]linux\.benchmark$/.test(file.path)) {
-                    const benchmarkUrl = new URL(artifact.resource.url);
-                    benchmarkUrl.search = `artifactName=${artifactName}&fileId=${file.blob.id}&fileName=linux.benchmark`;
-                    benchmarkText =
-                        `\n<details><summary>Developer Information:</summary><p><a href="${benchmarkUrl.href}">Download Benchmarks</a></p></details>\n`;
-                    break;
-                }
-            }
-        }
+        const artifactLink =
+            `\n<details><summary>Developer Information:</summary><p><a href="https://typescript.visualstudio.com/TypeScript/_build/results?buildId=${buildId}&view=artifacts">Download Benchmarks</a></p></details>\n`;
 
         const data = await gh.issues.createComment({
             issue_number: +source,
             owner: "Microsoft",
             repo: "TypeScript",
             body:
-                `@${requester}\nThe results of the perf run you requested are in!\n<details><summary> Here they are:</summary><p>\n${outputTableText}\n</p>${benchmarkText}</details>`,
+                `@${requester}\nThe results of the perf run you requested are in!\n<details><summary> Here they are:</summary><p>\n${outputTableText}\n</p>${artifactLink}</details>`,
         });
 
         console.log(`Results posted!`);
