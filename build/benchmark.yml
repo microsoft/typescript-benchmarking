@@ -454,7 +454,7 @@ jobs:
               --baseline output/baseline.tsc.benchmark \
               --load output/pr.tsc.benchmark
 
-            echo "<h2>Compiler</h2>" >> comment.html
+            echo "<h2>Compiler</h2>" >> $(Pipeline.Workspace)/comment.html
             node internal/scripts/perf/bin/ts-perf benchmark tsc \
               --tsc $(Pipeline.Workspace)/BuiltTypeScript/baseline/tsc.js \
               --baseline output/baseline.tsc.benchmark \
@@ -462,7 +462,7 @@ jobs:
               --baselineName baseline \
               --benchmarkName pr \
               --format html-fragment \
-              --quiet >> comment.html
+              --quiet >> $(Pipeline.Workspace)/comment.html
           else
             node internal/scripts/perf/bin/ts-perf merge --output output/baseline.tsc.benchmark artifacts/*.tsc.benchmark
             # TODO: publish blob, only on ResourceTrigger or explicit parameter true
@@ -483,7 +483,7 @@ jobs:
               --baseline output/baseline.tsserver.benchmark \
               --load output/pr.tsserver.benchmark
 
-            echo "<h2>TSServer</h2>" >> comment.html
+            echo "<h2>TSServer</h2>" >> $(Pipeline.Workspace)/comment.html
             node internal/scripts/perf/bin/ts-perf benchmark tsserver \
               --tsserver $(Pipeline.Workspace)/BuiltTypeScript/baseline/tsserver.js \
               --baseline output/baseline.tsserver.benchmark \
@@ -491,7 +491,7 @@ jobs:
               --baselineName baseline \
               --benchmarkName pr \
               --format html-fragment \
-              --quiet >> comment.html
+              --quiet >> $(Pipeline.Workspace)/comment.html
           else
             node internal/scripts/perf/bin/ts-perf merge --output output/baseline.tsserver.benchmark artifacts/*.tsserver.benchmark
             # TODO: publish blob, only on ResourceTrigger or explicit parameter true
@@ -512,7 +512,7 @@ jobs:
               --baseline output/baseline.startup.benchmark \
               --load output/pr.startup.benchmark
 
-            echo "<h2>Startup</h2>" >> comment.html
+            echo "<h2>Startup</h2>" >> $(Pipeline.Workspace)/comment.html
             node internal/scripts/perf/bin/ts-perf benchmark startup \
               --builtDir $(Pipeline.Workspace)/BuiltTypeScript/baseline \
               --baseline output/baseline.startup.benchmark \
@@ -520,7 +520,7 @@ jobs:
               --baselineName baseline \
               --benchmarkName pr \
               --format html-fragment \
-              --quiet >> comment.html
+              --quiet >> $(Pipeline.Workspace)/$(Pipeline.Workspace)/comment.html
           else
             node internal/scripts/perf/bin/ts-perf merge --output output/baseline.startup.benchmark artifacts/*.startup.benchmark
             node internal/scripts/perf/bin/ts-perf benchmark startup \
@@ -534,10 +534,7 @@ jobs:
         artifact: Benchmarks
         displayName: Publish benchmarks
 
-      - bash: |
-          pwd
-          echo $(Build.SourcesDirectory)
-
+      # Note; this checkout changes $(Build.SourcesDirectory) to a new path.
       - checkout: self
         path: typescript-benchmarking
         fetchTags: false
@@ -545,11 +542,9 @@ jobs:
         clean: true
 
       - bash: |
-          pwd
-          echo $(Build.SourcesDirectory)
           cd $(Pipeline.Workspace)/typescript-benchmarking
           npm ci
-          node ./scripts/postPerfResult.mjs $(Build.SourcesDirectory)/comment.html
+          node ./scripts/postPerfResult.mjs $(Pipeline.Workspace)/comment.html
         displayName: Publish PR comment
         condition: and(succeeded(), eq(variables['IS_PR'], true))
         env:
