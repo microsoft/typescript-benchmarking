@@ -78,6 +78,8 @@ if (preset.tsc) {
     for (const host of preset.tsc.hosts) {
         for (const scenario of preset.tsc.scenarios) {
             hasTsc = true;
+            // TODO: these job names are technically illegal and need to be sanitized
+            // Would be nice to use displayName here but have to figure out how it works in a matrix.
             matrix[`tsc_${host}_${scenario}`] = {
                 "TSPERF_KIND": "tsc",
                 "TSPERF_HOST": host,

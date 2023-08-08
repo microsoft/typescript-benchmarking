@@ -55,6 +55,7 @@ async function main() {
         });
     }
     catch (e) {
+        console.error(e);
         const gh = new Octokit({ auth });
         await gh.issues.createComment({
             issue_number: +source,
