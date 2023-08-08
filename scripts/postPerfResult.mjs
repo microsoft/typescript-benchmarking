@@ -19,9 +19,6 @@ async function main() {
     const auth = process.env.GH_TOKEN;
     if (!auth) throw new Error("GH_TOKEN environment variable not set.");
 
-    const artifactName = process.env.ARTIFACT_NAME;
-    if (!artifactName) throw new Error("ARTIFACT_NAME environment variable not set.");
-
     const [fragment] = process.argv.slice(2);
     if (!fragment) throw new Error("First argument must be a path to an HTML fragment.");
 
