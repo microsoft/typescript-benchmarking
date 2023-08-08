@@ -1,0 +1,23 @@
+steps:
+  # The existence of this AzDo project/repository is not secret.
+  - bash: |
+      n=0
+      until [ "$n" -ge 5 ]
+      do
+        rm -rf $(Pipeline.Workspace)/internal
+        git clone --depth=1 https://mseng:${PAT}@mseng.visualstudio.com/Typescript/_git/Typescript $(Pipeline.Workspace)/internal && exit 0
+        echo Cloning internal repo failed, retrying...
+        n=$((n+1))
+        sleep 1
+      done
+      exit 1
+    env:
+      PAT: $(tslab1-mseng-PAT)
+    displayName: Clone internal repo
+
+  - bash: |
+      cd $(Pipeline.Workspace)/internal/scripts/perf
+      npx yarn install --frozen-lockfile --prefer-offline
+      npx yarn gulp build
+      echo "##vso[task.setvariable variable=TSPERF_EXE]$(Pipeline.Workspace)/internal/scripts/perf/bin/ts-perf"
+    displayName: Build ts-perf

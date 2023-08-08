@@ -104,7 +104,6 @@ variables:
 
   REF: $[ resources.repositories['TypeScript'].ref ]
   PRETTY_REF: $[ replace(replace(replace(variables['REF'], '/merge', ''), 'refs/pull/', 'pr.'), 'refs/heads/', '') ]
-  # TODO: remove this?
   IS_PR: $[ startsWith(variables['REF'], 'refs/pull/') ]
   # True if this run should demand a baseline machine.
   # Note: this expression is the same as the one in the Benchmark job; make sure it stays in sync.
@@ -134,7 +133,6 @@ jobs:
         clean: true
 
       - bash: |
-          # TODO: pass in custom preset parameters
           cd $(Pipeline.Workspace)/typescript-benchmarking
           node ./scripts/generateMatrix.mjs ${{ parameters.TSPERF_PRESET }}
         displayName: Generate matrix
@@ -258,25 +256,13 @@ jobs:
           versionSpec: $(NODE_VERSION)
         displayName: 'Install Node $(NODE_VERSION)'
 
-      # The existence of this AzDo project/repository is not secret.
-      # Maybe this should instead use a service connection + checkout? (But, this is temporary anyway.)
-      # TODO: also, this sometimes fails to clone; add a retry?
-      - bash: git clone --depth=1 https://mseng:${PAT}@mseng.visualstudio.com/Typescript/_git/Typescript internal
-        env:
-          PAT: $(tslab1-mseng-PAT)
-        displayName: Clone internal repo
-
-      - bash: |
-          cd internal/scripts/perf
-          npx yarn install --frozen-lockfile --prefer-offline
-          npx yarn gulp build
-        displayName: Build ts-perf
+      - template: templates/cloneAndBuildTsPerf.yml # Sets TSPERF_EXE
 
       # This is provided by the agent.
       - bash: sudo pyperf system tune
         displayName: Tune system
 
-      - bash: node internal/scripts/perf/bin/ts-perf host install --host $(TSPERF_HOST)
+      - bash: node $(TSPERF_EXE) host install --host $(TSPERF_HOST)
         displayName: Install hosts
 
       # TODO: these steps are needlessly repetitive; clean up
@@ -284,7 +270,7 @@ jobs:
           mkdir -p artifacts
 
           run_benchmark () {
-            node internal/scripts/perf/bin/ts-perf benchmark tsc \
+            node $(TSPERF_EXE) benchmark tsc \
               --cpus ${TSPERF_AGENT_BENCHMARK_CPU} \
               --iterations $(TSPERF_ITERATIONS) \
               --host $(TSPERF_HOST) \
@@ -321,7 +307,7 @@ jobs:
           mkdir -p artifacts
 
           run_benchmark () {
-            node internal/scripts/perf/bin/ts-perf benchmark tsserver \
+            node $(TSPERF_EXE) benchmark tsserver \
               --cpus ${TSPERF_AGENT_BENCHMARK_CPU} \
               --iterations $(TSPERF_ITERATIONS) \
               --host $(TSPERF_HOST) \
@@ -358,7 +344,7 @@ jobs:
           mkdir -p artifacts
 
           run_benchmark () {
-            node internal/scripts/perf/bin/ts-perf benchmark startup \
+            node $(TSPERF_EXE) benchmark startup \
               --cpus ${TSPERF_AGENT_BENCHMARK_CPU} \
               --iterations $(TSPERF_ITERATIONS) \
               --host $(TSPERF_HOST) \
@@ -429,16 +415,7 @@ jobs:
         artifact: BuiltTypeScript
         displayName: Download built TypeScript
 
-      - bash: git clone --depth=1 --branch=gabritto/mergeBenchmark https://mseng:${PAT}@mseng.visualstudio.com/Typescript/_git/Typescript internal
-        env:
-          PAT: $(tslab1-mseng-PAT)
-        displayName: Clone internal repo
-
-      - bash: |
-          cd internal/scripts/perf
-          npx yarn install --frozen-lockfile --prefer-offline
-          npx yarn gulp build
-        displayName: Build ts-perf
+      - template: templates/cloneAndBuildTsPerf.yml # Sets TSPERF_EXE
 
       - bash: mkdir output
         displayName: Create output directory
@@ -446,16 +423,16 @@ jobs:
       # TODO: these steps are needlessly repetitive; clean up
       - bash: |
           if [[ $(REF) == refs/pull/* ]]; then
-            node internal/scripts/perf/bin/ts-perf merge --output output/pr.tsc.benchmark artifacts/pr_*.tsc.benchmark
-            node internal/scripts/perf/bin/ts-perf merge --output output/baseline.tsc.benchmark artifacts/baseline_*.tsc.benchmark
+            node $(TSPERF_EXE) merge --output output/pr.tsc.benchmark artifacts/pr_*.tsc.benchmark
+            node $(TSPERF_EXE) merge --output output/baseline.tsc.benchmark artifacts/baseline_*.tsc.benchmark
 
-            node internal/scripts/perf/bin/ts-perf benchmark tsc \
+            node $(TSPERF_EXE) benchmark tsc \
               --tsc $(Pipeline.Workspace)/BuiltTypeScript/baseline/tsc.js \
               --baseline output/baseline.tsc.benchmark \
               --load output/pr.tsc.benchmark
 
             echo "<h2>Compiler</h2>" >> $(Pipeline.Workspace)/comment.html
-            node internal/scripts/perf/bin/ts-perf benchmark tsc \
+            node $(TSPERF_EXE) benchmark tsc \
               --tsc $(Pipeline.Workspace)/BuiltTypeScript/baseline/tsc.js \
               --baseline output/baseline.tsc.benchmark \
               --load output/pr.tsc.benchmark \
@@ -464,9 +441,8 @@ jobs:
               --format html-fragment \
               --quiet >> $(Pipeline.Workspace)/comment.html
           else
-            node internal/scripts/perf/bin/ts-perf merge --output output/baseline.tsc.benchmark artifacts/*.tsc.benchmark
-            # TODO: publish blob, only on ResourceTrigger or explicit parameter true
-            node internal/scripts/perf/bin/ts-perf benchmark tsc \
+            node $(TSPERF_EXE) merge --output output/baseline.tsc.benchmark artifacts/*.tsc.benchmark
+            node $(TSPERF_EXE) benchmark tsc \
               --tsc $(Pipeline.Workspace)/BuiltTypeScript/baseline/tsc.js \
               --load output/baseline.tsc.benchmark
           fi
@@ -475,16 +451,16 @@ jobs:
 
       - bash: |
           if [[ $(REF) == refs/pull/* ]]; then
-            node internal/scripts/perf/bin/ts-perf merge --output output/pr.tsserver.benchmark artifacts/pr_*.tsserver.benchmark
-            node internal/scripts/perf/bin/ts-perf merge --output output/baseline.tsserver.benchmark artifacts/baseline_*.tsserver.benchmark
+            node $(TSPERF_EXE) merge --output output/pr.tsserver.benchmark artifacts/pr_*.tsserver.benchmark
+            node $(TSPERF_EXE) merge --output output/baseline.tsserver.benchmark artifacts/baseline_*.tsserver.benchmark
 
-            node internal/scripts/perf/bin/ts-perf benchmark tsserver \
+            node $(TSPERF_EXE) benchmark tsserver \
               --tsserver $(Pipeline.Workspace)/BuiltTypeScript/baseline/tsserver.js \
               --baseline output/baseline.tsserver.benchmark \
               --load output/pr.tsserver.benchmark
 
             echo "<h2>TSServer</h2>" >> $(Pipeline.Workspace)/comment.html
-            node internal/scripts/perf/bin/ts-perf benchmark tsserver \
+            node $(TSPERF_EXE) benchmark tsserver \
               --tsserver $(Pipeline.Workspace)/BuiltTypeScript/baseline/tsserver.js \
               --baseline output/baseline.tsserver.benchmark \
               --load output/pr.tsserver.benchmark \
@@ -493,9 +469,8 @@ jobs:
               --format html-fragment \
               --quiet >> $(Pipeline.Workspace)/comment.html
           else
-            node internal/scripts/perf/bin/ts-perf merge --output output/baseline.tsserver.benchmark artifacts/*.tsserver.benchmark
-            # TODO: publish blob, only on ResourceTrigger or explicit parameter true
-            node internal/scripts/perf/bin/ts-perf benchmark tsserver \
+            node $(TSPERF_EXE) merge --output output/baseline.tsserver.benchmark artifacts/*.tsserver.benchmark
+            node $(TSPERF_EXE) benchmark tsserver \
               --tsserver $(Pipeline.Workspace)/BuiltTypeScript/baseline/tsserver.js \
               --load output/baseline.tsserver.benchmark
           fi
@@ -504,16 +479,16 @@ jobs:
 
       - bash: |
           if [[ $(REF) == refs/pull/* ]]; then
-            node internal/scripts/perf/bin/ts-perf merge --output output/pr.startup.benchmark artifacts/pr_*.startup.benchmark
-            node internal/scripts/perf/bin/ts-perf merge --output output/baseline.startup.benchmark artifacts/baseline_*.startup.benchmark
+            node $(TSPERF_EXE) merge --output output/pr.startup.benchmark artifacts/pr_*.startup.benchmark
+            node $(TSPERF_EXE) merge --output output/baseline.startup.benchmark artifacts/baseline_*.startup.benchmark
 
-            node internal/scripts/perf/bin/ts-perf benchmark startup \
+            node $(TSPERF_EXE) benchmark startup \
               --builtDir $(Pipeline.Workspace)/BuiltTypeScript/baseline \
               --baseline output/baseline.startup.benchmark \
               --load output/pr.startup.benchmark
 
             echo "<h2>Startup</h2>" >> $(Pipeline.Workspace)/comment.html
-            node internal/scripts/perf/bin/ts-perf benchmark startup \
+            node $(TSPERF_EXE) benchmark startup \
               --builtDir $(Pipeline.Workspace)/BuiltTypeScript/baseline \
               --baseline output/baseline.startup.benchmark \
               --load output/pr.startup.benchmark \
@@ -522,8 +497,8 @@ jobs:
               --format html-fragment \
               --quiet >> $(Pipeline.Workspace)/$(Pipeline.Workspace)/comment.html
           else
-            node internal/scripts/perf/bin/ts-perf merge --output output/baseline.startup.benchmark artifacts/*.startup.benchmark
-            node internal/scripts/perf/bin/ts-perf benchmark startup \
+            node $(TSPERF_EXE) merge --output output/baseline.startup.benchmark artifacts/*.startup.benchmark
+            node $(TSPERF_EXE) benchmark startup \
               --builtDir $(Pipeline.Workspace)/BuiltTypeScript/baseline \
               --load output/baseline.startup.benchmark
           fi
