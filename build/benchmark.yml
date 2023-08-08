@@ -213,7 +213,8 @@ jobs:
     dependsOn: Setup
     pool:
       name: ts-perf-ddfun
-      demands: $[ dependencies.Setup.outputs['generateDemands.DEMANDS'] ]
+      demands:
+        - $[ dependencies.Setup.outputs['generateDemands.DEMANDS'] ]
     workspace:
       clean: all # Always start with a clean slate.
 
