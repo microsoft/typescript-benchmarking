@@ -534,6 +534,10 @@ jobs:
         artifact: Benchmarks
         displayName: Publish benchmarks
 
+      - bash: |
+          pwd
+          echo $(Build.SourcesDirectory)
+
       - checkout: self
         path: typescript-benchmarking
         fetchTags: false
@@ -541,6 +545,8 @@ jobs:
         clean: true
 
       - bash: |
+          pwd
+          echo $(Build.SourcesDirectory)
           cd $(Pipeline.Workspace)/typescript-benchmarking
           npm ci
           node ./scripts/postPerfResult.mjs $(Build.SourcesDirectory)/comment.html
