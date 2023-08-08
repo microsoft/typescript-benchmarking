@@ -194,7 +194,7 @@ jobs:
             git reset --hard HEAD
             git -C ${CHECKOUT} switch --detach HEAD^1
           fi
-          build_typescript MAIN $(Build.SourcesDirectory)/artifacts/main
+          build_typescript BASELINE $(Build.SourcesDirectory)/artifacts/baseline
         displayName: Build TypeScript
         name: buildTypeScript
 
@@ -218,10 +218,10 @@ jobs:
       matrix: $[ dependencies.Setup.outputs['generateMatrix.MATRIX'] ]
 
     variables:
-      MAIN_COMMIT: $[ dependencies.Setup.outputs['buildTypeScript.MAIN_COMMIT'] ]
-      MAIN_COMMIT_SHORT: $[ dependencies.Setup.outputs['buildTypeScript.MAIN_COMMIT_SHORT'] ]
-      MAIN_DATE: $[ dependencies.Setup.outputs['buildTypeScript.MAIN_DATE'] ]
-      MAIN_TIMESTAMP_DIR: $[ dependencies.Setup.outputs['buildTypeScript.MAIN_TIMESTAMP_DIR'] ]
+      BASELINE_COMMIT: $[ dependencies.Setup.outputs['buildTypeScript.BASELINE_COMMIT'] ]
+      BASELINE_COMMIT_SHORT: $[ dependencies.Setup.outputs['buildTypeScript.BASELINE_COMMIT_SHORT'] ]
+      BASELINE_DATE: $[ dependencies.Setup.outputs['buildTypeScript.BASELINE_DATE'] ]
+      BASELINE_TIMESTAMP_DIR: $[ dependencies.Setup.outputs['buildTypeScript.BASELINE_TIMESTAMP_DIR'] ]
       PR_COMMIT: $[ dependencies.Setup.outputs['buildTypeScript.PR_COMMIT'] ]
       PR_COMMIT_SHORT: $[ dependencies.Setup.outputs['buildTypeScript.PR_COMMIT_SHORT'] ]
       PR_DATE: $[ dependencies.Setup.outputs['buildTypeScript.PR_DATE'] ]
@@ -306,14 +306,14 @@ jobs:
             echo Running baseline benchmark
           fi
           run_benchmark \
-            --tsc $(Pipeline.Workspace)/BuiltTypeScript/main/tsc.js \
-            --save artifacts/main_$(TSPERF_HOST)_$(TSPERF_SCENARIO).tsc.benchmark \
-            --date $(MAIN_DATE) \
+            --tsc $(Pipeline.Workspace)/BuiltTypeScript/baseline/tsc.js \
+            --save artifacts/BASELINE_$(TSPERF_HOST)_$(TSPERF_SCENARIO).tsc.benchmark \
+            --date $(BASELINE_DATE) \
             --repositoryType git \
             --repositoryUrl ${REPOSITORY_URI} \
             --repositoryBranch $(REF) \
-            --repositoryCommit $(MAIN_COMMIT) \
-            --repositoryDate $(MAIN_DATE)
+            --repositoryCommit $(BASELINE_COMMIT) \
+            --repositoryDate $(BASELINE_DATE)
         displayName: Run tsc benchmark
         condition: and(succeeded(), eq(variables['TSPERF_KIND'], 'tsc'))
 
@@ -343,14 +343,14 @@ jobs:
             echo Running baseline benchmark
           fi
           run_benchmark \
-            --tsserver $(Pipeline.Workspace)/BuiltTypeScript/main/tsserver.js \
-            --save artifacts/main_$(TSPERF_HOST)_$(TSPERF_SCENARIO).tsserver.benchmark \
-            --date $(MAIN_DATE) \
+            --tsserver $(Pipeline.Workspace)/BuiltTypeScript/baseline/tsserver.js \
+            --save artifacts/BASELINE_$(TSPERF_HOST)_$(TSPERF_SCENARIO).tsserver.benchmark \
+            --date $(BASELINE_DATE) \
             --repositoryType git \
             --repositoryUrl ${REPOSITORY_URI} \
             --repositoryBranch $(REF) \
-            --repositoryCommit $(MAIN_COMMIT) \
-            --repositoryDate $(MAIN_DATE)
+            --repositoryCommit $(BASELINE_COMMIT) \
+            --repositoryDate $(BASELINE_DATE)
         displayName: Run tsserver benchmark
         condition: and(succeeded(), eq(variables['TSPERF_KIND'], 'tsserver'))
 
@@ -380,14 +380,14 @@ jobs:
             echo Running baseline benchmark
           fi
           run_benchmark \
-            --builtDir $(Pipeline.Workspace)/BuiltTypeScript/main \
-            --save artifacts/main_$(TSPERF_HOST)_$(TSPERF_SCENARIO).startup.benchmark \
-            --date $(MAIN_DATE) \
+            --builtDir $(Pipeline.Workspace)/BuiltTypeScript/baseline \
+            --save artifacts/BASELINE_$(TSPERF_HOST)_$(TSPERF_SCENARIO).startup.benchmark \
+            --date $(BASELINE_DATE) \
             --repositoryType git \
             --repositoryUrl ${REPOSITORY_URI} \
             --repositoryBranch $(REF) \
-            --repositoryCommit $(MAIN_COMMIT) \
-            --repositoryDate $(MAIN_DATE)
+            --repositoryCommit $(BASELINE_COMMIT) \
+            --repositoryDate $(BASELINE_DATE)
         displayName: Run startup benchmark
         condition: and(succeeded(), eq(variables['TSPERF_KIND'], 'startup'))
 
@@ -447,28 +447,28 @@ jobs:
       - bash: |
           if [[ $(REF) == refs/pull/* ]]; then
             node internal/scripts/perf/bin/ts-perf merge --output output/pr.tsc.benchmark artifacts/pr_*.tsc.benchmark
-            node internal/scripts/perf/bin/ts-perf merge --output output/main.tsc.benchmark artifacts/main_*.tsc.benchmark
+            node internal/scripts/perf/bin/ts-perf merge --output output/baseline.tsc.benchmark artifacts/BASELINE_*.tsc.benchmark
 
             node internal/scripts/perf/bin/ts-perf benchmark tsc \
-              --tsc $(Pipeline.Workspace)/BuiltTypeScript/main/tsc.js \
-              --baseline output/main.tsc.benchmark \
+              --tsc $(Pipeline.Workspace)/BuiltTypeScript/baseline/tsc.js \
+              --baseline output/baseline.tsc.benchmark \
               --load output/pr.tsc.benchmark
 
             echo "<h2>Compiler</h2>" >> comment.html
             node internal/scripts/perf/bin/ts-perf benchmark tsc \
-              --tsc $(Pipeline.Workspace)/BuiltTypeScript/main/tsc.js \
-              --baseline output/main.tsc.benchmark \
+              --tsc $(Pipeline.Workspace)/BuiltTypeScript/baseline/tsc.js \
+              --baseline output/baseline.tsc.benchmark \
               --load output/pr.tsc.benchmark \
-              --baselineName main \
+              --baselineName baseline \
               --benchmarkName pr \
               --format html-fragment \
               --quiet >> comment.html
           else
-            node internal/scripts/perf/bin/ts-perf merge --output output/main.tsc.benchmark artifacts/*.tsc.benchmark
+            node internal/scripts/perf/bin/ts-perf merge --output output/baseline.tsc.benchmark artifacts/*.tsc.benchmark
             # TODO: publish blob, only on ResourceTrigger or explicit parameter true
             node internal/scripts/perf/bin/ts-perf benchmark tsc \
-              --tsc $(Pipeline.Workspace)/BuiltTypeScript/main/tsc.js \
-              --load output/main.tsc.benchmark
+              --tsc $(Pipeline.Workspace)/BuiltTypeScript/baseline/tsc.js \
+              --load output/baseline.tsc.benchmark
           fi
         displayName: Merge tsc benchmarks
         condition: and(succeeded(), eq(variables['TSPERF_RUN_TSC'], true))
@@ -476,28 +476,28 @@ jobs:
       - bash: |
           if [[ $(REF) == refs/pull/* ]]; then
             node internal/scripts/perf/bin/ts-perf merge --output output/pr.tsserver.benchmark artifacts/pr_*.tsserver.benchmark
-            node internal/scripts/perf/bin/ts-perf merge --output output/main.tsserver.benchmark artifacts/main_*.tsserver.benchmark
+            node internal/scripts/perf/bin/ts-perf merge --output output/baseline.tsserver.benchmark artifacts/BASELINE_*.tsserver.benchmark
 
             node internal/scripts/perf/bin/ts-perf benchmark tsserver \
-              --tsserver $(Pipeline.Workspace)/BuiltTypeScript/main/tsserver.js \
-              --baseline output/main.tsserver.benchmark \
+              --tsserver $(Pipeline.Workspace)/BuiltTypeScript/baseline/tsserver.js \
+              --baseline output/baseline.tsserver.benchmark \
               --load output/pr.tsserver.benchmark
 
             echo "<h2>TSServer</h2>" >> comment.html
             node internal/scripts/perf/bin/ts-perf benchmark tsserver \
-              --tsserver $(Pipeline.Workspace)/BuiltTypeScript/main/tsserver.js \
-              --baseline output/main.tsserver.benchmark \
+              --tsserver $(Pipeline.Workspace)/BuiltTypeScript/baseline/tsserver.js \
+              --baseline output/baseline.tsserver.benchmark \
               --load output/pr.tsserver.benchmark \
-              --baselineName main \
+              --baselineName baseline \
               --benchmarkName pr \
               --format html-fragment \
               --quiet >> comment.html
           else
-            node internal/scripts/perf/bin/ts-perf merge --output output/main.tsserver.benchmark artifacts/*.tsserver.benchmark
+            node internal/scripts/perf/bin/ts-perf merge --output output/baseline.tsserver.benchmark artifacts/*.tsserver.benchmark
             # TODO: publish blob, only on ResourceTrigger or explicit parameter true
             node internal/scripts/perf/bin/ts-perf benchmark tsserver \
-              --tsserver $(Pipeline.Workspace)/BuiltTypeScript/main/tsserver.js \
-              --load output/main.tsserver.benchmark
+              --tsserver $(Pipeline.Workspace)/BuiltTypeScript/baseline/tsserver.js \
+              --load output/baseline.tsserver.benchmark
           fi
         displayName: Merge tsserver benchmarks
         condition: and(succeeded(), eq(variables['TSPERF_RUN_TSSERVER'], true))
@@ -505,27 +505,27 @@ jobs:
       - bash: |
           if [[ $(REF) == refs/pull/* ]]; then
             node internal/scripts/perf/bin/ts-perf merge --output output/pr.startup.benchmark artifacts/pr_*.startup.benchmark
-            node internal/scripts/perf/bin/ts-perf merge --output output/main.startup.benchmark artifacts/main_*.startup.benchmark
+            node internal/scripts/perf/bin/ts-perf merge --output output/baseline.startup.benchmark artifacts/BASELINE_*.startup.benchmark
 
             node internal/scripts/perf/bin/ts-perf benchmark startup \
-              --builtDir $(Pipeline.Workspace)/BuiltTypeScript/main \
-              --baseline output/main.startup.benchmark \
+              --builtDir $(Pipeline.Workspace)/BuiltTypeScript/baseline \
+              --baseline output/baseline.startup.benchmark \
               --load output/pr.startup.benchmark
 
             echo "<h2>Startup</h2>" >> comment.html
             node internal/scripts/perf/bin/ts-perf benchmark startup \
-              --builtDir $(Pipeline.Workspace)/BuiltTypeScript/main \
-              --baseline output/main.startup.benchmark \
+              --builtDir $(Pipeline.Workspace)/BuiltTypeScript/baseline \
+              --baseline output/baseline.startup.benchmark \
               --load output/pr.startup.benchmark \
-              --baselineName main \
+              --baselineName baseline \
               --benchmarkName pr \
               --format html-fragment \
               --quiet >> comment.html
           else
-            node internal/scripts/perf/bin/ts-perf merge --output output/main.startup.benchmark artifacts/*.startup.benchmark
+            node internal/scripts/perf/bin/ts-perf merge --output output/baseline.startup.benchmark artifacts/*.startup.benchmark
             node internal/scripts/perf/bin/ts-perf benchmark startup \
-              --builtDir $(Pipeline.Workspace)/BuiltTypeScript/main \
-              --load output/main.startup.benchmark
+              --builtDir $(Pipeline.Workspace)/BuiltTypeScript/baseline \
+              --load output/baseline.startup.benchmark
           fi
         displayName: Merge startup benchmarks
         condition: and(succeeded(), eq(variables['TSPERF_RUN_STARTUP'], true))
