@@ -139,6 +139,8 @@ jobs:
         name: generateMatrix
 
       - bash: |
+          # TODO: this doesn't work at all; need to figure out a new way to do this, probably a whole new job
+          # with some templates to get rid of all the repetition.
           if [[ "${DEMAND_BASELINE,,}" == "true" ]]; then
             echo DEMAND_BASELINE is true, demanding ts-perf1
             echo "##vso[task.setvariable variable=DEMANDS]Agent.Name -equals ts-perf1"
@@ -213,7 +215,7 @@ jobs:
     dependsOn: Setup
     pool:
       name: ts-perf-ddfun
-      demands: $(DEMANDS)
+      # demands: $(DEMANDS)
     workspace:
       clean: all # Always start with a clean slate.
 
