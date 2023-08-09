@@ -106,13 +106,13 @@ async function getCommonBenchmarkArgs(
         const hosts = getNonEmptyEnv(hostsEnvVarName);
         const scenarios = getNonEmptyEnv(scenariosEnvVarName);
         const iterations = getNonEmptyEnv(iterationsEnvVarName);
-        const cpus = getNonEmptyEnv("TSPERF_AGENT_BENCHMARK_CPUS");
+        const cpu = getNonEmptyEnv("TSPERF_AGENT_BENCHMARK_CPU");
         const info = await getRepoInfo();
 
         tsperfArgs.push(...createFlags("host", [hosts]));
         tsperfArgs.push(...createFlags("scenario", [scenarios]));
         tsperfArgs.push("--iterations", iterations);
-        tsperfArgs.push("--cpus", cpus);
+        tsperfArgs.push("--cpus", cpu);
 
         tsperfArgs.push("--date", info.date);
         tsperfArgs.push("--repositoryType", "git");
