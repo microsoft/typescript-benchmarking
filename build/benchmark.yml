@@ -141,12 +141,12 @@ jobs:
       # TODO: pass in ref? make sure baseline says actual PR base? need API?
       - bash: node $(BENCH_SCRIPTS)/buildTypeScript.mjs --outputDir $(ARTIFACTS_DIR)/pr
         displayName: Build PR TypeScript
-        condition: eq(variables['IS_PR'], true)
+        condition: and(succeeded(), eq(variables['IS_PR'], true))
         workingDirectory: $(Pipeline.Workspace)/TypeScript
 
       - bash: git switch --detach HEAD^1
         displayName: Switch to merge base
-        condition: eq(variables['IS_PR'], true)
+        condition: and(succeeded(), eq(variables['IS_PR'], true))
         workingDirectory: $(Pipeline.Workspace)/TypeScript
 
       - bash: node $(BENCH_SCRIPTS)/buildTypeScript.mjs --outputDir $(ARTIFACTS_DIR)/baseline
@@ -208,42 +208,42 @@ jobs:
             --builtDir $(BUILT_TYPESCRIPT_DIR)/pr \
             --save $(ARTIFACTS_DIR)/pr_$(TSPERF_JOB_NAME).tsc.benchmark
         displayName: Run PR tsc benchmark
-        condition: and(eq(variables['IS_PR'], true), eq(variables['TSPERF_RUN_TSC'], true))
+        condition: and(succeeded(), eq(variables['IS_PR'], true), eq(variables['TSPERF_RUN_TSC'], true))
 
       - bash: |
           node $(BENCH_SCRIPTS)/runTsPerf.mjs benchmark-tsc \
             --builtDir $(BUILT_TYPESCRIPT_DIR)/baseline \
             --save $(ARTIFACTS_DIR)/baseline_$(TSPERF_JOB_NAME).tsc.benchmark
         displayName: Run baseline tsc benchmark
-        condition: eq(variables['TSPERF_RUN_TSC'], true)
+        condition: and(succeeded(), eq(variables['TSPERF_RUN_TSC'], true))
 
       - bash: |
           node $(BENCH_SCRIPTS)/runTsPerf.mjs benchmark-tsserver \
             --builtDir $(BUILT_TYPESCRIPT_DIR)/pr \
             --save $(ARTIFACTS_DIR)/pr_$(TSPERF_JOB_NAME).tsserver.benchmark
         displayName: Run PR tsserver benchmark
-        condition: and(eq(variables['IS_PR'], true), eq(variables['TSPERF_RUN_TSSERVER'], true))
+        condition: and(succeeded(), eq(variables['IS_PR'], true), eq(variables['TSPERF_RUN_TSSERVER'], true))
 
       - bash: |
           node $(BENCH_SCRIPTS)/runTsPerf.mjs benchmark-tsserver \
             --builtDir $(BUILT_TYPESCRIPT_DIR)/baseline \
             --save $(ARTIFACTS_DIR)/baseline_$(TSPERF_JOB_NAME).tsserver.benchmark
         displayName: Run baseline tsserver benchmark
-        condition: eq(variables['TSPERF_RUN_TSSERVER'], true)
+        condition: and(succeeded(), eq(variables['TSPERF_RUN_TSSERVER'], true))
 
       - bash: |
           node $(BENCH_SCRIPTS)/runTsPerf.mjs benchmark-startup \
             --builtDir $(BUILT_TYPESCRIPT_DIR)/pr \
             --save $(ARTIFACTS_DIR)/pr_$(TSPERF_JOB_NAME).startup.benchmark
         displayName: Run PR startup benchmark
-        condition: and(eq(variables['IS_PR'], true), eq(variables['TSPERF_RUN_STARTUP'], true))
+        condition: and(succeeded(), eq(variables['IS_PR'], true), eq(variables['TSPERF_RUN_STARTUP'], true))
 
       - bash: |
           node $(BENCH_SCRIPTS)/runTsPerf.mjs benchmark-startup \
             --builtDir $(BUILT_TYPESCRIPT_DIR)/baseline \
             --save $(ARTIFACTS_DIR)/baseline_$(TSPERF_JOB_NAME).startup.benchmark
         displayName: Run baseline startup benchmark
-        condition: eq(variables['TSPERF_RUN_STARTUP'], true)
+        condition: and(succeeded(), eq(variables['TSPERF_RUN_STARTUP'], true))
 
       - publish: $(ARTIFACTS_DIR)
         artifact: PartialBenchmark_$(TSPERF_JOB_NAME)
