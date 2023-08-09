@@ -99,15 +99,14 @@ variables:
   skipComponentGovernanceDetection: true
 
   REF: $[ resources.repositories['TypeScript'].ref ]
-  PRETTY_REF: $[ replace(replace(replace(variables['REF'], '/merge', ''), 'refs/pull/', 'pr.'), 'refs/heads/', '') ]
+  PRETTY_REF: $[ replace(replace(replace(replace(variables['REF'], '/merge', ''), 'refs/pull/', 'pr.'), 'refs/heads/', ''), '/', '_') ]
   IS_PR: $[ startsWith(variables['REF'], 'refs/pull/') ]
   # True if this run should demand a baseline machine.
   # Note: this expression is the same as the one in the Benchmark job; make sure it stays in sync.
   USE_BASELINE_MACHINE: $[ or(eq(variables['Build.Reason'], 'ResourceTrigger'), ${{ parameters.BASELINE_RUN }}) ]
-  # Only upload if the provided ref is explicitly main and we've run on the baseline machine.
+  # Only upload if the provided ref is explicitly main/release-* and we've run on the baseline machine.
   # This means that main pushes will automatically upload, but we can still queue builds off of main with a specific commit in the API.
-  # TODO: what about release branches? Probably just startsWith, but we also need to fix the uploading code.
-  SHOULD_UPLOAD: $[ and(eq(variables['REF'], 'refs/heads/main'), variables['USE_BASELINE_MACHINE']) ]
+  SHOULD_UPLOAD: $[ and(or(eq(variables['REF'], 'refs/heads/main'), startsWith(variables['REF'], "refs/heads/release-")), variables['USE_BASELINE_MACHINE']) ]
 
 name: $(PRETTY_REF)-$(Date:yyyyMMdd).$(Rev:r)
 # Hide the commit message from the run name; it'll just always say that the
@@ -138,7 +137,6 @@ jobs:
         fetchDepth: 2 # For PRs, we want the merge base to compare against.
         clean: true
 
-      # TODO: pass in ref? make sure baseline says actual PR base? need API?
       - bash: node $(BENCH_SCRIPTS)/buildTypeScript.mjs --outputDir $(ARTIFACTS_DIR)/pr
         displayName: Build PR TypeScript
         condition: and(succeeded(), eq(variables['IS_PR'], true))
@@ -276,12 +274,12 @@ jobs:
       # first and move them somewhere else, before doing any other steps that would download
       # further artifacts.
       - bash: |
-          shopt -s globstar # TODO: this wasn't here before but it seemed to have worked
+          shopt -s globstar
           mkdir -p $(BENCHMARKS_DIR)
           mv $(Pipeline.Workspace)/**/*.benchmark $(BENCHMARKS_DIR)
         displayName: Move artifacts
 
-      # TODO: We only need this because ts-perf requires it even for loading existing benchmarks
+      # We only need this because ts-perf requires it even for loading existing benchmarks
       - download: current
         artifact: BuiltTypeScript
         displayName: Download built TypeScript
@@ -395,6 +393,7 @@ jobs:
       - bash: |
           ls -lh $(MERGED_DIR)
           # TODO: actually upload
-          # TODO: files need to be named correctly for the blob store
+          # - Files need to be named correctly for the blob store
+          # - Release branches need to be handled (pull branch name from setup step)
         displayName: Upload benchmarks to blob store
         condition: and(succeeded(), eq(variables['SHOULD_UPLOAD'], true))
