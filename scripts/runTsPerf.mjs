@@ -4,7 +4,7 @@ import fs from "fs";
 import minimist from "minimist";
 import path from "path";
 
-const $ = _$({ verbose: true });
+const $ = _$({ verbose: true, stdio: "inherit" });
 
 const [subcommand, ...rawArgs] = process.argv.slice(2);
 
@@ -153,7 +153,7 @@ async function benchmarkTsc() {
         "TSPERF_TSC_HOSTS",
         "TSPERF_TSC_SCENARIOS",
         "TSPERF_TSC_ITERATIONS",
-    )
+    );
 
     await $`node ${tsperfExe} benchmark tsc --tsc ${tscPath} ${tsperfArgs}`;
 }
@@ -166,7 +166,7 @@ async function benchmarkTsserver() {
         "TSPERF_TSSERVER_HOSTS",
         "TSPERF_TSSERVER_SCENARIOS",
         "TSPERF_TSSERVER_ITERATIONS",
-    )
+    );
 
     await $`node ${tsperfExe} benchmark tsserver --tsserver ${tsserverPath} ${tsperfArgs}`;
 }
@@ -178,7 +178,7 @@ async function benchmarkStartup() {
         "TSPERF_STARTUP_HOSTS",
         "TSPERF_STARTUP_SCENARIOS",
         "TSPERF_STARTUP_ITERATIONS",
-    )
+    );
 
     await $`node ${tsperfExe} benchmark startup --builtDir ${builtDir} ${tsperfArgs}`;
 }
