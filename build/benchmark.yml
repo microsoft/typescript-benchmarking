@@ -106,7 +106,7 @@ variables:
   USE_BASELINE_MACHINE: $[ or(eq(variables['Build.Reason'], 'ResourceTrigger'), ${{ parameters.BASELINE_RUN }}) ]
   # Only upload if the provided ref is explicitly main/release-* and we've run on the baseline machine.
   # This means that main pushes will automatically upload, but we can still queue builds off of main with a specific commit in the API.
-  SHOULD_UPLOAD: $[ and(or(eq(variables['REF'], 'refs/heads/main'), startsWith(variables['REF'], "refs/heads/release-")), variables['USE_BASELINE_MACHINE']) ]
+  SHOULD_UPLOAD: $[ and(or(eq(variables['REF'], 'refs/heads/main'), startsWith(variables['REF'], 'refs/heads/release-')), variables['USE_BASELINE_MACHINE']) ]
 
 name: $(PRETTY_REF)-$(Date:yyyyMMdd).$(Rev:r)
 # Hide the commit message from the run name; it'll just always say that the
