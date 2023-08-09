@@ -15,7 +15,7 @@
 #     }
 #   }
 #   In this situation, we'll treat this as a backfill run on main and upload
-#   the results to the blob store.
+#   the results to the blob store. This also works for refs/heads/release-*.
 # - On manual trigger via the API, with a payload like:
 #   {
 #     "resources": {
@@ -29,13 +29,9 @@
 #   pull request as a comment. Note that this payload is not one that the UI
 #   supports, but it's possible to manually trigger it via the API, in which
 #   case the UI will properly render all details about the resources.
-#
-# TODO: We should also support running on release branches, both for new
-# commits and for backfilling.
 
 # General TODOs:
-# - The extra info for the benchmarks is empty.
-# - On PRs, rerun ts-perf to show the difference for one benchmark.
+# - All scripts need "set -eo pipefail"
 
 pr: none
 trigger: none
