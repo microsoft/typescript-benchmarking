@@ -128,12 +128,6 @@ jobs:
       - template: templates/setup.yml
       - template: templates/cloneAndBuildBenchmarkRepo.yml # Sets $(BENCH_SCRIPTS)
 
-      - checkout: self
-        path: typescript-benchmarking
-        fetchTags: false
-        fetchDepth: 1
-        clean: true
-
       - bash: node $(BENCH_SCRIPTS)/generateMatrix.mjs --preset ${{ parameters.TSPERF_PRESET }}
         displayName: Generate matrix
         name: generateMatrix
