@@ -104,13 +104,15 @@ if (baselining) {
 
     matrix["all"] = {
         "TSPERF_JOB_NAME": "all",
-        "TSPERF_JOB_KIND": "all",
+        "TSPERF_TSC": !!preset.tsc?.iterations,
         "TSPERF_TSC_HOSTS": preset.tsc?.hosts.join(","),
         "TSPERF_TSC_SCENARIOS": preset.tsc?.scenarios.join(","),
         "TSPERF_TSC_ITERATIONS": preset.tsc?.iterations,
+        "TSPERF_TSSERVER": !!preset.tsserver?.iterations,
         "TSPERF_TSSERVER_HOSTS": preset.tsserver?.hosts.join(","),
         "TSPERF_TSSERVER_SCENARIOS": preset.tsserver?.scenarios.join(","),
         "TSPERF_TSSERVER_ITERATIONS": preset.tsserver?.iterations,
+        "TSPERF_STARTUP": !!preset.startup?.iterations,
         "TSPERF_STARTUP_HOSTS": preset.startup?.hosts.join(","),
         "TSPERF_STARTUP_SCENARIOS": preset.startup?.scenarios.join(","),
         "TSPERF_STARTUP_ITERATIONS": preset.startup?.iterations,
@@ -125,7 +127,7 @@ else {
                 const jobName = sanitizeJobName(`tsc_${host}_${scenario}`);
                 matrix[jobName] = {
                     "TSPERF_JOB_NAME": jobName,
-                    "TSPERF_JOB_KIND": "tsc",
+                    "TSPERF_TSC": true ,
                     "TSPERF_TSC_HOSTS": host,
                     "TSPERF_TSC_SCENARIOS": scenario,
                     "TSPERF_TSC_ITERATIONS": preset.tsc.iterations,
@@ -141,7 +143,7 @@ else {
                 const jobName = sanitizeJobName(`tsserver_${host}_${scenario}`);
                 matrix[jobName] = {
                     "TSPERF_JOB_NAME": jobName,
-                    "TSPERF_JOB_KIND": "tsserver",
+                    "TSPERF_TSSERVER": true,
                     "TSPERF_TSSERVER_HOSTS": host,
                     "TSPERF_TSSERVER_SCENARIOS": scenario,
                     "TSPERF_TSSERVER_ITERATIONS": preset.tsserver.iterations,
@@ -157,7 +159,7 @@ else {
                 const jobName = sanitizeJobName(`startup_${host}_${scenario}`);
                 matrix[jobName] = {
                     "TSPERF_JOB_NAME": jobName,
-                    "TSPERF_JOB_KIND": "startup",
+                    "TSPERF_STARTUP": true,
                     "TSPERF_STARTUP_HOSTS": host,
                     "TSPERF_STARTUP_SCENARIOS": scenario,
                     "TSPERF_STARTUP_ITERATIONS": preset.startup.iterations,
