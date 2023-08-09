@@ -6,7 +6,7 @@ parameters:
 steps:
   - task: NodeTool@0
     inputs:
-      versionSpec: ${{ parameters.NODE_VERSION }}}
+      versionSpec: ${{ parameters.NODE_VERSION }}
     displayName: 'Install Node ${{ parameters.NODE_VERSION }}'
 
   - bash: git config --global core.longpaths true
