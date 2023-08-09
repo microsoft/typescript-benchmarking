@@ -166,9 +166,9 @@ jobs:
       matrix: $[ dependencies.Setup.outputs['generateMatrix.MATRIX'] ]
 
     variables:
-      TSPERF_RUN_TSC: $[ dependencies.Setup.outputs['generateMatrix.TSPERF_RUN_TSC'] ]
-      TSPERF_RUN_TSSERVER: $[ dependencies.Setup.outputs['generateMatrix.TSPERF_RUN_TSSERVER'] ]
-      TSPERF_RUN_STARTUP: $[ dependencies.Setup.outputs['generateMatrix.TSPERF_RUN_STARTUP'] ]
+      TSPERF_RUN_TSC: $[ or(eq(variables['TSPERF_JOB_KIND'], 'tsc'), eq(variables['TSPERF_JOB_KIND'], 'all')) ]
+      TSPERF_RUN_TSSERVER: $[ or(eq(variables['TSPERF_JOB_KIND'], 'tsserver'), eq(variables['TSPERF_JOB_KIND'], 'all')) ]
+      TSPERF_RUN_STARTUP: $[ or(eq(variables['TSPERF_JOB_KIND'], 'startup'), eq(variables['TSPERF_JOB_KIND'], 'all')) ]
       BUILT_TYPESCRIPT_DIR: $(Pipeline.Workspace)/BuiltTypeScript
       ARTIFACTS_DIR: $(Pipeline.Workspace)/artifacts
 
@@ -202,42 +202,42 @@ jobs:
             --builtDir $(BUILT_TYPESCRIPT_DIR)/pr \
             --save $(ARTIFACTS_DIR)/pr_$(TSPERF_JOB_NAME).tsc.benchmark
         displayName: Run PR tsc benchmark
-        condition: and(succeeded(), eq(variables['IS_PR'], 'true'), eq(variables['TSPERF_RUN_TSC'], 'true'))
+        condition: and(succeeded(), eq(variables['IS_PR'], 'true'), variables['TSPERF_RUN_TSC'])
 
       - bash: |
           node $(BENCH_SCRIPTS)/runTsPerf.mjs benchmark-tsc \
             --builtDir $(BUILT_TYPESCRIPT_DIR)/baseline \
             --save $(ARTIFACTS_DIR)/baseline_$(TSPERF_JOB_NAME).tsc.benchmark
         displayName: Run baseline tsc benchmark
-        condition: and(succeeded(), eq(variables['TSPERF_RUN_TSC'], 'true'))
+        condition: and(succeeded(), variables['TSPERF_RUN_TSC'])
 
       - bash: |
           node $(BENCH_SCRIPTS)/runTsPerf.mjs benchmark-tsserver \
             --builtDir $(BUILT_TYPESCRIPT_DIR)/pr \
             --save $(ARTIFACTS_DIR)/pr_$(TSPERF_JOB_NAME).tsserver.benchmark
         displayName: Run PR tsserver benchmark
-        condition: and(succeeded(), eq(variables['IS_PR'], 'true'), eq(variables['TSPERF_RUN_TSSERVER'], 'true'))
+        condition: and(succeeded(), eq(variables['IS_PR'], 'true'), variables['TSPERF_RUN_TSSERVER'])
 
       - bash: |
           node $(BENCH_SCRIPTS)/runTsPerf.mjs benchmark-tsserver \
             --builtDir $(BUILT_TYPESCRIPT_DIR)/baseline \
             --save $(ARTIFACTS_DIR)/baseline_$(TSPERF_JOB_NAME).tsserver.benchmark
         displayName: Run baseline tsserver benchmark
-        condition: and(succeeded(), eq(variables['TSPERF_RUN_TSSERVER'], 'true'))
+        condition: and(succeeded(), variables['TSPERF_RUN_TSSERVER'])
 
       - bash: |
           node $(BENCH_SCRIPTS)/runTsPerf.mjs benchmark-startup \
             --builtDir $(BUILT_TYPESCRIPT_DIR)/pr \
             --save $(ARTIFACTS_DIR)/pr_$(TSPERF_JOB_NAME).startup.benchmark
         displayName: Run PR startup benchmark
-        condition: and(succeeded(), eq(variables['IS_PR'], 'true'), eq(variables['TSPERF_RUN_STARTUP'], 'true'))
+        condition: and(succeeded(), eq(variables['IS_PR'], 'true'), variables['TSPERF_RUN_STARTUP'])
 
       - bash: |
           node $(BENCH_SCRIPTS)/runTsPerf.mjs benchmark-startup \
             --builtDir $(BUILT_TYPESCRIPT_DIR)/baseline \
             --save $(ARTIFACTS_DIR)/baseline_$(TSPERF_JOB_NAME).startup.benchmark
         displayName: Run baseline startup benchmark
-        condition: and(succeeded(), eq(variables['TSPERF_RUN_STARTUP'], 'true'))
+        condition: and(succeeded(), variables['TSPERF_RUN_STARTUP'])
 
       - publish: $(ARTIFACTS_DIR)
         artifact: PartialBenchmark_$(TSPERF_JOB_NAME)
@@ -253,9 +253,9 @@ jobs:
       clean: all # Always start with a clean slate.
 
     variables:
-      TSPERF_RUN_TSC: $[ dependencies.Setup.outputs['generateMatrix.TSPERF_RUN_TSC'] ]
-      TSPERF_RUN_TSSERVER: $[ dependencies.Setup.outputs['generateMatrix.TSPERF_RUN_TSSERVER'] ]
-      TSPERF_RUN_STARTUP: $[ dependencies.Setup.outputs['generateMatrix.TSPERF_RUN_STARTUP'] ]
+      TSPERF_MERGE_TSC: $[ dependencies.Setup.outputs['generateMatrix.TSPERF_MERGE_TSC'] ]
+      TSPERF_MERGE_TSSERVER: $[ dependencies.Setup.outputs['generateMatrix.TSPERF_MERGE_TSSERVER'] ]
+      TSPERF_MERGE_STARTUP: $[ dependencies.Setup.outputs['generateMatrix.TSPERF_MERGE_STARTUP'] ]
       BUILT_TYPESCRIPT_DIR: $(Pipeline.Workspace)/BuiltTypeScript
       BENCHMARKS_DIR: $(Pipeline.Workspace)/benchmarks
       MERGED_DIR: $(Pipeline.Workspace)/merged
@@ -313,7 +313,7 @@ jobs:
               --load $(MERGED_DIR)/baseline.tsc.benchmark
           fi
         displayName: Merge tsc benchmarks
-        condition: and(succeeded(), eq(variables['TSPERF_RUN_TSC'], 'true'))
+        condition: and(succeeded(), eq(variables['TSPERF_MERGE_TSC'], 'true'))
 
       - bash: |
           node $(TSPERF_EXE) merge --output $(MERGED_DIR)/baseline.tsserver.benchmark $(BENCHMARKS_DIR)/baseline_*.tsserver.benchmark
@@ -341,7 +341,7 @@ jobs:
               --load $(MERGED_DIR)/baseline.tsserver.benchmark
           fi
         displayName: Merge tsserver benchmarks
-        condition: and(succeeded(), eq(variables['TSPERF_RUN_TSSERVER'], 'true'))
+        condition: and(succeeded(), eq(variables['TSPERF_MERGE_TSSERVER'], 'true'))
 
       - bash: |
           node $(TSPERF_EXE) merge --output $(MERGED_DIR)/baseline.startup.benchmark $(BENCHMARKS_DIR)/baseline_*.startup.benchmark
@@ -369,7 +369,7 @@ jobs:
               --load $(MERGED_DIR)/baseline.startup.benchmark
           fi
         displayName: Merge startup benchmarks
-        condition: and(succeeded(), eq(variables['TSPERF_RUN_STARTUP'], 'true'))
+        condition: and(succeeded(), eq(variables['TSPERF_MERGE_STARTUP'], 'true'))
 
       - publish: $(MERGED_DIR)
         artifact: Benchmarks
