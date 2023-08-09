@@ -117,7 +117,7 @@ async function getCommonBenchmarkArgs(
         tsperfArgs.push("--date", info.date);
         tsperfArgs.push("--repositoryType", "git");
         // tsperfArgs.push("--repositoryUrl", ""); // TODO: needed?
-        // tsperfArgs.push("--repositoryBranch", ""); // TODO: figure out how to get this accurately
+        tsperfArgs.push("--repositoryBranch", info.branch);
         tsperfArgs.push("--repositoryCommit", info.commit);
         tsperfArgs.push("--repositoryDate", info.date);
     }

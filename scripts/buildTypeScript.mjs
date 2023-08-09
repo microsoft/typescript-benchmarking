@@ -2,6 +2,7 @@ import assert from "assert";
 import { $ as _$ } from "execa";
 import fs from "fs";
 import minimist from "minimist";
+import fetch from "node-fetch";
 import path from "path";
 
 const $pipe = _$({ verbose: true });
@@ -14,7 +15,10 @@ const { stdout: timestampDir } = await $pipe`date -d ${date} -u +%Y/%m/%d`;
 
 const args = minimist(process.argv.slice(2), {
     string: ["outputDir"],
+    boolean: ["baseline"],
 });
+
+const isPR = (process.env.IS_PR || "").toUpperCase() === "TRUE";
 
 const outputDir = args.outputDir;
 assert(outputDir, "Expected output path as first argument");
@@ -38,9 +42,31 @@ else {
 await $`git clean -fddx`;
 await $`git reset --hard HEAD`;
 
+let branch;
+
+const ref = process.env.REF;
+assert(ref, "Expected REF environment variable to be set");
+
+if (isPR) {
+    if (args.baseline) {
+        const prNumber = ref.split("/")[2];
+        const resp = await fetch(`https://api.github.com/repos/microsoft/TypeScript/pulls/${prNumber}`);
+        const pr = await resp.json();
+        branch = /** @type {any} */ (pr).base.ref;
+    }
+    else {
+        branch = ref;
+    }
+}
+else {
+    assert(ref.startsWith("refs/heads/"), "Expected ref to start with refs/heads/");
+    branch = ref.replace(/^refs\/heads\//, "");
+}
+
 const info = {
     commit,
     commitShort,
+    branch,
     date,
     timestampDir,
 };

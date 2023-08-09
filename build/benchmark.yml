@@ -149,7 +149,7 @@ jobs:
         condition: and(succeeded(), eq(variables['IS_PR'], true))
         workingDirectory: $(Pipeline.Workspace)/TypeScript
 
-      - bash: node $(BENCH_SCRIPTS)/buildTypeScript.mjs --outputDir $(ARTIFACTS_DIR)/baseline
+      - bash: node $(BENCH_SCRIPTS)/buildTypeScript.mjs --baseline --outputDir $(ARTIFACTS_DIR)/baseline
         displayName: Build baseline TypeScript
         workingDirectory: $(Pipeline.Workspace)/TypeScript
 
