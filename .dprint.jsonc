@@ -17,15 +17,14 @@
         "arrowFunction.useParentheses": "preferNone",
         "conditionalExpression.linePerExpression": false, // Keep our "match/case"-ish conditionals.
         "functionExpression.spaceAfterFunctionKeyword": true,
-        "importDeclaration.forceMultiLine": true,
+        // "importDeclaration.forceMultiLine": true,
         "constructorType.spaceAfterNewKeyword": true,
-        "constructSignature.spaceAfterNewKeyword": true,
-
+        "constructSignature.spaceAfterNewKeyword": true
         // Let eslint-plugin-simple-import-sort handle this.
-        "module.sortImportDeclarations": "maintain",
-        "module.sortExportDeclarations": "maintain",
-        "exportDeclaration.sortNamedExports": "maintain",
-        "importDeclaration.sortNamedImports": "maintain"
+        // "module.sortImportDeclarations": "maintain",
+        // "module.sortExportDeclarations": "maintain",
+        // "exportDeclaration.sortNamedExports": "maintain",
+        // "importDeclaration.sortNamedImports": "maintain"
     },
     "prettier": {
         "associations": [

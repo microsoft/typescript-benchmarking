@@ -1,0 +1,12 @@
+steps:
+  - checkout: self
+    path: typescript-benchmarking
+    fetchTags: false
+    fetchDepth: 1
+    clean: true
+
+  - bash: |
+      cd $(Pipeline.Workspace)/typescript-benchmarking
+      npm ci
+      echo "##vso[task.setvariable variable=BENCH_SCRIPTS]$(Pipeline.Workspace)/typescript-benchmarking/scripts"
+    displayName: Install typescript-benchmarking

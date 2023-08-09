@@ -98,20 +98,16 @@ variables:
   Codeql.Enabled: false
   skipComponentGovernanceDetection: true
 
-  # This is just the version of node used to build TypeScript, run ts-perf, etc.
-  # The actual benchmarked node version is controlled by ts-perf.
-  NODE_VERSION: '16.x'
-
   REF: $[ resources.repositories['TypeScript'].ref ]
   PRETTY_REF: $[ replace(replace(replace(variables['REF'], '/merge', ''), 'refs/pull/', 'pr.'), 'refs/heads/', '') ]
   IS_PR: $[ startsWith(variables['REF'], 'refs/pull/') ]
   # True if this run should demand a baseline machine.
   # Note: this expression is the same as the one in the Benchmark job; make sure it stays in sync.
-  DEMAND_BASELINE: $[ or(eq(variables['Build.Reason'], 'ResourceTrigger'), ${{ parameters.BASELINE_RUN }}) ]
+  USE_BASELINE_MACHINE: $[ or(eq(variables['Build.Reason'], 'ResourceTrigger'), ${{ parameters.BASELINE_RUN }}) ]
   # Only upload if the provided ref is explicitly main and we've run on the baseline machine.
   # This means that main pushes will automatically upload, but we can still queue builds off of main with a specific commit in the API.
   # TODO: what about release branches? Probably just startsWith, but we also need to fix the uploading code.
-  SHOULD_UPLOAD: $[ and(eq(variables['REF'], 'refs/heads/main'), variables['DEMAND_BASELINE']) ]
+  SHOULD_UPLOAD: $[ and(eq(variables['REF'], 'refs/heads/main'), variables['USE_BASELINE_MACHINE']) ]
 
 name: $(PRETTY_REF)-$(Date:yyyyMMdd).$(Rev:r)
 # Hide the commit message from the run name; it'll just always say that the
@@ -125,16 +121,20 @@ jobs:
     workspace:
       clean: all # Always start with a clean slate.
 
+    variables:
+      ARTIFACTS_DIR: $(Pipeline.Workspace)/artifacts
+
     steps:
+      - template: templates/setup.yml
+      - template: templates/cloneAndBuildBenchmarkRepo.yml # Sets $(BENCH_SCRIPTS)
+
       - checkout: self
         path: typescript-benchmarking
         fetchTags: false
         fetchDepth: 1
         clean: true
 
-      - bash: |
-          cd $(Pipeline.Workspace)/typescript-benchmarking
-          node ./scripts/generateMatrix.mjs ${{ parameters.TSPERF_PRESET }}
+      - bash: node $(BENCH_SCRIPTS)/generateMatrix.mjs --preset ${{ parameters.TSPERF_PRESET }}
         displayName: Generate matrix
         name: generateMatrix
 
@@ -144,60 +144,22 @@ jobs:
         fetchDepth: 2 # For PRs, we want the merge base to compare against.
         clean: true
 
-      - task: NodeTool@0
-        inputs:
-          versionSpec: $(NODE_VERSION)
-        displayName: 'Install Node $(NODE_VERSION)'
+      # TODO: pass in ref? make sure baseline says actual PR base? need API?
+      - bash: node $(BENCH_SCRIPTS)/buildTypeScript.mjs --outputDir $(ARTIFACTS_DIR)/pr
+        displayName: Build PR TypeScript
+        condition: eq(variables['IS_PR'], true)
+        workingDirectory: $(Pipeline.Workspace)/TypeScript
 
-      - bash: |
-          mkdir artifacts
-          CHECKOUT=$(Pipeline.Workspace)/TypeScript
+      - bash: git switch --detach HEAD^1
+        displayName: Switch to merge base
+        condition: eq(variables['IS_PR'], true)
+        workingDirectory: $(Pipeline.Workspace)/TypeScript
 
-          build_typescript() {
-            NAME=$1
-            OUTPUT=$2
+      - bash: node $(BENCH_SCRIPTS)/buildTypeScript.mjs --outputDir $(ARTIFACTS_DIR)/baseline
+        displayName: Build baseline TypeScript
+        workingDirectory: $(Pipeline.Workspace)/TypeScript
 
-            pushd ${CHECKOUT}
-
-            COMMIT=$( git -C ${CHECKOUT} rev-parse HEAD )
-            COMMIT_SHORT=$( git -C ${CHECKOUT} rev-parse --short HEAD )
-            DATE=$( git -C ${CHECKOUT} log -1 --format=%cI )
-            TIMESTAMP_DIR=$( date -d ${DATE} -u +%Y/%m/%d )
-
-            echo "##vso[task.setvariable variable=${NAME}_COMMIT;isOutput=true]${COMMIT}"
-            echo "##vso[task.setvariable variable=${NAME}_COMMIT_SHORT;isOutput=true]${COMMIT_SHORT}"
-            echo "##vso[task.setvariable variable=${NAME}_DATE;isOutput=true]${DATE}"
-            echo "##vso[task.setvariable variable=${NAME}_TIMESTAMP_DIR;isOutput=true]${TIMESTAMP_DIR}"
-
-            npm ci
-
-            # Use the lkg task on newer checkouts to limit artifact size,
-            # otherwise fall back to the build:compiler task, which works back
-            # even to truly ancient versions.
-            if [[ -f "Herebyfile.mjs" ]]; then
-              npx hereby lkg
-              mv lib ${OUTPUT}
-            else
-              npm run build:compiler
-              mv built/local ${OUTPUT}
-            fi
-
-            popd
-          }
-
-          if [[ $(REF) == refs/pull/* ]]; then
-            build_typescript PR $(Build.SourcesDirectory)/artifacts/pr
-            # We may have modified the tree; simulate the checkout task's "clean: true".
-            git clean -ffdx
-            git reset --hard HEAD
-            git -C ${CHECKOUT} switch --detach HEAD^1
-          fi
-          build_typescript BASELINE $(Build.SourcesDirectory)/artifacts/baseline
-        displayName: Build TypeScript
-        name: buildTypeScript
-
-      # TODO: should this be a build cache so that it's not preserved?
-      - publish: artifacts
+      - publish: $(ARTIFACTS_DIR)
         artifact: BuiltTypeScript
         displayName: Publish built TypeScript
 
@@ -205,7 +167,7 @@ jobs:
     dependsOn: Setup
     pool:
       name: ts-perf-ddfun
-      # Note: this expression is the same as the one in the variables block; make sure it stays in sync.
+      # Note: this expression is the same as USE_BASELINE_MACHINE; make sure it stays in sync.
       ${{ if or(eq(variables['Build.Reason'], 'ResourceTrigger'), parameters.BASELINE_RUN) }}:
         demands: Agent.Name -equals ts-perf1
     workspace:
@@ -216,14 +178,11 @@ jobs:
       matrix: $[ dependencies.Setup.outputs['generateMatrix.MATRIX'] ]
 
     variables:
-      BASELINE_COMMIT: $[ dependencies.Setup.outputs['buildTypeScript.BASELINE_COMMIT'] ]
-      BASELINE_COMMIT_SHORT: $[ dependencies.Setup.outputs['buildTypeScript.BASELINE_COMMIT_SHORT'] ]
-      BASELINE_DATE: $[ dependencies.Setup.outputs['buildTypeScript.BASELINE_DATE'] ]
-      BASELINE_TIMESTAMP_DIR: $[ dependencies.Setup.outputs['buildTypeScript.BASELINE_TIMESTAMP_DIR'] ]
-      PR_COMMIT: $[ dependencies.Setup.outputs['buildTypeScript.PR_COMMIT'] ]
-      PR_COMMIT_SHORT: $[ dependencies.Setup.outputs['buildTypeScript.PR_COMMIT_SHORT'] ]
-      PR_DATE: $[ dependencies.Setup.outputs['buildTypeScript.PR_DATE'] ]
-      PR_TIMESTAMP_DIR: $[ dependencies.Setup.outputs['buildTypeScript.PR_TIMESTAMP_DIR'] ]
+      TSPERF_RUN_TSC: $[ dependencies.Setup.outputs['generateMatrix.TSPERF_RUN_TSC'] ]
+      TSPERF_RUN_TSSERVER: $[ dependencies.Setup.outputs['generateMatrix.TSPERF_RUN_TSSERVER'] ]
+      TSPERF_RUN_STARTUP: $[ dependencies.Setup.outputs['generateMatrix.TSPERF_RUN_STARTUP'] ]
+      BUILT_TYPESCRIPT_DIR: $(Pipeline.Workspace)/BuiltTypeScript
+      ARTIFACTS_DIR: $(Pipeline.Workspace)/artifacts
 
     steps:
       # TODO: figure out what perms are missing here
@@ -235,150 +194,65 @@ jobs:
       #     KeyVaultName: $(KeyVaultName)
       #     SecretsFilter: $(SecretsFilter)
 
-      - bash: git config --global core.longpaths true
-        displayName: Enable git long paths
-
-      # These paths are relative to $(Pipeline.Workspace), which is the parent
-      # directory of $(Build.SourcesDirectory), the default working directory.
-      # TODO: pull these paths out as variables for reuse
-      - checkout: self
-        path: typescript-benchmarking
-        fetchTags: false
-        fetchDepth: 1
-        clean: true
+      - template: templates/setup.yml
+      - template: templates/cloneAndBuildBenchmarkRepo.yml # Sets $(BENCH_SCRIPTS)
+      - template: templates/cloneAndBuildTsPerf.yml # Sets $(TSPERF_EXE)
 
       - download: current
         artifact: BuiltTypeScript
         displayName: Download built TypeScript
 
-      - task: NodeTool@0
-        inputs:
-          versionSpec: $(NODE_VERSION)
-        displayName: 'Install Node $(NODE_VERSION)'
-
-      - template: templates/cloneAndBuildTsPerf.yml # Sets TSPERF_EXE
-
       # This is provided by the agent.
       - bash: sudo pyperf system tune
         displayName: Tune system
 
-      - bash: node $(TSPERF_EXE) host install --host $(TSPERF_HOST)
+      - bash: node $(BENCH_SCRIPTS)/runTsPerf.mjs install-hosts
         displayName: Install hosts
 
-      # TODO: these steps are needlessly repetitive; clean up
       - bash: |
-          mkdir -p artifacts
-
-          run_benchmark () {
-            node $(TSPERF_EXE) benchmark tsc \
-              --cpus ${TSPERF_AGENT_BENCHMARK_CPU} \
-              --iterations $(TSPERF_ITERATIONS) \
-              --host $(TSPERF_HOST) \
-              --scenario $(TSPERF_SCENARIO) \
-              "$@"
-          }
-
-          if [[ $(REF) == refs/pull/* ]]; then
-            echo Running PR benchmark
-            run_benchmark \
-              --tsc $(Pipeline.Workspace)/BuiltTypeScript/pr/tsc.js \
-              --save artifacts/pr_$(TSPERF_HOST)_$(TSPERF_SCENARIO).tsc.benchmark \
-              --date $(PR_DATE) \
-              --repositoryType git \
-              --repositoryUrl ${REPOSITORY_URI} \
-              --repositoryBranch $(REF) \
-              --repositoryCommit $(PR_COMMIT) \
-              --repositoryDate $(PR_DATE)
-            echo Running baseline benchmark
-          fi
-          run_benchmark \
-            --tsc $(Pipeline.Workspace)/BuiltTypeScript/baseline/tsc.js \
-            --save artifacts/baseline_$(TSPERF_HOST)_$(TSPERF_SCENARIO).tsc.benchmark \
-            --date $(BASELINE_DATE) \
-            --repositoryType git \
-            --repositoryUrl ${REPOSITORY_URI} \
-            --repositoryBranch $(REF) \
-            --repositoryCommit $(BASELINE_COMMIT) \
-            --repositoryDate $(BASELINE_DATE)
-        displayName: Run tsc benchmark
-        condition: and(succeeded(), eq(variables['TSPERF_KIND'], 'tsc'))
+          node $(BENCH_SCRIPTS)/runTsPerf.mjs benchmark-tsc \
+            --builtDir $(BUILT_TYPESCRIPT_DIR)/pr \
+            --save $(ARTIFACTS_DIR)/pr_$(TSPERF_JOB_NAME).tsc.benchmark
+        displayName: Run PR tsc benchmark
+        condition: and(eq(variables['IS_PR'], true), eq(variables['TSPERF_RUN_TSC'], true))
 
       - bash: |
-          mkdir -p artifacts
-
-          run_benchmark () {
-            node $(TSPERF_EXE) benchmark tsserver \
-              --cpus ${TSPERF_AGENT_BENCHMARK_CPU} \
-              --iterations $(TSPERF_ITERATIONS) \
-              --host $(TSPERF_HOST) \
-              --scenario $(TSPERF_SCENARIO) \
-              "$@"
-          }
-
-          if [[ $(REF) == refs/pull/* ]]; then
-            echo Running PR benchmark
-            run_benchmark \
-              --tsserver $(Pipeline.Workspace)/BuiltTypeScript/pr/tsserver.js \
-              --save artifacts/pr_$(TSPERF_HOST)_$(TSPERF_SCENARIO).tsserver.benchmark \
-              --date $(PR_DATE) \
-              --repositoryType git \
-              --repositoryUrl ${REPOSITORY_URI} \
-              --repositoryBranch $(REF) \
-              --repositoryCommit $(PR_COMMIT) \
-              --repositoryDate $(PR_DATE)
-            echo Running baseline benchmark
-          fi
-          run_benchmark \
-            --tsserver $(Pipeline.Workspace)/BuiltTypeScript/baseline/tsserver.js \
-            --save artifacts/baseline_$(TSPERF_HOST)_$(TSPERF_SCENARIO).tsserver.benchmark \
-            --date $(BASELINE_DATE) \
-            --repositoryType git \
-            --repositoryUrl ${REPOSITORY_URI} \
-            --repositoryBranch $(REF) \
-            --repositoryCommit $(BASELINE_COMMIT) \
-            --repositoryDate $(BASELINE_DATE)
-        displayName: Run tsserver benchmark
-        condition: and(succeeded(), eq(variables['TSPERF_KIND'], 'tsserver'))
+          node $(BENCH_SCRIPTS)/runTsPerf.mjs benchmark-tsc \
+            --builtDir $(BUILT_TYPESCRIPT_DIR)/baseline \
+            --save $(ARTIFACTS_DIR)/baseline_$(TSPERF_JOB_NAME).tsc.benchmark
+        displayName: Run baseline tsc benchmark
+        condition: eq(variables['TSPERF_RUN_TSC'], true)
 
       - bash: |
-          mkdir -p artifacts
+          node $(BENCH_SCRIPTS)/runTsPerf.mjs benchmark-tsserver \
+            --builtDir $(BUILT_TYPESCRIPT_DIR)/pr \
+            --save $(ARTIFACTS_DIR)/pr_$(TSPERF_JOB_NAME).tsserver.benchmark
+        displayName: Run PR tsserver benchmark
+        condition: and(eq(variables['IS_PR'], true), eq(variables['TSPERF_RUN_TSSERVER'], true))
 
-          run_benchmark () {
-            node $(TSPERF_EXE) benchmark startup \
-              --cpus ${TSPERF_AGENT_BENCHMARK_CPU} \
-              --iterations $(TSPERF_ITERATIONS) \
-              --host $(TSPERF_HOST) \
-              --scenario $(TSPERF_SCENARIO) \
-              "$@"
-          }
+      - bash: |
+          node $(BENCH_SCRIPTS)/runTsPerf.mjs benchmark-tsserver \
+            --builtDir $(BUILT_TYPESCRIPT_DIR)/baseline \
+            --save $(ARTIFACTS_DIR)/baseline_$(TSPERF_JOB_NAME).tsserver.benchmark
+        displayName: Run baseline tsserver benchmark
+        condition: eq(variables['TSPERF_RUN_TSSERVER'], true)
 
-          if [[ $(REF) == refs/pull/* ]]; then
-            echo Running PR benchmark
-            run_benchmark \
-              --builtDir $(Pipeline.Workspace)/BuiltTypeScript/pr \
-              --save artifacts/pr_$(TSPERF_HOST)_$(TSPERF_SCENARIO).startup.benchmark \
-              --date $(PR_DATE) \
-              --repositoryType git \
-              --repositoryUrl ${REPOSITORY_URI} \
-              --repositoryBranch $(REF) \
-              --repositoryCommit $(PR_COMMIT) \
-              --repositoryDate $(PR_DATE)
-            echo Running baseline benchmark
-          fi
-          run_benchmark \
-            --builtDir $(Pipeline.Workspace)/BuiltTypeScript/baseline \
-            --save artifacts/baseline_$(TSPERF_HOST)_$(TSPERF_SCENARIO).startup.benchmark \
-            --date $(BASELINE_DATE) \
-            --repositoryType git \
-            --repositoryUrl ${REPOSITORY_URI} \
-            --repositoryBranch $(REF) \
-            --repositoryCommit $(BASELINE_COMMIT) \
-            --repositoryDate $(BASELINE_DATE)
-        displayName: Run startup benchmark
-        condition: and(succeeded(), eq(variables['TSPERF_KIND'], 'startup'))
+      - bash: |
+          node $(BENCH_SCRIPTS)/runTsPerf.mjs benchmark-startup \
+            --builtDir $(BUILT_TYPESCRIPT_DIR)/pr \
+            --save $(ARTIFACTS_DIR)/pr_$(TSPERF_JOB_NAME).startup.benchmark
+        displayName: Run PR startup benchmark
+        condition: and(eq(variables['IS_PR'], true), eq(variables['TSPERF_RUN_STARTUP'], true))
 
-      - publish: artifacts
-        artifact: Benchmark_$(TSPERF_HOST)_$(TSPERF_SCENARIO)
+      - bash: |
+          node $(BENCH_SCRIPTS)/runTsPerf.mjs benchmark-startup \
+            --builtDir $(BUILT_TYPESCRIPT_DIR)/baseline \
+            --save $(ARTIFACTS_DIR)/baseline_$(TSPERF_JOB_NAME).startup.benchmark
+        displayName: Run baseline startup benchmark
+        condition: eq(variables['TSPERF_RUN_STARTUP'], true)
+
+      - publish: $(ARTIFACTS_DIR)
+        artifact: PartialBenchmark_$(TSPERF_JOB_NAME)
         displayName: Publish benchmarks
 
   - job: ProcessResults
@@ -394,20 +268,23 @@ jobs:
       TSPERF_RUN_TSC: $[ dependencies.Setup.outputs['generateMatrix.TSPERF_RUN_TSC'] ]
       TSPERF_RUN_TSSERVER: $[ dependencies.Setup.outputs['generateMatrix.TSPERF_RUN_TSSERVER'] ]
       TSPERF_RUN_STARTUP: $[ dependencies.Setup.outputs['generateMatrix.TSPERF_RUN_STARTUP'] ]
+      BUILT_TYPESCRIPT_DIR: $(Pipeline.Workspace)/BuiltTypeScript
+      BENCHMARKS_DIR: $(Pipeline.Workspace)/benchmarks
+      MERGED_DIR: $(Pipeline.Workspace)/merged
 
     steps:
       - download: current
         patterns: '**/*.benchmark'
         displayName: Download benchmarks
 
-      # Azure Pipelines haphazardly drops all artifacts into pipeline workspace with no
+      # Azure Pipelines haphazardly drops all artifacts into $(Pipeline.Workspace) with no
       # way to customize where they're placed. To deal with this, we download the benchmarks
       # first and move them somewhere else, before doing any other steps that would download
       # further artifacts.
       - bash: |
           shopt -s globstar # TODO: this wasn't here before but it seemed to have worked
-          mkdir artifacts
-          mv $(Pipeline.Workspace)/**/*.benchmark artifacts
+          mkdir -p $(BENCHMARKS_DIR)
+          mv $(Pipeline.Workspace)/**/*.benchmark $(BENCHMARKS_DIR)
         displayName: Move artifacts
 
       # TODO: We only need this because ts-perf requires it even for loading existing benchmarks
@@ -415,115 +292,105 @@ jobs:
         artifact: BuiltTypeScript
         displayName: Download built TypeScript
 
-      - template: templates/cloneAndBuildTsPerf.yml # Sets TSPERF_EXE
+      - template: templates/cloneAndBuildBenchmarkRepo.yml # Sets $(BENCH_SCRIPTS)
+      - template: templates/cloneAndBuildTsPerf.yml # Sets $(TSPERF_EXE)
 
-      - bash: mkdir output
-        displayName: Create output directory
+      - bash: mkdir -p $(MERGED_DIR)
+        displayName: Create merged output directory
 
-      # TODO: these steps are needlessly repetitive; clean up
+      # TODO: this is better than it used to be, but surely could still be less repetitive.
       - bash: |
-          if [[ $(REF) == refs/pull/* ]]; then
-            node $(TSPERF_EXE) merge --output output/pr.tsc.benchmark artifacts/pr_*.tsc.benchmark
-            node $(TSPERF_EXE) merge --output output/baseline.tsc.benchmark artifacts/baseline_*.tsc.benchmark
+          node $(TSPERF_EXE) merge --output $(MERGED_DIR)/baseline.tsc.benchmark $(BENCHMARKS_DIR)/baseline_*.tsc.benchmark
 
-            node $(TSPERF_EXE) benchmark tsc \
-              --tsc $(Pipeline.Workspace)/BuiltTypeScript/baseline/tsc.js \
-              --baseline output/baseline.tsc.benchmark \
-              --load output/pr.tsc.benchmark
+          if [[ $(REF) == refs/pull/* ]]; then
+            node $(TSPERF_EXE) merge --output $(MERGED_DIR)/pr.tsc.benchmark $(BENCHMARKS_DIR)/pr_*.tsc.benchmark
+
+            # Print summary for logs
+            node $(BENCH_SCRIPTS)/runTsPerf.mjs benchmark-tsc \
+              --builtDir $(BUILT_TYPESCRIPT_DIR)/baseline \
+              --baseline $(MERGED_DIR)/baseline.tsc.benchmark \
+              --load $(MERGED_DIR)/pr.tsc.benchmark
 
             echo "<h2>Compiler</h2>" >> $(Pipeline.Workspace)/comment.html
-            node $(TSPERF_EXE) benchmark tsc \
-              --tsc $(Pipeline.Workspace)/BuiltTypeScript/baseline/tsc.js \
-              --baseline output/baseline.tsc.benchmark \
-              --load output/pr.tsc.benchmark \
-              --baselineName baseline \
-              --benchmarkName pr \
+            node $(BENCH_SCRIPTS)/runTsPerf.mjs benchmark-tsc \
+              --builtDir $(BUILT_TYPESCRIPT_DIR)/baseline \
+              --baseline $(MERGED_DIR)/baseline.tsc.benchmark --baselineName baseline \
+              --load $(MERGED_DIR)/pr.tsc.benchmark --benchmarkName pr \
               --format html-fragment \
               --quiet >> $(Pipeline.Workspace)/comment.html
           else
-            node $(TSPERF_EXE) merge --output output/baseline.tsc.benchmark artifacts/*.tsc.benchmark
-            node $(TSPERF_EXE) benchmark tsc \
-              --tsc $(Pipeline.Workspace)/BuiltTypeScript/baseline/tsc.js \
-              --load output/baseline.tsc.benchmark
+            # Print summary for logs
+            node $(BENCH_SCRIPTS)/runTsPerf.mjs benchmark-tsc \
+              --builtDir $(BUILT_TYPESCRIPT_DIR)/baseline \
+              --load $(MERGED_DIR)/baseline.tsc.benchmark
           fi
         displayName: Merge tsc benchmarks
         condition: and(succeeded(), eq(variables['TSPERF_RUN_TSC'], true))
 
       - bash: |
+          node $(TSPERF_EXE) merge --output $(MERGED_DIR)/baseline.tsserver.benchmark $(BENCHMARKS_DIR)/baseline_*.tsserver.benchmark
+
           if [[ $(REF) == refs/pull/* ]]; then
-            node $(TSPERF_EXE) merge --output output/pr.tsserver.benchmark artifacts/pr_*.tsserver.benchmark
-            node $(TSPERF_EXE) merge --output output/baseline.tsserver.benchmark artifacts/baseline_*.tsserver.benchmark
+            node $(TSPERF_EXE) merge --output $(MERGED_DIR)/pr.tsserver.benchmark $(BENCHMARKS_DIR)/pr_*.tsserver.benchmark
 
-            node $(TSPERF_EXE) benchmark tsserver \
-              --tsserver $(Pipeline.Workspace)/BuiltTypeScript/baseline/tsserver.js \
-              --baseline output/baseline.tsserver.benchmark \
-              --load output/pr.tsserver.benchmark
+            # Print summary for logs
+            node $(BENCH_SCRIPTS)/runTsPerf.mjs benchmark-tsserver \
+              --builtDir $(BUILT_TYPESCRIPT_DIR)/baseline \
+              --baseline $(MERGED_DIR)/baseline.tsserver.benchmark \
+              --load $(MERGED_DIR)/pr.tsserver.benchmark
 
-            echo "<h2>TSServer</h2>" >> $(Pipeline.Workspace)/comment.html
-            node $(TSPERF_EXE) benchmark tsserver \
-              --tsserver $(Pipeline.Workspace)/BuiltTypeScript/baseline/tsserver.js \
-              --baseline output/baseline.tsserver.benchmark \
-              --load output/pr.tsserver.benchmark \
-              --baselineName baseline \
-              --benchmarkName pr \
+            echo "<h2>tsserver</h2>" >> $(Pipeline.Workspace)/comment.html
+            node $(BENCH_SCRIPTS)/runTsPerf.mjs benchmark-tsserver \
+              --builtDir $(BUILT_TYPESCRIPT_DIR)/baseline \
+              --baseline $(MERGED_DIR)/baseline.tsserver.benchmark --baselineName baseline \
+              --load $(MERGED_DIR)/pr.tsserver.benchmark --benchmarkName pr \
               --format html-fragment \
               --quiet >> $(Pipeline.Workspace)/comment.html
           else
-            node $(TSPERF_EXE) merge --output output/baseline.tsserver.benchmark artifacts/*.tsserver.benchmark
-            node $(TSPERF_EXE) benchmark tsserver \
-              --tsserver $(Pipeline.Workspace)/BuiltTypeScript/baseline/tsserver.js \
-              --load output/baseline.tsserver.benchmark
+            # Print summary for logs
+            node $(BENCH_SCRIPTS)/runTsPerf.mjs benchmark-tsserver \
+              --builtDir $(BUILT_TYPESCRIPT_DIR)/baseline \
+              --load $(MERGED_DIR)/baseline.tsserver.benchmark
           fi
         displayName: Merge tsserver benchmarks
         condition: and(succeeded(), eq(variables['TSPERF_RUN_TSSERVER'], true))
 
       - bash: |
-          if [[ $(REF) == refs/pull/* ]]; then
-            node $(TSPERF_EXE) merge --output output/pr.startup.benchmark artifacts/pr_*.startup.benchmark
-            node $(TSPERF_EXE) merge --output output/baseline.startup.benchmark artifacts/baseline_*.startup.benchmark
+          node $(TSPERF_EXE) merge --output $(MERGED_DIR)/baseline.startup.benchmark $(BENCHMARKS_DIR)/baseline_*.startup.benchmark
 
-            node $(TSPERF_EXE) benchmark startup \
-              --builtDir $(Pipeline.Workspace)/BuiltTypeScript/baseline \
-              --baseline output/baseline.startup.benchmark \
-              --load output/pr.startup.benchmark
+          if [[ $(REF) == refs/pull/* ]]; then
+            node $(TSPERF_EXE) merge --output $(MERGED_DIR)/pr.startup.benchmark $(BENCHMARKS_DIR)/pr_*.startup.benchmark
+
+            # Print summary for logs
+            node $(BENCH_SCRIPTS)/runTsPerf.mjs benchmark-startup \
+              --builtDir $(BUILT_TYPESCRIPT_DIR)/baseline \
+              --baseline $(MERGED_DIR)/baseline.startup.benchmark \
+              --load $(MERGED_DIR)/pr.startup.benchmark
 
             echo "<h2>Startup</h2>" >> $(Pipeline.Workspace)/comment.html
-            node $(TSPERF_EXE) benchmark startup \
-              --builtDir $(Pipeline.Workspace)/BuiltTypeScript/baseline \
-              --baseline output/baseline.startup.benchmark \
-              --load output/pr.startup.benchmark \
-              --baselineName baseline \
-              --benchmarkName pr \
+            node $(BENCH_SCRIPTS)/runTsPerf.mjs benchmark-startup \
+              --builtDir $(BUILT_TYPESCRIPT_DIR)/baseline \
+              --baseline $(MERGED_DIR)/baseline.startup.benchmark --baselineName baseline \
+              --load $(MERGED_DIR)/pr.startup.benchmark --benchmarkName pr \
               --format html-fragment \
-              --quiet >> $(Pipeline.Workspace)/$(Pipeline.Workspace)/comment.html
+              --quiet >> $(Pipeline.Workspace)/comment.html
           else
-            node $(TSPERF_EXE) merge --output output/baseline.startup.benchmark artifacts/*.startup.benchmark
-            node $(TSPERF_EXE) benchmark startup \
-              --builtDir $(Pipeline.Workspace)/BuiltTypeScript/baseline \
-              --load output/baseline.startup.benchmark
+            # Print summary for logs
+            node $(BENCH_SCRIPTS)/runTsPerf.mjs benchmark-startup \
+              --builtDir $(BUILT_TYPESCRIPT_DIR)/baseline \
+              --load $(MERGED_DIR)/baseline.startup.benchmark
           fi
         displayName: Merge startup benchmarks
         condition: and(succeeded(), eq(variables['TSPERF_RUN_STARTUP'], true))
 
-      - publish: output
+      - publish: $(MERGED_DIR)
         artifact: Benchmarks
         displayName: Publish benchmarks
 
-      # Note; this checkout changes $(Build.SourcesDirectory) to a new path.
-      - checkout: self
-        path: typescript-benchmarking
-        fetchTags: false
-        fetchDepth: 1
-        clean: true
-
-      - bash: |
-          cd $(Pipeline.Workspace)/typescript-benchmarking
-          npm ci
-          node ./scripts/postPerfResult.mjs $(Pipeline.Workspace)/comment.html
+      - bash: node $(BENCH_SCRIPTS)/postPerfResult.mjs $(Pipeline.Workspace)/comment.html
         displayName: Publish PR comment
         condition: and(succeeded(), eq(variables['IS_PR'], true))
         env:
-          # BUILD_BUILDID: already in env via $(Build.BuildId)
           SOURCE_ISSUE: ${{ parameters.SOURCE_ISSUE }}
           REQUESTING_USER: ${{ parameters.REQUESTING_USER }}
           STATUS_COMMENT: ${{ parameters.STATUS_COMMENT }}
@@ -532,7 +399,7 @@ jobs:
       # TODO: some sort of on-failure run which replies to PRs
 
       - bash: |
-          ls -lh output
+          ls -lh $(MERGED_DIR)
           # TODO: actually upload
           # TODO: files need to be named correctly for the blob store
         displayName: Upload benchmarks to blob store

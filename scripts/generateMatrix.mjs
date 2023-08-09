@@ -1,3 +1,5 @@
+import minimist from "minimist";
+
 /**
  * @typedef {Object} Preset
  * @property {Object} [tsc]
@@ -60,60 +62,103 @@ const presets = {
     },
 };
 
-const preset = presets[process.argv[2]];
+const args = minimist(process.argv.slice(2), {
+    string: ["preset"],
+});
+
+const presetArg = args.preset;
+const baselining = (process.env.USE_BASELINE_MACHINE || "FALSE").toUpperCase() === "TRUE";
+
+const preset = presets[presetArg];
 if (!preset) {
     // TODO: if "custom", build a custom matrix from arguments
-    console.error(`Unknown preset: ${process.argv[2]}`);
+    console.error(`Unknown preset: ${presetArg}`);
     process.exit(1);
 }
 
-/** @type {Record<string, Record<string, string | number | boolean>>} */
+/**
+ * @param {string} name
+ */
+function sanitizeJobName(name) {
+    return name.replace(/[^a-zA-Z0-9_]/g, "_");
+}
+
+/** @type {Record<string, Record<string, string | number | boolean | undefined>>} */
 const matrix = {};
 
-let hasTsc = false;
-let hasTsserver = false;
-let hasStartup = false;
+let runTsc = false;
+let runTsserver = false;
+let runStartup = false;
 
-if (preset.tsc) {
-    for (const host of preset.tsc.hosts) {
-        for (const scenario of preset.tsc.scenarios) {
-            hasTsc = true;
-            // TODO: these job names are technically illegal and need to be sanitized
-            // Would be nice to use displayName here but have to figure out how it works in a matrix.
-            matrix[`tsc_${host}_${scenario}`] = {
-                "TSPERF_KIND": "tsc",
-                "TSPERF_HOST": host,
-                "TSPERF_SCENARIO": scenario,
-                "TSPERF_ITERATIONS": preset.tsc.iterations,
-            };
+if (baselining) {
+    // If we're baselining, it'll be much faster to run all benchmarks in one job.
+    if (preset.tsc) {
+        runTsc = true;
+    }
+    if (preset.tsserver) {
+        runTsserver = true;
+    }
+    if (preset.startup) {
+        runStartup = true;
+    }
+
+    matrix["all"] = {
+        "TSPERF_JOB_NAME": "all",
+        "TSPERF_TSC_HOSTS": preset.tsc?.hosts.join(","),
+        "TSPERF_TSC_SCENARIOS": preset.tsc?.scenarios.join(","),
+        "TSPERF_TSC_ITERATIONS": preset.tsc?.iterations,
+        "TSPERF_TSSERVER_HOSTS": preset.tsserver?.hosts.join(","),
+        "TSPERF_TSSERVER_SCENARIOS": preset.tsserver?.scenarios.join(","),
+        "TSPERF_TSSERVER_ITERATIONS": preset.tsserver?.iterations,
+        "TSPERF_STARTUP_HOSTS": preset.startup?.hosts.join(","),
+        "TSPERF_STARTUP_SCENARIOS": preset.startup?.scenarios.join(","),
+        "TSPERF_STARTUP_ITERATIONS": preset.startup?.iterations,
+    };
+}
+else {
+    // If we're not baselining, it should end up faster to run on as many machines as possible.
+    if (preset.tsc) {
+        for (const host of preset.tsc.hosts) {
+            for (const scenario of preset.tsc.scenarios) {
+                runTsc = true;
+                const jobName = sanitizeJobName(`tsc_${host}_${scenario}`);
+                matrix[jobName] = {
+                    "TSPERF_JOB_NAME": jobName,
+                    "TSPERF_TSC_HOSTS": host,
+                    "TSPERF_TSC_SCENARIOS": scenario,
+                    "TSPERF_TSC_ITERATIONS": preset.tsc.iterations,
+                };
+            }
         }
     }
-}
 
-if (preset.tsserver) {
-    for (const host of preset.tsserver.hosts) {
-        for (const scenario of preset.tsserver.scenarios) {
-            hasTsserver = true;
-            matrix[`tsserver_${host}_${scenario}`] = {
-                "TSPERF_KIND": "tsserver",
-                "TSPERF_HOST": host,
-                "TSPERF_SCENARIO": scenario,
-                "TSPERF_ITERATIONS": preset.tsserver.iterations,
-            };
+    if (preset.tsserver) {
+        for (const host of preset.tsserver.hosts) {
+            for (const scenario of preset.tsserver.scenarios) {
+                runTsserver = true;
+                const jobName = sanitizeJobName(`tsserver_${host}_${scenario}`);
+                matrix[jobName] = {
+                    "TSPERF_JOB_NAME": jobName,
+                    "TSPERF_TSSERVER_HOSTS": host,
+                    "TSPERF_TSSERVER_SCENARIOS": scenario,
+                    "TSPERF_TSSERVER_ITERATIONS": preset.tsserver.iterations,
+                };
+            }
         }
     }
-}
 
-if (preset.startup) {
-    for (const host of preset.startup.hosts) {
-        for (const scenario of preset.startup.scenarios) {
-            hasStartup = true;
-            matrix[`startup_${host}_${scenario}`] = {
-                "TSPERF_KIND": "startup",
-                "TSPERF_HOST": host,
-                "TSPERF_SCENARIO": scenario,
-                "TSPERF_ITERATIONS": preset.startup.iterations,
-            };
+    if (preset.startup) {
+        for (const host of preset.startup.hosts) {
+            for (const scenario of preset.startup.scenarios) {
+                runStartup = true;
+                const jobName = sanitizeJobName(`startup_${host}_${scenario}`);
+                matrix[jobName] = {
+                    "TSPERF_JOB_NAME": jobName,
+                    "TSPERF_STARTUP_HOSTS": host,
+                    "TSPERF_STARTUP_SCENARIOS": scenario,
+                    "TSPERF_STARTUP_ITERATIONS": preset.startup.iterations,
+                };
+            }
         }
     }
 }
@@ -121,6 +166,6 @@ if (preset.startup) {
 console.log(JSON.stringify(matrix, undefined, 4));
 console.log(`##vso[task.setvariable variable=MATRIX;isOutput=true]${JSON.stringify(matrix)}`);
 
-console.log(`##vso[task.setvariable variable=TSPERF_RUN_TSC;isOutput=true]${hasTsc}`);
-console.log(`##vso[task.setvariable variable=TSPERF_RUN_TSSERVER;isOutput=true]${hasTsserver}`);
-console.log(`##vso[task.setvariable variable=TSPERF_RUN_STARTUP;isOutput=true]${hasStartup}`);
+console.log(`##vso[task.setvariable variable=TSPERF_RUN_TSC;isOutput=true]${runTsc}`);
+console.log(`##vso[task.setvariable variable=TSPERF_RUN_TSSERVER;isOutput=true]${runTsserver}`);
+console.log(`##vso[task.setvariable variable=TSPERF_RUN_STARTUP;isOutput=true]${runStartup}`);
