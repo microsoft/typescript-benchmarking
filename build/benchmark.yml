@@ -385,9 +385,31 @@ jobs:
       # TODO: some sort of on-failure run which replies to PRs
 
       - bash: |
-          ls -lh $(MERGED_DIR)
-          # TODO: actually upload
-          # - Files need to be named correctly for the blob store
-          # - Release branches need to be handled (pull branch name from setup step)
-        displayName: Upload benchmarks to blob store
-        condition: and(succeeded(), eq(variables['SHOULD_UPLOAD'], 'true'))
+          node $(BENCH_SCRIPTS)/runTsPerf.mjs benchmark-tsc \
+            --builtDir $(BUILT_TYPESCRIPT_DIR)/baseline \
+            --load $(MERGED_DIR)/baseline.tsc.benchmark \
+            --saveBlob linux
+        displayName: Upload tsc benchmark to blob store
+        condition: and(succeeded(), eq(variables['TSPERF_MERGE_TSC'], 'true'), eq(variables['SHOULD_UPLOAD'], 'true'))
+        env:
+          TSPERF_AZURE_STORAGE_CONNECTION_STRING: $(tsperf-azure-storage-connection-string)
+
+      - bash: |
+          node $(BENCH_SCRIPTS)/runTsPerf.mjs benchmark-tsserver \
+            --builtDir $(BUILT_TYPESCRIPT_DIR)/baseline \
+            --load $(MERGED_DIR)/baseline.tsserver.benchmark \
+            --saveBlob linux.server
+        displayName: Upload tsserver benchmark to blob store
+        condition: and(succeeded(), eq(variables['TSPERF_MERGE_TSSERVER'], 'true'), eq(variables['SHOULD_UPLOAD'], 'true'))
+        env:
+          TSPERF_AZURE_STORAGE_CONNECTION_STRING: $(tsperf-azure-storage-connection-string)
+
+      - bash: |
+          node $(BENCH_SCRIPTS)/runTsPerf.mjs benchmark-startup \
+            --builtDir $(BUILT_TYPESCRIPT_DIR)/baseline \
+            --load $(MERGED_DIR)/baseline.startup.benchmark \
+            --saveBlob linux.startup
+        displayName: Upload startup benchmark to blob store
+        condition: and(succeeded(), eq(variables['TSPERF_MERGE_STARTUP'], 'true'), eq(variables['SHOULD_UPLOAD'], 'true'))
+        env:
+          TSPERF_AZURE_STORAGE_CONNECTION_STRING: $(tsperf-azure-storage-connection-string)

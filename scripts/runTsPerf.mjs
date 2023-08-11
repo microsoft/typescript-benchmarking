@@ -9,7 +9,7 @@ const $ = _$({ verbose: true, stdio: "inherit" });
 const [subcommand, ...rawArgs] = process.argv.slice(2);
 
 const args = minimist(rawArgs, {
-    string: ["builtDir", "save", "baseline", "load", "baselineName", "benchmarkName", "format"],
+    string: ["builtDir", "save", "saveBlob", "baseline", "load", "baselineName", "benchmarkName", "format"],
     boolean: ["quiet"],
 });
 
@@ -98,9 +98,7 @@ async function getCommonBenchmarkArgs(
     iterationsEnvVarName,
 ) {
     const tsperfArgs = [];
-    if (args.save) {
-        tsperfArgs.push("--save", args.save);
-
+    if (args.save || args.saveBlob) {
         await $`mkdir -p ${path.dirname(args.save)}`;
 
         const hosts = getNonEmptyEnv(hostsEnvVarName);
@@ -108,6 +106,19 @@ async function getCommonBenchmarkArgs(
         const iterations = getNonEmptyEnv(iterationsEnvVarName);
         const cpu = getNonEmptyEnv("TSPERF_AGENT_BENCHMARK_CPU");
         const info = await getRepoInfo();
+
+        if (args.save) {
+            tsperfArgs.push("--save", args.save);
+        }
+        if (args.saveBlob) {
+            // ts-perf accepts this as an env var, just check that it exists for an early error.
+            getNonEmptyEnv("TSPERF_AZURE_STORAGE_CONNECTION_STRING");
+            tsperfArgs.push(
+                "--save",
+                // TODO: remove newperf once this is known to be working
+                `blob:newperf/${info.branch}/${info.timestampDir}/${info.commitShort}.${args.saveBlob}.benchmark`,
+            );
+        }
 
         tsperfArgs.push(...createFlags("host", [hosts]));
         tsperfArgs.push(...createFlags("scenario", [scenarios]));
