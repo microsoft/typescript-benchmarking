@@ -9,5 +9,7 @@ steps:
       versionSpec: ${{ parameters.NODE_VERSION }}
     displayName: 'Install Node ${{ parameters.NODE_VERSION }}'
 
-  - bash: git config --global core.longpaths true
+  - bash: |
+      set -eo pipefail
+      git config --global core.longpaths true
     displayName: Enable git long paths

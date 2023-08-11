@@ -6,6 +6,7 @@ steps:
     clean: true
 
   - bash: |
+      set -eo pipefail
       cd $(Pipeline.Workspace)/typescript-benchmarking
       npm ci
       echo "##vso[task.setvariable variable=BENCH_SCRIPTS]$(Pipeline.Workspace)/typescript-benchmarking/scripts"

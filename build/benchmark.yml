@@ -30,9 +30,6 @@
 #   supports, but it's possible to manually trigger it via the API, in which
 #   case the UI will properly render all details about the resources.
 
-# General TODOs:
-# - All scripts need "set -eo pipefail"
-
 pr: none
 trigger: none
 
@@ -123,7 +120,9 @@ jobs:
       - template: templates/setup.yml
       - template: templates/cloneAndBuildBenchmarkRepo.yml # Sets $(BENCH_SCRIPTS)
 
-      - bash: node $(BENCH_SCRIPTS)/generateMatrix.mjs --preset ${{ parameters.TSPERF_PRESET }}
+      - bash: |
+          set -eo pipefail
+          node $(BENCH_SCRIPTS)/generateMatrix.mjs --preset ${{ parameters.TSPERF_PRESET }}
         displayName: Generate matrix
         name: generateMatrix
 
@@ -133,17 +132,23 @@ jobs:
         fetchDepth: 2 # For PRs, we want the merge base to compare against.
         clean: true
 
-      - bash: node $(BENCH_SCRIPTS)/buildTypeScript.mjs --outputDir $(ARTIFACTS_DIR)/pr
+      - bash: |
+          set -eo pipefail
+          node $(BENCH_SCRIPTS)/buildTypeScript.mjs --outputDir $(ARTIFACTS_DIR)/pr
         displayName: Build PR TypeScript
         condition: and(succeeded(), eq(variables['IS_PR'], 'true'))
         workingDirectory: $(Pipeline.Workspace)/TypeScript
 
-      - bash: git switch --detach HEAD^1
+      - bash: |
+          set -eo pipefail
+          git switch --detach HEAD^1
         displayName: Switch to merge base
         condition: and(succeeded(), eq(variables['IS_PR'], 'true'))
         workingDirectory: $(Pipeline.Workspace)/TypeScript
 
-      - bash: node $(BENCH_SCRIPTS)/buildTypeScript.mjs --baseline --outputDir $(ARTIFACTS_DIR)/baseline
+      - bash: |
+          set -eo pipefail
+          node $(BENCH_SCRIPTS)/buildTypeScript.mjs --baseline --outputDir $(ARTIFACTS_DIR)/baseline
         displayName: Build baseline TypeScript
         workingDirectory: $(Pipeline.Workspace)/TypeScript
 
@@ -189,13 +194,18 @@ jobs:
         displayName: Download built TypeScript
 
       # This is provided by the agent.
-      - bash: sudo pyperf system tune
+      - bash: |
+          set -eo pipefail
+          sudo pyperf system tune
         displayName: Tune system
 
-      - bash: node $(BENCH_SCRIPTS)/runTsPerf.mjs install-hosts
+      - bash: |
+          set -eo pipefail
+          node $(BENCH_SCRIPTS)/runTsPerf.mjs install-hosts
         displayName: Install hosts
 
       - bash: |
+          set -eo pipefail
           node $(BENCH_SCRIPTS)/runTsPerf.mjs benchmark-tsc \
             --builtDir $(BUILT_TYPESCRIPT_DIR)/pr \
             --save $(ARTIFACTS_DIR)/pr_$(TSPERF_JOB_NAME).tsc.benchmark
@@ -203,6 +213,7 @@ jobs:
         condition: and(succeeded(), eq(variables['IS_PR'], 'true'), eq(variables['TSPERF_TSC'], 'true'))
 
       - bash: |
+          set -eo pipefail
           node $(BENCH_SCRIPTS)/runTsPerf.mjs benchmark-tsc \
             --builtDir $(BUILT_TYPESCRIPT_DIR)/baseline \
             --save $(ARTIFACTS_DIR)/baseline_$(TSPERF_JOB_NAME).tsc.benchmark
@@ -210,6 +221,7 @@ jobs:
         condition: and(succeeded(), eq(variables['TSPERF_TSC'], 'true'))
 
       - bash: |
+          set -eo pipefail
           node $(BENCH_SCRIPTS)/runTsPerf.mjs benchmark-tsserver \
             --builtDir $(BUILT_TYPESCRIPT_DIR)/pr \
             --save $(ARTIFACTS_DIR)/pr_$(TSPERF_JOB_NAME).tsserver.benchmark
@@ -217,6 +229,7 @@ jobs:
         condition: and(succeeded(), eq(variables['IS_PR'], 'true'), eq(variables['TSPERF_TSSERVER'], 'true'))
 
       - bash: |
+          set -eo pipefail
           node $(BENCH_SCRIPTS)/runTsPerf.mjs benchmark-tsserver \
             --builtDir $(BUILT_TYPESCRIPT_DIR)/baseline \
             --save $(ARTIFACTS_DIR)/baseline_$(TSPERF_JOB_NAME).tsserver.benchmark
@@ -224,6 +237,7 @@ jobs:
         condition: and(succeeded(), eq(variables['TSPERF_TSSERVER'], 'true'))
 
       - bash: |
+          set -eo pipefail
           node $(BENCH_SCRIPTS)/runTsPerf.mjs benchmark-startup \
             --builtDir $(BUILT_TYPESCRIPT_DIR)/pr \
             --save $(ARTIFACTS_DIR)/pr_$(TSPERF_JOB_NAME).startup.benchmark
@@ -231,6 +245,7 @@ jobs:
         condition: and(succeeded(), eq(variables['IS_PR'], 'true'), eq(variables['TSPERF_STARTUP'], 'true'))
 
       - bash: |
+          set -eo pipefail
           node $(BENCH_SCRIPTS)/runTsPerf.mjs benchmark-startup \
             --builtDir $(BUILT_TYPESCRIPT_DIR)/baseline \
             --save $(ARTIFACTS_DIR)/baseline_$(TSPERF_JOB_NAME).startup.benchmark
@@ -268,6 +283,7 @@ jobs:
       # first and move them somewhere else, before doing any other steps that would download
       # further artifacts.
       - bash: |
+          set -eo pipefail
           shopt -s globstar
           mkdir -p $(BENCHMARKS_DIR)
           mv $(Pipeline.Workspace)/**/*.benchmark $(BENCHMARKS_DIR)
@@ -281,11 +297,14 @@ jobs:
       - template: templates/cloneAndBuildBenchmarkRepo.yml # Sets $(BENCH_SCRIPTS)
       - template: templates/cloneAndBuildTsPerf.yml # Sets $(TSPERF_EXE)
 
-      - bash: mkdir -p $(MERGED_DIR)
+      - bash: |
+          set -eo pipefail
+          mkdir -p $(MERGED_DIR)
         displayName: Create merged output directory
 
       # TODO: this is better than it used to be, but surely could still be less repetitive.
       - bash: |
+          set -eo pipefail
           node $(TSPERF_EXE) merge --output $(MERGED_DIR)/baseline.tsc.benchmark $(BENCHMARKS_DIR)/baseline_*.tsc.benchmark
 
           if [[ $(REF) == refs/pull/* ]]; then
@@ -314,6 +333,7 @@ jobs:
         condition: and(succeeded(), eq(variables['TSPERF_MERGE_TSC'], 'true'))
 
       - bash: |
+          set -eo pipefail
           node $(TSPERF_EXE) merge --output $(MERGED_DIR)/baseline.tsserver.benchmark $(BENCHMARKS_DIR)/baseline_*.tsserver.benchmark
 
           if [[ $(REF) == refs/pull/* ]]; then
@@ -342,6 +362,7 @@ jobs:
         condition: and(succeeded(), eq(variables['TSPERF_MERGE_TSSERVER'], 'true'))
 
       - bash: |
+          set -eo pipefail
           node $(TSPERF_EXE) merge --output $(MERGED_DIR)/baseline.startup.benchmark $(BENCHMARKS_DIR)/baseline_*.startup.benchmark
 
           if [[ $(REF) == refs/pull/* ]]; then
@@ -373,7 +394,9 @@ jobs:
         artifact: Benchmarks
         displayName: Publish benchmarks
 
-      - bash: node $(BENCH_SCRIPTS)/postPerfResult.mjs $(Pipeline.Workspace)/comment.html
+      - bash: |
+          set -eo pipefail
+          node $(BENCH_SCRIPTS)/postPerfResult.mjs $(Pipeline.Workspace)/comment.html
         displayName: Publish PR comment
         condition: and(succeeded(), eq(variables['IS_PR'], 'true'))
         env:
@@ -385,6 +408,7 @@ jobs:
       # TODO: some sort of on-failure run which replies to PRs
 
       - bash: |
+          set -eo pipefail
           node $(BENCH_SCRIPTS)/runTsPerf.mjs benchmark-tsc \
             --builtDir $(BUILT_TYPESCRIPT_DIR)/baseline \
             --load $(MERGED_DIR)/baseline.tsc.benchmark \
@@ -395,6 +419,7 @@ jobs:
           TSPERF_AZURE_STORAGE_CONNECTION_STRING: $(tsperf-azure-storage-connection-string)
 
       - bash: |
+          set -eo pipefail
           node $(BENCH_SCRIPTS)/runTsPerf.mjs benchmark-tsserver \
             --builtDir $(BUILT_TYPESCRIPT_DIR)/baseline \
             --load $(MERGED_DIR)/baseline.tsserver.benchmark \
@@ -405,6 +430,7 @@ jobs:
           TSPERF_AZURE_STORAGE_CONNECTION_STRING: $(tsperf-azure-storage-connection-string)
 
       - bash: |
+          set -eo pipefail
           node $(BENCH_SCRIPTS)/runTsPerf.mjs benchmark-startup \
             --builtDir $(BUILT_TYPESCRIPT_DIR)/baseline \
             --load $(MERGED_DIR)/baseline.startup.benchmark \

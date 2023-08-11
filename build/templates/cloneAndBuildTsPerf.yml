@@ -1,6 +1,7 @@
 steps:
   # The existence of this AzDo project/repository is not secret.
   - bash: |
+      set -eo pipefail
       n=0
       until [ "$n" -ge 5 ]
       do
@@ -16,6 +17,7 @@ steps:
     displayName: Clone internal repo
 
   - bash: |
+      set -eo pipefail
       cd $(Pipeline.Workspace)/internal/scripts/perf
       npx yarn install --frozen-lockfile --prefer-offline
       npx yarn gulp build
