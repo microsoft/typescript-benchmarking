@@ -99,8 +99,6 @@ async function getCommonBenchmarkArgs(
 ) {
     const tsperfArgs = [];
     if (args.save || args.saveBlob) {
-        await $`mkdir -p ${path.dirname(args.save)}`;
-
         const hosts = getNonEmptyEnv(hostsEnvVarName);
         const scenarios = getNonEmptyEnv(scenariosEnvVarName);
         const iterations = getNonEmptyEnv(iterationsEnvVarName);
@@ -108,6 +106,7 @@ async function getCommonBenchmarkArgs(
         const info = await getRepoInfo();
 
         if (args.save) {
+            await $`mkdir -p ${path.dirname(args.save)}`;
             tsperfArgs.push("--save", args.save);
         }
         if (args.saveBlob) {
