@@ -98,26 +98,16 @@ async function getCommonBenchmarkArgs(
     iterationsEnvVarName,
 ) {
     const tsperfArgs = [];
-    if (args.save || args.saveBlob) {
+
+    if (args.save) {
+        await $`mkdir -p ${path.dirname(args.save)}`;
+        tsperfArgs.push("--save", args.save);
+
         const hosts = getNonEmptyEnv(hostsEnvVarName);
         const scenarios = getNonEmptyEnv(scenariosEnvVarName);
         const iterations = getNonEmptyEnv(iterationsEnvVarName);
         const cpu = getNonEmptyEnv("TSPERF_AGENT_BENCHMARK_CPU");
         const info = await getRepoInfo();
-
-        if (args.save) {
-            await $`mkdir -p ${path.dirname(args.save)}`;
-            tsperfArgs.push("--save", args.save);
-        }
-        if (args.saveBlob) {
-            // ts-perf accepts this as an env var, just check that it exists for an early error.
-            getNonEmptyEnv("TSPERF_AZURE_STORAGE_CONNECTION_STRING");
-            tsperfArgs.push(
-                "--save",
-                // TODO: remove newperf once this is known to be working
-                `blob:newperf/${info.branch}/${info.timestampDir}/${info.commitShort}.${args.saveBlob}.benchmark`,
-            );
-        }
 
         tsperfArgs.push(...createFlags("host", [hosts]));
         tsperfArgs.push(...createFlags("scenario", [scenarios]));
@@ -132,6 +122,18 @@ async function getCommonBenchmarkArgs(
         tsperfArgs.push("--repositoryDate", info.date);
     }
     else {
+        if (args.saveBlob) {
+            const info = await getRepoInfo();
+
+            // ts-perf accepts this as an env var, just check that it exists for an early error.
+            getNonEmptyEnv("TSPERF_AZURE_STORAGE_CONNECTION_STRING");
+            tsperfArgs.push(
+                "--save",
+                // TODO: remove newperf once this is known to be working
+                `blob:newperf/${info.branch}/${info.timestampDir}/${info.commitShort}.${args.saveBlob}.benchmark`,
+            );
+        }
+
         if (args.baseline) {
             tsperfArgs.push("--baseline", args.baseline);
         }
