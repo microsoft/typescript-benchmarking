@@ -51,12 +51,13 @@ resources:
           include:
             - main
 
+  # TODO: use secrets (jobs won't need all of these)
   # - name: azureSubscription
   #   value: 'TypeScript Internal Services'
   # - name: KeyVaultName
   #   value: 'jststeam-passwords'
   # - name: SecretsFilter
-  #   value: 'tslab1-mseng-PAT, tsperf-azure-storage-connection-string'
+  #   value: 'tslab1-mseng-PAT, tsperf-azure-storage-connection-string, typescript-bot-github-PAT-for-comments'
 
 parameters:
   # TODO: allow custom preset
