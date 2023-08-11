@@ -80,7 +80,7 @@ parameters:
   - name: REQUESTING_USER
     displayName: User to tag when the results are ready
     type: string
-    default: ''
+    default: '«anyone?»'
   - name: SOURCE_ISSUE
     displayName: PR ID in github
     type: number
