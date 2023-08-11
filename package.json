@@ -12,6 +12,7 @@
         "dprint": "^0.39.1",
         "execa": "^7.2.0",
         "minimist": "^1.2.8",
-        "node-fetch": "^3.3.2"
+        "node-fetch": "^3.3.2",
+        "typescript": "^5.1.6"
     }
 }
