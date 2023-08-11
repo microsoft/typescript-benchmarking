@@ -72,7 +72,7 @@ parameters:
     default: full
 
   - name: BASELINE_RUN
-    displayName: This build is for baseline tracking
+    displayName: Run on a baseline machine and upload to blob storage
     type: boolean
     default: false
 
