@@ -67,24 +67,24 @@ parameters:
       - full
       - regular
       - tsc-only
-    default: full
+    default: full # Branch pushes use the defaults, so this is set to full.
 
   - name: BASELINE_RUN
-    displayName: Run on a baseline machine and upload to blob storage
+    displayName: This is a baseline run and should be uploaded
     type: boolean
     default: false
 
   # PR trigger params
   - name: REQUESTING_USER
-    displayName: User to tag when the results are ready
+    displayName: User to tag when the results are ready (PR runs only)
     type: string
     default: '«anyone?»'
   - name: SOURCE_ISSUE
-    displayName: PR ID in github
+    displayName: PR ID in github (PR runs only)
     type: number
     default: 0
   - name: STATUS_COMMENT
-    displayName: typescript-bot comment ID indicating that the run started
+    displayName: typescript-bot comment ID indicating that the run started (PR runs only)
     type: number
     default: 0
 
