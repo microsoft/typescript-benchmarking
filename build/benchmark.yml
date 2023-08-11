@@ -408,6 +408,10 @@ jobs:
 
       # TODO: some sort of on-failure run which replies to PRs
 
+      # TODO: we should probably save the "latest" benchmarks in blob store, but
+      # we need to be smarter and not overwrite newer benchmarks when the pipeline
+      # ends up running out of order.
+
       - bash: |
           set -eo pipefail
           node $(BENCH_SCRIPTS)/runTsPerf.mjs benchmark-tsc \
