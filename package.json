@@ -8,8 +8,8 @@
     "devDependencies": {
         "@octokit/rest": "^19.0.13",
         "@types/minimist": "^1.2.2",
-        "@types/node": "^20.4.8",
-        "dprint": "^0.39.1",
+        "@types/node": "^20.4.10",
+        "dprint": "^0.40.2",
         "execa": "^7.2.0",
         "minimist": "^1.2.8",
         "node-fetch": "^3.3.2",

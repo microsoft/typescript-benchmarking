@@ -20,44 +20,44 @@ void 0;
 /** @type {Record<string, Preset | undefined>} */
 const presets = {
     "full": {
-        "tsc": {
-            "hosts": ["node@18.10.0", "node@16.17.1", "node@14.21.3"],
-            "iterations": 6,
-            "scenarios": ["Angular", "Monaco", "TFS", "material-ui", "Compiler-Unions", "xstate"],
+        tsc: {
+            hosts: ["node@18.10.0", "node@16.17.1", "node@14.21.3"],
+            iterations: 6,
+            scenarios: ["Angular", "Monaco", "TFS", "material-ui", "Compiler-Unions", "xstate"],
         },
-        "tsserver": {
-            "hosts": ["node@16.17.1"],
-            "iterations": 6,
-            "scenarios": ["Compiler-UnionsTSServer", "CompilerTSServer", "xstateTSServer"],
+        tsserver: {
+            hosts: ["node@16.17.1"],
+            iterations: 6,
+            scenarios: ["Compiler-UnionsTSServer", "CompilerTSServer", "xstateTSServer"],
         },
-        "startup": {
-            "hosts": ["node@16.17.1"],
-            "iterations": 6,
-            "scenarios": ["tsc-startup", "tsserver-startup", "tsserverlibrary-startup", "typescript-startup"],
+        startup: {
+            hosts: ["node@16.17.1"],
+            iterations: 6,
+            scenarios: ["tsc-startup", "tsserver-startup", "tsserverlibrary-startup", "typescript-startup"],
         },
     },
     "regular": {
-        "tsc": {
-            "hosts": ["node@16.17.1"],
-            "iterations": 6,
-            "scenarios": ["Angular", "Monaco", "TFS", "material-ui", "Compiler-Unions", "xstate"],
+        tsc: {
+            hosts: ["node@16.17.1"],
+            iterations: 6,
+            scenarios: ["Angular", "Monaco", "TFS", "material-ui", "Compiler-Unions", "xstate"],
         },
-        "tsserver": {
-            "hosts": ["node@16.17.1"],
-            "iterations": 6,
-            "scenarios": ["Compiler-UnionsTSServer", "CompilerTSServer", "xstateTSServer"],
+        tsserver: {
+            hosts: ["node@16.17.1"],
+            iterations: 6,
+            scenarios: ["Compiler-UnionsTSServer", "CompilerTSServer", "xstateTSServer"],
         },
-        "startup": {
-            "hosts": ["node@16.17.1"],
-            "iterations": 6,
-            "scenarios": ["tsc-startup", "tsserver-startup", "tsserverlibrary-startup", "typescript-startup"],
+        startup: {
+            hosts: ["node@16.17.1"],
+            iterations: 6,
+            scenarios: ["tsc-startup", "tsserver-startup", "tsserverlibrary-startup", "typescript-startup"],
         },
     },
     "tsc-only": {
-        "tsc": {
-            "hosts": ["node@16.17.1"],
-            "iterations": 6,
-            "scenarios": ["Angular", "Monaco", "TFS", "material-ui", "Compiler-Unions", "xstate"],
+        tsc: {
+            hosts: ["node@16.17.1"],
+            iterations: 6,
+            scenarios: ["Angular", "Monaco", "TFS", "material-ui", "Compiler-Unions", "xstate"],
         },
     },
 };
@@ -103,19 +103,19 @@ if (baselining) {
     }
 
     matrix["all"] = {
-        "TSPERF_JOB_NAME": "all",
-        "TSPERF_TSC": !!preset.tsc?.iterations,
-        "TSPERF_TSC_HOSTS": preset.tsc?.hosts.join(","),
-        "TSPERF_TSC_SCENARIOS": preset.tsc?.scenarios.join(","),
-        "TSPERF_TSC_ITERATIONS": preset.tsc?.iterations,
-        "TSPERF_TSSERVER": !!preset.tsserver?.iterations,
-        "TSPERF_TSSERVER_HOSTS": preset.tsserver?.hosts.join(","),
-        "TSPERF_TSSERVER_SCENARIOS": preset.tsserver?.scenarios.join(","),
-        "TSPERF_TSSERVER_ITERATIONS": preset.tsserver?.iterations,
-        "TSPERF_STARTUP": !!preset.startup?.iterations,
-        "TSPERF_STARTUP_HOSTS": preset.startup?.hosts.join(","),
-        "TSPERF_STARTUP_SCENARIOS": preset.startup?.scenarios.join(","),
-        "TSPERF_STARTUP_ITERATIONS": preset.startup?.iterations,
+        TSPERF_JOB_NAME: "all",
+        TSPERF_TSC: !!preset.tsc?.iterations,
+        TSPERF_TSC_HOSTS: preset.tsc?.hosts.join(","),
+        TSPERF_TSC_SCENARIOS: preset.tsc?.scenarios.join(","),
+        TSPERF_TSC_ITERATIONS: preset.tsc?.iterations,
+        TSPERF_TSSERVER: !!preset.tsserver?.iterations,
+        TSPERF_TSSERVER_HOSTS: preset.tsserver?.hosts.join(","),
+        TSPERF_TSSERVER_SCENARIOS: preset.tsserver?.scenarios.join(","),
+        TSPERF_TSSERVER_ITERATIONS: preset.tsserver?.iterations,
+        TSPERF_STARTUP: !!preset.startup?.iterations,
+        TSPERF_STARTUP_HOSTS: preset.startup?.hosts.join(","),
+        TSPERF_STARTUP_SCENARIOS: preset.startup?.scenarios.join(","),
+        TSPERF_STARTUP_ITERATIONS: preset.startup?.iterations,
     };
 }
 else {
@@ -126,11 +126,11 @@ else {
                 mergeTsc = true;
                 const jobName = sanitizeJobName(`tsc_${host}_${scenario}`);
                 matrix[jobName] = {
-                    "TSPERF_JOB_NAME": jobName,
-                    "TSPERF_TSC": true ,
-                    "TSPERF_TSC_HOSTS": host,
-                    "TSPERF_TSC_SCENARIOS": scenario,
-                    "TSPERF_TSC_ITERATIONS": preset.tsc.iterations,
+                    TSPERF_JOB_NAME: jobName,
+                    TSPERF_TSC: true,
+                    TSPERF_TSC_HOSTS: host,
+                    TSPERF_TSC_SCENARIOS: scenario,
+                    TSPERF_TSC_ITERATIONS: preset.tsc.iterations,
                 };
             }
         }
@@ -142,11 +142,11 @@ else {
                 mergeTsserver = true;
                 const jobName = sanitizeJobName(`tsserver_${host}_${scenario}`);
                 matrix[jobName] = {
-                    "TSPERF_JOB_NAME": jobName,
-                    "TSPERF_TSSERVER": true,
-                    "TSPERF_TSSERVER_HOSTS": host,
-                    "TSPERF_TSSERVER_SCENARIOS": scenario,
-                    "TSPERF_TSSERVER_ITERATIONS": preset.tsserver.iterations,
+                    TSPERF_JOB_NAME: jobName,
+                    TSPERF_TSSERVER: true,
+                    TSPERF_TSSERVER_HOSTS: host,
+                    TSPERF_TSSERVER_SCENARIOS: scenario,
+                    TSPERF_TSSERVER_ITERATIONS: preset.tsserver.iterations,
                 };
             }
         }
@@ -158,11 +158,11 @@ else {
                 mergeStarup = true;
                 const jobName = sanitizeJobName(`startup_${host}_${scenario}`);
                 matrix[jobName] = {
-                    "TSPERF_JOB_NAME": jobName,
-                    "TSPERF_STARTUP": true,
-                    "TSPERF_STARTUP_HOSTS": host,
-                    "TSPERF_STARTUP_SCENARIOS": scenario,
-                    "TSPERF_STARTUP_ITERATIONS": preset.startup.iterations,
+                    TSPERF_JOB_NAME: jobName,
+                    TSPERF_STARTUP: true,
+                    TSPERF_STARTUP_HOSTS: host,
+                    TSPERF_STARTUP_SCENARIOS: scenario,
+                    TSPERF_STARTUP_ITERATIONS: preset.startup.iterations,
                 };
             }
         }
