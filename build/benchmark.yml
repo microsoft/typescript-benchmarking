@@ -63,6 +63,7 @@ parameters:
   # TODO: allow custom preset
   - name: TSPERF_PRESET
     displayName: Preset
+    # Note: keep this up to date with generateMatrix.mjs
     values:
       - full
       - regular

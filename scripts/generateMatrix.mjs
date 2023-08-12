@@ -17,6 +17,7 @@ import minimist from "minimist";
  */
 void 0;
 
+// Note: keep this up to date with TSPERF_PRESET.
 /** @type {Record<string, Preset | undefined>} */
 const presets = {
     "full": {
