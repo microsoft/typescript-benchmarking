@@ -17,48 +17,60 @@ import minimist from "minimist";
  */
 void 0;
 
+const defaultIterations = 6;
+
+// This version is arbitrary (just what was latest on 2023-08-12).
+const node20 = "node@20.5.1";
+// These two versions match those found in recent VS Code versions via Electron.
+const node18 = "node@18.15.0";
+const node16 = "node@16.17.1";
+
+const allTscScenarios = ["Angular", "Monaco", "TFS", "material-ui", "Compiler-Unions", "xstate"];
+const allTsserverScenarios = ["Compiler-UnionsTSServer", "CompilerTSServer", "xstateTSServer"];
+const allStartupScenarios = ["tsc-startup", "tsserver-startup", "tsserverlibrary-startup", "typescript-startup"];
+
 // Note: keep this up to date with TSPERF_PRESET.
 /** @type {Record<string, Preset | undefined>} */
 const presets = {
     "full": {
         tsc: {
-            hosts: ["node@18.10.0", "node@16.17.1", "node@14.21.3"],
-            iterations: 6,
-            scenarios: ["Angular", "Monaco", "TFS", "material-ui", "Compiler-Unions", "xstate"],
+            hosts: [node20, node18, node16],
+            iterations: defaultIterations,
+            scenarios: allTscScenarios,
         },
         tsserver: {
-            hosts: ["node@16.17.1"],
-            iterations: 6,
-            scenarios: ["Compiler-UnionsTSServer", "CompilerTSServer", "xstateTSServer"],
+            hosts: [node16],
+            iterations: defaultIterations,
+            scenarios: allTsserverScenarios,
         },
         startup: {
-            hosts: ["node@16.17.1"],
-            iterations: 6,
-            scenarios: ["tsc-startup", "tsserver-startup", "tsserverlibrary-startup", "typescript-startup"],
+            hosts: [node16],
+            iterations: defaultIterations,
+            scenarios: allStartupScenarios,
         },
     },
     "regular": {
         tsc: {
-            hosts: ["node@16.17.1"],
-            iterations: 6,
-            scenarios: ["Angular", "Monaco", "TFS", "material-ui", "Compiler-Unions", "xstate"],
+            hosts: [node16],
+            iterations: defaultIterations,
+            scenarios: allTscScenarios,
         },
         tsserver: {
-            hosts: ["node@16.17.1"],
-            iterations: 6,
-            scenarios: ["Compiler-UnionsTSServer", "CompilerTSServer", "xstateTSServer"],
+            hosts: [node16],
+            iterations: defaultIterations,
+            scenarios: allTsserverScenarios,
         },
         startup: {
-            hosts: ["node@16.17.1"],
-            iterations: 6,
-            scenarios: ["tsc-startup", "tsserver-startup", "tsserverlibrary-startup", "typescript-startup"],
+            hosts: [node16],
+            iterations: defaultIterations,
+            scenarios: allStartupScenarios,
         },
     },
     "tsc-only": {
         tsc: {
-            hosts: ["node@16.17.1"],
-            iterations: 6,
-            scenarios: ["Angular", "Monaco", "TFS", "material-ui", "Compiler-Unions", "xstate"],
+            hosts: [node16],
+            iterations: defaultIterations,
+            scenarios: allTscScenarios,
         },
     },
 };
