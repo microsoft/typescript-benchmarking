@@ -6,6 +6,7 @@
     "license": "MIT",
     "packageManager": "npm@8.19.4",
     "devDependencies": {
+        "@badrap/valita": "^0.2.8",
         "@octokit/rest": "^19.0.13",
         "@types/minimist": "^1.2.2",
         "@types/node": "^20.4.10",

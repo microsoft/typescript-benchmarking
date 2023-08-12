@@ -3,6 +3,7 @@ import { $ as _$ } from "execa";
 import fs from "fs";
 import minimist from "minimist";
 import path from "path";
+import { RepoInfo } from "./utils.mjs";
 
 const $ = _$({ verbose: true, stdio: "inherit" });
 
@@ -44,12 +45,13 @@ assert(fn, `Unknown subcommand ${subcommand}`);
 await fn();
 
 /**
- * @returns {Promise<Record<string, string>>}
+ * @returns {Promise<RepoInfo>}
  */
 async function getRepoInfo() {
     const builtDir = checkNonEmpty(args.builtDir, "Expected non-empty --builtDir");
     const repoInfoPath = path.join(builtDir, "info.json");
-    return JSON.parse(await fs.promises.readFile(repoInfoPath, { encoding: "utf8" }));
+    const parsed = JSON.parse(await fs.promises.readFile(repoInfoPath, { encoding: "utf8" }));
+    return RepoInfo.parse(parsed);
 }
 
 /**
