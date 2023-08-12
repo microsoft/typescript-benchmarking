@@ -51,14 +51,6 @@ resources:
           include:
             - main
 
-  # TODO: use secrets (jobs won't need all of these)
-  # - name: azureSubscription
-  #   value: 'TypeScript Internal Services'
-  # - name: KeyVaultName
-  #   value: 'jststeam-passwords'
-  # - name: SecretsFilter
-  #   value: 'tslab1-mseng-PAT, tsperf-azure-storage-connection-string, typescript-bot-github-PAT-for-comments'
-
 parameters:
   # TODO: allow custom preset
   - name: TSPERF_PRESET
@@ -72,6 +64,12 @@ parameters:
 
   - name: BASELINE_RUN
     displayName: This is a baseline run and should be uploaded
+    type: boolean
+    default: false
+
+  # TODO: finalize this once it's working
+  - name: USE_KEYVAULT
+    displayName: Use Azure keystore for secrets (WIP)
     type: boolean
     default: false
 
@@ -92,6 +90,9 @@ parameters:
 variables:
   Codeql.Enabled: false
   skipComponentGovernanceDetection: true
+
+  azureSubscription: 'TypeScript Public CI'
+  KeyVaultName: 'jststeam-passwords'
 
   REF: $[ resources.repositories['TypeScript'].ref ]
   PRETTY_REF: $[ replace(replace(replace(replace(variables['REF'], '/merge', ''), 'refs/pull/', 'pr.'), 'refs/heads/', ''), '/', '_') ]
@@ -119,6 +120,14 @@ jobs:
       ARTIFACTS_DIR: $(Pipeline.Workspace)/artifacts
 
     steps:
+      ${{ if parameters.USE_KEYVAULT }}:
+        - task: AzureKeyVault@2
+          inputs:
+            azureSubscription: $(azureSubscription)
+            KeyVaultName: $(KeyVaultName)
+            SecretsFilter: 'tslab1-mseng-PAT'
+          displayName: Get secrets
+
       - template: templates/setup.yml
       - template: templates/cloneAndBuildBenchmarkRepo.yml # Sets $(BENCH_SCRIPTS)
 
@@ -178,14 +187,13 @@ jobs:
       ARTIFACTS_DIR: $(Pipeline.Workspace)/artifacts
 
     steps:
-      # TODO: figure out what perms are missing here
-      # https://learn.microsoft.com/en-us/azure/devops/pipelines/release/key-vault-in-own-project?view=azure-devops&tabs=portal#query-and-use-secrets-in-your-pipeline
-      # - task: AzureKeyVault@1
-      #   inputs:
-      #     # This info has been present in CI logs for years; consider these not secret.
-      #     azureSubscription: $(azureSubscription)
-      #     KeyVaultName: $(KeyVaultName)
-      #     SecretsFilter: $(SecretsFilter)
+      ${{ if parameters.USE_KEYVAULT }}:
+        - task: AzureKeyVault@2
+          inputs:
+            azureSubscription: $(azureSubscription)
+            KeyVaultName: $(KeyVaultName)
+            SecretsFilter: 'tslab1-mseng-PAT'
+          displayName: Get secrets
 
       - template: templates/setup.yml
       - template: templates/cloneAndBuildBenchmarkRepo.yml # Sets $(BENCH_SCRIPTS)
@@ -276,6 +284,14 @@ jobs:
       MERGED_DIR: $(Pipeline.Workspace)/merged
 
     steps:
+      ${{ if parameters.USE_KEYVAULT }}:
+        - task: AzureKeyVault@2
+          inputs:
+            azureSubscription: $(azureSubscription)
+            KeyVaultName: $(KeyVaultName)
+            SecretsFilter: 'tslab1-mseng-PAT, tsperf-azure-storage-connection-string, typescript-bot-github-PAT-for-comments'
+          displayName: Get secrets
+
       - download: current
         patterns: '**/*.benchmark'
         displayName: Download benchmarks
@@ -405,7 +421,7 @@ jobs:
           SOURCE_ISSUE: ${{ parameters.SOURCE_ISSUE }}
           REQUESTING_USER: ${{ parameters.REQUESTING_USER }}
           STATUS_COMMENT: ${{ parameters.STATUS_COMMENT }}
-          GH_TOKEN: $(GH_TOKEN)
+          GH_TOKEN: $(typescript-bot-github-PAT-for-comments)
 
       # TODO: some sort of on-failure run which replies to PRs
 
