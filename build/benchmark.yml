@@ -398,7 +398,7 @@ jobs:
 
       - bash: |
           set -eo pipefail
-          node $(BENCH_SCRIPTS)/postPerfResult.mjs $(Pipeline.Workspace)/comment.html
+          node $(BENCH_SCRIPTS)/postPerfResult.mjs --fragment $(Pipeline.Workspace)/comment.html
         displayName: Publish PR comment
         condition: and(succeeded(), eq(variables['IS_PR'], 'true'))
         env:
@@ -406,8 +406,6 @@ jobs:
           REQUESTING_USER: ${{ parameters.REQUESTING_USER }}
           STATUS_COMMENT: ${{ parameters.STATUS_COMMENT }}
           GH_TOKEN: $(typescript-bot-github-PAT-for-comments)
-
-      # TODO: some sort of on-failure run which replies to PRs
 
       # TODO: we should probably save the "latest" benchmarks in blob store, but
       # we need to be smarter and not overwrite newer benchmarks when the pipeline
@@ -445,3 +443,28 @@ jobs:
         condition: and(succeeded(), eq(variables['TSPERF_MERGE_STARTUP'], 'true'), eq(variables['SHOULD_UPLOAD'], 'true'))
         env:
           TSPERF_AZURE_STORAGE_CONNECTION_STRING: $(tsperf-azure-storage-connection-string)
+
+  - job: OnFailedPRRun
+    dependsOn:
+      - Setup
+      - Benchmark
+      - ProcessResults
+    condition: and(failed(), eq(variables['IS_PR'], 'true'))
+    pool:
+      vmImage: ubuntu-latest
+    workspace:
+      clean: all # Always start with a clean slate.
+
+    steps:
+      - template: templates/setup.yml
+      - template: templates/cloneAndBuildBenchmarkRepo.yml # Sets $(BENCH_SCRIPTS)
+
+      - bash: |
+          set -eo pipefail
+          node $(BENCH_SCRIPTS)/postPerfResult.mjs --failed
+        displayName: Publish PR comment
+        env:
+          SOURCE_ISSUE: ${{ parameters.SOURCE_ISSUE }}
+          REQUESTING_USER: ${{ parameters.REQUESTING_USER }}
+          STATUS_COMMENT: ${{ parameters.STATUS_COMMENT }}
+          GH_TOKEN: $(typescript-bot-github-PAT-for-comments)

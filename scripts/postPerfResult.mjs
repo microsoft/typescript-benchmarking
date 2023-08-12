@@ -1,5 +1,6 @@
 import { Octokit } from "@octokit/rest";
 import fs from "fs";
+import minimist from "minimist";
 
 async function main() {
     const source = process.env.SOURCE_ISSUE;
@@ -17,24 +18,37 @@ async function main() {
     const auth = process.env.GH_TOKEN;
     if (!auth) throw new Error("GH_TOKEN environment variable not set.");
 
-    const [fragment] = process.argv.slice(2);
-    if (!fragment) throw new Error("First argument must be a path to an HTML fragment.");
+    const args = minimist(process.argv.slice(2), {
+        string: ["fragment"],
+        boolean: ["failed"],
+    });
 
     const gh = new Octokit({ auth });
     try {
-        console.log(`Loading fragment from ${fragment}...`);
-        const outputTableText = fs.readFileSync(fragment, { encoding: "utf8" });
-        console.log(`Fragment contents:\n${outputTableText}`);
+        let body;
+        if (args.failed) {
+            body =
+                `@${requester}, the perf run you requested failed. [You can check the log here](https://typescript.visualstudio.com/TypeScript/_build/index?buildId=${buildId}&_a=summary).`;
+        }
+        else {
+            const fragment = args.fragment;
+            if (!fragment) throw new Error("Expected --fragment to be set.");
 
-        const artifactLink =
-            `\n<details><summary>Developer Information:</summary><p><a href="https://typescript.visualstudio.com/TypeScript/_build/results?buildId=${buildId}&view=artifacts">Download Benchmarks</a></p></details>\n`;
+            console.log(`Loading fragment from ${fragment}...`);
+            const outputTableText = fs.readFileSync(fragment, { encoding: "utf8" });
+            console.log(`Fragment contents:\n${outputTableText}`);
+
+            const artifactLink =
+                `\n<details><summary>Developer Information:</summary><p><a href="https://typescript.visualstudio.com/TypeScript/_build/results?buildId=${buildId}&view=artifacts">Download Benchmarks</a></p></details>\n`;
+            body =
+                `@${requester}\nThe results of the perf run you requested are in!\n<details><summary> Here they are:</summary><p>\n${outputTableText}\n</p>${artifactLink}</details>`;
+        }
 
         const data = await gh.issues.createComment({
             issue_number: +source,
             owner: "Microsoft",
             repo: "TypeScript",
-            body:
-                `@${requester}\nThe results of the perf run you requested are in!\n<details><summary> Here they are:</summary><p>\n${outputTableText}\n</p>${artifactLink}</details>`,
+            body,
         });
 
         console.log(`Results posted!`);
