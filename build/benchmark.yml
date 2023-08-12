@@ -114,13 +114,6 @@ jobs:
       ARTIFACTS_DIR: $(Pipeline.Workspace)/artifacts
 
     steps:
-      - task: AzureKeyVault@2
-        inputs:
-          azureSubscription: $(azureSubscription)
-          KeyVaultName: $(KeyVaultName)
-          SecretsFilter: 'tslab1-mseng-PAT'
-        displayName: Get secrets
-
       - template: templates/setup.yml
       - template: templates/cloneAndBuildBenchmarkRepo.yml # Sets $(BENCH_SCRIPTS)
 
