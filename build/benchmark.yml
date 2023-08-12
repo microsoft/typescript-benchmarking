@@ -120,13 +120,13 @@ jobs:
       ARTIFACTS_DIR: $(Pipeline.Workspace)/artifacts
 
     steps:
-      ${{ if parameters.USE_KEYVAULT }}:
-        - task: AzureKeyVault@2
-          inputs:
-            azureSubscription: $(azureSubscription)
-            KeyVaultName: $(KeyVaultName)
-            SecretsFilter: 'tslab1-mseng-PAT'
-          displayName: Get secrets
+      - ${{ if parameters.USE_KEYVAULT }}:
+          - task: AzureKeyVault@2
+            inputs:
+              azureSubscription: $(azureSubscription)
+              KeyVaultName: $(KeyVaultName)
+              SecretsFilter: 'tslab1-mseng-PAT'
+            displayName: Get secrets
 
       - template: templates/setup.yml
       - template: templates/cloneAndBuildBenchmarkRepo.yml # Sets $(BENCH_SCRIPTS)
@@ -187,13 +187,13 @@ jobs:
       ARTIFACTS_DIR: $(Pipeline.Workspace)/artifacts
 
     steps:
-      ${{ if parameters.USE_KEYVAULT }}:
-        - task: AzureKeyVault@2
-          inputs:
-            azureSubscription: $(azureSubscription)
-            KeyVaultName: $(KeyVaultName)
-            SecretsFilter: 'tslab1-mseng-PAT'
-          displayName: Get secrets
+      - ${{ if parameters.USE_KEYVAULT }}:
+          - task: AzureKeyVault@2
+            inputs:
+              azureSubscription: $(azureSubscription)
+              KeyVaultName: $(KeyVaultName)
+              SecretsFilter: 'tslab1-mseng-PAT'
+            displayName: Get secrets
 
       - template: templates/setup.yml
       - template: templates/cloneAndBuildBenchmarkRepo.yml # Sets $(BENCH_SCRIPTS)
@@ -284,13 +284,13 @@ jobs:
       MERGED_DIR: $(Pipeline.Workspace)/merged
 
     steps:
-      ${{ if parameters.USE_KEYVAULT }}:
-        - task: AzureKeyVault@2
-          inputs:
-            azureSubscription: $(azureSubscription)
-            KeyVaultName: $(KeyVaultName)
-            SecretsFilter: 'tslab1-mseng-PAT, tsperf-azure-storage-connection-string, typescript-bot-github-PAT-for-comments'
-          displayName: Get secrets
+      - ${{ if parameters.USE_KEYVAULT }}:
+          - task: AzureKeyVault@2
+            inputs:
+              azureSubscription: $(azureSubscription)
+              KeyVaultName: $(KeyVaultName)
+              SecretsFilter: 'tslab1-mseng-PAT, tsperf-azure-storage-connection-string, typescript-bot-github-PAT-for-comments'
+            displayName: Get secrets
 
       - download: current
         patterns: '**/*.benchmark'
