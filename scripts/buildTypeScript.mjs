@@ -4,7 +4,6 @@ import fs from "fs";
 import minimist from "minimist";
 import fetch from "node-fetch";
 import path from "path";
-import { RepoInfo } from "./utils.mjs";
 
 const $pipe = _$({ verbose: true });
 const $ = _$({ verbose: true, stdio: "inherit" });
@@ -64,7 +63,7 @@ else {
     branch = ref.replace(/^refs\/heads\//, "");
 }
 
-/** @type {RepoInfo} */
+/** @type {import("./utils.mjs").RepoInfo} */
 const info = {
     commit,
     commitShort,
