@@ -97,8 +97,11 @@ variables:
   # Only upload if the provided ref is explicitly main/release-* and we've run on the baseline machine.
   # This means that main pushes will automatically upload, but we can still queue builds off of main with a specific commit in the API.
   SHOULD_UPLOAD: $[ and(or(eq(variables['REF'], 'refs/heads/main'), startsWith(variables['REF'], 'refs/heads/release-')), variables['USE_BASELINE_MACHINE']) ]
+  # This is a hack to emulate a ternary operator.
+  # https://github.com/microsoft/azure-pipelines-yaml/issues/256#issuecomment-824121862
+  PRETTY_SHOULD_UPLOAD: $[ replace(replace(eq(lower(variables['SHOULD_UPLOAD']), 'true'), True, '-uploaded'), False, '') ]
 
-name: $(PRETTY_REF)-$(Date:yyyyMMdd).$(Rev:r)
+name: $(PRETTY_REF)$(PRETTY_SHOULD_UPLOAD)-$(Date:yyyyMMdd).$(Rev:r)
 # Hide the commit message from the run name; it'll just always say that the
 # build came from the benchmarking repo's commit.
 appendCommitMessageToRunName: false
