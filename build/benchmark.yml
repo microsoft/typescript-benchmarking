@@ -11,7 +11,7 @@
 #       }
 #     },
 #     "templateParameters": {
-#       "BASELINE_RUN": true
+#       "HISTORICAL_RUN": true
 #     }
 #   }
 #   In this situation, we'll treat this as a backfill run on main and upload
@@ -48,6 +48,8 @@ resources:
       source: 'TypeScript pipeline trigger'
       trigger:
         branches:
+          # TODO: should we also trigger on release branches?
+          # (Will require a change in the other pipeline.)
           include:
             - main
 
@@ -55,15 +57,15 @@ parameters:
   # TODO: allow custom preset
   - name: TSPERF_PRESET
     displayName: Preset
-    # Note: keep this up to date with generateMatrix.mjs
+    # Note: keep this up to date with generateMatrix.mjs and https://github.com/microsoft/typescript-bot-test-triggerer
     values:
       - full
       - regular
       - tsc-only
     default: full # Branch pushes use the defaults, so this is set to full.
 
-  - name: BASELINE_RUN
-    displayName: This is a baseline run (only check this if you know what you're doing)
+  - name: HISTORICAL_RUN
+    displayName: This is a historical run (only check this if you know what you're doing)
     type: boolean
     default: false
 
@@ -93,7 +95,7 @@ variables:
   IS_PR: $[ startsWith(variables['REF'], 'refs/pull/') ]
   # True if this run should demand a baseline machine.
   # Note: this expression is the same as the one in the Benchmark job; make sure it stays in sync.
-  USE_BASELINE_MACHINE: $[ or(eq(variables['Build.Reason'], 'ResourceTrigger'), ${{ parameters.BASELINE_RUN }}) ]
+  USE_BASELINE_MACHINE: $[ or(eq(variables['Build.Reason'], 'ResourceTrigger'), ${{ parameters.HISTORICAL_RUN }}) ]
   # Only upload if the provided ref is explicitly main/release-* and we've run on the baseline machine.
   # This means that main pushes will automatically upload, but we can still queue builds off of main with a specific commit in the API.
   SHOULD_UPLOAD: $[ and(or(eq(variables['REF'], 'refs/heads/main'), startsWith(variables['REF'], 'refs/heads/release-')), variables['USE_BASELINE_MACHINE']) ]
@@ -161,7 +163,7 @@ jobs:
     pool:
       name: ts-perf-ddfun
       # Note: this expression is the same as USE_BASELINE_MACHINE; make sure it stays in sync.
-      ${{ if or(eq(variables['Build.Reason'], 'ResourceTrigger'), parameters.BASELINE_RUN) }}:
+      ${{ if or(eq(variables['Build.Reason'], 'ResourceTrigger'), parameters.HISTORICAL_RUN) }}:
         demands: Agent.Name -equals ts-perf1
     workspace:
       clean: all # Always start with a clean slate.

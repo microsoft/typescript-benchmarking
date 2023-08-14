@@ -29,7 +29,7 @@ const allTscScenarios = ["Angular", "Monaco", "TFS", "material-ui", "Compiler-Un
 const allTsserverScenarios = ["Compiler-UnionsTSServer", "CompilerTSServer", "xstateTSServer"];
 const allStartupScenarios = ["tsc-startup", "tsserver-startup", "tsserverlibrary-startup", "typescript-startup"];
 
-// Note: keep this up to date with TSPERF_PRESET.
+// Note: keep this up to date with TSPERF_PRESET and https://github.com/microsoft/typescript-bot-test-triggerer
 /** @type {Record<string, Preset | undefined>} */
 const presets = {
     "full": {
