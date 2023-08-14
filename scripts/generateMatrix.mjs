@@ -109,7 +109,7 @@ if (baselining) {
     willRunTsserver = !!preset.tsserver;
     willRunStartup = !!preset.startup;
 
-    matrix["all"] = {
+    matrix.all = {
         TSPERF_JOB_NAME: "all",
         TSPERF_TSC: willRunTsc,
         TSPERF_TSC_HOSTS: preset.tsc?.hosts.join(","),
