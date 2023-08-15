@@ -132,8 +132,7 @@ async function getCommonBenchmarkArgs(
             getNonEmptyEnv("TSPERF_AZURE_STORAGE_CONNECTION_STRING");
             tsperfArgs.push(
                 "--save",
-                // TODO: remove newperf once this is known to be working
-                `blob:newperf/${info.branch}/${info.timestampDir}/${info.commitShort}.${args.saveBlob}.benchmark`,
+                `blob:${info.branch}/${info.timestampDir}/${info.commitShort}.${args.saveBlob}.benchmark`,
             );
         }
 
