@@ -4,6 +4,7 @@ import dotenv from "dotenv";
 import { execa } from "execa";
 import { appendFileSync, readFileSync } from "fs";
 import minimist from "minimist";
+import ora from "ora";
 
 dotenv.config();
 
@@ -70,7 +71,7 @@ const getBuildApi = memoize(() => {
     return vstsTypescript.getBuildApi();
 });
 
-async function canQueueBuild() {
+async function getPendingBuildCount() {
     const build = await getBuildApi();
     const builds = await build.getBuilds(
         project,
@@ -83,7 +84,7 @@ async function canQueueBuild() {
         undefined,
         /** @type {any} */ (1 | 32), // BuildStatus.InProgress | BuildStatus.NotStarted
     );
-    return builds.length === 0;
+    return builds.length;
 }
 
 /**
@@ -177,7 +178,28 @@ catch {
 }
 
 console.log(`Starting backfill of ${branch} from ${startCommit}...`);
-console.log("If any builds are pending in the benchmark queue, this will wait for them to finish before continuing.");
+
+/** @type {ReturnType<ora> | undefined} */
+let spinner;
+
+/**
+ * @param {string} message
+ */
+function updateSpinner(message) {
+    if (spinner === undefined) {
+        spinner = ora(message).start();
+    }
+    else {
+        spinner.text = message;
+    }
+}
+
+function stopSpinner() {
+    if (spinner !== undefined) {
+        spinner.stop();
+        spinner = undefined;
+    }
+}
 
 let skipped = 0;
 for (let i = 0;; i++) {
@@ -191,23 +213,21 @@ for (let i = 0;; i++) {
     }
 
     if (skipped) {
+        stopSpinner();
         console.log(`Skipped ${skipped} commits.`);
         skipped = 0;
     }
 
-    let waited = false;
     while (true) {
-        if (await canQueueBuild()) {
+        const count = await getPendingBuildCount();
+        if (count === 0) {
             break;
         }
-
-        waited = true;
-        process.stdout.write(".");
+        updateSpinner(`Waiting for ${count} pending ${count === 1 ? "build" : "builds"} to finish...`);
         await sleepMinutes(5);
     }
-    if (waited) {
-        console.log();
-    }
+
+    stopSpinner();
 
     console.log(`Queueing ${prettyCommit(commit)}`);
     await runPipeline(pipeline, {
@@ -226,6 +246,8 @@ for (let i = 0;; i++) {
     appendFileSync(seenFilename, `${commit.hash}\n`);
     seen.add(commit.hash);
 
-    // Delay a little so the build is queued.
+    updateSpinner("Waiting for 1 pending build to finish...");
+
+    // Delay a little the build has a chance to show up.
     await sleepMinutes(1);
 }
