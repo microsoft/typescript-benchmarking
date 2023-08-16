@@ -60,6 +60,8 @@ async function getRepoInfo() {
  * @param {string} commit
  */
 async function isLatestCommitForRef(ref, commit) {
+    assert(ref.startsWith("refs/"));
+    ref = ref.slice("refs/".length);
     const auth = getNonEmptyEnv("GH_TOKEN");
     const { Octokit } = await import("@octokit/rest");
     const gh = new Octokit({ auth });
