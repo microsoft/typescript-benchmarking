@@ -66,7 +66,13 @@ async function isLatestCommitForRef(ref, commit) {
     const { Octokit } = await import("@octokit/rest");
     const gh = new Octokit({ auth });
     const latest = await gh.git.getRef({ owner: "microsoft", repo: "typescript", ref });
-    return latest.data.object.sha === commit;
+    const isLatest = latest.data.object.sha === commit;
+    console.log(`Latest commit for ${ref} is: ${latest.data.object.sha}`);
+    console.log(`This run was for: ${commit}`);
+    if (isLatest) {
+        console.log("This is the latest commit for this ref.");
+    }
+    return isLatest;
 }
 
 /**
