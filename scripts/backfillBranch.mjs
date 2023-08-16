@@ -229,6 +229,7 @@ for (let i = 0;; i++) {
             repositories: {
                 TypeScript: {
                     refName: `refs/heads/${branch}`,
+                    version: commit.hash,
                 },
             },
         },
