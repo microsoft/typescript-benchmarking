@@ -4,6 +4,7 @@ steps:
     fetchTags: false
     fetchDepth: 1
     clean: true
+    retryCountOnTaskFailure: 3
 
   - bash: |
       set -eo pipefail
@@ -11,3 +12,4 @@ steps:
       npm ci
       echo "##vso[task.setvariable variable=BENCH_SCRIPTS]$(Pipeline.Workspace)/typescript-benchmarking/scripts"
     displayName: Install typescript-benchmarking
+    retryCountOnTaskFailure: 3

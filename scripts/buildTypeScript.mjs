@@ -5,6 +5,8 @@ import minimist from "minimist";
 import fetch from "node-fetch";
 import path from "path";
 
+import { retry } from "./utils.mjs";
+
 const $pipe = _$({ verbose: true });
 const $ = _$({ verbose: true, stdio: "inherit" });
 
@@ -28,7 +30,7 @@ assert(JSON.parse(packageJson).name === "typescript", "Expected to be run from t
 
 await $`mkdir -p ${path.dirname(outputDir)}`;
 
-await $`npm ci`;
+await retry(() => $`npm ci`);
 
 if (fs.existsSync("Herebyfile.mjs")) {
     await $`npx hereby lkg`;

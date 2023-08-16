@@ -133,6 +133,7 @@ jobs:
         fetchTags: false
         fetchDepth: 2 # For PRs, we want the merge base to compare against.
         clean: true
+        retryCountOnTaskFailure: 3
 
       - bash: |
           set -eo pipefail

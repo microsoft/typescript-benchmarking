@@ -6,6 +6,8 @@ import { appendFileSync, readFileSync } from "fs";
 import minimist from "minimist";
 import ora from "ora";
 
+import { sleepSeconds } from "./utils.mjs";
+
 dotenv.config();
 
 const args = minimist(process.argv.slice(2), {
@@ -156,14 +158,6 @@ function prettyCommit(commit) {
     return `${commit.hash} ${commit.subject} at ${commit.date}`;
 }
 
-/**
- * @param {number} minutes
- */
-function sleepMinutes(minutes) {
-    const ms = minutes * 60 /* seconds */ * 1000; /* milliseconds */
-    return new Promise(resolve => setTimeout(resolve, ms));
-}
-
 let seen;
 try {
     seen = new Set(
@@ -224,7 +218,7 @@ for (let i = 0;; i++) {
             break;
         }
         updateSpinner(`Waiting for ${count} pending ${count === 1 ? "build" : "builds"} to finish...`);
-        await sleepMinutes(5);
+        await sleepSeconds(5 * 60);
     }
 
     stopSpinner();
@@ -249,5 +243,5 @@ for (let i = 0;; i++) {
     updateSpinner("Waiting for 1 pending build to finish...");
 
     // Delay a little the build has a chance to show up.
-    await sleepMinutes(1);
+    await sleepSeconds(60);
 }
