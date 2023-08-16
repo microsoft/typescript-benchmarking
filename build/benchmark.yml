@@ -427,6 +427,7 @@ jobs:
         condition: and(succeeded(), eq(variables['TSPERF_WILL_RUN_TSC'], 'true'), eq(variables['SHOULD_UPLOAD'], 'true'))
         env:
           TSPERF_AZURE_STORAGE_CONNECTION_STRING: $(tsperf-azure-storage-connection-string)
+          GH_TOKEN: $(typescript-bot-github-PAT-for-comments)
 
       - bash: |
           set -eo pipefail
@@ -438,6 +439,7 @@ jobs:
         condition: and(succeeded(), eq(variables['TSPERF_WILL_RUN_TSSERVER'], 'true'), eq(variables['SHOULD_UPLOAD'], 'true'))
         env:
           TSPERF_AZURE_STORAGE_CONNECTION_STRING: $(tsperf-azure-storage-connection-string)
+          GH_TOKEN: $(typescript-bot-github-PAT-for-comments)
 
       - bash: |
           set -eo pipefail
@@ -449,6 +451,7 @@ jobs:
         condition: and(succeeded(), eq(variables['TSPERF_WILL_RUN_STARTUP'], 'true'), eq(variables['SHOULD_UPLOAD'], 'true'))
         env:
           TSPERF_AZURE_STORAGE_CONNECTION_STRING: $(tsperf-azure-storage-connection-string)
+          GH_TOKEN: $(typescript-bot-github-PAT-for-comments)
 
   - job: OnFailedPRRun
     dependsOn:
