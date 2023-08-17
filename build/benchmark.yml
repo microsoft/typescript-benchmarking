@@ -101,9 +101,10 @@ variables:
   SHOULD_UPLOAD: $[ and(or(eq(variables['REF'], 'refs/heads/main'), startsWith(variables['REF'], 'refs/heads/release-')), variables['USE_BASELINE_MACHINE']) ]
   # This is a hack to emulate a ternary operator.
   # https://github.com/microsoft/azure-pipelines-yaml/issues/256#issuecomment-824121862
-  PRETTY_SHOULD_UPLOAD: $[ replace(replace(eq(lower(variables['SHOULD_UPLOAD']), 'true'), True, '-historical'), False, '') ]
+  # Since this is annoying, here's a playground to help generate them: https://tsplay.dev/WklK0w
+  PRETTY_SUFFIX: $[ replace(replace(eq(lower(variables['SHOULD_UPLOAD']), 'true'), True, replace(replace(eq(variables['Build.Reason'], 'ResourceTrigger'), True, '-push'), False, '-historical')), False, '') ]
 
-name: $(PRETTY_REF)$(PRETTY_SHOULD_UPLOAD)-$(Date:yyyyMMdd).$(Rev:r)
+name: $(PRETTY_REF)$(PRETTY_SUFFIX)-$(Date:yyyyMMdd).$(Rev:r)
 # Hide the commit message from the run name; it'll just always say that the
 # build came from the benchmarking repo's commit.
 appendCommitMessageToRunName: false
