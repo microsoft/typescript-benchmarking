@@ -138,7 +138,7 @@ for (let i = 0;; i++) {
             break;
         }
         updateSpinner(`Waiting for ${count} pending ${count === 1 ? "build" : "builds"} to finish...`);
-        await sleepSeconds(5 * 60);
+        await sleepSeconds(60);
     }
 
     stopSpinner();
