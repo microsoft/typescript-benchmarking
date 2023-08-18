@@ -414,9 +414,14 @@ jobs:
           STATUS_COMMENT: ${{ parameters.STATUS_COMMENT }}
           GH_TOKEN: $(typescript-bot-github-PAT-for-comments)
 
-      # TODO: we should probably save the "latest" benchmarks in blob store, but
-      # we need to be smarter and not overwrite newer benchmarks when the pipeline
-      # ends up running out of order.
+      # Sets $(TSPERF_BLOB_LATEST)
+      - bash: |
+          set -eo pipefail
+          node $(BENCH_SCRIPTS)/checkLatestCommitForRef.mjs --builtDir $(BUILT_TYPESCRIPT_DIR)/baseline
+        displayName: Check if commit is latest for ref
+        condition: and(succeeded(), eq(variables['SHOULD_UPLOAD'], 'true'))
+        env:
+          GH_TOKEN: $(typescript-bot-github-PAT-for-comments)
 
       - bash: |
           set -eo pipefail
@@ -428,7 +433,6 @@ jobs:
         condition: and(succeeded(), eq(variables['TSPERF_WILL_RUN_TSC'], 'true'), eq(variables['SHOULD_UPLOAD'], 'true'))
         env:
           TSPERF_AZURE_STORAGE_CONNECTION_STRING: $(tsperf-azure-storage-connection-string)
-          GH_TOKEN: $(typescript-bot-github-PAT-for-comments)
 
       - bash: |
           set -eo pipefail
@@ -440,7 +444,6 @@ jobs:
         condition: and(succeeded(), eq(variables['TSPERF_WILL_RUN_TSSERVER'], 'true'), eq(variables['SHOULD_UPLOAD'], 'true'))
         env:
           TSPERF_AZURE_STORAGE_CONNECTION_STRING: $(tsperf-azure-storage-connection-string)
-          GH_TOKEN: $(typescript-bot-github-PAT-for-comments)
 
       - bash: |
           set -eo pipefail
@@ -452,7 +455,6 @@ jobs:
         condition: and(succeeded(), eq(variables['TSPERF_WILL_RUN_STARTUP'], 'true'), eq(variables['SHOULD_UPLOAD'], 'true'))
         env:
           TSPERF_AZURE_STORAGE_CONNECTION_STRING: $(tsperf-azure-storage-connection-string)
-          GH_TOKEN: $(typescript-bot-github-PAT-for-comments)
 
   - job: OnFailedPRRun
     dependsOn:

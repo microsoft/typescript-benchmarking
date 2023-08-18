@@ -1,4 +1,7 @@
 import * as v from "@badrap/valita";
+import assert from "assert";
+import fs from "fs";
+import path from "path";
 
 /**
  * @typedef {v.Infer<typeof RepoInfo>} RepoInfo
@@ -43,4 +46,30 @@ export async function retry(fn, count = 3, wait = 5) {
  */
 export function sleepSeconds(seconds) {
     return new Promise(resolve => setTimeout(resolve, seconds * 1000));
+}
+
+/** @type {<T extends {}>(x: T | undefined | null, message: string) => T} */
+export function checkNonEmpty(x, message) {
+    assert(x, message);
+    return x;
+}
+
+/**
+ * @param {string} name
+ */
+export function getNonEmptyEnv(name) {
+    const value = process.env[name];
+    assert(value, `Expected ${name} environment variable to be set`);
+    return value;
+}
+
+/**
+ * @param {string} builtDir
+ * @returns {Promise<RepoInfo>}
+ */
+export async function getRepoInfo(builtDir) {
+    assert(builtDir, "Expected non-empty builtDir");
+    const repoInfoPath = path.join(builtDir, "info.json");
+    const parsed = JSON.parse(await fs.promises.readFile(repoInfoPath, { encoding: "utf8" }));
+    return RepoInfo.parse(parsed);
 }

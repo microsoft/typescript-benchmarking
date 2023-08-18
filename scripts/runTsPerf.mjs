@@ -1,10 +1,9 @@
 import assert from "assert";
 import { $ as _$ } from "execa";
-import fs from "fs";
 import minimist from "minimist";
 import path from "path";
 
-import { RepoInfo } from "./utils.mjs";
+import { checkNonEmpty, getNonEmptyEnv, getRepoInfo } from "./utils.mjs";
 
 const $ = _$({ verbose: true, stdio: "inherit" });
 
@@ -14,21 +13,6 @@ const args = minimist(rawArgs, {
     string: ["builtDir", "save", "saveBlob", "baseline", "load", "baselineName", "benchmarkName", "format"],
     boolean: ["quiet"],
 });
-
-/** @type {<T extends {}>(x: T | undefined | null, message: string) => T} */
-function checkNonEmpty(x, message) {
-    assert(x, message);
-    return x;
-}
-
-/**
- * @param {string} name
- */
-function getNonEmptyEnv(name) {
-    const value = process.env[name];
-    assert(value, `Expected ${name} environment variable to be set`);
-    return value;
-}
 
 const tsperfExe = checkNonEmpty(process.env.TSPERF_EXE, "Expected TSPERF_EXE environment variable to be set");
 
@@ -44,36 +28,6 @@ const fn = commands[subcommand];
 assert(fn, `Unknown subcommand ${subcommand}`);
 
 await fn();
-
-/**
- * @returns {Promise<RepoInfo>}
- */
-async function getRepoInfo() {
-    const builtDir = checkNonEmpty(args.builtDir, "Expected non-empty --builtDir");
-    const repoInfoPath = path.join(builtDir, "info.json");
-    const parsed = JSON.parse(await fs.promises.readFile(repoInfoPath, { encoding: "utf8" }));
-    return RepoInfo.parse(parsed);
-}
-
-/**
- * @param {string} ref
- * @param {string} commit
- */
-async function isLatestCommitForRef(ref, commit) {
-    assert(ref.startsWith("refs/"));
-    ref = ref.slice("refs/".length);
-    const auth = getNonEmptyEnv("GH_TOKEN");
-    const { Octokit } = await import("@octokit/rest");
-    const gh = new Octokit({ auth });
-    const latest = await gh.git.getRef({ owner: "microsoft", repo: "typescript", ref });
-    const isLatest = latest.data.object.sha === commit;
-    console.log(`Latest commit for ${ref} is: ${latest.data.object.sha}`);
-    console.log(`This run was for: ${commit}`);
-    if (isLatest) {
-        console.log("This is the latest commit for this ref.");
-    }
-    return isLatest;
-}
 
 /**
  * @param {string} name
@@ -130,7 +84,7 @@ async function getCommonBenchmarkArgs(
         const scenarios = getNonEmptyEnv(scenariosEnvVarName);
         const iterations = getNonEmptyEnv(iterationsEnvVarName);
         const cpu = getNonEmptyEnv("TSPERF_AGENT_BENCHMARK_CPU");
-        const info = await getRepoInfo();
+        const info = await getRepoInfo(args.builtDir);
 
         tsperfArgs.push(...createFlags("host", [hosts]));
         tsperfArgs.push(...createFlags("scenario", [scenarios]));
@@ -146,7 +100,7 @@ async function getCommonBenchmarkArgs(
     }
     else {
         if (args.saveBlob) {
-            const info = await getRepoInfo();
+            const info = await getRepoInfo(args.builtDir);
 
             // ts-perf accepts this as an env var, just check that it exists for an early error.
             getNonEmptyEnv("TSPERF_AZURE_STORAGE_CONNECTION_STRING");
@@ -155,20 +109,8 @@ async function getCommonBenchmarkArgs(
                 `blob:${info.branch}/${info.timestampDir}/${info.commitShort}.${args.saveBlob}.benchmark`,
             );
 
-            // If the current commit is the latest for the given ref, then we save it as such.
-            // This is generally safe because even if we are currently the most recent build for a ref
-            // and this returns false, then it must be the case that the newer commit will get enqueued
-            // at some point in the future.
-            //
-            // Note that there is a chance that "latest" will lag behind; if we get lots of merges
-            // in a row and Pipelines happens to run them in order, then each will say "I'm not latest",
-            // and skip the upload, until the actual latest happens to run. But, anecdotally, Pipelines
-            // likes to run builds out of order, often with the _newest_ build first, so this should be fine.
-            // If this turns out not to be fine, we can come up with something fancier, but since we don't
-            // use baselines to test PRs anymore, it's likely not harmful.
-            const ref = getNonEmptyEnv("REF");
-            const latest = await isLatestCommitForRef(ref, info.commit);
-            if (latest) {
+            const isLatest = getNonEmptyEnv("TSPERF_BLOB_LATEST").toUpperCase() === "TRUE";
+            if (isLatest) {
                 tsperfArgs.push(
                     "--save",
                     `blob:${info.branch}/latest.${args.saveBlob}.benchmark`,
