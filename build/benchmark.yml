@@ -468,6 +468,13 @@ jobs:
       clean: all # Always start with a clean slate.
 
     steps:
+      - task: AzureKeyVault@2
+        inputs:
+          azureSubscription: $(azureSubscription)
+          KeyVaultName: $(KeyVaultName)
+          SecretsFilter: 'typescript-bot-github-PAT-for-comments'
+        displayName: Get secrets
+
       - template: templates/setup.yml
       - template: templates/cloneAndBuildBenchmarkRepo.yml # Sets $(BENCH_SCRIPTS)
 
