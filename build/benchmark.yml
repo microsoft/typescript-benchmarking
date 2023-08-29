@@ -62,6 +62,7 @@ parameters:
       - full
       - regular
       - tsc-only
+      - bun
     default: full # Branch pushes use the defaults, so this is set to full.
 
   - name: HISTORICAL_RUN
