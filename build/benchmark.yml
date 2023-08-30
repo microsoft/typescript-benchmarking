@@ -63,6 +63,7 @@ parameters:
       - regular
       - tsc-only
       - bun
+      - vscode
     default: full # Branch pushes use the defaults, so this is set to full.
 
   - name: HISTORICAL_RUN

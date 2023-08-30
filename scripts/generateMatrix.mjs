@@ -26,6 +26,7 @@ const node18 = "node@18.15.0";
 const node16 = "node@16.17.1";
 // 0.8.1 is broken; stick to 0.7.3 for now.
 const bun = "bun@0.7.3";
+const vscode = "vscode@1.81.1";
 
 const allTscScenarios = ["Angular", "Monaco", "TFS", "material-ui", "Compiler-Unions", "xstate"];
 const allTsserverScenarios = ["Compiler-UnionsTSServer", "CompilerTSServer", "xstateTSServer"];
@@ -85,6 +86,23 @@ const presets = {
             hosts: [bun],
             iterations: defaultIterations,
             scenarios: allStartupScenarios.filter(s => s !== "tsserver-startup"),
+        },
+    },
+    "vscode": {
+        tsc: {
+            hosts: [vscode],
+            iterations: defaultIterations,
+            scenarios: allTscScenarios,
+        },
+        tsserver: {
+            hosts: [vscode],
+            iterations: defaultIterations,
+            scenarios: allTsserverScenarios,
+        },
+        startup: {
+            hosts: [vscode],
+            iterations: defaultIterations,
+            scenarios: allStartupScenarios,
         },
     },
 };
