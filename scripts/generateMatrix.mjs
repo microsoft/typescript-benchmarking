@@ -79,12 +79,12 @@ const presets = {
     "bun": {
         tsc: {
             hosts: [bun],
-            iterations: defaultIterations,
+            iterations: defaultIterations * 2,
             scenarios: allTscScenarios,
         },
         startup: {
             hosts: [bun],
-            iterations: defaultIterations,
+            iterations: defaultIterations * 2,
             scenarios: allStartupScenarios.filter(s => s !== "tsserver-startup"),
         },
     },
