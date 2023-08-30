@@ -84,7 +84,7 @@ const presets = {
         startup: {
             hosts: [bun],
             iterations: defaultIterations,
-            scenarios: allStartupScenarios,
+            scenarios: allStartupScenarios.filter(s => s !== "tsserver-startup"),
         },
     },
 };
