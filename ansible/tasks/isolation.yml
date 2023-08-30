@@ -1,0 +1,32 @@
+---
+- name: Configure kernel parameters for isolation
+  ansible.builtin.copy:
+    dest: /etc/default/grub.d/ts-perf.cfg
+    owner: root
+    group: root
+    content: >
+      GRUB_CMDLINE_LINUX_DEFAULT="$GRUB_CMDLINE_LINUX_DEFAULT isolcpus={{ isolated_cpus }} rcu_nocbs={{ isolated_cpus }}"
+  become: yes
+  register: grub_cfg
+
+- name: Update grub
+  when: grub_cfg.changed
+  ansible.builtin.shell: update-grub && touch /var/run/reboot-required
+  become: yes
+
+- name: Add TSPERF_AGENT_BENCHMARK_CPU to .env
+  ansible.builtin.lineinfile:
+    path: '{{ agent_root }}/.env'
+    regexp: '^TSPERF_AGENT_BENCHMARK_CPU='
+    line: 'TSPERF_AGENT_BENCHMARK_CPU={{ benchmark_cpu }}'
+  become: yes
+  become_user: '{{ agent_user }}'
+  register: env_line
+  when: install_agent
+
+- name: Restart agent if .env edited
+  ansible.builtin.shell: ./svc.sh stop && ./svc.sh start
+  args:
+    chdir: '{{ agent_root }}'
+  become: yes
+  when: svc_status_running and env_line.changed

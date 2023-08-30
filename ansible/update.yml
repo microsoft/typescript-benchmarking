@@ -1,0 +1,14 @@
+- name: Update
+  hosts: tsperf
+
+  tasks:
+    - name: apt upgrade
+      ansible.builtin.apt:
+        upgrade: dist
+        autoclean: yes
+        autoremove: yes
+        update_cache: yes
+      become: yes
+
+    - name: Check reboot
+      ansible.builtin.import_tasks: tasks/check_reboot.yml

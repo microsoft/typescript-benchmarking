@@ -1,0 +1,21 @@
+---
+- name: Install packages
+  ansible.builtin.apt:
+    pkg:
+      - python3-venv
+      - python3-pip
+  become: yes
+
+- name: Install pyperf python package
+  ansible.builtin.pip:
+    name: pyperf
+  become: yes
+
+- name: Allow any user to sudo pyperf
+  ansible.builtin.copy:
+    dest: /etc/sudoers.d/pyperf
+    owner: root
+    group: root
+    content: 'ALL ALL=(ALL) NOPASSWD: /usr/local/bin/pyperf'
+    validate: /usr/sbin/visudo -csf %s
+  become: yes

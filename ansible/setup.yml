@@ -1,0 +1,33 @@
+- name: Setup
+  hosts: tsperf
+
+  vars:
+    agent_user: azdo
+    agent_home: '/home/{{ agent_user }}'
+    agent_root: '{{ agent_home }}/agent'
+    agent_download_url: 'https://vstsagentpackage.azureedge.net/agent/3.220.5/vsts-agent-linux-x64-3.220.5.tar.gz'
+
+    install_agent: true
+    remove_agent: false
+
+  tasks:
+    - name: Install packages required for ansible
+      ansible.builtin.apt:
+        pkg:
+          - acl
+      become: yes
+
+    - name: Install packages
+      ansible.builtin.import_tasks: tasks/packages.yml
+
+    - name: Set up pyperf
+      ansible.builtin.import_tasks: tasks/pyperf.yml
+
+    - name: Set up azdo
+      ansible.builtin.import_tasks: tasks/azdo.yml
+
+    - name: Set up isolation
+      ansible.builtin.import_tasks: tasks/isolation.yml
+
+    - name: Check reboot
+      ansible.builtin.import_tasks: tasks/check_reboot.yml

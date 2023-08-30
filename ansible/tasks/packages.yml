@@ -1,0 +1,37 @@
+---
+- name: Install packages
+  ansible.builtin.apt:
+    pkg:
+      - ripgrep
+      - unzip
+      # https://github.com/microsoft/vscode/blob/08631fab3a63e8439bec69dce08aa5cf95360d48/resources/linux/snap/snapcraft.yaml#L22
+      - ca-certificates
+      - libasound2
+      - libatk-bridge2.0-0
+      - libatk1.0-0
+      - libatspi2.0-0
+      - libcairo2
+      - libcanberra-gtk3-module
+      - libcurl3-gnutls
+      - libcurl3-nss
+      - libcurl4
+      - libdrm2
+      - libgbm1
+      - libgl1
+      - libglib2.0-0
+      - libgtk-3-0
+      - libibus-1.0-5
+      - libnss3
+      - libpango-1.0-0
+      - libsecret-1-0
+      - libxcomposite1
+      - libxdamage1
+      - libxfixes3
+      - libxkbcommon0
+      - libxkbfile1
+      - libxrandr2
+      - libxss1
+      - locales-all
+      - packagekit-gtk3-module
+      - xdg-utils
+  become: yes

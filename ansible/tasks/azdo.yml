@@ -1,0 +1,138 @@
+---
+- name: Create agent user
+  ansible.builtin.user:
+    name: '{{ agent_user }}'
+    shell: /bin/bash
+    home: '{{ agent_home }}'
+  become: yes
+
+- name: Check if svc.sh exists
+  stat:
+    path: '{{ agent_root }}/svc.sh'
+  register: svc_sh
+  become: true
+  changed_when: false
+  check_mode: no
+
+- name: Check service status
+  command: ./svc.sh status
+  become: true
+  args:
+    chdir: '{{ agent_root }}'
+  register: svc_status
+  when: svc_sh.stat.exists
+
+- name: Set service status facts
+  ansible.builtin.set_fact:
+    svc_status_installed: "{{ svc_status.stdout is defined and svc_status.stdout is not regex('not installed') }}"
+    svc_status_running: "{{ svc_status.stdout is defined and svc_status.stdout is regex('active \\(running\\)') }}"
+
+- name: Stop agent service
+  ansible.builtin.shell: './svc.sh stop'
+  args:
+    chdir: '{{ agent_root }}'
+  become: yes
+  when: remove_agent and svc_status_running
+
+- name: Uninstall agent service
+  ansible.builtin.shell: './svc.sh uninstall'
+  args:
+    chdir: '{{ agent_root }}'
+  become: yes
+  when: remove_agent and (svc_status_running or svc_status_installed)
+
+- name: Unregister agent
+  ansible.builtin.shell: >
+    ./config.sh remove
+    --auth pat
+    --token {{ secret_azdo_pat }}
+  args:
+    chdir: '{{ agent_root }}'
+    removes: '{{ agent_root }}/.agent'
+  become: yes
+  become_user: '{{ agent_user }}'
+  when: remove_agent and svc_sh.stat.exists
+
+- name: Remove agent root
+  ansible.builtin.file:
+    path: '{{ agent_root }}'
+    state: absent
+  become: true
+  when: remove_agent
+
+- name: Create agent root
+  ansible.builtin.file:
+    path: '{{ agent_root }}'
+    state: directory
+    owner: '{{ agent_user }}'
+    group: '{{ agent_user }}'
+  become: true
+  when: install_agent
+
+- name: Download and extract agent
+  ansible.builtin.unarchive:
+    src: '{{ agent_download_url }}'
+    dest: '{{ agent_root }}'
+    remote_src: yes
+    owner: '{{ agent_user }}'
+    group: '{{ agent_user }}'
+    creates: '{{ agent_root }}/config.sh'
+  become: true
+  when: install_agent
+
+- name: Configure agent
+  ansible.builtin.shell: >
+    ./config.sh --unattended
+    --acceptteeeula
+    --url {{ azdo_url }}
+    --auth pat
+    --token {{ secret_azdo_pat }}
+    --pool {{ agent_pool }}
+    --agent {{ inventory_hostname }}
+    --replace
+  args:
+    chdir: '{{ agent_root }}'
+    creates: '{{ agent_root }}/.agent'
+  become: yes
+  become_user: '{{ agent_user }}'
+  when: install_agent
+
+- name: Check service status
+  command: ./svc.sh status
+  become: true
+  args:
+    chdir: '{{ agent_root }}'
+  register: svc_status
+  when: install_agent
+
+- name: Set service status facts
+  ansible.builtin.set_fact:
+    svc_status_installed: "{{ svc_status.stdout is defined and svc_status.stdout is not regex('not installed') }}"
+    svc_status_running: "{{ svc_status.stdout is defined and svc_status.stdout is regex('active \\(running\\)') }}"
+
+- name: Install agent service
+  ansible.builtin.shell: './svc.sh install {{ agent_user }}'
+  args:
+    chdir: '{{ agent_root }}'
+  become: yes
+  when: install_agent and (not svc_status_installed)
+
+- name: Start agent service
+  ansible.builtin.shell: './svc.sh start'
+  args:
+    chdir: '{{ agent_root }}'
+  become: yes
+  when: install_agent and (not svc_status_running)
+
+- name: Check service status
+  command: ./svc.sh status
+  become: true
+  args:
+    chdir: '{{ agent_root }}'
+  register: svc_status
+  when: install_agent
+
+- name: Set service status facts
+  ansible.builtin.set_fact:
+    svc_status_installed: "{{ svc_status.stdout is defined and svc_status.stdout is not regex('not installed') }}"
+    svc_status_running: "{{ svc_status.stdout is defined and svc_status.stdout is regex('active \\(running\\)') }}"

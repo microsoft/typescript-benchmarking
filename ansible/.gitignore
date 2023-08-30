@@ -1,0 +1,3 @@
+# These should probably be stored separately, but just make sure we don't commit them.
+secrets.yml
+inventory.yml
