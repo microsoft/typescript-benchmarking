@@ -1,6 +1,3 @@
-/*! Copyright (c) Microsoft Corporation.
-    Licensed under the MIT License. */
-
 /**
  * This script backfills the latest commit on each provided branch.
  */

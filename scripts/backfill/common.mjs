@@ -1,6 +1,3 @@
-/*! Copyright (c) Microsoft Corporation.
-    Licensed under the MIT License. */
-
 import assert from "assert";
 import vsts from "azure-devops-node-api";
 

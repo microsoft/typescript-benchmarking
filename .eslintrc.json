@@ -17,8 +17,7 @@
     ],
     "plugins": [
         "@typescript-eslint",
-        "simple-import-sort",
-        "license-header"
+        "simple-import-sort"
     ],
     "ignorePatterns": [
         "**/node_modules/**"
@@ -141,8 +140,6 @@
 
         // Pending https://github.com/typescript-eslint/typescript-eslint/issues/4820
         "@typescript-eslint/prefer-optional-chain": "off",
-
-        "license-header/header": ["error", "./scripts/CopyrightNotice.txt"],
 
         // eslint-plugin-simple-import-sort
         "simple-import-sort/imports": "error",

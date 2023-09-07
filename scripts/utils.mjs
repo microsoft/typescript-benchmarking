@@ -1,6 +1,3 @@
-/*! Copyright (c) Microsoft Corporation.
-    Licensed under the MIT License. */
-
 import * as v from "@badrap/valita";
 import assert from "assert";
 import fs from "fs";
