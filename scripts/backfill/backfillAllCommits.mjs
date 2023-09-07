@@ -1,3 +1,6 @@
+/*! Copyright (c) Microsoft Corporation.
+    Licensed under the MIT License. */
+
 /**
  * This script backfills all commits on a branch from a given starting commit.
  */

@@ -1,3 +1,6 @@
+/*! Copyright (c) Microsoft Corporation.
+    Licensed under the MIT License. */
+
 import { Octokit } from "@octokit/rest";
 import assert from "assert";
 import minimist from "minimist";
