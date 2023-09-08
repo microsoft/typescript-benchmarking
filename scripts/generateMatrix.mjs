@@ -24,9 +24,8 @@ const node20 = "node@20.5.1";
 // These two versions match those found in recent VS Code versions via Electron.
 const node18 = "node@18.15.0";
 const node16 = "node@16.17.1";
-// 0.8.1 is broken; stick to 0.7.3 for now.
-const bun = "bun@0.7.3";
-const vscode = "vscode@1.81.1";
+const bun = "bun@1.0.0";
+const vscode = "vscode@1.82.0";
 
 const allTscScenarios = ["Angular", "Monaco", "TFS", "material-ui", "Compiler-Unions", "xstate"];
 const allTsserverScenarios = ["Compiler-UnionsTSServer", "CompilerTSServer", "xstateTSServer"];
