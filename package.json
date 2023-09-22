@@ -1,29 +1,32 @@
 {
-    "name": "typescript-benchmarking",
+    "name": "@typescript/benchmarking",
     "version": "0.0.0",
     "private": true,
     "author": "Microsoft Corp.",
     "license": "MIT",
-    "packageManager": "npm@8.19.4",
-    "devDependencies": {
-        "@badrap/valita": "^0.2.10",
-        "@octokit/rest": "^19.0.13",
-        "@types/minimist": "^1.2.2",
-        "@types/node": "^20.5.9",
-        "@typescript-eslint/eslint-plugin": "^6.6.0",
-        "@typescript-eslint/parser": "^6.6.0",
-        "azure-devops-node-api": "^12.1.0",
-        "dotenv": "^16.3.1",
-        "dprint": "^0.40.2",
-        "eslint": "^8.48.0",
-        "eslint-plugin-simple-import-sort": "^10.0.0",
-        "execa": "^8.0.1",
-        "minimist": "^1.2.8",
-        "node-fetch": "^3.3.2",
-        "ora": "^7.0.1",
-        "typescript": "^5.2.2"
-    },
     "engines": {
         "node": ">= 16.17"
+    },
+    "devDependencies": {
+        "@types/node": "^16.18.53",
+        "@typescript-eslint/eslint-plugin": "^6.7.2",
+        "@typescript-eslint/parser": "^6.7.2",
+        "dprint": "^0.41.0",
+        "eslint": "^8.50.0",
+        "eslint-plugin-simple-import-sort": "^10.0.0",
+        "eslint-plugin-unicorn": "^48.0.1",
+        "typescript": "^5.2.2"
+    },
+    "packageManager": "pnpm@8.7.6",
+    "scripts": {
+    },
+    "pnpm": {
+        "requiredScripts": [
+            "build",
+            "prepack"
+        ],
+        "overrides": {
+            "@types/node": "$@types/node"
+        }
     }
 }

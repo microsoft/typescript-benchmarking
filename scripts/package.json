@@ -1,0 +1,26 @@
+{
+    "name": "@typescript/benchmarking-scripts",
+    "version": "0.0.0",
+    "private": true,
+    "author": "Microsoft Corp.",
+    "license": "MIT",
+    "engines": {
+        "node": ">= 16.17"
+    },
+    "devDependencies": {
+        "@badrap/valita": "^0.2.10",
+        "@octokit/rest": "^19.0.13",
+        "@types/minimist": "^1.2.2",
+        "azure-devops-node-api": "^12.1.0",
+        "dotenv": "^16.3.1",
+        "dprint": "^0.40.2",
+        "execa": "^8.0.1",
+        "minimist": "^1.2.8",
+        "node-fetch": "^3.3.2",
+        "ora": "^7.0.1"
+    },
+    "scripts": {
+        "build": "tsc",
+        "prepack": "pnpm run build"
+    }
+}

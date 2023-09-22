@@ -6,10 +6,11 @@ steps:
     clean: true
     retryCountOnTaskFailure: 3
 
+  # TODO(jakebailey): install correct version of pnpm
   - bash: |
       set -eo pipefail
       cd $(Pipeline.Workspace)/typescript-benchmarking
-      npm ci
+      npx pnpm install
       echo "##vso[task.setvariable variable=BENCH_SCRIPTS]$(Pipeline.Workspace)/typescript-benchmarking/scripts"
     displayName: Install typescript-benchmarking
     retryCountOnTaskFailure: 3

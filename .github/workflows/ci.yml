@@ -25,9 +25,9 @@ jobs:
       - uses: actions/checkout@v3
       - uses: actions/setup-node@v3
 
-      - run: npm ci
+      - uses: pnpm/action-setup@v2
 
-      - run: npx tsc -p scripts
+      - run: pnpm build
 
   lint:
     runs-on: ubuntu-latest
@@ -36,9 +36,9 @@ jobs:
       - uses: actions/checkout@v3
       - uses: actions/setup-node@v3
 
-      - run: npm ci
+      - uses: pnpm/action-setup@v2
 
-      - run: npx eslint .
+      - run: pnpm eslint .
 
   format:
     runs-on: ubuntu-latest
@@ -47,6 +47,6 @@ jobs:
       - uses: actions/checkout@v3
       - uses: actions/setup-node@v3
 
-      - run: npm ci
+      - uses: pnpm/action-setup@v2
 
-      - run: npx dprint check
+      - run: pnpm dprint check
