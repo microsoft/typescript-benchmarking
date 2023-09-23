@@ -1,0 +1,17 @@
+{
+    "name": "ts-perf",
+    "version": "0.8.0",
+    "private": true,
+    "description": "TypeScript performance testing tool",
+    "bin": {
+        "ts-perf": "./packages/cli/bin/ts-perf"
+    },
+    "author": "Microsoft Corp.",
+    "license": "MIT",
+    "engines": {
+        "node": ">=16.0.0"
+    },
+    "scripts": {
+        "build": "tsc -b ./packages/tsconfig.json"
+    }
+}

@@ -1,2 +1,4 @@
 packages:
   - 'scripts'
+  - 'ts-perf'
+  - 'ts-perf/packages/*'

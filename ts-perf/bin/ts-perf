@@ -1,0 +1,16 @@
+#!/usr/bin/env node
+const { spawn } = require("child_process");
+const child = spawn(process.execPath, [require.resolve("../packages/cli/dist"), ...process.argv.slice(2)], { stdio: "inherit" }).on("exit", (code, signal) => {
+    process.on("exit", () => {
+        if (signal) {
+            process.kill(process.pid, signal);
+        }
+        else {
+            process.exit(code);
+        }
+    });
+});
+process.on("SIGINT", () => {
+    child.kill("SIGINT");
+    child.kill("SIGTERM");
+});

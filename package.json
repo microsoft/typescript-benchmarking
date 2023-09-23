@@ -19,11 +19,11 @@
     },
     "packageManager": "pnpm@8.7.6",
     "scripts": {
+        "build": "pnpm run --filter '@typescript/benchmarking-scripts' --filter 'ts-perf' build"
     },
     "pnpm": {
         "requiredScripts": [
-            "build",
-            "prepack"
+            "build"
         ],
         "overrides": {
             "@types/node": "$@types/node"

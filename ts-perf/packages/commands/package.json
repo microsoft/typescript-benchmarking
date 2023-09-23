@@ -1,0 +1,53 @@
+{
+    "name": "@ts-perf/commands",
+    "description": "Core commands for ts-perf",
+    "version": "0.8.0",
+    "private": true,
+    "main": "dist",
+    "typings": "dist",
+    "author": "Microsoft Corp.",
+    "license": "MIT",
+    "engines": {
+        "node": ">=16.0.0"
+    },
+    "bugs": {
+        "url": "https://github.com/microsoft/typescript-benchmarking/issues"
+    },
+    "repository": {
+        "url": "github:microsoft/typescript-benchmarking",
+        "directory": "ts-perf/packages/commands"
+    },
+    "files": [
+        "dist",
+        "LICENSE",
+        "README.md"
+    ],
+    "dependencies": {
+        "@esfx/async-delay": "^1.0.0",
+        "@esfx/canceltoken": "^1.0.0",
+        "@ts-perf/api": "workspace:^",
+        "@ts-perf/core": "workspace:^",
+        "@ts-perf/inspector": "workspace:^",
+        "@ts-perf/profiler": "workspace:^",
+        "@typescript/server-harness": "^0.3.5",
+        "@vscode/test-electron": "^2.3.4",
+        "chalk": "^4.1.2",
+        "iterable-query": "1.0.0-pre.16",
+        "iterable-query-linq": "^0.1.0",
+        "node-fetch": "^2.7.0",
+        "power-options": "^0.3.4",
+        "semver": "^7.5.4",
+        "strip-ansi": "^6.0.1",
+        "table-style": "^0.1.4",
+        "tmp": "^0.2.1"
+    },
+    "devDependencies": {
+        "@types/node-fetch": "^2.6.5",
+        "@types/semver": "^7.5.2",
+        "@types/tmp": "^0.2.4"
+    },
+    "scripts": {
+        "build": "tsc -b",
+        "prepack": "pnpm run build"
+    }
+}

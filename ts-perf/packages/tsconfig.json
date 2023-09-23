@@ -1,0 +1,15 @@
+{
+    "compilerOptions": { "noEmit": true },
+    "files": [],
+    "include": [],
+    "exclude": [],
+    "references": [
+        { "path": "./api" },
+        { "path": "./cli" },
+        { "path": "./commands" },
+        { "path": "./core" },
+        { "path": "./events" },
+        { "path": "./inspector" },
+        { "path": "./profiler" }
+    ]
+}

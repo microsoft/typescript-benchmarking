@@ -1,0 +1,41 @@
+{
+    "name": "@ts-perf/profiler",
+    "description": "v8 CPU Profile and heap snapshot generator for ts-perf",
+    "version": "0.8.0",
+    "private": true,
+    "main": "dist",
+    "typings": "dist",
+    "author": "Microsoft Corp.",
+    "license": "MIT",
+    "engines": {
+        "node": ">=16.0.0"
+    },
+    "bugs": {
+        "url": "https://github.com/microsoft/typescript-benchmarking/issues"
+    },
+    "repository": {
+        "url": "github:microsoft/typescript-benchmarking",
+        "directory": "ts-perf/packages/profiler"
+    },
+    "bin": {
+        "ts-profiler": "./bin/ts-profiler"
+    },
+    "files": [
+        "bin",
+        "dist",
+        "LICENSE",
+        "README.md"
+    ],
+    "dependencies": {
+        "@ts-perf/inspector": "workspace:^",
+        "power-options": "^0.3.4",
+        "source-map-support": "^0.5.21"
+    },
+    "devDependencies": {
+        "@types/source-map-support": "^0.5.7"
+    },
+    "scripts": {
+        "build": "tsc -b",
+        "prepack": "pnpm run build"
+    }
+}
