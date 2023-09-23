@@ -16,5 +16,6 @@ steps:
 
   - script: |
       corepack enable
+      corepack enable npm
       corepack prepare pnpm@latest-8 --activate
     displayName: 'Setup pnpm'
