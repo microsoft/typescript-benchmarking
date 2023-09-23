@@ -1,6 +1,7 @@
 # typescript-benchmarking
 
-This repo contains the infrastructure for TypeScript's benchmarking system.
+This repo contains the infrastructure for TypeScript's benchmarking system, including build scripts
+and the `ts-perf` CLI tool.
 
 ## Contributing
 
