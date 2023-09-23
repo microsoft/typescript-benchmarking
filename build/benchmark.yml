@@ -92,6 +92,7 @@ variables:
   azureSubscription: 'TypeScript Public CI'
   KeyVaultName: 'jststeam-passwords'
 
+  # TODO: remove all "lower"s everywhere; comparison in pipelines is case-insensitive.
   REF: $[ resources.repositories['TypeScript'].ref ]
   PRETTY_REF: $[ replace(replace(replace(replace(variables['REF'], '/merge', ''), 'refs/pull/', 'pr.'), 'refs/heads/', ''), '/', '_') ]
   IS_PR: $[ startsWith(variables['REF'], 'refs/pull/') ]
@@ -100,7 +101,7 @@ variables:
   USE_BASELINE_MACHINE: $[ or(eq(variables['Build.Reason'], 'ResourceTrigger'), ${{ parameters.HISTORICAL_RUN }}) ]
   # Only upload if the provided ref is explicitly main/release-* and we've run on the baseline machine.
   # This means that main pushes will automatically upload, but we can still queue builds off of main with a specific commit in the API.
-  SHOULD_UPLOAD: $[ and(or(eq(variables['REF'], 'refs/heads/main'), startsWith(variables['REF'], 'refs/heads/release-')), variables['USE_BASELINE_MACHINE']) ]
+  SHOULD_UPLOAD: $[ and(or(eq(variables['REF'], 'refs/heads/main'), startsWith(variables['REF'], 'refs/heads/release-')), eq(lower(variables['USE_BASELINE_MACHINE'])), 'true') ]
   # This is a hack to emulate a ternary operator.
   # https://github.com/microsoft/azure-pipelines-yaml/issues/256#issuecomment-824121862
   # Since this is annoying, here's a playground to help generate them: https://tsplay.dev/WklK0w
