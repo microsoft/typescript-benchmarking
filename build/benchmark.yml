@@ -191,6 +191,7 @@ jobs:
 
       - template: templates/setup.yml
       - template: templates/cloneAndBuildBenchmarkRepo.yml # Sets $(BENCH_SCRIPTS), $(TSPERF_EXE)
+      - template: templates/cloneInternalRepo.yml # Sets $(TSPERF_INTERNAL_SCENARIO_CONFIG_DIR)
 
       - download: current
         artifact: BuiltTypeScript
@@ -305,7 +306,6 @@ jobs:
         displayName: Download built TypeScript
 
       - template: templates/cloneAndBuildBenchmarkRepo.yml # Sets $(BENCH_SCRIPTS), $(TSPERF_EXE)
-      - template: templates/cloneInternalRepo.yml # Sets $(TSPERF_INTERNAL_SCENARIO_CONFIG_DIR)
 
       - bash: |
           set -eo pipefail
