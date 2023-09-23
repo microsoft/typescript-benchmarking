@@ -1,5 +1,6 @@
+import fs from "node:fs";
+
 import { Octokit } from "@octokit/rest";
-import fs from "fs";
 import minimist from "minimist";
 
 async function main() {

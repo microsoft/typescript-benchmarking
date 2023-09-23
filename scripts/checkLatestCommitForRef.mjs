@@ -1,5 +1,6 @@
+import assert from "node:assert";
+
 import { Octokit } from "@octokit/rest";
-import assert from "assert";
 import minimist from "minimist";
 
 import { getNonEmptyEnv, getRepoInfo } from "./utils.mjs";

@@ -3,7 +3,8 @@
     "parser": "@typescript-eslint/parser",
     "parserOptions": {
         "warnOnUnsupportedTypeScriptVersion": false,
-        "sourceType": "module"
+        "sourceType": "module",
+        "project": true
     },
     "env": {
         "browser": false,
@@ -17,14 +18,15 @@
     ],
     "plugins": [
         "@typescript-eslint",
-        "simple-import-sort"
+        "simple-import-sort",
+        "unicorn"
     ],
     "ignorePatterns": [
-        "**/node_modules/**"
+        "**/node_modules/**",
+        "**/dist/**"
     ],
     "rules": {
         // eslint
-        "dot-notation": "error",
         "eqeqeq": "error",
         "no-caller": "error",
         "no-constant-condition": ["error", { "checkLoops": false }],
@@ -32,17 +34,6 @@
         "no-extra-bind": "error",
         "no-new-func": "error",
         "no-new-wrappers": "error",
-        "no-return-await": "error",
-        "no-restricted-globals": [
-            "error",
-            { "name": "setTimeout" },
-            { "name": "clearTimeout" },
-            { "name": "setInterval" },
-            { "name": "clearInterval" },
-            { "name": "setImmediate" },
-            { "name": "clearImmediate" }
-        ],
-        "no-template-curly-in-string": "error",
         "no-throw-literal": "error",
         "no-undef-init": "error",
         "no-var": "error",
@@ -50,6 +41,7 @@
         "prefer-const": "error",
         "prefer-object-spread": "error",
         "unicode-bom": ["error", "never"],
+        "no-duplicate-imports": "error",
 
         // Enabled in eslint:recommended, but not applicable here
         "no-extra-boolean-cast": "off",
@@ -57,59 +49,21 @@
         "no-cond-assign": "off",
         "no-control-regex": "off",
         "no-inner-declarations": "off",
+        "no-empty": "off",
 
         // @typescript-eslint/eslint-plugin
-        "@typescript-eslint/naming-convention": [
-            "error",
-            {
-                "selector": "typeLike",
-                "format": ["PascalCase"],
-                "filter": { "regex": "^(__String|[A-Za-z]+_[A-Za-z]+)$", "match": false }
-            },
-            {
-                "selector": "interface",
-                "format": ["PascalCase"],
-                "custom": { "regex": "^I[A-Z]", "match": false },
-                "filter": { "regex": "^I(Arguments|TextWriter|O([A-Z][a-z]+[A-Za-z]*)?)$", "match": false }
-            },
-            {
-                "selector": "variable",
-                "format": ["camelCase", "PascalCase", "UPPER_CASE"],
-                "leadingUnderscore": "allow",
-                "filter": { "regex": "^(_{1,2}filename|_{1,2}dirname|_+|[A-Za-z]+_[A-Za-z]+)$", "match": false }
-            },
-            {
-                "selector": "function",
-                "format": ["camelCase", "PascalCase"],
-                "leadingUnderscore": "allow",
-                "filter": { "regex": "^[A-Za-z]+_[A-Za-z]+$", "match": false }
-            },
-            {
-                "selector": "parameter",
-                "format": ["camelCase"],
-                "leadingUnderscore": "allow",
-                "filter": { "regex": "^(_+|[A-Za-z]+_[A-Z][a-z]+)$", "match": false }
-            },
-            {
-                "selector": "method",
-                "format": ["camelCase", "PascalCase"],
-                "leadingUnderscore": "allow",
-                "filter": { "regex": "^([0-9]+|[A-Za-z]+_[A-Za-z]+)$", "match": false }
-            },
-            {
-                "selector": "memberLike",
-                "format": ["camelCase"],
-                "leadingUnderscore": "allow",
-                "filter": { "regex": "^([0-9]+|[A-Za-z]+_[A-Za-z]+)$", "match": false }
-            },
-            {
-                "selector": "enumMember",
-                "format": ["camelCase", "PascalCase"],
-                "leadingUnderscore": "allow",
-                "filter": { "regex": "^[A-Za-z]+_[A-Za-z]+$", "match": false }
-            },
-            { "selector": "property", "format": null }
-        ],
+        // "@typescript-eslint/naming-convention": [
+        //     "error",
+        //     { "selector": "typeLike", "format": ["PascalCase"], "filter": { "regex": "^(__String|[A-Za-z]+_[A-Za-z]+)$", "match": false } },
+        //     { "selector": "interface", "format": ["PascalCase"], "custom": { "regex": "^I[A-Z]", "match": false }, "filter": { "regex": "^I(Arguments|TextWriter|O([A-Z][a-z]+[A-Za-z]*)?)$", "match": false } },
+        //     { "selector": "variable", "format": ["camelCase", "PascalCase", "UPPER_CASE"], "leadingUnderscore": "allow", "filter": { "regex": "^(_{1,2}filename|_{1,2}dirname|_+|[A-Za-z]+_[A-Za-z]+)$", "match": false } },
+        //     { "selector": "function", "format": ["camelCase", "PascalCase"], "leadingUnderscore": "allow", "filter": { "regex": "^[A-Za-z]+_[A-Za-z]+$", "match": false } },
+        //     { "selector": "parameter", "format": ["camelCase"], "leadingUnderscore": "allow", "filter": { "regex": "^(_+|[A-Za-z]+_[A-Z][a-z]+)$", "match": false } },
+        //     { "selector": "method", "format": ["camelCase", "PascalCase"], "leadingUnderscore": "allow", "filter": { "regex": "^([0-9]+|[A-Za-z]+_[A-Za-z]+)$", "match": false } },
+        //     { "selector": "memberLike", "format": ["camelCase"], "leadingUnderscore": "allow", "filter": { "regex": "^([0-9]+|[A-Za-z]+_[A-Za-z]+)$", "match": false } },
+        //     { "selector": "enumMember", "format": ["camelCase", "PascalCase"], "leadingUnderscore": "allow", "filter": { "regex": "^[A-Za-z]+_[A-Za-z]+$", "match": false } },
+        //     { "selector": "property", "format": null }
+        // ],
 
         // Rules enabled in typescript-eslint configs that are not applicable here
         "@typescript-eslint/ban-ts-comment": "off",
@@ -143,7 +97,10 @@
 
         // eslint-plugin-simple-import-sort
         "simple-import-sort/imports": "error",
-        "simple-import-sort/exports": "error"
+        "simple-import-sort/exports": "error",
+
+        // eslint-plugin-unicorn
+        "unicorn/prefer-node-protocol": "error"
     },
     "overrides": [
         // By default, the ESLint CLI only looks at .js files. But, it will also look at

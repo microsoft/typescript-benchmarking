@@ -1,7 +1,8 @@
-import assert from "assert";
+import assert from "node:assert";
+import path from "node:path";
+
 import { $ as _$ } from "execa";
 import minimist from "minimist";
-import path from "path";
 
 import { checkNonEmpty, getNonEmptyEnv, getRepoInfo } from "./utils.mjs";
 

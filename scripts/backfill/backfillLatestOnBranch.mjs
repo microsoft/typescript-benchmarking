@@ -2,7 +2,8 @@
  * This script backfills the latest commit on each provided branch.
  */
 
-import assert from "assert";
+import assert from "node:assert";
+
 import dotenv from "dotenv";
 import minimist from "minimist";
 

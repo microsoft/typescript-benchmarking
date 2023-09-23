@@ -1,4 +1,5 @@
-import assert from "assert";
+import assert from "node:assert";
+
 import vsts from "azure-devops-node-api";
 
 import { retry } from "../utils.mjs";

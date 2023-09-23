@@ -1,7 +1,8 @@
+import assert from "node:assert";
+import fs from "node:fs";
+import path from "node:path";
+
 import * as v from "@badrap/valita";
-import assert from "assert";
-import fs from "fs";
-import path from "path";
 
 /**
  * @typedef {v.Infer<typeof RepoInfo>} RepoInfo

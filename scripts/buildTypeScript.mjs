@@ -1,9 +1,10 @@
-import assert from "assert";
+import assert from "node:assert";
+import fs from "node:fs";
+import path from "node:path";
+
 import { $ as _$ } from "execa";
-import fs from "fs";
 import minimist from "minimist";
 import fetch from "node-fetch";
-import path from "path";
 
 import { retry } from "./utils.mjs";
 

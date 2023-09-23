@@ -2,10 +2,11 @@
  * This script backfills all commits on a branch from a given starting commit.
  */
 
-import assert from "assert";
+import assert from "node:assert";
+import { appendFileSync, readFileSync } from "node:fs";
+
 import dotenv from "dotenv";
 import { execa } from "execa";
-import { appendFileSync, readFileSync } from "fs";
 import minimist from "minimist";
 import ora from "ora";
 
