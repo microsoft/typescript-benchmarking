@@ -286,6 +286,8 @@ jobs:
           SecretsFilter: 'tslab1-mseng-PAT, tsperf-azure-storage-connection-string, typescript-bot-github-PAT-for-comments'
         displayName: Get secrets
 
+      - template: templates/setup.yml
+
       - download: current
         patterns: '**/*.benchmark'
         displayName: Download benchmarks
