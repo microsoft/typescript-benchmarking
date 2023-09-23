@@ -39,8 +39,8 @@ importers:
   scripts:
     devDependencies:
       '@badrap/valita':
-        specifier: ^0.2.10
-        version: 0.2.10
+        specifier: ^0.3.0
+        version: 0.3.0
       '@octokit/rest':
         specifier: ^19.0.13
         version: 19.0.13
@@ -354,8 +354,9 @@ packages:
       js-tokens: 4.0.0
     dev: true
 
-  /@badrap/valita@0.2.10:
-    resolution: {integrity: sha512-UOQtp1IarhbDWpGyBixZUGAQcB2ljgtIiNNIwlSkUIW5dB4BqFoHVwp4CxApm8Y8uxshDdJ38hyAh/IV1pVVgA==}
+  /@badrap/valita@0.3.0:
+    resolution: {integrity: sha512-bvsH70aYKOdB3rXVZXhJgGpHqxt+TcVperVvXCo9Dotpj9u0jBgQP5jgPmZNbIz0FyTvMP/oPUzqn6WS2L0l3w==}
+    engines: {node: '>= 16'}
     dev: true
 
   /@dprint/darwin-arm64@0.40.2:
