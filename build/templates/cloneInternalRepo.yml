@@ -12,4 +12,6 @@ steps:
 
   - bash: |
       echo "##vso[task.setvariable variable=TSPERF_INTERNAL_SCENARIO_CONFIG_DIR]$(Pipeline.Workspace)/internal/cases/perf/scenarios"
+      # TODO: figure out why we need this, see ts-perf/packages/api/src/options.ts
+      echo "##vso[task.setvariable variable=TYPESCRIPT_INTERNAL_REPOSITORY]$(Pipeline.Workspace)/internal"
     displayName: Set internal repo variables
