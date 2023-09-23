@@ -13,15 +13,3 @@ steps:
       set -eo pipefail
       git config --global core.longpaths true
     displayName: Enable git long paths
-
-  - task: Cache@2
-    inputs:
-      key: 'pnpm | "$(Agent.OS)" | pnpm-lock.yaml'
-      path: $(Pipeline.Workspace)/.pnpm-store
-    displayName: Cache pnpm
-
-  - script: |
-      corepack enable
-      corepack prepare pnpm@latest-8 --activate
-      pnpm config set store-dir $(Pipeline.Workspace)/.pnpm-store
-    displayName: 'Setup pnpm'

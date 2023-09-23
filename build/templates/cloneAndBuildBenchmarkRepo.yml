@@ -6,6 +6,20 @@ steps:
     clean: true
     retryCountOnTaskFailure: 3
 
+  - task: Cache@2
+    inputs:
+      key: '"pnpm" | "$(Agent.OS)" | $(Pipeline.Workspace)/typescript-benchmarking/pnpm-lock.yaml'
+      restoreKeys: |
+        "pnpm" | "$(Agent.OS)"
+      path: $(Pipeline.Workspace)/.pnpm-store
+    displayName: Cache pnpm
+
+  - script: |
+      corepack enable
+      corepack prepare pnpm@latest-8 --activate
+      pnpm config set store-dir $(Pipeline.Workspace)/.pnpm-store
+    displayName: 'Setup pnpm'
+
   # TODO(jakebailey): install correct version of pnpm
   - bash: |
       set -eo pipefail
