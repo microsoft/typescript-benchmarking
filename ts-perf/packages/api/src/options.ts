@@ -20,6 +20,7 @@ export interface StartupOptions {
     builtDir: string;
 }
 
+// TODO(jakebailey): this is problematic for multiple scenario dirs; needs to updated or removed
 const suite: CommandLineOption = {
     type: "string",
     validate: validatePath,
