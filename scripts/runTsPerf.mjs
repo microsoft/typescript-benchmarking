@@ -75,7 +75,11 @@ async function getCommonBenchmarkArgs(
     scenariosEnvVarName,
     iterationsEnvVarName,
 ) {
-    const tsperfArgs = [];
+    const scenarioConfigDir = getNonEmptyEnv("TSPERF_INTERNAL_SCENARIO_CONFIG_DIR");
+    const tsperfArgs = [
+        "--scenarioConfigDir",
+        scenarioConfigDir,
+    ];
 
     if (args.save) {
         await $`mkdir -p ${path.dirname(args.save)}`;

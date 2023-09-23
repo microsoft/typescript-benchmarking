@@ -1,0 +1,15 @@
+# TODO: avoid cloning if no internal scenario is used. Or, delete internal scenarios
+steps:
+  # The existence of this AzDo project/repository is not secret.
+  - bash: |
+      set -eo pipefail
+      rm -rf $(Pipeline.Workspace)/internal
+      git clone --depth=1 https://mseng:${PAT}@mseng.visualstudio.com/Typescript/_git/Typescript $(Pipeline.Workspace)/internal
+    env:
+      PAT: $(tslab1-mseng-PAT)
+    displayName: Clone internal repo
+    retryCountOnTaskFailure: 3
+
+  - bash: |
+      echo "##vso[task.setvariable variable=TSPERF_INTERNAL_SCENARIO_CONFIG_DIR]$(Pipeline.Workspace)/internal/cases/perf/scenarios"
+    displayName: Set internal repo variables

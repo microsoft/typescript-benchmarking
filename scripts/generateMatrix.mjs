@@ -27,6 +27,7 @@ const node16 = "node@16.17.1";
 const bun = "bun@1.0.2";
 const vscode = "vscode@1.82.1";
 
+// TODO: include used scenarioConfigDirs in matrix and avoid cloning
 const allTscScenarios = ["Angular", "Monaco", "TFS", "material-ui", "Compiler-Unions", "xstate"];
 const allTsserverScenarios = ["Compiler-UnionsTSServer", "CompilerTSServer", "xstateTSServer"];
 const allStartupScenarios = ["tsc-startup", "tsserver-startup", "tsserverlibrary-startup", "typescript-startup"];
