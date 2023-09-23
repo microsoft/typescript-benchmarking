@@ -26,6 +26,8 @@ jobs:
       - uses: actions/setup-node@v3
 
       - uses: pnpm/action-setup@v2
+        with:
+          run_install: true
 
       - run: pnpm build
 
@@ -37,6 +39,8 @@ jobs:
       - uses: actions/setup-node@v3
 
       - uses: pnpm/action-setup@v2
+        with:
+          run_install: true
 
       - run: pnpm eslint .
 
@@ -48,5 +52,7 @@ jobs:
       - uses: actions/setup-node@v3
 
       - uses: pnpm/action-setup@v2
+        with:
+          run_install: true
 
       - run: pnpm dprint check
