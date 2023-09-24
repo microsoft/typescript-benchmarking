@@ -83,7 +83,7 @@ export async function installMatchingBunHosts(options: InstallHostOptions, conte
             await pipeAsync(content, output, { end: true });
             context.trace(`Downloaded ${fileUrl} to '${tempFile}'.`);
 
-            // TODO: compare the shasums
+            // TODO(jakebailey): compare the shasums
 
             // For a linux platform, unpack the archive
             const archive = path.resolve(Host.hostsDirectory, `${container}.zip`);

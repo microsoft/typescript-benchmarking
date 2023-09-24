@@ -27,7 +27,7 @@ const node16 = "node@16.17.1";
 const bun = "bun@1.0.2";
 const vscode = "vscode@1.82.1";
 
-// TODO: include used scenarioConfigDirs in matrix and avoid cloning
+// TODO(jakebailey): include used scenarioConfigDirs in matrix and avoid cloning
 const allTscScenarios = ["Angular", "Monaco", "TFS", "material-ui", "Compiler-Unions", "xstate"];
 const allTsserverScenarios = ["Compiler-UnionsTSServer", "CompilerTSServer", "xstateTSServer"];
 const allStartupScenarios = ["tsc-startup", "tsserver-startup", "tsserverlibrary-startup", "typescript-startup"];
@@ -116,7 +116,7 @@ const baselining = (process.env.USE_BASELINE_MACHINE || "FALSE").toUpperCase() =
 
 const preset = presets[presetArg];
 if (!preset) {
-    // TODO: if "custom", build a custom matrix from arguments
+    // TODO(jakebailey): if "custom", build a custom matrix from arguments
     console.error(`Unknown preset: ${presetArg}`);
     process.exit(1);
 }

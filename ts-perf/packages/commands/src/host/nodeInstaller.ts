@@ -353,7 +353,7 @@ export async function installMatchingNodeHosts(options: InstallHostOptions, cont
             await pipeAsync(content, output, { end: true });
             context.trace(`Downloaded ${fileUrl} to '${tempFile}'.`);
 
-            // TODO: compare the shasums
+            // TODO(jakebailey): compare the shasums
 
             if (process.platform === "linux") {
                 // For a linux platform, unpack the archive

@@ -22,6 +22,6 @@ steps:
 
   - bash: |
       echo "##vso[task.setvariable variable=BENCH_SCRIPTS]$(Pipeline.Workspace)/typescript-benchmarking/scripts"
-      # TODO: we can resolve this directly from the scripts dir now
+      # TODO(jakebailey): we can resolve this directly from the scripts dir now
       echo "##vso[task.setvariable variable=TSPERF_EXE]$(Pipeline.Workspace)/typescript-benchmarking/ts-perf/bin/ts-perf"
     displayName: Set typescript-benchmarking variables
