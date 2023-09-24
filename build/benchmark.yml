@@ -48,10 +48,9 @@ resources:
       source: 'TypeScript pipeline trigger'
       trigger:
         branches:
-          # TODO: should we also trigger on release branches?
-          # (Will require a change in the other pipeline.)
           include:
             - main
+            - release-*
 
 parameters:
   # TODO: allow custom preset
