@@ -6,7 +6,6 @@ steps:
     clean: true
     retryCountOnTaskFailure: 3
 
-  # TODO(jakebailey): install correct version of pnpm
   - bash: |
       set -eo pipefail
       cd $(Pipeline.Workspace)/typescript-benchmarking
