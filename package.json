@@ -19,7 +19,7 @@
     },
     "packageManager": "pnpm@8.7.6",
     "scripts": {
-        "build": "pnpm run --filter '@typescript/benchmarking-scripts' --filter 'ts-perf' build"
+        "build": "pnpm run --filter './scripts' --filter './ts-perf' build"
     },
     "pnpm": {
         "requiredScripts": [
