@@ -42,8 +42,8 @@
         "tmp": "^0.2.1"
     },
     "devDependencies": {
-        "@types/node-fetch": "^2.6.5",
-        "@types/semver": "^7.5.2",
+        "@types/node-fetch": "^2.6.6",
+        "@types/semver": "^7.5.3",
         "@types/tmp": "^0.2.4"
     },
     "scripts": {
