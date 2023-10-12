@@ -4,7 +4,7 @@ import path from "node:path";
 import { $ as _$ } from "execa";
 import minimist from "minimist";
 
-import { checkNonEmpty, getNonEmptyEnv, getRepoInfo } from "./utils.mjs";
+import { checkNonEmpty, getNonEmptyEnv, getRepoInfo } from "./utils.js";
 
 const $ = _$({ verbose: true, stdio: "inherit" });
 
@@ -17,8 +17,7 @@ const args = minimist(rawArgs, {
 
 const tsperfExe = checkNonEmpty(process.env.TSPERF_EXE, "Expected TSPERF_EXE environment variable to be set");
 
-/** @type {Record<string, (() => Promise<void>) | undefined>} */
-const commands = {
+const commands: Record<string, (() => Promise<void>) | undefined> = {
     "install-hosts": installHosts,
     "benchmark-tsc": benchmarkTsc,
     "benchmark-tsserver": benchmarkTsserver,
@@ -30,13 +29,8 @@ assert(fn, `Unknown subcommand ${subcommand}`);
 
 await fn();
 
-/**
- * @param {string} name
- * @param {(string | undefined)[]} hostVars
- * @returns {string[]}
- */
-function createFlags(name, hostVars) {
-    const hosts = new Set();
+function createFlags(name: string, hostVars: (string | undefined)[]): string[] {
+    const hosts = new Set<string>();
     for (const arg of hostVars) {
         for (const host of arg?.split(",") ?? []) {
             hosts.add(host);
@@ -65,15 +59,10 @@ async function installHosts() {
     await $`node ${tsperfExe} host install ${hostArgs}`;
 }
 
-/**
- * @param {string} hostsEnvVarName
- * @param {string} scenariosEnvVarName
- * @param {string} iterationsEnvVarName
- */
 async function getCommonBenchmarkArgs(
-    hostsEnvVarName,
-    scenariosEnvVarName,
-    iterationsEnvVarName,
+    hostsEnvVarName: string,
+    scenariosEnvVarName: string,
+    iterationsEnvVarName: string,
 ) {
     const tsperfArgs = [];
 

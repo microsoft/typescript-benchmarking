@@ -56,7 +56,7 @@ parameters:
   # TODO(jakebailey): allow custom preset
   - name: TSPERF_PRESET
     displayName: Preset
-    # Note: keep this up to date with generateMatrix.mjs and https://github.com/microsoft/typescript-bot-test-triggerer
+    # Note: keep this up to date with generateMatrix and https://github.com/microsoft/typescript-bot-test-triggerer
     values:
       - full
       - regular
@@ -126,7 +126,7 @@ jobs:
 
       - bash: |
           set -eo pipefail
-          node $(BENCH_SCRIPTS)/generateMatrix.mjs --preset ${{ parameters.TSPERF_PRESET }}
+          node $(BENCH_SCRIPTS)/generateMatrix.js --preset ${{ parameters.TSPERF_PRESET }}
         displayName: Generate matrix
         name: generateMatrix
 
@@ -139,7 +139,7 @@ jobs:
 
       - bash: |
           set -eo pipefail
-          node $(BENCH_SCRIPTS)/buildTypeScript.mjs --outputDir $(ARTIFACTS_DIR)/pr
+          node $(BENCH_SCRIPTS)/buildTypeScript.js --outputDir $(ARTIFACTS_DIR)/pr
         displayName: Build PR TypeScript
         condition: and(succeeded(), eq(variables['IS_PR'], 'true'))
         workingDirectory: $(Pipeline.Workspace)/TypeScript
@@ -153,7 +153,7 @@ jobs:
 
       - bash: |
           set -eo pipefail
-          node $(BENCH_SCRIPTS)/buildTypeScript.mjs --baseline --outputDir $(ARTIFACTS_DIR)/baseline
+          node $(BENCH_SCRIPTS)/buildTypeScript.js --baseline --outputDir $(ARTIFACTS_DIR)/baseline
         displayName: Build baseline TypeScript
         workingDirectory: $(Pipeline.Workspace)/TypeScript
 
@@ -204,12 +204,12 @@ jobs:
 
       - bash: |
           set -eo pipefail
-          node $(BENCH_SCRIPTS)/runTsPerf.mjs install-hosts
+          node $(BENCH_SCRIPTS)/runTsPerf.js install-hosts
         displayName: Install hosts
 
       - bash: |
           set -eo pipefail
-          node $(BENCH_SCRIPTS)/runTsPerf.mjs benchmark-tsc \
+          node $(BENCH_SCRIPTS)/runTsPerf.js benchmark-tsc \
             --builtDir $(BUILT_TYPESCRIPT_DIR)/pr \
             --save $(ARTIFACTS_DIR)/pr_$(TSPERF_JOB_NAME).tsc.benchmark
         displayName: Run PR tsc benchmark
@@ -217,7 +217,7 @@ jobs:
 
       - bash: |
           set -eo pipefail
-          node $(BENCH_SCRIPTS)/runTsPerf.mjs benchmark-tsc \
+          node $(BENCH_SCRIPTS)/runTsPerf.js benchmark-tsc \
             --builtDir $(BUILT_TYPESCRIPT_DIR)/baseline \
             --save $(ARTIFACTS_DIR)/baseline_$(TSPERF_JOB_NAME).tsc.benchmark
         displayName: Run baseline tsc benchmark
@@ -225,7 +225,7 @@ jobs:
 
       - bash: |
           set -eo pipefail
-          node $(BENCH_SCRIPTS)/runTsPerf.mjs benchmark-tsserver \
+          node $(BENCH_SCRIPTS)/runTsPerf.js benchmark-tsserver \
             --builtDir $(BUILT_TYPESCRIPT_DIR)/pr \
             --save $(ARTIFACTS_DIR)/pr_$(TSPERF_JOB_NAME).tsserver.benchmark
         displayName: Run PR tsserver benchmark
@@ -233,7 +233,7 @@ jobs:
 
       - bash: |
           set -eo pipefail
-          node $(BENCH_SCRIPTS)/runTsPerf.mjs benchmark-tsserver \
+          node $(BENCH_SCRIPTS)/runTsPerf.js benchmark-tsserver \
             --builtDir $(BUILT_TYPESCRIPT_DIR)/baseline \
             --save $(ARTIFACTS_DIR)/baseline_$(TSPERF_JOB_NAME).tsserver.benchmark
         displayName: Run baseline tsserver benchmark
@@ -241,7 +241,7 @@ jobs:
 
       - bash: |
           set -eo pipefail
-          node $(BENCH_SCRIPTS)/runTsPerf.mjs benchmark-startup \
+          node $(BENCH_SCRIPTS)/runTsPerf.js benchmark-startup \
             --builtDir $(BUILT_TYPESCRIPT_DIR)/pr \
             --save $(ARTIFACTS_DIR)/pr_$(TSPERF_JOB_NAME).startup.benchmark
         displayName: Run PR startup benchmark
@@ -249,7 +249,7 @@ jobs:
 
       - bash: |
           set -eo pipefail
-          node $(BENCH_SCRIPTS)/runTsPerf.mjs benchmark-startup \
+          node $(BENCH_SCRIPTS)/runTsPerf.js benchmark-startup \
             --builtDir $(BUILT_TYPESCRIPT_DIR)/baseline \
             --save $(ARTIFACTS_DIR)/baseline_$(TSPERF_JOB_NAME).startup.benchmark
         displayName: Run baseline startup benchmark
@@ -324,13 +324,13 @@ jobs:
             node $(TSPERF_EXE) merge --output $(MERGED_DIR)/pr.tsc.benchmark $(BENCHMARKS_DIR)/pr_*.tsc.benchmark
 
             # Print summary for logs
-            node $(BENCH_SCRIPTS)/runTsPerf.mjs benchmark-tsc \
+            node $(BENCH_SCRIPTS)/runTsPerf.js benchmark-tsc \
               --builtDir $(BUILT_TYPESCRIPT_DIR)/baseline \
               --baseline $(MERGED_DIR)/baseline.tsc.benchmark \
               --load $(MERGED_DIR)/pr.tsc.benchmark
 
             echo "<h2>Compiler</h2>" >> $(Pipeline.Workspace)/comment.html
-            node $(BENCH_SCRIPTS)/runTsPerf.mjs benchmark-tsc \
+            node $(BENCH_SCRIPTS)/runTsPerf.js benchmark-tsc \
               --builtDir $(BUILT_TYPESCRIPT_DIR)/baseline \
               --baseline $(MERGED_DIR)/baseline.tsc.benchmark --baselineName baseline \
               --load $(MERGED_DIR)/pr.tsc.benchmark --benchmarkName pr \
@@ -338,7 +338,7 @@ jobs:
               --quiet >> $(Pipeline.Workspace)/comment.html
           else
             # Print summary for logs
-            node $(BENCH_SCRIPTS)/runTsPerf.mjs benchmark-tsc \
+            node $(BENCH_SCRIPTS)/runTsPerf.js benchmark-tsc \
               --builtDir $(BUILT_TYPESCRIPT_DIR)/baseline \
               --load $(MERGED_DIR)/baseline.tsc.benchmark
           fi
@@ -353,13 +353,13 @@ jobs:
             node $(TSPERF_EXE) merge --output $(MERGED_DIR)/pr.tsserver.benchmark $(BENCHMARKS_DIR)/pr_*.tsserver.benchmark
 
             # Print summary for logs
-            node $(BENCH_SCRIPTS)/runTsPerf.mjs benchmark-tsserver \
+            node $(BENCH_SCRIPTS)/runTsPerf.js benchmark-tsserver \
               --builtDir $(BUILT_TYPESCRIPT_DIR)/baseline \
               --baseline $(MERGED_DIR)/baseline.tsserver.benchmark \
               --load $(MERGED_DIR)/pr.tsserver.benchmark
 
             echo "<h2>tsserver</h2>" >> $(Pipeline.Workspace)/comment.html
-            node $(BENCH_SCRIPTS)/runTsPerf.mjs benchmark-tsserver \
+            node $(BENCH_SCRIPTS)/runTsPerf.js benchmark-tsserver \
               --builtDir $(BUILT_TYPESCRIPT_DIR)/baseline \
               --baseline $(MERGED_DIR)/baseline.tsserver.benchmark --baselineName baseline \
               --load $(MERGED_DIR)/pr.tsserver.benchmark --benchmarkName pr \
@@ -367,7 +367,7 @@ jobs:
               --quiet >> $(Pipeline.Workspace)/comment.html
           else
             # Print summary for logs
-            node $(BENCH_SCRIPTS)/runTsPerf.mjs benchmark-tsserver \
+            node $(BENCH_SCRIPTS)/runTsPerf.js benchmark-tsserver \
               --builtDir $(BUILT_TYPESCRIPT_DIR)/baseline \
               --load $(MERGED_DIR)/baseline.tsserver.benchmark
           fi
@@ -382,13 +382,13 @@ jobs:
             node $(TSPERF_EXE) merge --output $(MERGED_DIR)/pr.startup.benchmark $(BENCHMARKS_DIR)/pr_*.startup.benchmark
 
             # Print summary for logs
-            node $(BENCH_SCRIPTS)/runTsPerf.mjs benchmark-startup \
+            node $(BENCH_SCRIPTS)/runTsPerf.js benchmark-startup \
               --builtDir $(BUILT_TYPESCRIPT_DIR)/baseline \
               --baseline $(MERGED_DIR)/baseline.startup.benchmark \
               --load $(MERGED_DIR)/pr.startup.benchmark
 
             echo "<h2>Startup</h2>" >> $(Pipeline.Workspace)/comment.html
-            node $(BENCH_SCRIPTS)/runTsPerf.mjs benchmark-startup \
+            node $(BENCH_SCRIPTS)/runTsPerf.js benchmark-startup \
               --builtDir $(BUILT_TYPESCRIPT_DIR)/baseline \
               --baseline $(MERGED_DIR)/baseline.startup.benchmark --baselineName baseline \
               --load $(MERGED_DIR)/pr.startup.benchmark --benchmarkName pr \
@@ -396,7 +396,7 @@ jobs:
               --quiet >> $(Pipeline.Workspace)/comment.html
           else
             # Print summary for logs
-            node $(BENCH_SCRIPTS)/runTsPerf.mjs benchmark-startup \
+            node $(BENCH_SCRIPTS)/runTsPerf.js benchmark-startup \
               --builtDir $(BUILT_TYPESCRIPT_DIR)/baseline \
               --load $(MERGED_DIR)/baseline.startup.benchmark
           fi
@@ -409,7 +409,7 @@ jobs:
 
       - bash: |
           set -eo pipefail
-          node $(BENCH_SCRIPTS)/postPerfResult.mjs --fragment $(Pipeline.Workspace)/comment.html
+          node $(BENCH_SCRIPTS)/postPerfResult.js --fragment $(Pipeline.Workspace)/comment.html
         displayName: Publish PR comment
         condition: and(succeeded(), eq(variables['IS_PR'], 'true'))
         env:
@@ -421,7 +421,7 @@ jobs:
       # Sets $(TSPERF_BLOB_LATEST)
       - bash: |
           set -eo pipefail
-          node $(BENCH_SCRIPTS)/checkLatestCommitForRef.mjs --builtDir $(BUILT_TYPESCRIPT_DIR)/baseline
+          node $(BENCH_SCRIPTS)/checkLatestCommitForRef.js --builtDir $(BUILT_TYPESCRIPT_DIR)/baseline
         displayName: Check if commit is latest for ref
         condition: and(succeeded(), eq(variables['SHOULD_UPLOAD'], 'true'))
         env:
@@ -429,7 +429,7 @@ jobs:
 
       - bash: |
           set -eo pipefail
-          node $(BENCH_SCRIPTS)/runTsPerf.mjs benchmark-tsc \
+          node $(BENCH_SCRIPTS)/runTsPerf.js benchmark-tsc \
             --builtDir $(BUILT_TYPESCRIPT_DIR)/baseline \
             --load $(MERGED_DIR)/baseline.tsc.benchmark \
             --saveBlob linux
@@ -440,7 +440,7 @@ jobs:
 
       - bash: |
           set -eo pipefail
-          node $(BENCH_SCRIPTS)/runTsPerf.mjs benchmark-tsserver \
+          node $(BENCH_SCRIPTS)/runTsPerf.js benchmark-tsserver \
             --builtDir $(BUILT_TYPESCRIPT_DIR)/baseline \
             --load $(MERGED_DIR)/baseline.tsserver.benchmark \
             --saveBlob linux.server
@@ -451,7 +451,7 @@ jobs:
 
       - bash: |
           set -eo pipefail
-          node $(BENCH_SCRIPTS)/runTsPerf.mjs benchmark-startup \
+          node $(BENCH_SCRIPTS)/runTsPerf.js benchmark-startup \
             --builtDir $(BUILT_TYPESCRIPT_DIR)/baseline \
             --load $(MERGED_DIR)/baseline.startup.benchmark \
             --saveBlob linux.startup
@@ -484,7 +484,7 @@ jobs:
 
       - bash: |
           set -eo pipefail
-          node $(BENCH_SCRIPTS)/postPerfResult.mjs --failed
+          node $(BENCH_SCRIPTS)/postPerfResult.js --failed
         displayName: Publish PR comment
         env:
           SOURCE_ISSUE: ${{ parameters.SOURCE_ISSUE }}

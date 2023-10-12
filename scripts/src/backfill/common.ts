@@ -2,16 +2,12 @@ import assert from "node:assert";
 
 import vsts from "azure-devops-node-api";
 
-import { retry } from "../utils.mjs";
+import { retry } from "../utils.js";
 
 const unset = Symbol();
 
-/**
- * @type {<T>(fn: () => T) => () => T}
- */
-function memoize(fn) {
-    /** @type {any} */
-    let v = unset;
+function memoize<T>(fn: () => T): () => T {
+    let v: T | typeof unset = unset;
     return () => {
         if (v !== unset) {
             return v;
@@ -33,10 +29,7 @@ const getBuildApi = memoize(() => {
     return vstsTypescript.getBuildApi();
 });
 
-/**
- * @param {number} pipeline
- */
-export async function getPendingBuildCount(pipeline) {
+export async function getPendingBuildCount(pipeline: number) {
     const build = await getBuildApi();
     const builds = await retry(() =>
         build.getBuilds(
@@ -54,26 +47,19 @@ export async function getPendingBuildCount(pipeline) {
     return builds.length;
 }
 
-/**
- * @typedef {{
- *     resources?: {
- *         repositories?: Record<string, { refName?: string; version?: string } | undefined>;
- *     };
- *     variables?: Record<string, { isSecret?: boolean; value?: string; } | undefined>;
- *     templateParameters?: Record<string, string | number | boolean | undefined>;
- * }} PipelineRunArgs
- *
- * @typedef {{
- *     _links: { web: { href: string }; };
- * }} PipelineRunResult
- */
+interface PipelineRunArgs {
+    resources?: {
+        repositories?: Record<string, { refName?: string; version?: string } | undefined>;
+    };
+    variables?: Record<string, { isSecret?: boolean; value?: string } | undefined>;
+    templateParameters?: Record<string, string | number | boolean | undefined>;
+}
 
-/**
- * @param {number} pipelineId
- * @param {PipelineRunArgs} args
- * @returns {Promise<PipelineRunResult>}
- */
-export async function runPipeline(pipelineId, args) {
+interface PipelineRunResult {
+    _links: { web: { href: string } };
+}
+
+export async function runPipeline(pipelineId: number, args: PipelineRunArgs): Promise<PipelineRunResult> {
     const build = await getBuildApi();
 
     return retry(async () => {
@@ -89,6 +75,6 @@ export async function runPipeline(pipelineId, args) {
         assert(url);
 
         const response = await build.rest.create(url, args, options);
-        return response.result;
+        return response.result as PipelineRunResult;
     });
 }

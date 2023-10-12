@@ -10,8 +10,8 @@ import { execa } from "execa";
 import minimist from "minimist";
 import ora from "ora";
 
-import { sleepSeconds } from "../utils.mjs";
-import { getPendingBuildCount, runPipeline } from "./common.mjs";
+import { sleepSeconds } from "../utils.js";
+import { getPendingBuildCount, runPipeline } from "./common.js";
 
 dotenv.config();
 
@@ -46,17 +46,14 @@ catch {
     process.exit(1);
 }
 
-/**
- * @typedef {{
- *     hash: string;
- *     subject: string;
- *     date: string;
- * }} Commit
- * @param {string} range
- * @returns {Promise<Commit[]>}
- */
-async function getCommits(range, one = false) {
-    const list = [];
+interface Commit {
+    hash: string;
+    subject: string;
+    date: string;
+}
+
+async function getCommits(range: string, one = false) {
+    const list: Commit[] = [];
     const args = ["log", "--first-parent", "--format=%H%x00%s%x00%cd", "--date=local"];
     if (one) args.push("-1");
     args.push(range);
@@ -72,10 +69,7 @@ async function getCommits(range, one = false) {
     return list;
 }
 
-/**
- * @param {Commit} commit
- */
-function prettyCommit(commit) {
+function prettyCommit(commit: Commit) {
     return `${commit.hash} ${commit.subject} at ${commit.date}`;
 }
 
@@ -94,13 +88,9 @@ catch {
 
 console.log(`Starting backfill of ${branch} from ${startCommit}...`);
 
-/** @type {ReturnType<ora> | undefined} */
-let spinner;
+let spinner: ReturnType<typeof ora> | undefined;
 
-/**
- * @param {string} message
- */
-function updateSpinner(message) {
+function updateSpinner(message: string) {
     if (spinner === undefined) {
         spinner = ora(message).start();
     }

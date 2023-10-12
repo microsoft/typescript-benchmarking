@@ -6,7 +6,7 @@ import { $ as _$ } from "execa";
 import minimist from "minimist";
 import fetch from "node-fetch";
 
-import { retry } from "./utils.mjs";
+import { retry } from "./utils.js";
 
 const $pipe = _$({ verbose: true });
 const $ = _$({ verbose: true, stdio: "inherit" });
@@ -55,7 +55,7 @@ if (isPR) {
         const prNumber = ref.split("/")[2];
         const resp = await fetch(`https://api.github.com/repos/microsoft/TypeScript/pulls/${prNumber}`);
         const pr = await resp.json();
-        branch = /** @type {any} */ (pr).base.ref;
+        branch = (pr as any).base.ref;
     }
     else {
         branch = ref;

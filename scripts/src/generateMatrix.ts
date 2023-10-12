@@ -1,21 +1,22 @@
 import minimist from "minimist";
 
-/**
- * @typedef {Object} Preset
- * @property {Object} [tsc]
- * @property {string[]} tsc.hosts
- * @property {number} tsc.iterations
- * @property {string[]} tsc.scenarios
- * @property {Object} [tsserver]
- * @property {string[]} tsserver.hosts
- * @property {number} tsserver.iterations
- * @property {string[]} tsserver.scenarios
- * @property {Object} [startup]
- * @property {string[]} startup.hosts
- * @property {number} startup.iterations
- * @property {string[]} startup.scenarios
- */
-void 0;
+interface Preset {
+    tsc?: {
+        hosts: string[];
+        iterations: number;
+        scenarios: string[];
+    };
+    tsserver?: {
+        hosts: string[];
+        iterations: number;
+        scenarios: string[];
+    };
+    startup?: {
+        hosts: string[];
+        iterations: number;
+        scenarios: string[];
+    };
+}
 
 const defaultIterations = 6;
 
@@ -33,8 +34,7 @@ const allTsserverScenarios = ["Compiler-UnionsTSServer", "CompilerTSServer", "xs
 const allStartupScenarios = ["tsc-startup", "tsserver-startup", "tsserverlibrary-startup", "typescript-startup"];
 
 // Note: keep this up to date with TSPERF_PRESET and https://github.com/microsoft/typescript-bot-test-triggerer
-/** @type {Record<string, Preset | undefined>} */
-const presets = {
+const presets: Record<string, Preset | undefined> = {
     "full": {
         tsc: {
             hosts: [node20, node18, node16],
@@ -121,15 +121,11 @@ if (!preset) {
     process.exit(1);
 }
 
-/**
- * @param {string} name
- */
-function sanitizeJobName(name) {
+function sanitizeJobName(name: string) {
     return name.replace(/[^a-zA-Z0-9_]/g, "_");
 }
 
-/** @type {Record<string, Record<string, string | number | boolean | undefined>>} */
-const matrix = {};
+const matrix: Record<string, Record<string, string | number | boolean | undefined>> = {};
 
 let willRunTsc = false;
 let willRunTsserver = false;

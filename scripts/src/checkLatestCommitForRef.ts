@@ -3,25 +3,18 @@ import assert from "node:assert";
 import { Octokit } from "@octokit/rest";
 import minimist from "minimist";
 
-import { getNonEmptyEnv, getRepoInfo } from "./utils.mjs";
+import { getNonEmptyEnv, getRepoInfo } from "./utils.js";
 
 const auth = getNonEmptyEnv("GH_TOKEN");
 
 const refPrefix = "refs/";
 
-/**
- * @param {string} ref
- */
-function removeRefPrefix(ref) {
+function removeRefPrefix(ref: string) {
     assert(ref.startsWith(refPrefix));
     return ref.slice(refPrefix.length);
 }
 
-/**
- * @param {string} ref
- * @param {string} commit
- */
-async function isLatestCommitForRef(ref, commit) {
+async function isLatestCommitForRef(ref: string, commit: string) {
     const gh = new Octokit({ auth });
     const latest = await gh.git.getRef({ owner: "microsoft", repo: "TypeScript", ref: removeRefPrefix(ref) });
     const isLatest = latest.data.object.sha === commit;

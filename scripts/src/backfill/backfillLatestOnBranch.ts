@@ -7,7 +7,7 @@ import assert from "node:assert";
 import dotenv from "dotenv";
 import minimist from "minimist";
 
-import { runPipeline } from "./common.mjs";
+import { runPipeline } from "./common.js";
 
 dotenv.config();
 
