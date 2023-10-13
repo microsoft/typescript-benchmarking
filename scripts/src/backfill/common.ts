@@ -49,14 +49,14 @@ export async function getPendingBuildCount(pipeline: number) {
 
 interface PipelineRunArgs {
     resources?: {
-        repositories?: Record<string, { refName?: string; version?: string } | undefined>;
+        repositories?: Record<string, { refName?: string; version?: string; } | undefined>;
     };
-    variables?: Record<string, { isSecret?: boolean; value?: string } | undefined>;
+    variables?: Record<string, { isSecret?: boolean; value?: string; } | undefined>;
     templateParameters?: Record<string, string | number | boolean | undefined>;
 }
 
 interface PipelineRunResult {
-    _links: { web: { href: string } };
+    _links: { web: { href: string; }; };
 }
 
 export async function runPipeline(pipelineId: number, args: PipelineRunArgs): Promise<PipelineRunResult> {
