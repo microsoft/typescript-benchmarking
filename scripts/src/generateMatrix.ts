@@ -25,7 +25,7 @@ const node20 = "node@20.5.1";
 // These two versions match those found in recent VS Code versions via Electron.
 const node18 = "node@18.15.0";
 const node16 = "node@16.17.1";
-const bun = "bun@1.0.6";
+const bun = "bun@1.0.7";
 const vscode = "vscode@1.82.1";
 
 // TODO(jakebailey): include used scenarioConfigDirs in matrix and avoid cloning
