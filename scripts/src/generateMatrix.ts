@@ -1,8 +1,11 @@
 import minimist from "minimist";
 
 // Keep in sync with inventory.yml and benchmark.yml.
-type BaselineAgent = "ts-perf1" | "ts-perf2" | "ts-perf3" | "ts-perf4";
-type Agent = "any" | BaselineAgent;
+type AllAgents = "ts-perf1" | "ts-perf2" | "ts-perf3" | "ts-perf4";
+// We reserve some agents so that non-baseline jobs can make progress.
+type ReserveAgent = "ts-perf4";
+type BaselineAgent = Exclude<AllAgents, ReserveAgent>;
+type Agent = "any" | AllAgents;
 
 const defaultIterations = 6;
 
