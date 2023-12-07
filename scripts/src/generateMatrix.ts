@@ -189,7 +189,8 @@ if (baselining) {
     processTsserver = !!preset.tsserver;
     processStartup = !!preset.startup;
 
-    matrix["any"]["all"] = {
+    // TODO: remove this branch and instead matrix out for baselines
+    matrix["ts-perf1"]["all"] = {
         TSPERF_JOB_NAME: "all",
         TSPERF_TSC: processTsc,
         TSPERF_TSC_HOSTS: preset.tsc?.hosts.join(","),
