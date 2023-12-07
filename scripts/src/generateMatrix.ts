@@ -203,79 +203,53 @@ let processTsc = false;
 let processTsserver = false;
 let processStartup = false;
 
-if (baselining) {
-    // If we're baselining, it'll be much faster to run all benchmarks in one job.
-    processTsc = !!preset.tsc;
-    processTsserver = !!preset.tsserver;
-    processStartup = !!preset.startup;
-
-    // TODO: remove this branch and instead matrix out for baselines
-    matrix["ts-perf1"]["all"] = {
-        TSPERF_JOB_NAME: "all",
-        TSPERF_TSC: processTsc,
-        TSPERF_TSC_HOSTS: preset.tsc?.hosts.join(","),
-        TSPERF_TSC_SCENARIOS: preset.tsc?.scenarios.join(","),
-        TSPERF_TSC_ITERATIONS: preset.tsc?.iterations,
-        TSPERF_TSSERVER: processTsserver,
-        TSPERF_TSSERVER_HOSTS: preset.tsserver?.hosts.join(","),
-        TSPERF_TSSERVER_SCENARIOS: preset.tsserver?.scenarios.join(","),
-        TSPERF_TSSERVER_ITERATIONS: preset.tsserver?.iterations,
-        TSPERF_STARTUP: processStartup,
-        TSPERF_STARTUP_HOSTS: preset.startup?.hosts.join(","),
-        TSPERF_STARTUP_SCENARIOS: preset.startup?.scenarios.join(","),
-        TSPERF_STARTUP_ITERATIONS: preset.startup?.iterations,
-    };
+if (preset.tsc) {
+    for (const host of preset.tsc.hosts) {
+        for (const scenario of preset.tsc.scenarios) {
+            processTsc = true;
+            const agent = getAgentForScenario(scenario);
+            const jobName = sanitizeJobName(`tsc_${host}_${scenario}`);
+            matrix[agent][jobName] = {
+                TSPERF_JOB_NAME: jobName,
+                TSPERF_TSC: true,
+                TSPERF_TSC_HOSTS: host,
+                TSPERF_TSC_SCENARIOS: scenario,
+                TSPERF_TSC_ITERATIONS: preset.tsc.iterations,
+            };
+        }
+    }
 }
-else {
-    // If we're not baselining, it should end up faster to run on as many machines as possible.
-    if (preset.tsc) {
-        for (const host of preset.tsc.hosts) {
-            for (const scenario of preset.tsc.scenarios) {
-                processTsc = true;
-                const agent = getAgentForScenario(scenario);
-                const jobName = sanitizeJobName(`tsc_${host}_${scenario}`);
-                matrix[agent][jobName] = {
-                    TSPERF_JOB_NAME: jobName,
-                    TSPERF_TSC: true,
-                    TSPERF_TSC_HOSTS: host,
-                    TSPERF_TSC_SCENARIOS: scenario,
-                    TSPERF_TSC_ITERATIONS: preset.tsc.iterations,
-                };
-            }
+
+if (preset.tsserver) {
+    for (const host of preset.tsserver.hosts) {
+        for (const scenario of preset.tsserver.scenarios) {
+            processTsserver = true;
+            const agent = getAgentForScenario(scenario);
+            const jobName = sanitizeJobName(`tsserver_${host}_${scenario}`);
+            matrix[agent][jobName] = {
+                TSPERF_JOB_NAME: jobName,
+                TSPERF_TSSERVER: true,
+                TSPERF_TSSERVER_HOSTS: host,
+                TSPERF_TSSERVER_SCENARIOS: scenario,
+                TSPERF_TSSERVER_ITERATIONS: preset.tsserver.iterations,
+            };
         }
     }
+}
 
-    if (preset.tsserver) {
-        for (const host of preset.tsserver.hosts) {
-            for (const scenario of preset.tsserver.scenarios) {
-                processTsserver = true;
-                const agent = getAgentForScenario(scenario);
-                const jobName = sanitizeJobName(`tsserver_${host}_${scenario}`);
-                matrix[agent][jobName] = {
-                    TSPERF_JOB_NAME: jobName,
-                    TSPERF_TSSERVER: true,
-                    TSPERF_TSSERVER_HOSTS: host,
-                    TSPERF_TSSERVER_SCENARIOS: scenario,
-                    TSPERF_TSSERVER_ITERATIONS: preset.tsserver.iterations,
-                };
-            }
-        }
-    }
-
-    if (preset.startup) {
-        for (const host of preset.startup.hosts) {
-            for (const scenario of preset.startup.scenarios) {
-                processStartup = true;
-                const agent = getAgentForScenario(scenario);
-                const jobName = sanitizeJobName(`startup_${host}_${scenario}`);
-                matrix[agent][jobName] = {
-                    TSPERF_JOB_NAME: jobName,
-                    TSPERF_STARTUP: true,
-                    TSPERF_STARTUP_HOSTS: host,
-                    TSPERF_STARTUP_SCENARIOS: scenario,
-                    TSPERF_STARTUP_ITERATIONS: preset.startup.iterations,
-                };
-            }
+if (preset.startup) {
+    for (const host of preset.startup.hosts) {
+        for (const scenario of preset.startup.scenarios) {
+            processStartup = true;
+            const agent = getAgentForScenario(scenario);
+            const jobName = sanitizeJobName(`startup_${host}_${scenario}`);
+            matrix[agent][jobName] = {
+                TSPERF_JOB_NAME: jobName,
+                TSPERF_STARTUP: true,
+                TSPERF_STARTUP_HOSTS: host,
+                TSPERF_STARTUP_SCENARIOS: scenario,
+                TSPERF_STARTUP_ITERATIONS: preset.startup.iterations,
+            };
         }
     }
 }
