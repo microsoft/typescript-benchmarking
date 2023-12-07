@@ -6,7 +6,7 @@
     "license": "MIT",
     "type": "module",
     "engines": {
-        "node": ">= 16.17"
+        "node": ">= 18.0.0"
     },
     "devDependencies": {
         "@badrap/valita": "^0.3.0",
@@ -16,7 +16,6 @@
         "dotenv": "^16.3.1",
         "execa": "^8.0.1",
         "minimist": "^1.2.8",
-        "node-fetch": "^3.3.2",
         "ora": "^7.0.1"
     },
     "scripts": {

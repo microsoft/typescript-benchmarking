@@ -4,7 +4,6 @@ import path from "node:path";
 
 import { $ as _$ } from "execa";
 import minimist from "minimist";
-import fetch from "node-fetch";
 
 import { retry } from "./utils.js";
 

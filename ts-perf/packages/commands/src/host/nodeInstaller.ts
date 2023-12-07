@@ -3,11 +3,11 @@ import * as fs from "node:fs";
 import * as os from "node:os";
 import * as path from "node:path";
 import * as url from "node:url";
+import * as stream from "node:stream";
 
 import { Host, HostPattern, HostSpecifier } from "@ts-perf/api";
 import { HostContext } from "@ts-perf/core";
 import { fn, from, QueriedType } from "iterable-query";
-import fetch from "node-fetch";
 import * as semver from "semver";
 import { Table } from "table-style";
 import * as tmp from "tmp";
@@ -51,7 +51,8 @@ async function getReleases(host?: HostContext): Promise<Release[]> {
     if (host) host.trace(`Downloading '${indexUrl}'...`);
     const response = await fetch(indexUrl);
     if (!response.ok) throw new Error(`Could not download '${indexUrl}'; ${response.status} ${response.statusText}`);
-    return response.json();
+    const json = await response.json();
+    return json as Release[];
 }
 
 const filePattern = /^([^-]+)(?:-([^-]+)(?:-([^-]+))?)?$/;
@@ -342,8 +343,10 @@ export async function installMatchingNodeHosts(options: InstallHostOptions, cont
         context.log(`Downloading ${fileUrl}...`);
 
         const response = await fetch(fileUrl);
-        if (!response.ok) throw new Error(`Could not download '${fileUrl}'; ${response.status} ${response.statusText}`);
-        const content = response.body;
+        if (!response.ok || !response.body) {
+            throw new Error(`Could not download '${fileUrl}'; ${response.status} ${response.statusText}`);
+        }
+        const content = stream.Readable.fromWeb(response.body);
         const tempFile = tmp.fileSync({ prefix: path.basename(fileUrl) }).name;
         let cleanupTempFile = true;
         let executable: string | undefined;

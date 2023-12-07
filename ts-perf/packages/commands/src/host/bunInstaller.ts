@@ -2,10 +2,10 @@ import * as child_process from "node:child_process";
 import * as fs from "node:fs";
 import * as os from "node:os";
 import * as path from "node:path";
+import * as stream from "node:stream";
 
 import { Host, HostPattern } from "@ts-perf/api";
 import { HostContext } from "@ts-perf/core";
-import fetch from "node-fetch";
 import * as semver from "semver";
 import * as tmp from "tmp";
 
@@ -73,8 +73,10 @@ export async function installMatchingBunHosts(options: InstallHostOptions, conte
         context.log(`Downloading ${fileUrl}...`);
 
         const response = await fetch(fileUrl);
-        if (!response.ok) throw new Error(`Could not download '${fileUrl}'; ${response.status} ${response.statusText}`);
-        const content = response.body;
+        if (!response.ok || !response.body) {
+            throw new Error(`Could not download '${fileUrl}'; ${response.status} ${response.statusText}`);
+        }
+        const content = stream.Readable.fromWeb(response.body);
         const tempFile = tmp.fileSync({ prefix: path.basename(fileUrl) }).name;
         let cleanupTempFile = true;
 
