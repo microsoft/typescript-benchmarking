@@ -19,17 +19,30 @@ const vscode = "vscode@1.82.1";
 
 // TODO(jakebailey): include used scenarioConfigDirs in matrix and avoid cloning
 
-const allTscScenarios = ["Angular", "Monaco", "TFS", "material-ui", "Compiler-Unions", "xstate"] as const;
 type TscScenario = typeof allTscScenarios[number];
-const allTsserverScenarios = ["Compiler-UnionsTSServer", "CompilerTSServer", "xstateTSServer"] as const;
+const allTscScenarios = [
+    "Angular",
+    "Monaco",
+    "TFS",
+    "material-ui",
+    "Compiler-Unions",
+    "xstate",
+] as const;
+
 type TsserverScenario = typeof allTsserverScenarios[number];
+const allTsserverScenarios = [
+    "Compiler-UnionsTSServer",
+    "CompilerTSServer",
+    "xstateTSServer",
+] as const;
+
+type StartupScenario = typeof allStartupScenarios[number];
 const allStartupScenarios = [
     "tsc-startup",
     "tsserver-startup",
     "tsserverlibrary-startup",
     "typescript-startup",
 ] as const;
-type StartupScenario = typeof allStartupScenarios[number];
 
 type AllScenarios =
     | TscScenario
@@ -168,6 +181,10 @@ function sanitizeJobName(name: string) {
     return name.replace(/[^a-zA-Z0-9_]/g, "_");
 }
 
+function getAgentForScenario(scenario: AllScenarios): Agent {
+    return baselining ? scenarioToAgent[scenario] : "any";
+}
+
 type Matrix = {
     [key in Agent]: {
         [name: string]: Record<string, string | number | boolean | undefined>;
@@ -215,7 +232,7 @@ else {
         for (const host of preset.tsc.hosts) {
             for (const scenario of preset.tsc.scenarios) {
                 processTsc = true;
-                const agent = baselining ? scenarioToAgent[scenario] : "any";
+                const agent = getAgentForScenario(scenario);
                 const jobName = sanitizeJobName(`tsc_${host}_${scenario}`);
                 matrix[agent][jobName] = {
                     TSPERF_JOB_NAME: jobName,
@@ -232,7 +249,7 @@ else {
         for (const host of preset.tsserver.hosts) {
             for (const scenario of preset.tsserver.scenarios) {
                 processTsserver = true;
-                const agent = baselining ? scenarioToAgent[scenario] : "any";
+                const agent = getAgentForScenario(scenario);
                 const jobName = sanitizeJobName(`tsserver_${host}_${scenario}`);
                 matrix[agent][jobName] = {
                     TSPERF_JOB_NAME: jobName,
@@ -249,7 +266,7 @@ else {
         for (const host of preset.startup.hosts) {
             for (const scenario of preset.startup.scenarios) {
                 processStartup = true;
-                const agent = baselining ? scenarioToAgent[scenario] : "any";
+                const agent = getAgentForScenario(scenario);
                 const jobName = sanitizeJobName(`startup_${host}_${scenario}`);
                 matrix[agent][jobName] = {
                     TSPERF_JOB_NAME: jobName,
