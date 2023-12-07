@@ -12,7 +12,7 @@ $ ssh-copy-id -i ~/.ssh/id_ed25519.pub user@hostname
 You'll need `inventory.yml`, which should look something like:
 
 ```yml
-tsperf:0
+tsperf:
   children:
     pool:
       children:
