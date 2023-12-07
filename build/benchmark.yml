@@ -167,7 +167,7 @@ jobs:
         displayName: Publish built TypeScript
 
   - ${{ each agent in split(parameters.AGENTS, ',') }}:
-      - job: Benchmark on ${{ agent }}
+      - job: Benchmark_${{ agent }}
         dependsOn: Setup
         pool:
           name: ts-perf-ddfun
