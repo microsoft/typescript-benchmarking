@@ -469,7 +469,8 @@ jobs:
   - job: OnFailedPRRun
     dependsOn:
       - Setup
-      - Benchmark
+      - ${{ each agent in split(parameters.AGENTS, ',') }}:
+          - Benchmark_${{ replace(agent, '-', '_') }}
       - ProcessResults
     condition: and(failed(), eq(variables['IS_PR'], 'true'))
     pool:
