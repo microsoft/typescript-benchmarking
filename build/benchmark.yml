@@ -87,12 +87,8 @@ parameters:
   # Keep in sync with inventory.yml and generateMatrix.ts.
   - name: AGENTS
     displayName: Exhaustive list of agents; DO NOT EDIT
-    default:
-      - any
-      - ts-perf1
-      - ts-perf2
-      - ts-perf3
-      - ts-perf4
+    type: string
+    default: 'any,ts-perf1,ts-perf2,ts-perf3,ts-perf4'
 
 variables:
   Codeql.Enabled: false
@@ -170,7 +166,7 @@ jobs:
         artifact: BuiltTypeScript
         displayName: Publish built TypeScript
 
-  - ${{ each agent in parameters.AGENTS }}:
+  - ${{ each agent in split(parameters.AGENTS, ',') }}:
       - job: Benchmark on ${{ agent }}
         dependsOn: Setup
         pool:
