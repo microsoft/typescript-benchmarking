@@ -10,7 +10,7 @@
     },
     "devDependencies": {
         "@badrap/valita": "^0.3.0",
-        "@octokit/rest": "^19.0.13",
+        "@octokit/rest": "^20.0.2",
         "@types/minimist": "^1.2.5",
         "azure-devops-node-api": "^12.1.0",
         "dotenv": "^16.3.1",
