@@ -169,6 +169,7 @@ jobs:
   - ${{ each agent in split(parameters.AGENTS, ',') }}:
       - job: Benchmark_${{ replace(agent, '-', '_') }}
         dependsOn: Setup
+        condition: not(eq(dependencies.Setup.outputs['generateMatrix.MATRIX_${{ replace(agent, '-', '_') }}'], '{}'))
         pool:
           name: ts-perf-ddfun
           ${{ if not(eq(agent, 'any')) }}:
