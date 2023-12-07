@@ -261,7 +261,7 @@ else {
 
 function setVariable(name: string, value: string | number | boolean) {
     console.log(`${name}=${value}`);
-    console.log(`##vso[task.setvariable variable=${name}]${value}`);
+    console.log(`##vso[task.setvariable variable=${name};isOutput=true]${value}`);
 }
 
 for (const [agent, value] of Object.entries(matrix)) {
