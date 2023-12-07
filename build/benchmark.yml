@@ -86,7 +86,7 @@ parameters:
 
   # Keep in sync with inventory.yml and generateMatrix.ts.
   - name: AGENTS
-    displayName: Exhaustive list of agents; DO NOT EDIT
+    displayName: Exhaustive list of agents
     type: string
     default: 'any,ts-perf1,ts-perf2,ts-perf3,ts-perf4'
 
