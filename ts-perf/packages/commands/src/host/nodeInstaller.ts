@@ -2,8 +2,8 @@ import * as child_process from "node:child_process";
 import * as fs from "node:fs";
 import * as os from "node:os";
 import * as path from "node:path";
-import * as url from "node:url";
 import * as stream from "node:stream";
+import * as url from "node:url";
 
 import { Host, HostPattern, HostSpecifier } from "@ts-perf/api";
 import { HostContext } from "@ts-perf/core";
