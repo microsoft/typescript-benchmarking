@@ -127,27 +127,27 @@ function sanitizeJobName(name: string) {
 
 const matrix: Record<string, Record<string, string | number | boolean | undefined>> = {};
 
-let willRunTsc = false;
-let willRunTsserver = false;
-let willRunStartup = false;
+let processTsc = false;
+let processTsserver = false;
+let processStartup = false;
 
 if (baselining) {
     // If we're baselining, it'll be much faster to run all benchmarks in one job.
-    willRunTsc = !!preset.tsc;
-    willRunTsserver = !!preset.tsserver;
-    willRunStartup = !!preset.startup;
+    processTsc = !!preset.tsc;
+    processTsserver = !!preset.tsserver;
+    processStartup = !!preset.startup;
 
     matrix.all = {
         TSPERF_JOB_NAME: "all",
-        TSPERF_TSC: willRunTsc,
+        TSPERF_TSC: processTsc,
         TSPERF_TSC_HOSTS: preset.tsc?.hosts.join(","),
         TSPERF_TSC_SCENARIOS: preset.tsc?.scenarios.join(","),
         TSPERF_TSC_ITERATIONS: preset.tsc?.iterations,
-        TSPERF_TSSERVER: willRunTsserver,
+        TSPERF_TSSERVER: processTsserver,
         TSPERF_TSSERVER_HOSTS: preset.tsserver?.hosts.join(","),
         TSPERF_TSSERVER_SCENARIOS: preset.tsserver?.scenarios.join(","),
         TSPERF_TSSERVER_ITERATIONS: preset.tsserver?.iterations,
-        TSPERF_STARTUP: willRunStartup,
+        TSPERF_STARTUP: processStartup,
         TSPERF_STARTUP_HOSTS: preset.startup?.hosts.join(","),
         TSPERF_STARTUP_SCENARIOS: preset.startup?.scenarios.join(","),
         TSPERF_STARTUP_ITERATIONS: preset.startup?.iterations,
@@ -158,7 +158,7 @@ else {
     if (preset.tsc) {
         for (const host of preset.tsc.hosts) {
             for (const scenario of preset.tsc.scenarios) {
-                willRunTsc = true;
+                processTsc = true;
                 const jobName = sanitizeJobName(`tsc_${host}_${scenario}`);
                 matrix[jobName] = {
                     TSPERF_JOB_NAME: jobName,
@@ -174,7 +174,7 @@ else {
     if (preset.tsserver) {
         for (const host of preset.tsserver.hosts) {
             for (const scenario of preset.tsserver.scenarios) {
-                willRunTsserver = true;
+                processTsserver = true;
                 const jobName = sanitizeJobName(`tsserver_${host}_${scenario}`);
                 matrix[jobName] = {
                     TSPERF_JOB_NAME: jobName,
@@ -190,7 +190,7 @@ else {
     if (preset.startup) {
         for (const host of preset.startup.hosts) {
             for (const scenario of preset.startup.scenarios) {
-                willRunStartup = true;
+                processStartup = true;
                 const jobName = sanitizeJobName(`startup_${host}_${scenario}`);
                 matrix[jobName] = {
                     TSPERF_JOB_NAME: jobName,
@@ -207,6 +207,8 @@ else {
 console.log(JSON.stringify(matrix, undefined, 4));
 console.log(`##vso[task.setvariable variable=MATRIX;isOutput=true]${JSON.stringify(matrix)}`);
 
-console.log(`##vso[task.setvariable variable=TSPERF_WILL_RUN_TSC;isOutput=true]${willRunTsc}`);
-console.log(`##vso[task.setvariable variable=TSPERF_WILL_RUN_TSSERVER;isOutput=true]${willRunTsserver}`);
-console.log(`##vso[task.setvariable variable=TSPERF_WILL_RUN_STARTUP;isOutput=true]${willRunStartup}`);
+// These are outputs for the ProcessResults job, specifying which results were
+// produced above and need to be processed.
+console.log(`##vso[task.setvariable variable=TSPERF_PROCESS_TSC;isOutput=true]${processTsc}`);
+console.log(`##vso[task.setvariable variable=TSPERF_PROCESS_TSSERVER;isOutput=true]${processTsserver}`);
+console.log(`##vso[task.setvariable variable=TSPERF_PROCESS_STARTUP;isOutput=true]${processStartup}`);

@@ -269,9 +269,9 @@ jobs:
       clean: all # Always start with a clean slate.
 
     variables:
-      TSPERF_WILL_RUN_TSC: $[ dependencies.Setup.outputs['generateMatrix.TSPERF_WILL_RUN_TSC'] ]
-      TSPERF_WILL_RUN_TSSERVER: $[ dependencies.Setup.outputs['generateMatrix.TSPERF_WILL_RUN_TSSERVER'] ]
-      TSPERF_WILL_RUN_STARTUP: $[ dependencies.Setup.outputs['generateMatrix.TSPERF_WILL_RUN_STARTUP'] ]
+      TSPERF_PROCESS_TSC: $[ dependencies.Setup.outputs['generateMatrix.TSPERF_PROCESS_TSC'] ]
+      TSPERF_PROCESS_TSSERVER: $[ dependencies.Setup.outputs['generateMatrix.TSPERF_PROCESS_TSSERVER'] ]
+      TSPERF_PROCESS_STARTUP: $[ dependencies.Setup.outputs['generateMatrix.TSPERF_PROCESS_STARTUP'] ]
       BUILT_TYPESCRIPT_DIR: $(Pipeline.Workspace)/BuiltTypeScript
       BENCHMARKS_DIR: $(Pipeline.Workspace)/benchmarks
       MERGED_DIR: $(Pipeline.Workspace)/merged
@@ -343,7 +343,7 @@ jobs:
               --load $(MERGED_DIR)/baseline.tsc.benchmark
           fi
         displayName: Merge tsc benchmarks
-        condition: and(succeeded(), eq(variables['TSPERF_WILL_RUN_TSC'], 'true'))
+        condition: and(succeeded(), eq(variables['TSPERF_PROCESS_TSC'], 'true'))
 
       - bash: |
           set -eo pipefail
@@ -372,7 +372,7 @@ jobs:
               --load $(MERGED_DIR)/baseline.tsserver.benchmark
           fi
         displayName: Merge tsserver benchmarks
-        condition: and(succeeded(), eq(variables['TSPERF_WILL_RUN_TSSERVER'], 'true'))
+        condition: and(succeeded(), eq(variables['TSPERF_PROCESS_TSSERVER'], 'true'))
 
       - bash: |
           set -eo pipefail
@@ -401,7 +401,7 @@ jobs:
               --load $(MERGED_DIR)/baseline.startup.benchmark
           fi
         displayName: Merge startup benchmarks
-        condition: and(succeeded(), eq(variables['TSPERF_WILL_RUN_STARTUP'], 'true'))
+        condition: and(succeeded(), eq(variables['TSPERF_PROCESS_STARTUP'], 'true'))
 
       - publish: $(MERGED_DIR)
         artifact: Benchmarks
@@ -434,7 +434,7 @@ jobs:
             --load $(MERGED_DIR)/baseline.tsc.benchmark \
             --saveBlob linux
         displayName: Upload tsc benchmark to blob store
-        condition: and(succeeded(), eq(variables['TSPERF_WILL_RUN_TSC'], 'true'), eq(variables['SHOULD_UPLOAD'], 'true'))
+        condition: and(succeeded(), eq(variables['TSPERF_PROCESS_TSC'], 'true'), eq(variables['SHOULD_UPLOAD'], 'true'))
         env:
           TSPERF_AZURE_STORAGE_CONNECTION_STRING: $(tsperf-azure-storage-connection-string)
 
@@ -445,7 +445,7 @@ jobs:
             --load $(MERGED_DIR)/baseline.tsserver.benchmark \
             --saveBlob linux.server
         displayName: Upload tsserver benchmark to blob store
-        condition: and(succeeded(), eq(variables['TSPERF_WILL_RUN_TSSERVER'], 'true'), eq(variables['SHOULD_UPLOAD'], 'true'))
+        condition: and(succeeded(), eq(variables['TSPERF_PROCESS_TSSERVER'], 'true'), eq(variables['SHOULD_UPLOAD'], 'true'))
         env:
           TSPERF_AZURE_STORAGE_CONNECTION_STRING: $(tsperf-azure-storage-connection-string)
 
@@ -456,7 +456,7 @@ jobs:
             --load $(MERGED_DIR)/baseline.startup.benchmark \
             --saveBlob linux.startup
         displayName: Upload startup benchmark to blob store
-        condition: and(succeeded(), eq(variables['TSPERF_WILL_RUN_STARTUP'], 'true'), eq(variables['SHOULD_UPLOAD'], 'true'))
+        condition: and(succeeded(), eq(variables['TSPERF_PROCESS_STARTUP'], 'true'), eq(variables['SHOULD_UPLOAD'], 'true'))
         env:
           TSPERF_AZURE_STORAGE_CONNECTION_STRING: $(tsperf-azure-storage-connection-string)
 
