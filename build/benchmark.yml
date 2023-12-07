@@ -178,7 +178,7 @@ jobs:
 
         # https://stackoverflow.com/a/69345058
         strategy:
-          matrix: $[ dependencies.Setup.outputs['generateMatrix.MATRIX']['${{ agent }}'] ]
+          matrix: $[ dependencies.Setup.outputs['generateMatrix.MATRIX_${{ replace(agent, '-', '_') }}'] ]
 
         variables:
           TSPERF_RUN_STARTUP: $[ or(eq(variables['TSPERF_JOB_KIND'], 'startup'), eq(variables['TSPERF_JOB_KIND'], 'all')) ]

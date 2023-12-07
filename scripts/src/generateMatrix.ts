@@ -259,11 +259,18 @@ else {
     }
 }
 
-console.log(JSON.stringify(matrix, undefined, 4));
-console.log(`##vso[task.setvariable variable=MATRIX;isOutput=true]${JSON.stringify(matrix)}`);
+function setVariable(name: string, value: string | number | boolean) {
+    console.log(`${name}=${value}`);
+    console.log(`##vso[task.setvariable variable=${name}]${value}`);
+}
+
+for (const [agent, value] of Object.entries(matrix)) {
+    setVariable(`MATRIX_${agent.replace(/-/g, "_")}`, JSON.stringify(value));
+    console.log(JSON.stringify(value, undefined, 4));
+}
 
 // These are outputs for the ProcessResults job, specifying which results were
 // produced above and need to be processed.
-console.log(`##vso[task.setvariable variable=TSPERF_PROCESS_TSC;isOutput=true]${processTsc}`);
-console.log(`##vso[task.setvariable variable=TSPERF_PROCESS_TSSERVER;isOutput=true]${processTsserver}`);
-console.log(`##vso[task.setvariable variable=TSPERF_PROCESS_STARTUP;isOutput=true]${processStartup}`);
+setVariable("TSPERF_PROCESS_TSC", processTsc);
+setVariable("TSPERF_PROCESS_TSSERVER", processTsserver);
+setVariable("TSPERF_PROCESS_STARTUP", processStartup);
