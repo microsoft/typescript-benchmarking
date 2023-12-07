@@ -267,7 +267,8 @@ jobs:
   - job: ProcessResults
     dependsOn:
       - Setup
-      - Benchmark
+      - ${{ each agent in split(parameters.AGENTS, ',') }}:
+          - Benchmark_${{ replace(agent, '-', '_') }}
     pool:
       vmImage: ubuntu-latest
     workspace:
