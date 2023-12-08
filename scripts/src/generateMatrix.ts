@@ -56,9 +56,7 @@ type AllScenarios =
         | TscScenario & StartupScenario
         | TsserverScenario & StartupScenario;
 
-    const _duplicates: DuplicateScenarios = undefined as unknown as DuplicateScenarios;
-    const _never: never = _duplicates;
-    void _never;
+    undefined as unknown as DuplicateScenarios satisfies never;
 }
 
 type ScenarioToAgent = {
