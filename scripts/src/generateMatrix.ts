@@ -49,6 +49,18 @@ type AllScenarios =
     | TsserverScenario
     | StartupScenario;
 
+{
+    // Statically test that none of the scenario lists have duplicates.
+    type DuplicateScenarios =
+        | TscScenario & TsserverScenario
+        | TscScenario & StartupScenario
+        | TsserverScenario & StartupScenario;
+
+    const _duplicates: DuplicateScenarios = undefined as unknown as DuplicateScenarios;
+    const _never: never = _duplicates;
+    void _never;
+}
+
 type ScenarioToAgent = {
     [key in AllScenarios]: BaselineAgent;
 };
