@@ -84,6 +84,12 @@ parameters:
     type: number
     default: 0
 
+  # Keep in sync with inventory.yml and generateMatrix.ts.
+  - name: AGENTS
+    displayName: Exhaustive list of agents
+    type: string
+    default: 'any,ts-perf1,ts-perf2,ts-perf3,ts-perf4'
+
 variables:
   Codeql.Enabled: false
   skipComponentGovernanceDetection: true
@@ -95,7 +101,6 @@ variables:
   PRETTY_REF: $[ replace(replace(replace(replace(variables['REF'], '/merge', ''), 'refs/pull/', 'pr.'), 'refs/heads/', ''), '/', '_') ]
   IS_PR: $[ startsWith(variables['REF'], 'refs/pull/') ]
   # True if this run should demand a baseline machine.
-  # Note: this expression is the same as the one in the Benchmark job; make sure it stays in sync.
   USE_BASELINE_MACHINE: $[ or(eq(variables['Build.Reason'], 'ResourceTrigger'), ${{ parameters.HISTORICAL_RUN }}) ]
   # Only upload if the provided ref is explicitly main/release-* and we've run on the baseline machine.
   # This means that main pushes will automatically upload, but we can still queue builds off of main with a specific commit in the API.
@@ -161,108 +166,110 @@ jobs:
         artifact: BuiltTypeScript
         displayName: Publish built TypeScript
 
-  - job: Benchmark
-    dependsOn: Setup
-    pool:
-      name: ts-perf-ddfun
-      # Note: this expression is the same as USE_BASELINE_MACHINE; make sure it stays in sync.
-      ${{ if or(eq(variables['Build.Reason'], 'ResourceTrigger'), parameters.HISTORICAL_RUN) }}:
-        demands: Agent.Name -equals ts-perf1
-    workspace:
-      clean: all # Always start with a clean slate.
+  - ${{ each agent in split(parameters.AGENTS, ',') }}:
+      - job: Benchmark_${{ replace(agent, '-', '_') }}
+        dependsOn: Setup
+        condition: and(succeeded(), not(eq(dependencies.Setup.outputs['generateMatrix.MATRIX_${{ replace(agent, '-', '_') }}'], '{}')))
+        pool:
+          name: ts-perf-ddfun
+          ${{ if not(eq(agent, 'any')) }}:
+            demands: Agent.Name -equals ${{ agent }}
+        workspace:
+          clean: all # Always start with a clean slate.
 
-    # https://stackoverflow.com/a/69345058
-    strategy:
-      matrix: $[ dependencies.Setup.outputs['generateMatrix.MATRIX'] ]
+        # https://stackoverflow.com/a/69345058
+        strategy:
+          matrix: $[ dependencies.Setup.outputs['generateMatrix.MATRIX_${{ replace(agent, '-', '_') }}'] ]
 
-    variables:
-      TSPERF_RUN_STARTUP: $[ or(eq(variables['TSPERF_JOB_KIND'], 'startup'), eq(variables['TSPERF_JOB_KIND'], 'all')) ]
-      BUILT_TYPESCRIPT_DIR: $(Pipeline.Workspace)/BuiltTypeScript
-      ARTIFACTS_DIR: $(Pipeline.Workspace)/artifacts
+        variables:
+          TSPERF_RUN_STARTUP: $[ or(eq(variables['TSPERF_JOB_KIND'], 'startup'), eq(variables['TSPERF_JOB_KIND'], 'all')) ]
+          BUILT_TYPESCRIPT_DIR: $(Pipeline.Workspace)/BuiltTypeScript
+          ARTIFACTS_DIR: $(Pipeline.Workspace)/artifacts
 
-    steps:
-      - task: AzureKeyVault@2
-        inputs:
-          azureSubscription: $(azureSubscription)
-          KeyVaultName: $(KeyVaultName)
-          SecretsFilter: 'tslab1-mseng-PAT'
-        displayName: Get secrets
+        steps:
+          - task: AzureKeyVault@2
+            inputs:
+              azureSubscription: $(azureSubscription)
+              KeyVaultName: $(KeyVaultName)
+              SecretsFilter: 'tslab1-mseng-PAT'
+            displayName: Get secrets
 
-      - template: templates/setup.yml
-      - template: templates/cloneAndBuildBenchmarkRepo.yml # Sets $(BENCH_SCRIPTS), $(TSPERF_EXE)
-      - template: templates/cloneInternalRepo.yml # Sets $(TSPERF_INTERNAL_SCENARIO_CONFIG_DIR)
+          - template: templates/setup.yml
+          - template: templates/cloneAndBuildBenchmarkRepo.yml # Sets $(BENCH_SCRIPTS), $(TSPERF_EXE)
+          - template: templates/cloneInternalRepo.yml # Sets $(TSPERF_INTERNAL_SCENARIO_CONFIG_DIR)
 
-      - download: current
-        artifact: BuiltTypeScript
-        displayName: Download built TypeScript
+          - download: current
+            artifact: BuiltTypeScript
+            displayName: Download built TypeScript
 
-      # This is provided by the agent.
-      - bash: |
-          set -eo pipefail
-          sudo pyperf system tune
-        displayName: Tune system
+          # This is provided by the agent.
+          - bash: |
+              set -eo pipefail
+              sudo pyperf system tune
+            displayName: Tune system
 
-      - bash: |
-          set -eo pipefail
-          node $(BENCH_SCRIPTS)/runTsPerf.js install-hosts
-        displayName: Install hosts
+          - bash: |
+              set -eo pipefail
+              node $(BENCH_SCRIPTS)/runTsPerf.js install-hosts
+            displayName: Install hosts
 
-      - bash: |
-          set -eo pipefail
-          node $(BENCH_SCRIPTS)/runTsPerf.js benchmark-tsc \
-            --builtDir $(BUILT_TYPESCRIPT_DIR)/pr \
-            --save $(ARTIFACTS_DIR)/pr_$(TSPERF_JOB_NAME).tsc.benchmark
-        displayName: Run PR tsc benchmark
-        condition: and(succeeded(), eq(variables['IS_PR'], 'true'), eq(variables['TSPERF_TSC'], 'true'))
+          - bash: |
+              set -eo pipefail
+              node $(BENCH_SCRIPTS)/runTsPerf.js benchmark-tsc \
+                --builtDir $(BUILT_TYPESCRIPT_DIR)/pr \
+                --save $(ARTIFACTS_DIR)/pr_$(TSPERF_JOB_NAME).tsc.benchmark
+            displayName: Run PR tsc benchmark
+            condition: and(succeeded(), eq(variables['IS_PR'], 'true'), eq(variables['TSPERF_TSC'], 'true'))
 
-      - bash: |
-          set -eo pipefail
-          node $(BENCH_SCRIPTS)/runTsPerf.js benchmark-tsc \
-            --builtDir $(BUILT_TYPESCRIPT_DIR)/baseline \
-            --save $(ARTIFACTS_DIR)/baseline_$(TSPERF_JOB_NAME).tsc.benchmark
-        displayName: Run baseline tsc benchmark
-        condition: and(succeeded(), eq(variables['TSPERF_TSC'], 'true'))
+          - bash: |
+              set -eo pipefail
+              node $(BENCH_SCRIPTS)/runTsPerf.js benchmark-tsc \
+                --builtDir $(BUILT_TYPESCRIPT_DIR)/baseline \
+                --save $(ARTIFACTS_DIR)/baseline_$(TSPERF_JOB_NAME).tsc.benchmark
+            displayName: Run baseline tsc benchmark
+            condition: and(succeeded(), eq(variables['TSPERF_TSC'], 'true'))
 
-      - bash: |
-          set -eo pipefail
-          node $(BENCH_SCRIPTS)/runTsPerf.js benchmark-tsserver \
-            --builtDir $(BUILT_TYPESCRIPT_DIR)/pr \
-            --save $(ARTIFACTS_DIR)/pr_$(TSPERF_JOB_NAME).tsserver.benchmark
-        displayName: Run PR tsserver benchmark
-        condition: and(succeeded(), eq(variables['IS_PR'], 'true'), eq(variables['TSPERF_TSSERVER'], 'true'))
+          - bash: |
+              set -eo pipefail
+              node $(BENCH_SCRIPTS)/runTsPerf.js benchmark-tsserver \
+                --builtDir $(BUILT_TYPESCRIPT_DIR)/pr \
+                --save $(ARTIFACTS_DIR)/pr_$(TSPERF_JOB_NAME).tsserver.benchmark
+            displayName: Run PR tsserver benchmark
+            condition: and(succeeded(), eq(variables['IS_PR'], 'true'), eq(variables['TSPERF_TSSERVER'], 'true'))
 
-      - bash: |
-          set -eo pipefail
-          node $(BENCH_SCRIPTS)/runTsPerf.js benchmark-tsserver \
-            --builtDir $(BUILT_TYPESCRIPT_DIR)/baseline \
-            --save $(ARTIFACTS_DIR)/baseline_$(TSPERF_JOB_NAME).tsserver.benchmark
-        displayName: Run baseline tsserver benchmark
-        condition: and(succeeded(), eq(variables['TSPERF_TSSERVER'], 'true'))
+          - bash: |
+              set -eo pipefail
+              node $(BENCH_SCRIPTS)/runTsPerf.js benchmark-tsserver \
+                --builtDir $(BUILT_TYPESCRIPT_DIR)/baseline \
+                --save $(ARTIFACTS_DIR)/baseline_$(TSPERF_JOB_NAME).tsserver.benchmark
+            displayName: Run baseline tsserver benchmark
+            condition: and(succeeded(), eq(variables['TSPERF_TSSERVER'], 'true'))
 
-      - bash: |
-          set -eo pipefail
-          node $(BENCH_SCRIPTS)/runTsPerf.js benchmark-startup \
-            --builtDir $(BUILT_TYPESCRIPT_DIR)/pr \
-            --save $(ARTIFACTS_DIR)/pr_$(TSPERF_JOB_NAME).startup.benchmark
-        displayName: Run PR startup benchmark
-        condition: and(succeeded(), eq(variables['IS_PR'], 'true'), eq(variables['TSPERF_STARTUP'], 'true'))
+          - bash: |
+              set -eo pipefail
+              node $(BENCH_SCRIPTS)/runTsPerf.js benchmark-startup \
+                --builtDir $(BUILT_TYPESCRIPT_DIR)/pr \
+                --save $(ARTIFACTS_DIR)/pr_$(TSPERF_JOB_NAME).startup.benchmark
+            displayName: Run PR startup benchmark
+            condition: and(succeeded(), eq(variables['IS_PR'], 'true'), eq(variables['TSPERF_STARTUP'], 'true'))
 
-      - bash: |
-          set -eo pipefail
-          node $(BENCH_SCRIPTS)/runTsPerf.js benchmark-startup \
-            --builtDir $(BUILT_TYPESCRIPT_DIR)/baseline \
-            --save $(ARTIFACTS_DIR)/baseline_$(TSPERF_JOB_NAME).startup.benchmark
-        displayName: Run baseline startup benchmark
-        condition: and(succeeded(), eq(variables['TSPERF_STARTUP'], 'true'))
+          - bash: |
+              set -eo pipefail
+              node $(BENCH_SCRIPTS)/runTsPerf.js benchmark-startup \
+                --builtDir $(BUILT_TYPESCRIPT_DIR)/baseline \
+                --save $(ARTIFACTS_DIR)/baseline_$(TSPERF_JOB_NAME).startup.benchmark
+            displayName: Run baseline startup benchmark
+            condition: and(succeeded(), eq(variables['TSPERF_STARTUP'], 'true'))
 
-      - publish: $(ARTIFACTS_DIR)
-        artifact: PartialBenchmark_$(TSPERF_JOB_NAME)
-        displayName: Publish benchmarks
+          - publish: $(ARTIFACTS_DIR)
+            artifact: PartialBenchmark_$(TSPERF_JOB_NAME)
+            displayName: Publish benchmarks
 
   - job: ProcessResults
     dependsOn:
       - Setup
-      - Benchmark
+      - ${{ each agent in split(parameters.AGENTS, ',') }}:
+          - Benchmark_${{ replace(agent, '-', '_') }}
     pool:
       vmImage: ubuntu-latest
     workspace:
@@ -463,7 +470,8 @@ jobs:
   - job: OnFailedPRRun
     dependsOn:
       - Setup
-      - Benchmark
+      - ${{ each agent in split(parameters.AGENTS, ',') }}:
+          - Benchmark_${{ replace(agent, '-', '_') }}
       - ProcessResults
     condition: and(failed(), eq(variables['IS_PR'], 'true'))
     pool:

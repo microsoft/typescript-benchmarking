@@ -1,22 +1,11 @@
 import minimist from "minimist";
 
-interface Preset {
-    tsc?: {
-        hosts: string[];
-        iterations: number;
-        scenarios: string[];
-    };
-    tsserver?: {
-        hosts: string[];
-        iterations: number;
-        scenarios: string[];
-    };
-    startup?: {
-        hosts: string[];
-        iterations: number;
-        scenarios: string[];
-    };
-}
+// Keep in sync with inventory.yml and benchmark.yml.
+type AllAgents = "ts-perf1" | "ts-perf2" | "ts-perf3" | "ts-perf4";
+// We reserve some agents so that non-baseline jobs can make progress.
+type ReserveAgent = "ts-perf4";
+type BaselineAgent = Exclude<AllAgents, ReserveAgent>;
+type Agent = "any" | AllAgents;
 
 const defaultIterations = 6;
 
@@ -29,9 +18,86 @@ const bun = "bun@1.0.15";
 const vscode = "vscode@1.82.1";
 
 // TODO(jakebailey): include used scenarioConfigDirs in matrix and avoid cloning
-const allTscScenarios = ["Angular", "Monaco", "TFS", "material-ui", "Compiler-Unions", "xstate"];
-const allTsserverScenarios = ["Compiler-UnionsTSServer", "CompilerTSServer", "xstateTSServer"];
-const allStartupScenarios = ["tsc-startup", "tsserver-startup", "tsserverlibrary-startup", "typescript-startup"];
+
+type TscScenario = typeof allTscScenarios[number];
+const allTscScenarios = [
+    "Angular",
+    "Monaco",
+    "TFS",
+    "material-ui",
+    "Compiler-Unions",
+    "xstate",
+] as const;
+
+type TsserverScenario = typeof allTsserverScenarios[number];
+const allTsserverScenarios = [
+    "Compiler-UnionsTSServer",
+    "CompilerTSServer",
+    "xstateTSServer",
+] as const;
+
+type StartupScenario = typeof allStartupScenarios[number];
+const allStartupScenarios = [
+    "tsc-startup",
+    "tsserver-startup",
+    "tsserverlibrary-startup",
+    "typescript-startup",
+] as const;
+
+type AllScenarios =
+    | TscScenario
+    | TsserverScenario
+    | StartupScenario;
+
+{
+    // Statically test that none of the scenario lists have duplicates.
+    type DuplicateScenarios =
+        | TscScenario & TsserverScenario
+        | TscScenario & StartupScenario
+        | TsserverScenario & StartupScenario;
+
+    undefined as unknown as DuplicateScenarios satisfies never;
+}
+
+type ScenarioToAgent = {
+    [key in AllScenarios]: BaselineAgent;
+};
+
+// This object maps each scenario to its baseline agent.
+// DO NOT change these; they must remain the same forever to keep benchmarks comparable.
+const scenarioToAgent = {
+    "Angular": "ts-perf1",
+    "Monaco": "ts-perf2",
+    "TFS": "ts-perf3",
+    "material-ui": "ts-perf1",
+    "Compiler-Unions": "ts-perf2",
+    "xstate": "ts-perf3",
+    "Compiler-UnionsTSServer": "ts-perf1",
+    "CompilerTSServer": "ts-perf2",
+    "xstateTSServer": "ts-perf3",
+    "tsc-startup": "ts-perf1",
+    "tsserver-startup": "ts-perf2",
+    "tsserverlibrary-startup": "ts-perf3",
+    "typescript-startup": "ts-perf1",
+} as const satisfies ScenarioToAgent;
+
+interface Preset {
+    tsc?: {
+        hosts: readonly string[];
+        iterations: number;
+        scenarios: readonly TscScenario[];
+    };
+    tsserver?: {
+        hosts: readonly string[];
+        iterations: number;
+        scenarios: readonly TsserverScenario[];
+    };
+    startup?: {
+        hosts: readonly string[];
+        iterations: number;
+        scenarios: readonly StartupScenario[];
+    };
+}
 
 // Note: keep this up to date with TSPERF_PRESET and https://github.com/microsoft/typescript-bot-test-triggerer
 const presets: Record<string, Preset | undefined> = {
@@ -125,90 +191,91 @@ function sanitizeJobName(name: string) {
     return name.replace(/[^a-zA-Z0-9_]/g, "_");
 }
 
-const matrix: Record<string, Record<string, string | number | boolean | undefined>> = {};
+function getAgentForScenario(scenario: AllScenarios): Agent {
+    return baselining ? scenarioToAgent[scenario] : "any";
+}
+
+type Matrix = {
+    [key in Agent]: {
+        [name: string]: Record<string, string | number | boolean | undefined>;
+    };
+};
+
+const matrix: Matrix = {
+    "any": {},
+    "ts-perf1": {},
+    "ts-perf2": {},
+    "ts-perf3": {},
+    "ts-perf4": {},
+};
 
 let processTsc = false;
 let processTsserver = false;
 let processStartup = false;
 
-if (baselining) {
-    // If we're baselining, it'll be much faster to run all benchmarks in one job.
-    processTsc = !!preset.tsc;
-    processTsserver = !!preset.tsserver;
-    processStartup = !!preset.startup;
-
-    matrix.all = {
-        TSPERF_JOB_NAME: "all",
-        TSPERF_TSC: processTsc,
-        TSPERF_TSC_HOSTS: preset.tsc?.hosts.join(","),
-        TSPERF_TSC_SCENARIOS: preset.tsc?.scenarios.join(","),
-        TSPERF_TSC_ITERATIONS: preset.tsc?.iterations,
-        TSPERF_TSSERVER: processTsserver,
-        TSPERF_TSSERVER_HOSTS: preset.tsserver?.hosts.join(","),
-        TSPERF_TSSERVER_SCENARIOS: preset.tsserver?.scenarios.join(","),
-        TSPERF_TSSERVER_ITERATIONS: preset.tsserver?.iterations,
-        TSPERF_STARTUP: processStartup,
-        TSPERF_STARTUP_HOSTS: preset.startup?.hosts.join(","),
-        TSPERF_STARTUP_SCENARIOS: preset.startup?.scenarios.join(","),
-        TSPERF_STARTUP_ITERATIONS: preset.startup?.iterations,
-    };
-}
-else {
-    // If we're not baselining, it should end up faster to run on as many machines as possible.
-    if (preset.tsc) {
-        for (const host of preset.tsc.hosts) {
-            for (const scenario of preset.tsc.scenarios) {
-                processTsc = true;
-                const jobName = sanitizeJobName(`tsc_${host}_${scenario}`);
-                matrix[jobName] = {
-                    TSPERF_JOB_NAME: jobName,
-                    TSPERF_TSC: true,
-                    TSPERF_TSC_HOSTS: host,
-                    TSPERF_TSC_SCENARIOS: scenario,
-                    TSPERF_TSC_ITERATIONS: preset.tsc.iterations,
-                };
-            }
-        }
-    }
-
-    if (preset.tsserver) {
-        for (const host of preset.tsserver.hosts) {
-            for (const scenario of preset.tsserver.scenarios) {
-                processTsserver = true;
-                const jobName = sanitizeJobName(`tsserver_${host}_${scenario}`);
-                matrix[jobName] = {
-                    TSPERF_JOB_NAME: jobName,
-                    TSPERF_TSSERVER: true,
-                    TSPERF_TSSERVER_HOSTS: host,
-                    TSPERF_TSSERVER_SCENARIOS: scenario,
-                    TSPERF_TSSERVER_ITERATIONS: preset.tsserver.iterations,
-                };
-            }
-        }
-    }
-
-    if (preset.startup) {
-        for (const host of preset.startup.hosts) {
-            for (const scenario of preset.startup.scenarios) {
-                processStartup = true;
-                const jobName = sanitizeJobName(`startup_${host}_${scenario}`);
-                matrix[jobName] = {
-                    TSPERF_JOB_NAME: jobName,
-                    TSPERF_STARTUP: true,
-                    TSPERF_STARTUP_HOSTS: host,
-                    TSPERF_STARTUP_SCENARIOS: scenario,
-                    TSPERF_STARTUP_ITERATIONS: preset.startup.iterations,
-                };
-            }
+if (preset.tsc) {
+    for (const host of preset.tsc.hosts) {
+        for (const scenario of preset.tsc.scenarios) {
+            processTsc = true;
+            const agent = getAgentForScenario(scenario);
+            const jobName = sanitizeJobName(`tsc_${host}_${scenario}`);
+            matrix[agent][jobName] = {
+                TSPERF_JOB_NAME: jobName,
+                TSPERF_TSC: true,
+                TSPERF_TSC_HOSTS: host,
+                TSPERF_TSC_SCENARIOS: scenario,
+                TSPERF_TSC_ITERATIONS: preset.tsc.iterations,
+            };
         }
     }
 }
 
-console.log(JSON.stringify(matrix, undefined, 4));
-console.log(`##vso[task.setvariable variable=MATRIX;isOutput=true]${JSON.stringify(matrix)}`);
+if (preset.tsserver) {
+    for (const host of preset.tsserver.hosts) {
+        for (const scenario of preset.tsserver.scenarios) {
+            processTsserver = true;
+            const agent = getAgentForScenario(scenario);
+            const jobName = sanitizeJobName(`tsserver_${host}_${scenario}`);
+            matrix[agent][jobName] = {
+                TSPERF_JOB_NAME: jobName,
+                TSPERF_TSSERVER: true,
+                TSPERF_TSSERVER_HOSTS: host,
+                TSPERF_TSSERVER_SCENARIOS: scenario,
+                TSPERF_TSSERVER_ITERATIONS: preset.tsserver.iterations,
+            };
+        }
+    }
+}
+
+if (preset.startup) {
+    for (const host of preset.startup.hosts) {
+        for (const scenario of preset.startup.scenarios) {
+            processStartup = true;
+            const agent = getAgentForScenario(scenario);
+            const jobName = sanitizeJobName(`startup_${host}_${scenario}`);
+            matrix[agent][jobName] = {
+                TSPERF_JOB_NAME: jobName,
+                TSPERF_STARTUP: true,
+                TSPERF_STARTUP_HOSTS: host,
+                TSPERF_STARTUP_SCENARIOS: scenario,
+                TSPERF_STARTUP_ITERATIONS: preset.startup.iterations,
+            };
+        }
+    }
+}
+
+function setVariable(name: string, value: string | number | boolean) {
+    console.log(`${name}=${value}`);
+    console.log(`##vso[task.setvariable variable=${name};isOutput=true]${value}`);
+}
+
+for (const [agent, value] of Object.entries(matrix)) {
+    setVariable(`MATRIX_${agent.replace(/-/g, "_")}`, JSON.stringify(value));
+    console.log(JSON.stringify(value, undefined, 4));
+}
 
 // These are outputs for the ProcessResults job, specifying which results were
 // produced above and need to be processed.
-console.log(`##vso[task.setvariable variable=TSPERF_PROCESS_TSC;isOutput=true]${processTsc}`);
-console.log(`##vso[task.setvariable variable=TSPERF_PROCESS_TSSERVER;isOutput=true]${processTsserver}`);
-console.log(`##vso[task.setvariable variable=TSPERF_PROCESS_STARTUP;isOutput=true]${processStartup}`);
+setVariable("TSPERF_PROCESS_TSC", processTsc);
+setVariable("TSPERF_PROCESS_TSSERVER", processTsserver);
+setVariable("TSPERF_PROCESS_STARTUP", processStartup);
