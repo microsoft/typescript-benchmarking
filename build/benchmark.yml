@@ -270,6 +270,7 @@ jobs:
       - Setup
       - ${{ each agent in split(parameters.AGENTS, ',') }}:
           - Benchmark_${{ replace(agent, '-', '_') }}
+    condition: not(failed()) # If any dependency was skipped, then this job would normally also be skipped.
     pool:
       vmImage: ubuntu-latest
     workspace:
