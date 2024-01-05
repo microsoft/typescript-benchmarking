@@ -8,13 +8,13 @@
         "node": ">= 18.0.0"
     },
     "devDependencies": {
-        "@types/node": "^18.19.2",
-        "@typescript-eslint/eslint-plugin": "^6.13.2",
-        "@typescript-eslint/parser": "^6.13.2",
-        "dprint": "^0.43.2",
-        "eslint": "^8.55.0",
+        "@types/node": "^18.19.4",
+        "@typescript-eslint/eslint-plugin": "^6.17.0",
+        "@typescript-eslint/parser": "^6.17.0",
+        "dprint": "^0.45.0",
+        "eslint": "^8.56.0",
         "eslint-plugin-simple-import-sort": "^10.0.0",
-        "eslint-plugin-unicorn": "^49.0.0",
+        "eslint-plugin-unicorn": "^50.0.1",
         "typescript": "^5.3.3"
     },
     "packageManager": "pnpm@8.8.0",
