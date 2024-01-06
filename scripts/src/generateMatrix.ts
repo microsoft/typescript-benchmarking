@@ -187,17 +187,16 @@ const matrix: Matrix = {
     "ts-perf4": {},
 };
 
+const toProcess = new Set<JobKind>();
+
 for (const jobKind of allJobKinds) {
     const p = preset[jobKind];
     if (!p) {
         continue;
     }
 
-    let shouldProcess = false;
-
     for (const host of p.hosts) {
         for (const scenario of p.scenarios) {
-            shouldProcess = true;
             const agent = baselining ? scenario.agent : "any";
             const jobName = sanitizeJobName(`${jobKind}_${host}_${scenario.name}`);
             matrix[agent][jobName] = {
@@ -207,15 +206,17 @@ for (const jobKind of allJobKinds) {
                 TSPERF_JOB_SCENARIOS: scenario.name,
                 TSPERF_JOB_ITERATIONS: p.iterations,
             };
+            toProcess.add(jobKind);
         }
     }
-
-    // These are outputs for the ProcessResults job, specifying which results were
-    // produced previously and need to be processed.
-    setVariable(`TSPERF_PROCESS_${jobKind.toUpperCase()}`, shouldProcess);
 }
 
 for (const [agent, value] of Object.entries(matrix)) {
     setVariable(`MATRIX_${agent.replace(/-/g, "_")}`, JSON.stringify(value));
     console.log(JSON.stringify(value, undefined, 4));
 }
+
+// These are outputs for the ProcessResults job, specifying which results were
+// produced previously and need to be processed. This is a space separated list,
+// iterated in the pipeline in bash.
+setVariable(`TSPERF_PROCESS`, [...toProcess].sort().join(" "));
