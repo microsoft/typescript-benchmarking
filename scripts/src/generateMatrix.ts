@@ -187,51 +187,35 @@ if (!preset) {
     process.exit(1);
 }
 
-type SanitizedJobName = string & { __sanitizedJobName: never; };
+type JobName = string & { __sanitizedJobName: never; };
 
-function sanitizeJobName(name: string): SanitizedJobName {
-    return name.replace(/[^a-zA-Z0-9_]/g, "_") as SanitizedJobName;
+function sanitizeJobName(name: string): JobName {
+    return name.replace(/[^a-zA-Z0-9_]/g, "_") as JobName;
 }
 
 function getAgentForScenario(scenario: AllScenarios): Agent {
     return baselining ? scenarioToAgent[scenario] : "any";
 }
 
-type JobKind = string & keyof Preset;
+function setVariable(name: string, value: string | number | boolean) {
+    console.log(`${name}=${value}`);
+    console.log(`##vso[task.setvariable variable=${name};isOutput=true]${value}`);
+}
 
-// TODO: this could just be one job kind and make the hosts/scenarios/iterations props have the same names
+const allJobKinds = ["tsc", "tsserver", "startup"] as const;
+type JobKind = typeof allJobKinds[number];
 
 interface Job {
     TSPERF_JOB_KIND: JobKind;
-    TSPERF_JOB_NAME: SanitizedJobName;
+    TSPERF_JOB_NAME: JobName;
+    TSPERF_JOB_HOSTS: string;
+    TSPERF_JOB_SCENARIOS: AllScenarios;
+    TSPERF_JOB_ITERATIONS: number;
 }
-
-interface TscJob extends Job {
-    TSPERF_JOB_KIND: "tsc";
-    TSPERF_TSC_HOSTS: string;
-    TSPERF_TSC_SCENARIOS: TscScenario;
-    TSPERF_TSC_ITERATIONS: number;
-}
-
-interface TsserverJob extends Job {
-    TSPERF_JOB_KIND: "tsserver";
-    TSPERF_TSSERVER_HOSTS: string;
-    TSPERF_TSSERVER_SCENARIOS: TsserverScenario;
-    TSPERF_TSSERVER_ITERATIONS: number;
-}
-
-interface StartupJob extends Job {
-    TSPERF_JOB_KIND: "startup";
-    TSPERF_STARTUP_HOSTS: string;
-    TSPERF_STARTUP_SCENARIOS: StartupScenario;
-    TSPERF_STARTUP_ITERATIONS: number;
-}
-
-type AnyJob = TscJob | TsserverJob | StartupJob;
 
 type Matrix = {
     [key in Agent]: {
-        [name: SanitizedJobName]: AnyJob;
+        [name: JobName]: Job;
     };
 };
 
@@ -243,73 +227,35 @@ const matrix: Matrix = {
     "ts-perf4": {},
 };
 
-let processTsc = false;
-let processTsserver = false;
-let processStartup = false;
+for (const jobKind of allJobKinds) {
+    const p = preset[jobKind];
+    if (!p) {
+        continue;
+    }
 
-if (preset.tsc) {
-    for (const host of preset.tsc.hosts) {
-        for (const scenario of preset.tsc.scenarios) {
-            processTsc = true;
+    let shouldProcess = false;
+
+    for (const host of p.hosts) {
+        for (const scenario of p.scenarios) {
+            shouldProcess = true;
             const agent = getAgentForScenario(scenario);
-            const jobName = sanitizeJobName(`tsc_${host}_${scenario}`);
+            const jobName = sanitizeJobName(`${jobKind}_${host}_${scenario}`);
             matrix[agent][jobName] = {
-                TSPERF_JOB_KIND: "tsc",
+                TSPERF_JOB_KIND: jobKind,
                 TSPERF_JOB_NAME: jobName,
-                TSPERF_TSC_HOSTS: host,
-                TSPERF_TSC_SCENARIOS: scenario,
-                TSPERF_TSC_ITERATIONS: preset.tsc.iterations,
+                TSPERF_JOB_HOSTS: host,
+                TSPERF_JOB_SCENARIOS: scenario,
+                TSPERF_JOB_ITERATIONS: p.iterations,
             };
         }
     }
-}
 
-if (preset.tsserver) {
-    for (const host of preset.tsserver.hosts) {
-        for (const scenario of preset.tsserver.scenarios) {
-            processTsserver = true;
-            const agent = getAgentForScenario(scenario);
-            const jobName = sanitizeJobName(`tsserver_${host}_${scenario}`);
-            matrix[agent][jobName] = {
-                TSPERF_JOB_KIND: "tsserver",
-                TSPERF_JOB_NAME: jobName,
-                TSPERF_TSSERVER_HOSTS: host,
-                TSPERF_TSSERVER_SCENARIOS: scenario,
-                TSPERF_TSSERVER_ITERATIONS: preset.tsserver.iterations,
-            };
-        }
-    }
-}
-
-if (preset.startup) {
-    for (const host of preset.startup.hosts) {
-        for (const scenario of preset.startup.scenarios) {
-            processStartup = true;
-            const agent = getAgentForScenario(scenario);
-            const jobName = sanitizeJobName(`startup_${host}_${scenario}`);
-            matrix[agent][jobName] = {
-                TSPERF_JOB_KIND: "startup",
-                TSPERF_JOB_NAME: jobName,
-                TSPERF_STARTUP_HOSTS: host,
-                TSPERF_STARTUP_SCENARIOS: scenario,
-                TSPERF_STARTUP_ITERATIONS: preset.startup.iterations,
-            };
-        }
-    }
-}
-
-function setVariable(name: string, value: string | number | boolean) {
-    console.log(`${name}=${value}`);
-    console.log(`##vso[task.setvariable variable=${name};isOutput=true]${value}`);
+    // These are outputs for the ProcessResults job, specifying which results were
+    // produced previously and need to be processed.
+    setVariable(`TSPERF_PROCESS_${jobKind.toUpperCase()}`, shouldProcess);
 }
 
 for (const [agent, value] of Object.entries(matrix)) {
     setVariable(`MATRIX_${agent.replace(/-/g, "_")}`, JSON.stringify(value));
     console.log(JSON.stringify(value, undefined, 4));
 }
-
-// These are outputs for the ProcessResults job, specifying which results were
-// produced above and need to be processed.
-setVariable("TSPERF_PROCESS_TSC", processTsc);
-setVariable("TSPERF_PROCESS_TSSERVER", processTsserver);
-setVariable("TSPERF_PROCESS_STARTUP", processStartup);
