@@ -199,6 +199,8 @@ function getAgentForScenario(scenario: AllScenarios): Agent {
 
 type JobKind = string & keyof Preset;
 
+// TODO: this could just be one job kind and make the hosts/scenarios/iterations props have the same names
+
 interface Job {
     TSPERF_JOB_KIND: JobKind;
     TSPERF_JOB_NAME: SanitizedJobName;
