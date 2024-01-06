@@ -187,17 +187,49 @@ if (!preset) {
     process.exit(1);
 }
 
-function sanitizeJobName(name: string) {
-    return name.replace(/[^a-zA-Z0-9_]/g, "_");
+type SanitizedJobName = string & { __sanitizedJobName: never; };
+
+function sanitizeJobName(name: string): SanitizedJobName {
+    return name.replace(/[^a-zA-Z0-9_]/g, "_") as SanitizedJobName;
 }
 
 function getAgentForScenario(scenario: AllScenarios): Agent {
     return baselining ? scenarioToAgent[scenario] : "any";
 }
 
+type JobKind = string & keyof Preset;
+
+interface Job {
+    TSPERF_JOB_KIND: JobKind;
+    TSPERF_JOB_NAME: SanitizedJobName;
+}
+
+interface TscJob extends Job {
+    TSPERF_JOB_KIND: "tsc";
+    TSPERF_TSC_HOSTS: string;
+    TSPERF_TSC_SCENARIOS: TscScenario;
+    TSPERF_TSC_ITERATIONS: number;
+}
+
+interface TsserverJob extends Job {
+    TSPERF_JOB_KIND: "tsserver";
+    TSPERF_TSSERVER_HOSTS: string;
+    TSPERF_TSSERVER_SCENARIOS: TsserverScenario;
+    TSPERF_TSSERVER_ITERATIONS: number;
+}
+
+interface StartupJob extends Job {
+    TSPERF_JOB_KIND: "startup";
+    TSPERF_STARTUP_HOSTS: string;
+    TSPERF_STARTUP_SCENARIOS: StartupScenario;
+    TSPERF_STARTUP_ITERATIONS: number;
+}
+
+type AnyJob = TscJob | TsserverJob | StartupJob;
+
 type Matrix = {
     [key in Agent]: {
-        [name: string]: Record<string, string | number | boolean | undefined>;
+        [name: SanitizedJobName]: AnyJob;
     };
 };
 
@@ -220,8 +252,8 @@ if (preset.tsc) {
             const agent = getAgentForScenario(scenario);
             const jobName = sanitizeJobName(`tsc_${host}_${scenario}`);
             matrix[agent][jobName] = {
+                TSPERF_JOB_KIND: "tsc",
                 TSPERF_JOB_NAME: jobName,
-                TSPERF_TSC: true,
                 TSPERF_TSC_HOSTS: host,
                 TSPERF_TSC_SCENARIOS: scenario,
                 TSPERF_TSC_ITERATIONS: preset.tsc.iterations,
@@ -237,8 +269,8 @@ if (preset.tsserver) {
             const agent = getAgentForScenario(scenario);
             const jobName = sanitizeJobName(`tsserver_${host}_${scenario}`);
             matrix[agent][jobName] = {
+                TSPERF_JOB_KIND: "tsserver",
                 TSPERF_JOB_NAME: jobName,
-                TSPERF_TSSERVER: true,
                 TSPERF_TSSERVER_HOSTS: host,
                 TSPERF_TSSERVER_SCENARIOS: scenario,
                 TSPERF_TSSERVER_ITERATIONS: preset.tsserver.iterations,
@@ -254,8 +286,8 @@ if (preset.startup) {
             const agent = getAgentForScenario(scenario);
             const jobName = sanitizeJobName(`startup_${host}_${scenario}`);
             matrix[agent][jobName] = {
+                TSPERF_JOB_KIND: "startup",
                 TSPERF_JOB_NAME: jobName,
-                TSPERF_STARTUP: true,
                 TSPERF_STARTUP_HOSTS: host,
                 TSPERF_STARTUP_SCENARIOS: scenario,
                 TSPERF_STARTUP_ITERATIONS: preset.startup.iterations,

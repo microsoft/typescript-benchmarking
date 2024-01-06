@@ -182,7 +182,6 @@ jobs:
           matrix: $[ dependencies.Setup.outputs['generateMatrix.MATRIX_${{ replace(agent, '-', '_') }}'] ]
 
         variables:
-          TSPERF_RUN_STARTUP: $[ or(eq(variables['TSPERF_JOB_KIND'], 'startup'), eq(variables['TSPERF_JOB_KIND'], 'all')) ]
           BUILT_TYPESCRIPT_DIR: $(Pipeline.Workspace)/BuiltTypeScript
           ARTIFACTS_DIR: $(Pipeline.Workspace)/artifacts
 
@@ -219,7 +218,7 @@ jobs:
                 --builtDir $(BUILT_TYPESCRIPT_DIR)/pr \
                 --save $(ARTIFACTS_DIR)/pr_$(TSPERF_JOB_NAME).tsc.benchmark
             displayName: Run PR tsc benchmark
-            condition: and(succeeded(), eq(variables['IS_PR'], 'true'), eq(variables['TSPERF_TSC'], 'true'))
+            condition: and(succeeded(), eq(variables['IS_PR'], 'true'), eq(variables['TSPERF_JOB_KIND'], 'tsc'))
 
           - bash: |
               set -eo pipefail
@@ -227,7 +226,7 @@ jobs:
                 --builtDir $(BUILT_TYPESCRIPT_DIR)/baseline \
                 --save $(ARTIFACTS_DIR)/baseline_$(TSPERF_JOB_NAME).tsc.benchmark
             displayName: Run baseline tsc benchmark
-            condition: and(succeeded(), eq(variables['TSPERF_TSC'], 'true'))
+            condition: and(succeeded(), eq(variables['TSPERF_JOB_KIND'], 'tsc'))
 
           - bash: |
               set -eo pipefail
@@ -235,7 +234,7 @@ jobs:
                 --builtDir $(BUILT_TYPESCRIPT_DIR)/pr \
                 --save $(ARTIFACTS_DIR)/pr_$(TSPERF_JOB_NAME).tsserver.benchmark
             displayName: Run PR tsserver benchmark
-            condition: and(succeeded(), eq(variables['IS_PR'], 'true'), eq(variables['TSPERF_TSSERVER'], 'true'))
+            condition: and(succeeded(), eq(variables['IS_PR'], 'true'), eq(variables['TSPERF_JOB_KIND'], 'tsserver'))
 
           - bash: |
               set -eo pipefail
@@ -243,7 +242,7 @@ jobs:
                 --builtDir $(BUILT_TYPESCRIPT_DIR)/baseline \
                 --save $(ARTIFACTS_DIR)/baseline_$(TSPERF_JOB_NAME).tsserver.benchmark
             displayName: Run baseline tsserver benchmark
-            condition: and(succeeded(), eq(variables['TSPERF_TSSERVER'], 'true'))
+            condition: and(succeeded(), eq(eq(variables['TSPERF_JOB_KIND'], 'tsserver'))
 
           - bash: |
               set -eo pipefail
@@ -251,7 +250,7 @@ jobs:
                 --builtDir $(BUILT_TYPESCRIPT_DIR)/pr \
                 --save $(ARTIFACTS_DIR)/pr_$(TSPERF_JOB_NAME).startup.benchmark
             displayName: Run PR startup benchmark
-            condition: and(succeeded(), eq(variables['IS_PR'], 'true'), eq(variables['TSPERF_STARTUP'], 'true'))
+            condition: and(succeeded(), eq(variables['IS_PR'], 'true'), eq(variables['TSPERF_JOB_KIND'], 'startup'))
 
           - bash: |
               set -eo pipefail
@@ -259,7 +258,7 @@ jobs:
                 --builtDir $(BUILT_TYPESCRIPT_DIR)/baseline \
                 --save $(ARTIFACTS_DIR)/baseline_$(TSPERF_JOB_NAME).startup.benchmark
             displayName: Run baseline startup benchmark
-            condition: and(succeeded(), eq(variables['TSPERF_STARTUP'], 'true'))
+            condition: and(succeeded(), eq(variables['TSPERF_JOB_KIND'], 'startup'))
 
           - publish: $(ARTIFACTS_DIR)
             artifact: PartialBenchmark_$(TSPERF_JOB_NAME)
