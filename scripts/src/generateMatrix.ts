@@ -199,7 +199,7 @@ for (const jobKind of allJobKinds) {
         for (const scenario of p.scenarios) {
             shouldProcess = true;
             const agent = baselining ? scenario.agent : "any";
-            const jobName = sanitizeJobName(`${jobKind}_${host}_${scenario}`);
+            const jobName = sanitizeJobName(`${jobKind}_${host}_${scenario.name}`);
             matrix[agent][jobName] = {
                 TSPERF_JOB_KIND: jobKind,
                 TSPERF_JOB_NAME: jobName,
