@@ -9,166 +9,133 @@ type Agent = "any" | AllAgents;
 
 const defaultIterations = 6;
 
-// This version is arbitrary (just what was latest on 2023-08-12).
-const node20 = "node@20.5.1";
-// These two versions match those found in recent VS Code versions via Electron.
-const node18 = "node@18.15.0";
-const node16 = "node@16.17.1";
-const bun = "bun@1.0.15";
-const vscode = "vscode@1.82.1";
+const hosts = {
+    // This version is arbitrary (just what was latest on 2023-08-12).
+    node20: "node@20.5.1",
+    node18: "node@18.15.0",
+    // These two versions match those found in recent VS Code versions via Electron.
+    node16: "node@16.17.1",
+    bun: "bun@1.0.15",
+    vscode: "vscode@1.82.1",
+} as const satisfies Record<string, string>;
+
+type HostName = typeof hosts[keyof typeof hosts];
+
+interface BaseScenario {
+    name: string;
+    agent: BaselineAgent;
+}
 
 // TODO(jakebailey): include used scenarioConfigDirs in matrix and avoid cloning
 
-type TscScenario = typeof allTscScenarios[number];
-const allTscScenarios = [
-    "Angular",
-    "Monaco",
-    "TFS",
-    "material-ui",
-    "Compiler-Unions",
-    "xstate",
-] as const;
+// DO NOT change the agents; they must remain the same forever to keep benchmarks comparable.
+const scenarioConfig = {
+    tsc: [
+        { name: "Angular", agent: "ts-perf1" },
+        { name: "Monaco", agent: "ts-perf2" },
+        { name: "TFS", agent: "ts-perf3" },
+        { name: "material-ui", agent: "ts-perf1" },
+        { name: "Compiler-Unions", agent: "ts-perf2" },
+        { name: "xstate", agent: "ts-perf3" },
+    ],
+    tsserver: [
+        { name: "Compiler-UnionsTSServer", agent: "ts-perf1" },
+        { name: "CompilerTSServer", agent: "ts-perf2" },
+        { name: "xstateTSServer", agent: "ts-perf3" },
+    ],
+    startup: [
+        { name: "tsc-startup", agent: "ts-perf1" },
+        { name: "tsserver-startup", agent: "ts-perf2" },
+        { name: "tsserverlibrary-startup", agent: "ts-perf3" },
+        { name: "typescript-startup", agent: "ts-perf1" },
+    ],
+} as const satisfies Record<string, readonly BaseScenario[]>;
 
-type TsserverScenario = typeof allTsserverScenarios[number];
-const allTsserverScenarios = [
-    "Compiler-UnionsTSServer",
-    "CompilerTSServer",
-    "xstateTSServer",
-] as const;
+type ScenarioConfig = typeof scenarioConfig;
 
-type StartupScenario = typeof allStartupScenarios[number];
-const allStartupScenarios = [
-    "tsc-startup",
-    "tsserver-startup",
-    "tsserverlibrary-startup",
-    "typescript-startup",
-] as const;
+type JobKind = keyof ScenarioConfig;
+const allJobKinds = Object.keys(scenarioConfig) as readonly JobKind[];
 
-type AllScenarios =
-    | TscScenario
-    | TsserverScenario
-    | StartupScenario;
+type ScenarioName = ScenarioConfig[JobKind][number]["name"];
 
-{
-    // Statically test that none of the scenario lists have duplicates.
-    type DuplicateScenarios =
-        | TscScenario & TsserverScenario
-        | TscScenario & StartupScenario
-        | TsserverScenario & StartupScenario;
-
-    undefined as unknown as DuplicateScenarios satisfies never;
-}
-
-type ScenarioToAgent = {
-    [key in AllScenarios]: BaselineAgent;
+type Preset = {
+    [K in JobKind]?: {
+        hosts: readonly HostName[];
+        iterations: number;
+        scenarios: readonly ScenarioConfig[K][number][];
+    };
 };
-
-// This object maps each scenario to its baseline agent.
-// DO NOT change these; they must remain the same forever to keep benchmarks comparable.
-const scenarioToAgent = {
-    "Angular": "ts-perf1",
-    "Monaco": "ts-perf2",
-    "TFS": "ts-perf3",
-    "material-ui": "ts-perf1",
-    "Compiler-Unions": "ts-perf2",
-    "xstate": "ts-perf3",
-    "Compiler-UnionsTSServer": "ts-perf1",
-    "CompilerTSServer": "ts-perf2",
-    "xstateTSServer": "ts-perf3",
-    "tsc-startup": "ts-perf1",
-    "tsserver-startup": "ts-perf2",
-    "tsserverlibrary-startup": "ts-perf3",
-    "typescript-startup": "ts-perf1",
-} as const satisfies ScenarioToAgent;
-
-interface Preset {
-    tsc?: {
-        hosts: readonly string[];
-        iterations: number;
-        scenarios: readonly TscScenario[];
-    };
-    tsserver?: {
-        hosts: readonly string[];
-        iterations: number;
-        scenarios: readonly TsserverScenario[];
-    };
-    startup?: {
-        hosts: readonly string[];
-        iterations: number;
-        scenarios: readonly StartupScenario[];
-    };
-}
 
 // Note: keep this up to date with TSPERF_PRESET and https://github.com/microsoft/typescript-bot-test-triggerer
 const presets: Record<string, Preset | undefined> = {
     "full": {
         tsc: {
-            hosts: [node20, node18, node16],
+            hosts: [hosts.node20, hosts.node18, hosts.node16],
             iterations: defaultIterations,
-            scenarios: allTscScenarios,
+            scenarios: scenarioConfig.tsc,
         },
         tsserver: {
-            hosts: [node16],
+            hosts: [hosts.node16],
             iterations: defaultIterations,
-            scenarios: allTsserverScenarios,
+            scenarios: scenarioConfig.tsserver,
         },
         startup: {
-            hosts: [node16],
+            hosts: [hosts.node16],
             iterations: defaultIterations,
-            scenarios: allStartupScenarios,
+            scenarios: scenarioConfig.startup,
         },
     },
     "regular": {
         tsc: {
-            hosts: [node18],
+            hosts: [hosts.node18],
             iterations: defaultIterations,
-            scenarios: allTscScenarios,
+            scenarios: scenarioConfig.tsc,
         },
         tsserver: {
-            hosts: [node18],
+            hosts: [hosts.node18],
             iterations: defaultIterations,
-            scenarios: allTsserverScenarios,
+            scenarios: scenarioConfig.tsserver,
         },
         startup: {
-            hosts: [node18],
+            hosts: [hosts.node18],
             iterations: defaultIterations,
-            scenarios: allStartupScenarios,
+            scenarios: scenarioConfig.startup,
         },
     },
     "tsc-only": {
         tsc: {
-            hosts: [node18],
+            hosts: [hosts.node18],
             iterations: defaultIterations,
-            scenarios: allTscScenarios,
+            scenarios: scenarioConfig.tsc,
         },
     },
     "bun": {
         tsc: {
-            hosts: [bun],
+            hosts: [hosts.bun],
             iterations: defaultIterations * 2,
-            scenarios: allTscScenarios,
+            scenarios: scenarioConfig.tsc,
         },
         startup: {
-            hosts: [bun],
+            hosts: [hosts.bun],
             iterations: defaultIterations,
-            scenarios: allStartupScenarios.filter(s => s !== "tsserver-startup"),
+            scenarios: scenarioConfig.startup.filter(s => s.name !== "tsserver-startup"),
         },
     },
     "vscode": {
         tsc: {
-            hosts: [vscode],
+            hosts: [hosts.vscode],
             iterations: defaultIterations,
-            scenarios: allTscScenarios,
+            scenarios: scenarioConfig.tsc,
         },
         tsserver: {
-            hosts: [vscode],
+            hosts: [hosts.vscode],
             iterations: defaultIterations,
-            scenarios: allTsserverScenarios,
+            scenarios: scenarioConfig.tsserver,
         },
         startup: {
-            hosts: [vscode],
+            hosts: [hosts.vscode],
             iterations: defaultIterations,
-            scenarios: allStartupScenarios,
+            scenarios: scenarioConfig.startup,
         },
     },
 };
@@ -193,23 +160,16 @@ function sanitizeJobName(name: string): JobName {
     return name.replace(/[^a-zA-Z0-9_]/g, "_") as JobName;
 }
 
-function getAgentForScenario(scenario: AllScenarios): Agent {
-    return baselining ? scenarioToAgent[scenario] : "any";
-}
-
 function setVariable(name: string, value: string | number | boolean) {
     console.log(`${name}=${value}`);
     console.log(`##vso[task.setvariable variable=${name};isOutput=true]${value}`);
 }
 
-const allJobKinds = ["tsc", "tsserver", "startup"] as const;
-type JobKind = typeof allJobKinds[number];
-
 interface Job {
     TSPERF_JOB_KIND: JobKind;
     TSPERF_JOB_NAME: JobName;
-    TSPERF_JOB_HOSTS: string;
-    TSPERF_JOB_SCENARIOS: AllScenarios;
+    TSPERF_JOB_HOSTS: HostName;
+    TSPERF_JOB_SCENARIOS: ScenarioName;
     TSPERF_JOB_ITERATIONS: number;
 }
 
@@ -238,13 +198,13 @@ for (const jobKind of allJobKinds) {
     for (const host of p.hosts) {
         for (const scenario of p.scenarios) {
             shouldProcess = true;
-            const agent = getAgentForScenario(scenario);
+            const agent = baselining ? scenario.agent : "any";
             const jobName = sanitizeJobName(`${jobKind}_${host}_${scenario}`);
             matrix[agent][jobName] = {
                 TSPERF_JOB_KIND: jobKind,
                 TSPERF_JOB_NAME: jobName,
                 TSPERF_JOB_HOSTS: host,
-                TSPERF_JOB_SCENARIOS: scenario,
+                TSPERF_JOB_SCENARIOS: scenario.name,
                 TSPERF_JOB_ITERATIONS: p.iterations,
             };
         }
