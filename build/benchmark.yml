@@ -243,7 +243,7 @@ jobs:
       clean: all # Always start with a clean slate.
 
     variables:
-      TSPERF_PROCESS: $[ dependencies.Setup.outputs['generateMatrix.TSPERF_PROCESS'] ]
+      TSPERF_PROCESS_KINDS: $[ dependencies.Setup.outputs['generateMatrix.TSPERF_PROCESS_KINDS'] ]
       BUILT_TYPESCRIPT_DIR: $(Pipeline.Workspace)/BuiltTypeScript
       BENCHMARKS_DIR: $(Pipeline.Workspace)/benchmarks
       MERGED_DIR: $(Pipeline.Workspace)/merged
@@ -290,7 +290,7 @@ jobs:
       - bash: |
           set -eo pipefail
 
-          for KIND in $(TSPERF_PROCESS); do
+          for KIND in $(TSPERF_PROCESS_KINDS); do
             echo "Merging ${KIND} benchmarks"
 
             node $(TSPERF_EXE) merge --output $(MERGED_DIR)/baseline.${KIND}.benchmark $(BENCHMARKS_DIR)/baseline_*.${KIND}.benchmark
@@ -346,7 +346,7 @@ jobs:
 
       - bash: |
           set -eo pipefail
-          for KIND in $(TSPERF_PROCESS); do
+          for KIND in $(TSPERF_PROCESS_KINDS); do
             echo "Uploading ${KIND} benchmarks"
             node $(BENCH_SCRIPTS)/runTsPerf.js benchmark-${KIND} \
               --builtDir $(BUILT_TYPESCRIPT_DIR)/baseline \

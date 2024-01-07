@@ -219,4 +219,4 @@ for (const [agent, value] of Object.entries(matrix)) {
 // These are outputs for the ProcessResults job, specifying which results were
 // produced previously and need to be processed. This is a space separated list,
 // iterated in the pipeline in bash.
-setVariable(`TSPERF_PROCESS`, [...toProcess].sort().join(" "));
+setVariable(`TSPERF_PROCESS_KINDS`, [...toProcess].sort().join(" "));
