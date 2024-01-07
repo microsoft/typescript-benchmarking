@@ -77,6 +77,7 @@ async function getCommonBenchmarkArgs() {
         tsperfArgs.push("--repositoryBranch", info.branch);
         tsperfArgs.push("--repositoryCommit", info.commit);
         tsperfArgs.push("--repositoryDate", info.date);
+        tsperfArgs.push("--verbose");
     }
     else {
         if (args.saveBlob) {
@@ -123,6 +124,7 @@ async function getCommonBenchmarkArgs() {
     return tsperfArgs;
 }
 
+// TODO: merge these functions into one command
 async function benchmarkTsc() {
     const builtDir = checkNonEmpty(args.builtDir, "Expected non-empty --builtDir");
     const tscPath = path.join(builtDir, "tsc.js");

@@ -150,7 +150,7 @@ const presets: Record<string, Preset | undefined> = {
     },
     "public": {
         tsc: {
-            hosts: [hosts.node18], // https://github.com/yarnpkg/yarn/issues/3728#issuecomment-1737249792
+            hosts: [hosts.node20],
             iterations: defaultIterations,
             scenarios: scenarioConfig.tsc.filter(s => s.location === "public"),
         },
