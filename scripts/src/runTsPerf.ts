@@ -59,8 +59,8 @@ async function installHosts() {
     await $`node ${tsperfExe} host install ${hostArgs}`;
 }
 
-function getLocationBasedArgs(processing: boolean) {
-    const locations = getNonEmptyEnv(processing ? "TSPERF_PROCESS_LOCATIONS" : "TSPERF_JOB_LOCATION").split(",");
+function getLocationBasedArgs(benchmarking: boolean) {
+    const locations = getNonEmptyEnv(benchmarking ? "TSPERF_JOB_LOCATION" : "TSPERF_PROCESS_LOCATIONS").split(",");
     const tsperfArgs = [];
 
     for (const location of locations) {
@@ -68,7 +68,7 @@ function getLocationBasedArgs(processing: boolean) {
         const scenarioConfigDir = getNonEmptyEnv(`TSPERF_${locationUpper}_SCENARIO_CONFIG_DIR`);
         tsperfArgs.push("--scenarioConfigDir", scenarioConfigDir);
 
-        if (!processing) {
+        if (benchmarking) {
             const suiteDir = getNonEmptyEnv(`TSPERF_${locationUpper}_SUITE_DIR`);
             tsperfArgs.push("--suite", suiteDir);
         }
