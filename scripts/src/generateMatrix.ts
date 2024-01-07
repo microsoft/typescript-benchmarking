@@ -39,7 +39,12 @@ const scenarioConfig = {
         { name: "material-ui", agent: "ts-perf1", location: "internal" },
         { name: "Compiler-Unions", agent: "ts-perf2", location: "internal" },
         { name: "xstate", agent: "ts-perf3", location: "internal" },
-        { name: "vscode", agent: "ts-perf1", location: "public", setup: "COREPACK_ENABLE_STRICT=0 npx yarn" },
+        {
+            name: "vscode",
+            agent: "ts-perf1",
+            location: "public",
+            setup: "COREPACK_ENABLE_STRICT=0 corepack yarn@1.22.21 install",
+        },
     ],
     tsserver: [
         { name: "Compiler-UnionsTSServer", agent: "ts-perf1", location: "internal" },
