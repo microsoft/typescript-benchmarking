@@ -27,6 +27,7 @@ interface BaseScenario {
     name: string;
     agent: BaselineAgent;
     location: ScenarioLocation;
+    setup?: string;
 }
 
 // DO NOT change the agents; they must remain the same forever to keep benchmarks comparable.
@@ -38,6 +39,7 @@ const scenarioConfig = {
         { name: "material-ui", agent: "ts-perf1", location: "internal" },
         { name: "Compiler-Unions", agent: "ts-perf2", location: "internal" },
         { name: "xstate", agent: "ts-perf3", location: "internal" },
+        { name: "vscode", agent: "ts-perf1", location: "public", setup: "COREPACK_ENABLE_STRICT=0 npx yarn" },
     ],
     tsserver: [
         { name: "Compiler-UnionsTSServer", agent: "ts-perf1", location: "internal" },
@@ -73,70 +75,79 @@ const presets: Record<string, Preset | undefined> = {
         tsc: {
             hosts: [hosts.node20, hosts.node18, hosts.node16],
             iterations: defaultIterations,
-            scenarios: scenarioConfig.tsc,
+            scenarios: scenarioConfig.tsc.filter(s => s.location === "internal"),
         },
         tsserver: {
             hosts: [hosts.node16],
             iterations: defaultIterations,
-            scenarios: scenarioConfig.tsserver,
+            scenarios: scenarioConfig.tsserver.filter(s => s.location === "internal"),
         },
         startup: {
             hosts: [hosts.node16],
             iterations: defaultIterations,
-            scenarios: scenarioConfig.startup,
+            scenarios: scenarioConfig.startup.filter(s => s.location === "internal"),
         },
     },
     "regular": {
         tsc: {
             hosts: [hosts.node18],
             iterations: defaultIterations,
-            scenarios: scenarioConfig.tsc,
+            scenarios: scenarioConfig.tsc.filter(s => s.location === "internal"),
         },
         tsserver: {
             hosts: [hosts.node18],
             iterations: defaultIterations,
-            scenarios: scenarioConfig.tsserver,
+            scenarios: scenarioConfig.tsserver.filter(s => s.location === "internal"),
         },
         startup: {
             hosts: [hosts.node18],
             iterations: defaultIterations,
-            scenarios: scenarioConfig.startup,
+            scenarios: scenarioConfig.startup.filter(s => s.location === "internal"),
         },
     },
     "tsc-only": {
         tsc: {
             hosts: [hosts.node18],
             iterations: defaultIterations,
-            scenarios: scenarioConfig.tsc,
+            scenarios: scenarioConfig.tsc.filter(s => s.location === "internal"),
         },
     },
     "bun": {
         tsc: {
             hosts: [hosts.bun],
             iterations: defaultIterations * 2,
-            scenarios: scenarioConfig.tsc,
+            scenarios: scenarioConfig.tsc.filter(s => s.location === "internal"),
         },
         startup: {
             hosts: [hosts.bun],
             iterations: defaultIterations,
-            scenarios: scenarioConfig.startup.filter(s => s.name !== "tsserver-startup"),
+            scenarios: scenarioConfig.startup.filter(s => s.location === "internal").filter(s =>
+                s.name !== "tsserver-startup"
+            ),
         },
     },
     "vscode": {
         tsc: {
             hosts: [hosts.vscode],
             iterations: defaultIterations,
-            scenarios: scenarioConfig.tsc,
+            scenarios: scenarioConfig.tsc.filter(s => s.location === "internal"),
         },
         tsserver: {
             hosts: [hosts.vscode],
             iterations: defaultIterations,
-            scenarios: scenarioConfig.tsserver,
+            scenarios: scenarioConfig.tsserver.filter(s => s.location === "internal"),
         },
         startup: {
             hosts: [hosts.vscode],
             iterations: defaultIterations,
-            scenarios: scenarioConfig.startup,
+            scenarios: scenarioConfig.startup.filter(s => s.location === "internal"),
+        },
+    },
+    "public": {
+        tsc: {
+            hosts: [hosts.node20],
+            iterations: defaultIterations,
+            scenarios: scenarioConfig.tsc.filter(s => s.location === "public"),
         },
     },
 };
@@ -169,10 +180,11 @@ function setVariable(name: string, value: string | number | boolean) {
 interface Job {
     TSPERF_JOB_KIND: JobKind;
     TSPERF_JOB_NAME: JobName;
-    TSPERF_JOB_HOSTS: HostName;
-    TSPERF_JOB_SCENARIOS: ScenarioName;
+    TSPERF_JOB_HOST: HostName;
+    TSPERF_JOB_SCENARIO: ScenarioName;
     TSPERF_JOB_ITERATIONS: number;
     TSPERF_JOB_LOCATION: ScenarioLocation;
+    TSPERF_JOB_SETUP: string;
 }
 
 type Matrix = {
@@ -205,10 +217,11 @@ for (const jobKind of allJobKinds) {
             matrix[agent][jobName] = {
                 TSPERF_JOB_KIND: jobKind,
                 TSPERF_JOB_NAME: jobName,
-                TSPERF_JOB_HOSTS: host,
-                TSPERF_JOB_SCENARIOS: scenario.name,
+                TSPERF_JOB_HOST: host,
+                TSPERF_JOB_SCENARIO: scenario.name,
                 TSPERF_JOB_ITERATIONS: p.iterations,
                 TSPERF_JOB_LOCATION: scenario.location,
+                TSPERF_JOB_SETUP: ("setup" in scenario ? scenario.setup : undefined) ?? "",
             };
             processKinds.add(jobKind);
             processLocations.add(scenario.location);

@@ -63,6 +63,7 @@ parameters:
       - tsc-only
       - bun
       - vscode
+      - public
     default: full # Branch pushes use the defaults, so this is set to full.
 
   - name: HISTORICAL_RUN
@@ -213,6 +214,14 @@ jobs:
               set -eo pipefail
               node $(BENCH_SCRIPTS)/runTsPerf.js install-hosts
             displayName: Install hosts
+
+          - bash: |
+              set -eo pipefail
+              git submodule update --init --depth 1 cases/solutions/$(TSPERF_JOB_SCENARIO)
+              cd cases/solutions/$(TSPERF_JOB_SCENARIO)
+              $(TSPERF_JOB_SETUP)
+            displayName: Clone and install $(TSPERF_JOB_SCENARIO) submodule
+            condition: and(succeeded(), eq(variables['TSPERF_JOB_LOCATION'], 'public'))
 
           - bash: |
               set -eo pipefail
