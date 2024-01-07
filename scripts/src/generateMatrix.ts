@@ -43,7 +43,7 @@ const scenarioConfig = {
             name: "vscode",
             agent: "ts-perf1",
             location: "public",
-            setup: "COREPACK_ENABLE_STRICT=0 corepack yarn@1.22.21 install",
+            setup: "COREPACK_ENABLE_STRICT=0 corepack yarn@1.22.21 install --ignore-scripts",
         },
     ],
     tsserver: [
