@@ -77,7 +77,7 @@ async function getCommonBenchmarkArgs() {
         tsperfArgs.push("--repositoryBranch", info.branch);
         tsperfArgs.push("--repositoryCommit", info.commit);
         tsperfArgs.push("--repositoryDate", info.date);
-        tsperfArgs.push("--verbose");
+        // tsperfArgs.push("--verbose");
     }
     else {
         if (args.saveBlob) {
