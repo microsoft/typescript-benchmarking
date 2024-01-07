@@ -1,3 +1,8 @@
+parameters:
+  - name: condition
+    type: string
+    default: 'true'
+
 steps:
   # The existence of this AzDo project/repository is not secret.
   - bash: |
@@ -8,8 +13,10 @@ steps:
       PAT: $(tslab1-mseng-PAT)
     displayName: Clone internal repo
     retryCountOnTaskFailure: 3
+    condition: and(succeeded(), ${{ parameters.condition }})
 
   - bash: |
       echo "##vso[task.setvariable variable=TSPERF_INTERNAL_SCENARIO_CONFIG_DIR]$(Pipeline.Workspace)/internal/cases/perf/scenarios"
       echo "##vso[task.setvariable variable=TSPERF_INTERNAL_SUITE_DIR]$(Pipeline.Workspace)/internal/cases/perf/solutions"
     displayName: Set internal repo variables
+    condition: and(succeeded(), ${{ parameters.condition }})
