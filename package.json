@@ -9,15 +9,15 @@
     },
     "devDependencies": {
         "@types/node": "^18.19.4",
-        "@typescript-eslint/eslint-plugin": "^6.17.0",
-        "@typescript-eslint/parser": "^6.17.0",
+        "@typescript-eslint/eslint-plugin": "^6.18.0",
+        "@typescript-eslint/parser": "^6.18.0",
         "dprint": "^0.45.0",
         "eslint": "^8.56.0",
         "eslint-plugin-simple-import-sort": "^10.0.0",
         "eslint-plugin-unicorn": "^50.0.1",
         "typescript": "^5.3.3"
     },
-    "packageManager": "pnpm@8.8.0",
+    "packageManager": "pnpm@8.14.0+sha256.9cebf61abd83f68177b29484da72da9751390eaad46dfc3072d266bfbb1ba7bf",
     "scripts": {
         "build": "pnpm run --filter './scripts' --filter './ts-perf' build"
     },
