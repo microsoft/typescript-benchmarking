@@ -23,4 +23,8 @@ steps:
       echo "##vso[task.setvariable variable=BENCH_SCRIPTS]$(Pipeline.Workspace)/typescript-benchmarking/scripts/dist"
       # TODO(jakebailey): we can resolve this directly from the scripts dir now
       echo "##vso[task.setvariable variable=TSPERF_EXE]$(Pipeline.Workspace)/typescript-benchmarking/ts-perf/bin/ts-perf"
+
+      # TODO(jakebailey): actually create these dirs, move them to more reasonable names, clone external repos as needed
+      echo "##vso[task.setvariable variable=TSPERF_PUBLIC_SCENARIO_CONFIG_DIR]$(Pipeline.Workspace)/typescript-benchmarking/cases/perf/scenarios"
+      echo "##vso[task.setvariable variable=TSPERF_PUBLIC_SUITE_DIR]$(Pipeline.Workspace)/typescript-benchmarking/cases/perf/solutions"
     displayName: Set typescript-benchmarking variables

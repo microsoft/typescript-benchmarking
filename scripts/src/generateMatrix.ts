@@ -7,6 +7,8 @@ type ReserveAgent = "ts-perf4";
 type BaselineAgent = Exclude<AllAgents, ReserveAgent>;
 type Agent = "any" | AllAgents;
 
+type ScenarioLocation = "internal" | "public";
+
 const defaultIterations = 6;
 
 const hosts = {
@@ -24,30 +26,29 @@ type HostName = typeof hosts[keyof typeof hosts];
 interface BaseScenario {
     name: string;
     agent: BaselineAgent;
+    location: ScenarioLocation;
 }
-
-// TODO(jakebailey): include used scenarioConfigDirs in matrix and avoid cloning
 
 // DO NOT change the agents; they must remain the same forever to keep benchmarks comparable.
 const scenarioConfig = {
     tsc: [
-        { name: "Angular", agent: "ts-perf1" },
-        { name: "Monaco", agent: "ts-perf2" },
-        { name: "TFS", agent: "ts-perf3" },
-        { name: "material-ui", agent: "ts-perf1" },
-        { name: "Compiler-Unions", agent: "ts-perf2" },
-        { name: "xstate", agent: "ts-perf3" },
+        { name: "Angular", agent: "ts-perf1", location: "internal" },
+        { name: "Monaco", agent: "ts-perf2", location: "internal" },
+        { name: "TFS", agent: "ts-perf3", location: "internal" },
+        { name: "material-ui", agent: "ts-perf1", location: "internal" },
+        { name: "Compiler-Unions", agent: "ts-perf2", location: "internal" },
+        { name: "xstate", agent: "ts-perf3", location: "internal" },
     ],
     tsserver: [
-        { name: "Compiler-UnionsTSServer", agent: "ts-perf1" },
-        { name: "CompilerTSServer", agent: "ts-perf2" },
-        { name: "xstateTSServer", agent: "ts-perf3" },
+        { name: "Compiler-UnionsTSServer", agent: "ts-perf1", location: "internal" },
+        { name: "CompilerTSServer", agent: "ts-perf2", location: "internal" },
+        { name: "xstateTSServer", agent: "ts-perf3", location: "internal" },
     ],
     startup: [
-        { name: "tsc-startup", agent: "ts-perf1" },
-        { name: "tsserver-startup", agent: "ts-perf2" },
-        { name: "tsserverlibrary-startup", agent: "ts-perf3" },
-        { name: "typescript-startup", agent: "ts-perf1" },
+        { name: "tsc-startup", agent: "ts-perf1", location: "internal" },
+        { name: "tsserver-startup", agent: "ts-perf2", location: "internal" },
+        { name: "tsserverlibrary-startup", agent: "ts-perf3", location: "internal" },
+        { name: "typescript-startup", agent: "ts-perf1", location: "internal" },
     ],
 } as const satisfies Record<string, readonly BaseScenario[]>;
 
@@ -171,6 +172,7 @@ interface Job {
     TSPERF_JOB_HOSTS: HostName;
     TSPERF_JOB_SCENARIOS: ScenarioName;
     TSPERF_JOB_ITERATIONS: number;
+    TSPERF_JOB_LOCATION: ScenarioLocation;
 }
 
 type Matrix = {
@@ -187,7 +189,8 @@ const matrix: Matrix = {
     "ts-perf4": {},
 };
 
-const toProcess = new Set<JobKind>();
+const processKinds = new Set<JobKind>();
+const processLocations = new Set<ScenarioLocation>();
 
 for (const jobKind of allJobKinds) {
     const p = preset[jobKind];
@@ -205,8 +208,10 @@ for (const jobKind of allJobKinds) {
                 TSPERF_JOB_HOSTS: host,
                 TSPERF_JOB_SCENARIOS: scenario.name,
                 TSPERF_JOB_ITERATIONS: p.iterations,
+                TSPERF_JOB_LOCATION: scenario.location,
             };
-            toProcess.add(jobKind);
+            processKinds.add(jobKind);
+            processLocations.add(scenario.location);
         }
     }
 }
@@ -219,4 +224,5 @@ for (const [agent, value] of Object.entries(matrix)) {
 // These are outputs for the ProcessResults job, specifying which results were
 // produced previously and need to be processed. This is a space separated list,
 // iterated in the pipeline in bash.
-setVariable(`TSPERF_PROCESS_KINDS`, [...toProcess].sort().join(" "));
+setVariable(`TSPERF_PROCESS_KINDS`, [...processKinds].sort().join(" "));
+setVariable(`TSPERF_PROCESS_LOCATIONS`, [...processLocations].sort().join(","));

@@ -1,4 +1,3 @@
-# TODO(jakebailey): avoid cloning if no internal scenario is used. Or, delete internal scenarios
 steps:
   # The existence of this AzDo project/repository is not secret.
   - bash: |
@@ -12,6 +11,5 @@ steps:
 
   - bash: |
       echo "##vso[task.setvariable variable=TSPERF_INTERNAL_SCENARIO_CONFIG_DIR]$(Pipeline.Workspace)/internal/cases/perf/scenarios"
-      # TODO(jakebailey): figure out why we need this, see ts-perf/packages/api/src/options.ts
-      echo "##vso[task.setvariable variable=TYPESCRIPT_INTERNAL_REPOSITORY]$(Pipeline.Workspace)/internal"
+      echo "##vso[task.setvariable variable=TSPERF_INTERNAL_SUITE_DIR]$(Pipeline.Workspace)/internal/cases/perf/solutions"
     displayName: Set internal repo variables
