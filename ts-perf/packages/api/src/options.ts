@@ -126,6 +126,7 @@ const startup: CommandLineOptionSet = {
             param: "directory",
             description: "Use <directory> as the built local dir (i.e. './built/local').",
         },
+        suite,
     },
 };
 
