@@ -246,6 +246,7 @@ jobs:
 
     variables:
       TSPERF_PROCESS_KINDS: $[ dependencies.Setup.outputs['generateMatrix.TSPERF_PROCESS_KINDS'] ]
+      TSPERF_PROCESS_LOCATIONS: $[ dependencies.Setup.outputs['generateMatrix.TSPERF_PROCESS_LOCATIONS'] ]
       BUILT_TYPESCRIPT_DIR: $(Pipeline.Workspace)/BuiltTypeScript
       BENCHMARKS_DIR: $(Pipeline.Workspace)/benchmarks
       MERGED_DIR: $(Pipeline.Workspace)/merged
