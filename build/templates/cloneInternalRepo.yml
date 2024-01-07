@@ -18,5 +18,6 @@ steps:
   - bash: |
       echo "##vso[task.setvariable variable=TSPERF_INTERNAL_SCENARIO_CONFIG_DIR]$(Pipeline.Workspace)/internal/cases/perf/scenarios"
       echo "##vso[task.setvariable variable=TSPERF_INTERNAL_SUITE_DIR]$(Pipeline.Workspace)/internal/cases/perf/solutions"
+      echo "##vso[task.setvariable variable=TYPESCRIPT_INTERNAL_REPOSITORY]$(Pipeline.Workspace)/internal"
     displayName: Set internal repo variables
     condition: and(succeeded(), ${{ parameters.condition }})
