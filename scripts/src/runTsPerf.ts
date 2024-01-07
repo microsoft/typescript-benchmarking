@@ -29,34 +29,10 @@ assert(fn, `Unknown subcommand ${subcommand}`);
 
 await fn();
 
-function createFlags(name: string, hostVars: (string | undefined)[]): string[] {
-    const hosts = new Set<string>();
-    for (const arg of hostVars) {
-        for (const host of arg?.split(",") ?? []) {
-            hosts.add(host);
-        }
-    }
-
-    const args = [];
-    for (const host of hosts) {
-        args.push(`--${name}`);
-        args.push(host);
-    }
-
-    return args;
-}
-
 async function installHosts() {
-    const hostArgs = createFlags(
-        "host",
-        [
-            process.env.TSPERF_TSC_HOSTS,
-            process.env.TSPERF_TSSERVER_HOSTS,
-            process.env.TSPERF_STARTUP_HOSTS,
-        ],
-    );
+    const host = getNonEmptyEnv("TSPERF_JOB_HOST");
 
-    await $`node ${tsperfExe} host install ${hostArgs}`;
+    await $`node ${tsperfExe} host install --host ${host}`;
 }
 
 function getLocationBasedArgs(benchmarking: boolean) {
@@ -84,14 +60,14 @@ async function getCommonBenchmarkArgs() {
         await $`mkdir -p ${path.dirname(args.save)}`;
         tsperfArgs.push("--save", args.save);
 
-        const hosts = getNonEmptyEnv("TSPERF_JOB_HOSTS");
-        const scenarios = getNonEmptyEnv("TSPERF_JOB_SCENARIOS");
+        const host = getNonEmptyEnv("TSPERF_JOB_HOST");
+        const scenario = getNonEmptyEnv("TSPERF_JOB_SCENARIO");
         const iterations = getNonEmptyEnv("TSPERF_JOB_ITERATIONS");
         const cpu = getNonEmptyEnv("TSPERF_AGENT_BENCHMARK_CPU");
         const info = await getRepoInfo(args.builtDir);
 
-        tsperfArgs.push(...createFlags("host", [hosts]));
-        tsperfArgs.push(...createFlags("scenario", [scenarios]));
+        tsperfArgs.push("--host", host);
+        tsperfArgs.push("--scenario", scenario);
         tsperfArgs.push("--iterations", iterations);
         tsperfArgs.push("--cpus", cpu);
 

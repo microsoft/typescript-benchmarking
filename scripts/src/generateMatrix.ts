@@ -169,8 +169,8 @@ function setVariable(name: string, value: string | number | boolean) {
 interface Job {
     TSPERF_JOB_KIND: JobKind;
     TSPERF_JOB_NAME: JobName;
-    TSPERF_JOB_HOSTS: HostName;
-    TSPERF_JOB_SCENARIOS: ScenarioName;
+    TSPERF_JOB_HOST: HostName;
+    TSPERF_JOB_SCENARIO: ScenarioName;
     TSPERF_JOB_ITERATIONS: number;
     TSPERF_JOB_LOCATION: ScenarioLocation;
 }
@@ -205,8 +205,8 @@ for (const jobKind of allJobKinds) {
             matrix[agent][jobName] = {
                 TSPERF_JOB_KIND: jobKind,
                 TSPERF_JOB_NAME: jobName,
-                TSPERF_JOB_HOSTS: host,
-                TSPERF_JOB_SCENARIOS: scenario.name,
+                TSPERF_JOB_HOST: host,
+                TSPERF_JOB_SCENARIO: scenario.name,
                 TSPERF_JOB_ITERATIONS: p.iterations,
                 TSPERF_JOB_LOCATION: scenario.location,
             };
