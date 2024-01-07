@@ -261,7 +261,9 @@ export class CommandLineArgumentsBuilder {
     addCompilerOptions(options: CompilerOptions, scenario: Scenario) {
         this.hasBuild =
             -1 !== (scenario?.args ? Math.max(scenario.args.indexOf("-b"), scenario.args.indexOf("--build")) : -1);
-        if (!this.hasBuild) {
+        // TODO(jakebailey): All of this should really be put into each scenario's configs, not hardcoded.
+        // TODO(jakebailey): Remove this special case.
+        if (!this.hasBuild && scenario.name !== "vscode") {
             this.add(
                 "--target",
                 "es5",
