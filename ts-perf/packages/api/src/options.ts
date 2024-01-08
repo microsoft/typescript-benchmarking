@@ -6,7 +6,6 @@ import { CommandLineOption, CommandLineOptionSet, CommandLineOptionSets, Command
 export interface CompilerOptions {
     tsc: string;
     suite: string;
-    full?: boolean;
     compilerOptions?: string[];
 }
 
@@ -63,10 +62,6 @@ const compiler: CommandLineOptionSet = {
             description: "Use <file> as the compiler (i.e. './built/local/tsc.js').",
         },
         suite,
-        full: {
-            type: "boolean",
-            description: "Runs the compiler with additional options.",
-        },
         compilerOptions: {
             type: "string",
             passthru: true,
