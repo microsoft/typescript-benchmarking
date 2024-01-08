@@ -59,7 +59,6 @@ export async function getRepoInfo(builtDir: string) {
     return RepoInfo.parse(parsed);
 }
 
-
 export function setOutputVariable(name: string, value: string | number | boolean) {
     console.log(`setting output ${name}=${value}`);
     console.log(`##vso[task.setvariable variable=${name};isOutput=true]${value}`);
