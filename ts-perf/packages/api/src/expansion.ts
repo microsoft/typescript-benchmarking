@@ -259,33 +259,10 @@ export class CommandLineArgumentsBuilder {
     }
 
     addCompilerOptions(options: CompilerOptions, scenario: Scenario) {
+        // TODO(jakebailey): This is a weird thing to do at this point;
+        // only one caller needs this info and this should be moved there.
         this.hasBuild =
             -1 !== (scenario?.args ? Math.max(scenario.args.indexOf("-b"), scenario.args.indexOf("--build")) : -1);
-        if (!this.hasBuild) {
-            this.add(
-                "--target",
-                "es5",
-                "--module",
-                "amd",
-            );
-            if (scenario?.singleFileOutput) {
-                this.add("--outfile", "${outDirectory}/out.js");
-            }
-            else {
-                this.add("--outdir", "${outDirectory}");
-            }
-            if (options.full) {
-                this.add(
-                    "--declaration",
-                    "--sourcemap",
-                    "--removeComments",
-                    "--mapRoot",
-                    "${maprootDirectory}",
-                    "--sourceRoot",
-                    "${sourcerootDirectory}",
-                );
-            }
-        }
 
         this.addRange(scenario?.args);
         this.addRange(options.compilerOptions);
