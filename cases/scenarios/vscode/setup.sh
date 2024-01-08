@@ -4,7 +4,7 @@ set -exo pipefail
 
 cd "${0%/*}"
 SCENARIO_NAME=$(basename $PWD)
-SOLUTION_DIR=../../solution/$SCENARIO_NAME
+SOLUTION_DIR=../../solutions/$SCENARIO_NAME
 
 git clone --filter blob:none https://github.com/microsoft/vscode.git $SOLUTION_DIR
 cd $SOLUTION_DIR
