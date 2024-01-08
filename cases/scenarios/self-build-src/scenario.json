@@ -1,0 +1,11 @@
+{
+    "name": "self-build-src",
+    "kind": "tsc",
+    "args": [
+        "-b",
+        "${suiteDirectory}/build-src/src"
+    ],
+    "platforms": [
+        "linux"
+    ]
+}

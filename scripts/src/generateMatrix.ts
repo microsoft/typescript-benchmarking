@@ -1,4 +1,5 @@
 import minimist from "minimist";
+import { setOutputVariable } from "./utils.js";
 
 // Keep in sync with inventory.yml and benchmark.yml.
 type AllAgents = "ts-perf1" | "ts-perf2" | "ts-perf3" | "ts-perf4";
@@ -39,6 +40,8 @@ const scenarioConfig = {
         { name: "Compiler-Unions", agent: "ts-perf2", location: "internal" },
         { name: "xstate", agent: "ts-perf3", location: "internal" },
         { name: "vscode", agent: "ts-perf1", location: "public" },
+        { name: "self-compiler", agent: "ts-perf2", location: "public" },
+        { name: "self-build-src", agent: "ts-perf3", location: "public" },
     ],
     tsserver: [
         { name: "Compiler-UnionsTSServer", agent: "ts-perf1", location: "internal" },
@@ -171,11 +174,6 @@ function sanitizeJobName(name: string): JobName {
     return name.replace(/[^a-zA-Z0-9_]/g, "_") as JobName;
 }
 
-function setVariable(name: string, value: string | number | boolean) {
-    console.log(`${name}=${value}`);
-    console.log(`##vso[task.setvariable variable=${name};isOutput=true]${value}`);
-}
-
 interface Job {
     TSPERF_JOB_KIND: JobKind;
     TSPERF_JOB_NAME: JobName;
@@ -227,12 +225,12 @@ for (const jobKind of allJobKinds) {
 }
 
 for (const [agent, value] of Object.entries(matrix)) {
-    setVariable(`MATRIX_${agent.replace(/-/g, "_")}`, JSON.stringify(value));
+    setOutputVariable(`MATRIX_${agent.replace(/-/g, "_")}`, JSON.stringify(value));
     console.log(JSON.stringify(value, undefined, 4));
 }
 
 // These are outputs for the ProcessResults job, specifying which results were
 // produced previously and need to be processed. This is a space separated list,
 // iterated in the pipeline in bash.
-setVariable(`TSPERF_PROCESS_KINDS`, [...processKinds].sort().join(" "));
-setVariable(`TSPERF_PROCESS_LOCATIONS`, [...processLocations].sort().join(","));
+setOutputVariable(`TSPERF_PROCESS_KINDS`, [...processKinds].sort().join(" "));
+setOutputVariable(`TSPERF_PROCESS_LOCATIONS`, [...processLocations].sort().join(","));

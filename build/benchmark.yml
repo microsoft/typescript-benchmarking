@@ -149,6 +149,7 @@ jobs:
         displayName: Build PR TypeScript
         condition: and(succeeded(), eq(variables['IS_PR'], 'true'))
         workingDirectory: $(Pipeline.Workspace)/TypeScript
+        name: buildTypeScriptPR
 
       - bash: |
           set -eo pipefail
@@ -162,6 +163,7 @@ jobs:
           node $(BENCH_SCRIPTS)/buildTypeScript.js --baseline --outputDir $(ARTIFACTS_DIR)/baseline
         displayName: Build baseline TypeScript
         workingDirectory: $(Pipeline.Workspace)/TypeScript
+        name: buildTypeScriptBaseline
 
       - publish: $(ARTIFACTS_DIR)
         artifact: BuiltTypeScript
@@ -185,6 +187,8 @@ jobs:
         variables:
           BUILT_TYPESCRIPT_DIR: $(Pipeline.Workspace)/BuiltTypeScript
           ARTIFACTS_DIR: $(Pipeline.Workspace)/artifacts
+          TYPESCRIPT_COMMIT_PR: $[ dependencies.Setup.outputs['buildTypeScriptPR.TYPESCRIPT_COMMIT'] ]
+          TYPESCRIPT_COMMIT_BASELINE: $[ dependencies.Setup.outputs['buildTypeScriptBaseline.TYPESCRIPT_COMMIT'] ]
 
         steps:
           - task: AzureKeyVault@2
@@ -217,13 +221,15 @@ jobs:
 
           - bash: |
               set -eo pipefail
+              # Special case for self benchmark
+              export TYPESCRIPT_COMMIT=$(TYPESCRIPT_COMMIT_PR)
               SETUP=$(TSPERF_PUBLIC_SCENARIO_CONFIG_DIR)/$(TSPERF_JOB_SCENARIO)/setup.sh
               if test -f $SETUP; then
                 echo "Running $SETUP"
                 bash $SETUP
               fi
-            displayName: Set up scenario
-            condition: and(succeeded(), eq(variables['TSPERF_JOB_LOCATION'], 'public'))
+            displayName: Set up scenario for PR benchmark
+            condition: and(succeeded(), eq(variables['IS_PR'], 'true'), eq(variables['TSPERF_JOB_LOCATION'], 'public'))
 
           - bash: |
               set -eo pipefail
@@ -232,6 +238,18 @@ jobs:
                 --save $(ARTIFACTS_DIR)/pr_$(TSPERF_JOB_NAME).$(TSPERF_JOB_KIND).benchmark
             displayName: Run PR $(TSPERF_JOB_KIND) benchmark
             condition: and(succeeded(), eq(variables['IS_PR'], 'true'))
+
+          - bash: |
+              set -eo pipefail
+              # Special case for self benchmark
+              export TYPESCRIPT_COMMIT=$(TYPESCRIPT_COMMIT_BASELINE)
+              SETUP=$(TSPERF_PUBLIC_SCENARIO_CONFIG_DIR)/$(TSPERF_JOB_SCENARIO)/setup.sh
+              if test -f $SETUP; then
+                echo "Running $SETUP"
+                bash $SETUP
+              fi
+            displayName: Set up scenario for baseline benchmark
+            condition: and(succeeded(), eq(variables['TSPERF_JOB_LOCATION'], 'public'))
 
           - bash: |
               set -eo pipefail
