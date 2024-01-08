@@ -5,7 +5,7 @@ import path from "node:path";
 import { $ as _$ } from "execa";
 import minimist from "minimist";
 
-import { retry } from "./utils.js";
+import { retry, setOutputVariable } from "./utils.js";
 
 const $pipe = _$({ verbose: true });
 const $ = _$({ verbose: true, stdio: "inherit" });
@@ -79,3 +79,5 @@ const outputInfo = JSON.stringify(info, undefined, 4);
 
 console.log(`Writing ${outputInfoPath} with contents:\n${outputInfo}}`);
 await fs.promises.writeFile(outputInfoPath, outputInfo);
+
+setOutputVariable("TYPESCRIPT_COMMIT", commit);

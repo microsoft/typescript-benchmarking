@@ -58,3 +58,13 @@ export async function getRepoInfo(builtDir: string) {
     const parsed = JSON.parse(await fs.promises.readFile(repoInfoPath, { encoding: "utf8" }));
     return RepoInfo.parse(parsed);
 }
+
+export function setOutputVariable(name: string, value: string | number | boolean) {
+    console.log(`setting output ${name}=${value}`);
+    console.log(`##vso[task.setvariable variable=${name};isOutput=true]${value}`);
+}
+
+export function setJobVariable(name: string, value: string | number | boolean) {
+    console.log(`setting variable ${name}=${value}`);
+    console.log(`##vso[task.setvariable variable=${name}]${value}`);
+}

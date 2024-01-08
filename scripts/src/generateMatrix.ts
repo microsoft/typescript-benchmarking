@@ -1,5 +1,7 @@
 import minimist from "minimist";
 
+import { setOutputVariable } from "./utils.js";
+
 // Keep in sync with inventory.yml and benchmark.yml.
 type AllAgents = "ts-perf1" | "ts-perf2" | "ts-perf3" | "ts-perf4";
 // We reserve some agents so that non-baseline jobs can make progress.
@@ -38,6 +40,9 @@ const scenarioConfig = {
         { name: "material-ui", agent: "ts-perf1", location: "internal" },
         { name: "Compiler-Unions", agent: "ts-perf2", location: "internal" },
         { name: "xstate", agent: "ts-perf3", location: "internal" },
+        { name: "vscode", agent: "ts-perf1", location: "public" },
+        { name: "self-compiler", agent: "ts-perf2", location: "public" },
+        { name: "self-build-src", agent: "ts-perf3", location: "public" },
     ],
     tsserver: [
         { name: "Compiler-UnionsTSServer", agent: "ts-perf1", location: "internal" },
@@ -67,76 +72,91 @@ type Preset = {
     };
 };
 
+function onlyInternal<T extends BaseScenario>(scenarios: readonly T[]): readonly T[] {
+    return scenarios.filter(s => s.location === "internal");
+}
+
+function onlyPublic<T extends BaseScenario>(scenarios: readonly T[]): readonly T[] {
+    return scenarios.filter(s => s.location === "public");
+}
+
 // Note: keep this up to date with TSPERF_PRESET and https://github.com/microsoft/typescript-bot-test-triggerer
 const presets: Record<string, Preset | undefined> = {
     "full": {
         tsc: {
             hosts: [hosts.node20, hosts.node18, hosts.node16],
             iterations: defaultIterations,
-            scenarios: scenarioConfig.tsc,
+            scenarios: onlyInternal(scenarioConfig.tsc),
         },
         tsserver: {
             hosts: [hosts.node16],
             iterations: defaultIterations,
-            scenarios: scenarioConfig.tsserver,
+            scenarios: onlyInternal(scenarioConfig.tsserver),
         },
         startup: {
             hosts: [hosts.node16],
             iterations: defaultIterations,
-            scenarios: scenarioConfig.startup,
+            scenarios: onlyInternal(scenarioConfig.startup),
         },
     },
     "regular": {
         tsc: {
             hosts: [hosts.node18],
             iterations: defaultIterations,
-            scenarios: scenarioConfig.tsc,
+            scenarios: onlyInternal(scenarioConfig.tsc),
         },
         tsserver: {
             hosts: [hosts.node18],
             iterations: defaultIterations,
-            scenarios: scenarioConfig.tsserver,
+            scenarios: onlyInternal(scenarioConfig.tsserver),
         },
         startup: {
             hosts: [hosts.node18],
             iterations: defaultIterations,
-            scenarios: scenarioConfig.startup,
+            scenarios: onlyInternal(scenarioConfig.startup),
         },
     },
     "tsc-only": {
         tsc: {
             hosts: [hosts.node18],
             iterations: defaultIterations,
-            scenarios: scenarioConfig.tsc,
+            scenarios: onlyInternal(scenarioConfig.tsc),
         },
     },
     "bun": {
         tsc: {
             hosts: [hosts.bun],
             iterations: defaultIterations * 2,
-            scenarios: scenarioConfig.tsc,
+            scenarios: onlyInternal(scenarioConfig.tsc),
         },
         startup: {
             hosts: [hosts.bun],
             iterations: defaultIterations,
-            scenarios: scenarioConfig.startup.filter(s => s.name !== "tsserver-startup"),
+            scenarios: onlyInternal(scenarioConfig.startup).filter(s => s.name !== "tsserver-startup"),
         },
     },
     "vscode": {
         tsc: {
             hosts: [hosts.vscode],
             iterations: defaultIterations,
-            scenarios: scenarioConfig.tsc,
+            scenarios: onlyInternal(scenarioConfig.tsc),
         },
         tsserver: {
             hosts: [hosts.vscode],
             iterations: defaultIterations,
-            scenarios: scenarioConfig.tsserver,
+            scenarios: onlyInternal(scenarioConfig.tsserver),
         },
         startup: {
             hosts: [hosts.vscode],
             iterations: defaultIterations,
-            scenarios: scenarioConfig.startup,
+            scenarios: onlyInternal(scenarioConfig.startup),
+        },
+    },
+    "public": {
+        tsc: {
+            hosts: [hosts.node20],
+            iterations: defaultIterations,
+            scenarios: onlyPublic(scenarioConfig.tsc),
         },
     },
 };
@@ -159,11 +179,6 @@ type JobName = string & { __sanitizedJobName: never; };
 
 function sanitizeJobName(name: string): JobName {
     return name.replace(/[^a-zA-Z0-9_]/g, "_") as JobName;
-}
-
-function setVariable(name: string, value: string | number | boolean) {
-    console.log(`${name}=${value}`);
-    console.log(`##vso[task.setvariable variable=${name};isOutput=true]${value}`);
 }
 
 interface Job {
@@ -217,12 +232,12 @@ for (const jobKind of allJobKinds) {
 }
 
 for (const [agent, value] of Object.entries(matrix)) {
-    setVariable(`MATRIX_${agent.replace(/-/g, "_")}`, JSON.stringify(value));
+    setOutputVariable(`MATRIX_${agent.replace(/-/g, "_")}`, JSON.stringify(value));
     console.log(JSON.stringify(value, undefined, 4));
 }
 
 // These are outputs for the ProcessResults job, specifying which results were
 // produced previously and need to be processed. This is a space separated list,
 // iterated in the pipeline in bash.
-setVariable(`TSPERF_PROCESS_KINDS`, [...processKinds].sort().join(" "));
-setVariable(`TSPERF_PROCESS_LOCATIONS`, [...processLocations].sort().join(","));
+setOutputVariable(`TSPERF_PROCESS_KINDS`, [...processKinds].sort().join(" "));
+setOutputVariable(`TSPERF_PROCESS_LOCATIONS`, [...processLocations].sort().join(","));

@@ -1,0 +1,13 @@
+{
+    "name": "self-compiler",
+    "kind": "tsc",
+    "args": [
+        "-p",
+        "${suiteDirectory}/self-compiler/src/compiler",
+        "--outdir",
+        "${outDirectory}"
+    ],
+    "platforms": [
+        "linux"
+    ]
+}

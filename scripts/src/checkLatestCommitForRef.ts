@@ -3,7 +3,7 @@ import assert from "node:assert";
 import { Octokit } from "@octokit/rest";
 import minimist from "minimist";
 
-import { getNonEmptyEnv, getRepoInfo } from "./utils.js";
+import { getNonEmptyEnv, getRepoInfo, setJobVariable } from "./utils.js";
 
 const auth = getNonEmptyEnv("GH_TOKEN");
 
@@ -49,4 +49,4 @@ const info = await getRepoInfo(args.builtDir);
 const ref = getNonEmptyEnv("REF");
 const isLatest = await isLatestCommitForRef(ref, info.commit);
 
-console.log(`##vso[task.setvariable variable=TSPERF_BLOB_LATEST]${isLatest}`);
+setJobVariable("TSPERF_BLOB_LATEST", isLatest);
