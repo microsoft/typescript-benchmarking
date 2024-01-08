@@ -17,7 +17,6 @@ export interface ScenarioComponents {
     default?: boolean;
     disabled?: boolean;
     platforms?: string[];
-    singleFileOutput?: boolean;
     configFile: string;
     tsserverConfig?: TSServerConfig;
 }
@@ -29,7 +28,6 @@ export class Scenario {
     public readonly default?: boolean;
     public readonly disabled?: boolean;
     public readonly platforms?: string[];
-    public readonly singleFileOutput?: boolean;
     public readonly configFile: string;
     public readonly tsserverConfig?: TSServerConfig;
 
@@ -45,7 +43,6 @@ export class Scenario {
             default?: boolean;
             disabled?: boolean;
             platforms?: string[];
-            singleFileOutput?: boolean;
             tsserverConfig?: TSServerConfig;
         },
     ) {
@@ -58,7 +55,6 @@ export class Scenario {
         this.default = options && options.default;
         this.disabled = options && options.disabled;
         this.platforms = options && options.platforms;
-        this.singleFileOutput = options && options.singleFileOutput;
         this.configFile = configFile;
         this.tsserverConfig = options && options.tsserverConfig;
     }
@@ -241,7 +237,6 @@ export class Scenario {
         const { default: default_ = this.default } = components;
         const { disabled = this.disabled } = components;
         const { platforms = this.platforms } = components;
-        const { singleFileOutput = this.singleFileOutput } = components;
         const { configFile = this.configFile } = components;
         const { tsserverConfig = this.tsserverConfig } = components;
         if (
@@ -251,7 +246,6 @@ export class Scenario {
             && this.default === default_
             && this.disabled === disabled
             && this.platforms === platforms
-            && this.singleFileOutput === singleFileOutput
             && this.configFile === configFile
         ) {
             return this;
@@ -261,7 +255,6 @@ export class Scenario {
             default: default_,
             disabled,
             platforms,
-            singleFileOutput,
             tsserverConfig,
         });
     }
@@ -278,7 +271,6 @@ export class Scenario {
             default: this.default,
             disabled: this.disabled,
             platforms: this.platforms && this.platforms.slice(),
-            singleFileOutput: this.singleFileOutput,
             tsserverConfig: this.tsserverConfig,
         };
     }
