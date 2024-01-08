@@ -8,9 +8,9 @@
         "node": ">= 18.0.0"
     },
     "devDependencies": {
-        "@types/node": "^18.19.4",
-        "@typescript-eslint/eslint-plugin": "^6.17.0",
-        "@typescript-eslint/parser": "^6.17.0",
+        "@types/node": "^18.19.5",
+        "@typescript-eslint/eslint-plugin": "^6.18.1",
+        "@typescript-eslint/parser": "^6.18.1",
         "dprint": "^0.45.0",
         "eslint": "^8.56.0",
         "eslint-plugin-simple-import-sort": "^10.0.0",
