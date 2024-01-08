@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+set -exo pipefail
+
 cd "${0%/*}"
 SCENARIO_NAME=$(basename $PWD)
 SOLUTION_DIR=../../solution/$SCENARIO_NAME
