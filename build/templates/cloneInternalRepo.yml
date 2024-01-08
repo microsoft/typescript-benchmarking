@@ -8,7 +8,7 @@ steps:
   - bash: |
       set -eo pipefail
       rm -rf $(Pipeline.Workspace)/internal
-      git clone --depth=1 https://mseng:${PAT}@mseng.visualstudio.com/Typescript/_git/Typescript $(Pipeline.Workspace)/internal
+      git clone --depth=1 -b jabaile/tsc-flags https://mseng:${PAT}@mseng.visualstudio.com/Typescript/_git/Typescript $(Pipeline.Workspace)/internal
     env:
       PAT: $(tslab1-mseng-PAT)
     displayName: Clone internal repo
