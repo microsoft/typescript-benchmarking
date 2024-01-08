@@ -1,3 +1,0 @@
-[submodule "cases/solutions/vscode"]
-	path = cases/solutions/vscode
-	url = https://github.com/microsoft/vscode.git

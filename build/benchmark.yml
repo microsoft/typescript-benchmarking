@@ -217,10 +217,12 @@ jobs:
 
           - bash: |
               set -eo pipefail
-              git submodule update --init --depth 1 cases/solutions/$(TSPERF_JOB_SCENARIO)
-              cd cases/solutions/$(TSPERF_JOB_SCENARIO)
-              $(TSPERF_JOB_SETUP)
-            displayName: Clone and install $(TSPERF_JOB_SCENARIO) submodule
+              SETUP=$(TSPERF_PUBLIC_SCENARIO_CONFIG_DIR)/$(TSPERF_JOB_SCENARIO)/setup.sh
+              if test -f $SETUP; then
+                echo "Running $SETUP"
+                bash $SETUP
+              fi
+            displayName: Set up scenario
             condition: and(succeeded(), eq(variables['TSPERF_JOB_LOCATION'], 'public'))
 
           - bash: |

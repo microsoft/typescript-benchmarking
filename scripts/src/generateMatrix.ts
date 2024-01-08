@@ -27,7 +27,6 @@ interface BaseScenario {
     name: string;
     agent: BaselineAgent;
     location: ScenarioLocation;
-    setup?: string;
 }
 
 // DO NOT change the agents; they must remain the same forever to keep benchmarks comparable.
@@ -39,12 +38,7 @@ const scenarioConfig = {
         { name: "material-ui", agent: "ts-perf1", location: "internal" },
         { name: "Compiler-Unions", agent: "ts-perf2", location: "internal" },
         { name: "xstate", agent: "ts-perf3", location: "internal" },
-        {
-            name: "vscode",
-            agent: "ts-perf1",
-            location: "public",
-            setup: "COREPACK_ENABLE_STRICT=0 corepack yarn@1.22.21 install --ignore-scripts",
-        },
+        { name: "vscode", agent: "ts-perf1", location: "public" },
     ],
     tsserver: [
         { name: "Compiler-UnionsTSServer", agent: "ts-perf1", location: "internal" },
@@ -189,7 +183,6 @@ interface Job {
     TSPERF_JOB_SCENARIO: ScenarioName;
     TSPERF_JOB_ITERATIONS: number;
     TSPERF_JOB_LOCATION: ScenarioLocation;
-    TSPERF_JOB_SETUP: string;
 }
 
 type Matrix = {
@@ -226,7 +219,6 @@ for (const jobKind of allJobKinds) {
                 TSPERF_JOB_SCENARIO: scenario.name,
                 TSPERF_JOB_ITERATIONS: p.iterations,
                 TSPERF_JOB_LOCATION: scenario.location,
-                TSPERF_JOB_SETUP: ("setup" in scenario ? scenario.setup : undefined) ?? "",
             };
             processKinds.add(jobKind);
             processLocations.add(scenario.location);
