@@ -274,17 +274,6 @@ export class CommandLineArgumentsBuilder {
             else {
                 this.add("--outdir", "${outDirectory}");
             }
-            if (options.full) {
-                this.add(
-                    "--declaration",
-                    "--sourcemap",
-                    "--removeComments",
-                    "--mapRoot",
-                    "${maprootDirectory}",
-                    "--sourceRoot",
-                    "${sourcerootDirectory}",
-                );
-            }
         }
 
         this.addRange(scenario?.args);
