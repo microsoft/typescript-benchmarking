@@ -72,85 +72,91 @@ type Preset = {
     };
 };
 
+function onlyInternal<T extends BaseScenario>(scenarios: readonly T[]): readonly T[] {
+    return scenarios.filter(s => s.location === "internal");
+}
+
+function onlyPublic<T extends BaseScenario>(scenarios: readonly T[]): readonly T[] {
+    return scenarios.filter(s => s.location === "public");
+}
+
 // Note: keep this up to date with TSPERF_PRESET and https://github.com/microsoft/typescript-bot-test-triggerer
 const presets: Record<string, Preset | undefined> = {
     "full": {
         tsc: {
             hosts: [hosts.node20, hosts.node18, hosts.node16],
             iterations: defaultIterations,
-            scenarios: scenarioConfig.tsc.filter(s => s.location === "internal"),
+            scenarios: onlyInternal(scenarioConfig.tsc),
         },
         tsserver: {
             hosts: [hosts.node16],
             iterations: defaultIterations,
-            scenarios: scenarioConfig.tsserver.filter(s => s.location === "internal"),
+            scenarios: onlyInternal(scenarioConfig.tsserver),
         },
         startup: {
             hosts: [hosts.node16],
             iterations: defaultIterations,
-            scenarios: scenarioConfig.startup.filter(s => s.location === "internal"),
+            scenarios: onlyInternal(scenarioConfig.startup),
         },
     },
     "regular": {
         tsc: {
             hosts: [hosts.node18],
             iterations: defaultIterations,
-            scenarios: scenarioConfig.tsc.filter(s => s.location === "internal"),
+            scenarios: onlyInternal(scenarioConfig.tsc),
         },
         tsserver: {
             hosts: [hosts.node18],
             iterations: defaultIterations,
-            scenarios: scenarioConfig.tsserver.filter(s => s.location === "internal"),
+            scenarios: onlyInternal(scenarioConfig.tsserver),
         },
         startup: {
             hosts: [hosts.node18],
             iterations: defaultIterations,
-            scenarios: scenarioConfig.startup.filter(s => s.location === "internal"),
+            scenarios: onlyInternal(scenarioConfig.startup),
         },
     },
     "tsc-only": {
         tsc: {
             hosts: [hosts.node18],
             iterations: defaultIterations,
-            scenarios: scenarioConfig.tsc.filter(s => s.location === "internal"),
+            scenarios: onlyInternal(scenarioConfig.tsc),
         },
     },
     "bun": {
         tsc: {
             hosts: [hosts.bun],
             iterations: defaultIterations * 2,
-            scenarios: scenarioConfig.tsc.filter(s => s.location === "internal"),
+            scenarios: onlyInternal(scenarioConfig.tsc),
         },
         startup: {
             hosts: [hosts.bun],
             iterations: defaultIterations,
-            scenarios: scenarioConfig.startup.filter(s => s.location === "internal").filter(s =>
-                s.name !== "tsserver-startup"
-            ),
+            scenarios: onlyInternal(scenarioConfig.startup).filter(s => s.name !== "tsserver-startup"),
         },
     },
     "vscode": {
         tsc: {
             hosts: [hosts.vscode],
             iterations: defaultIterations,
-            scenarios: scenarioConfig.tsc.filter(s => s.location === "internal"),
+            scenarios: onlyInternal(scenarioConfig.tsc),
         },
         tsserver: {
             hosts: [hosts.vscode],
             iterations: defaultIterations,
-            scenarios: scenarioConfig.tsserver.filter(s => s.location === "internal"),
+            scenarios: onlyInternal(scenarioConfig.tsserver),
         },
         startup: {
             hosts: [hosts.vscode],
             iterations: defaultIterations,
-            scenarios: scenarioConfig.startup.filter(s => s.location === "internal"),
+            scenarios: onlyInternal(scenarioConfig.startup),
         },
     },
     "public": {
         tsc: {
             hosts: [hosts.node20],
             iterations: defaultIterations,
-            scenarios: scenarioConfig.tsc.filter(s => s.location === "public"),
+            scenarios: onlyPublic(scenarioConfig.tsc),
         },
     },
 };
