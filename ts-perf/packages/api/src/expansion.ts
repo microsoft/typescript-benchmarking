@@ -259,6 +259,8 @@ export class CommandLineArgumentsBuilder {
     }
 
     addCompilerOptions(options: CompilerOptions, scenario: Scenario) {
+        // TODO(jakebailey): This is a weird thing to do at this point;
+        // only one caller needs this info and this should be moved there.
         this.hasBuild =
             -1 !== (scenario?.args ? Math.max(scenario.args.indexOf("-b"), scenario.args.indexOf("--build")) : -1);
 
