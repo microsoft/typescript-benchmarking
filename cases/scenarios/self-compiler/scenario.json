@@ -3,7 +3,9 @@
     "kind": "tsc",
     "args": [
         "-p",
-        "${suiteDirectory}/self-compiler/src/compiler"
+        "${suiteDirectory}/self-compiler/src/compiler",
+        "--outdir",
+        "${outDirectory}"
     ],
     "platforms": [
         "linux"

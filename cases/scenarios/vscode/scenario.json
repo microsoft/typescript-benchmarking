@@ -3,7 +3,9 @@
     "kind": "tsc",
     "args": [
         "-p",
-        "${suiteDirectory}/vscode/src"
+        "${suiteDirectory}/vscode/src",
+        "--outdir",
+        "${outDirectory}"
     ],
     "platforms": [
         "linux"
