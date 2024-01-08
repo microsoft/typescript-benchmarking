@@ -3,7 +3,7 @@
     "kind": "tsc",
     "args": [
         "-b",
-        "${suiteDirectory}/build-src/src"
+        "${suiteDirectory}/self-build-src/src"
     ],
     "platforms": [
         "linux"
