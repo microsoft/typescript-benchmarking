@@ -14,6 +14,6 @@ cd $SOLUTION_DIR
 git clean -fdx
 git reset --hard HEAD
 git fetch origin ${TYPESCRIPT_COMMIT}
-git switch --detach ${FETCH_HEAD}
+git switch --detach FETCH_HEAD
 npm ci
 npx hereby generate-diagnostics
