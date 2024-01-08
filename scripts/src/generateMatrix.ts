@@ -1,4 +1,5 @@
 import minimist from "minimist";
+
 import { setOutputVariable } from "./utils.js";
 
 // Keep in sync with inventory.yml and benchmark.yml.
