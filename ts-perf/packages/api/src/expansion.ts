@@ -261,14 +261,6 @@ export class CommandLineArgumentsBuilder {
     addCompilerOptions(options: CompilerOptions, scenario: Scenario) {
         this.hasBuild =
             -1 !== (scenario?.args ? Math.max(scenario.args.indexOf("-b"), scenario.args.indexOf("--build")) : -1);
-        if (!this.hasBuild) {
-            this.add(
-                "--target",
-                "es5",
-                "--module",
-                "amd",
-            );
-        }
 
         this.addRange(scenario?.args);
         this.addRange(options.compilerOptions);
