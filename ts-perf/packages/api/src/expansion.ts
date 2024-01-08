@@ -268,12 +268,6 @@ export class CommandLineArgumentsBuilder {
                 "--module",
                 "amd",
             );
-            if (scenario?.singleFileOutput) {
-                this.add("--outfile", "${outDirectory}/out.js");
-            }
-            else {
-                this.add("--outdir", "${outDirectory}");
-            }
         }
 
         this.addRange(scenario?.args);
