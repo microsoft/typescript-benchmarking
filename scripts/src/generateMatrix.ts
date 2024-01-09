@@ -44,6 +44,7 @@ const scenarioConfig = {
         { name: "self-compiler", agent: "ts-perf2", location: "public" },
         { name: "self-build-src", agent: "ts-perf3", location: "public" },
         { name: "mui-docs", agent: "ts-perf1", location: "public" },
+        { name: "webpack", agent: "ts-perf3", location: "public" },
     ],
     tsserver: [
         { name: "Compiler-UnionsTSServer", agent: "ts-perf1", location: "internal" },
