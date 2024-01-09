@@ -1,0 +1,13 @@
+{
+    "name": "xstate-5",
+    "kind": "tsc",
+    "args": [
+        "-p",
+        "${suiteDirectory}/xstate-5",
+        "--outdir",
+        "${outDirectory}"
+    ],
+    "platforms": [
+        "linux"
+    ]
+}
