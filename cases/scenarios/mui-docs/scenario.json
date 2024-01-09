@@ -1,0 +1,13 @@
+{
+    "name": "mui-docs",
+    "kind": "tsc",
+    "args": [
+        "-p",
+        "${suiteDirectory}/mui-docs/docs",
+        "--outdir",
+        "${outDirectory}"
+    ],
+    "platforms": [
+        "linux"
+    ]
+}
