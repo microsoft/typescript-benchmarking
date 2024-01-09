@@ -1,0 +1,13 @@
+{
+    "name": "vscode",
+    "kind": "tsc",
+    "args": [
+        "-p",
+        "${suiteDirectory}/webpack",
+        "--outdir",
+        "${outDirectory}"
+    ],
+    "platforms": [
+        "linux"
+    ]
+}
