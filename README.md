@@ -19,6 +19,9 @@ Each benchmark consists of:
 
 After these files are created, they must be added to `scenarioConfig` in `scripts/src/generateMatrix.ts` to be run in CI.
 
+> [!NOTE]
+> Benchmark capacity is limited; we may not accept all benchmarks or run them automatically in CI.
+
 ## Contributing
 
 This project welcomes contributions and suggestions. Most contributions require you to agree to a
