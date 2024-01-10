@@ -14,6 +14,7 @@ type Agent = "any" | AllAgents;
 type ScenarioLocation = "internal" | "public";
 
 const defaultIterations = 6;
+const defaultWarmups = 1;
 
 const hosts = {
     // This version is arbitrary (just what was latest on 2023-08-12).
@@ -72,6 +73,7 @@ type Preset = {
     [K in JobKind]?: {
         hosts: readonly HostName[];
         iterations: number;
+        warmups: number;
         scenarios: readonly ScenarioConfig[K][number][];
     };
 };
@@ -90,16 +92,19 @@ const presets: Record<string, Preset | undefined> = {
         tsc: {
             hosts: [hosts.node20, hosts.node18, hosts.node16],
             iterations: defaultIterations,
+            warmups: defaultWarmups,
             scenarios: onlyInternal(scenarioConfig.tsc),
         },
         tsserver: {
             hosts: [hosts.node16],
             iterations: defaultIterations,
+            warmups: defaultWarmups,
             scenarios: onlyInternal(scenarioConfig.tsserver),
         },
         startup: {
             hosts: [hosts.node16],
             iterations: defaultIterations,
+            warmups: defaultWarmups,
             scenarios: onlyInternal(scenarioConfig.startup),
         },
     },
@@ -107,16 +112,19 @@ const presets: Record<string, Preset | undefined> = {
         tsc: {
             hosts: [hosts.node18],
             iterations: defaultIterations,
+            warmups: defaultWarmups,
             scenarios: onlyInternal(scenarioConfig.tsc),
         },
         tsserver: {
             hosts: [hosts.node18],
             iterations: defaultIterations,
+            warmups: defaultWarmups,
             scenarios: onlyInternal(scenarioConfig.tsserver),
         },
         startup: {
             hosts: [hosts.node18],
             iterations: defaultIterations,
+            warmups: defaultWarmups,
             scenarios: onlyInternal(scenarioConfig.startup),
         },
     },
@@ -124,6 +132,7 @@ const presets: Record<string, Preset | undefined> = {
         tsc: {
             hosts: [hosts.node18],
             iterations: defaultIterations,
+            warmups: defaultWarmups,
             scenarios: onlyInternal(scenarioConfig.tsc),
         },
     },
@@ -131,11 +140,13 @@ const presets: Record<string, Preset | undefined> = {
         tsc: {
             hosts: [hosts.bun],
             iterations: defaultIterations * 2,
+            warmups: defaultWarmups,
             scenarios: onlyInternal(scenarioConfig.tsc),
         },
         startup: {
             hosts: [hosts.bun],
             iterations: defaultIterations,
+            warmups: defaultWarmups,
             scenarios: onlyInternal(scenarioConfig.startup).filter(s => s.name !== "tsserver-startup"),
         },
     },
@@ -143,16 +154,19 @@ const presets: Record<string, Preset | undefined> = {
         tsc: {
             hosts: [hosts.vscode],
             iterations: defaultIterations,
+            warmups: defaultWarmups,
             scenarios: onlyInternal(scenarioConfig.tsc),
         },
         tsserver: {
             hosts: [hosts.vscode],
             iterations: defaultIterations,
+            warmups: defaultWarmups,
             scenarios: onlyInternal(scenarioConfig.tsserver),
         },
         startup: {
             hosts: [hosts.vscode],
             iterations: defaultIterations,
+            warmups: defaultWarmups,
             scenarios: onlyInternal(scenarioConfig.startup),
         },
     },
@@ -160,6 +174,7 @@ const presets: Record<string, Preset | undefined> = {
         tsc: {
             hosts: [hosts.node20],
             iterations: defaultIterations,
+            warmups: defaultWarmups,
             scenarios: onlyPublic(scenarioConfig.tsc),
         },
     },
@@ -191,6 +206,7 @@ interface Job {
     TSPERF_JOB_HOST: HostName;
     TSPERF_JOB_SCENARIO: ScenarioName;
     TSPERF_JOB_ITERATIONS: number;
+    TSPERF_JOB_WARMUPS: number;
     TSPERF_JOB_LOCATION: ScenarioLocation;
 }
 
@@ -227,6 +243,7 @@ for (const jobKind of allJobKinds) {
                 TSPERF_JOB_HOST: host,
                 TSPERF_JOB_SCENARIO: scenario.name,
                 TSPERF_JOB_ITERATIONS: p.iterations,
+                TSPERF_JOB_WARMUPS: p.warmups,
                 TSPERF_JOB_LOCATION: scenario.location,
             };
             processKinds.add(jobKind);
