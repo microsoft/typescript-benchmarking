@@ -1,5 +1,5 @@
 {
-    "name": "vscode",
+    "name": "webpack",
     "kind": "tsc",
     "args": [
         "-p",
