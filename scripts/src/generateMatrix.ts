@@ -1,3 +1,5 @@
+import assert from "node:assert";
+
 import minimist from "minimist";
 
 import { setOutputVariable } from "./utils.js";
@@ -43,7 +45,9 @@ const scenarioConfig = {
         { name: "vscode", agent: "ts-perf1", location: "public" },
         { name: "self-compiler", agent: "ts-perf2", location: "public" },
         { name: "self-build-src", agent: "ts-perf3", location: "public" },
+        { name: "mui-docs", agent: "ts-perf1", location: "public" },
         { name: "xstate-5", agent: "ts-perf2", location: "public" },
+        { name: "webpack", agent: "ts-perf3", location: "public" },
     ],
     tsserver: [
         { name: "Compiler-UnionsTSServer", agent: "ts-perf1", location: "internal" },
@@ -237,8 +241,13 @@ for (const [agent, value] of Object.entries(matrix)) {
     console.log(JSON.stringify(value, undefined, 4));
 }
 
+// This defines the sort order, which is seen in PR replies; tsc is the most important and should be first.
+const kindOrder: readonly JobKind[] = ["tsc", "tsserver", "startup"];
+
+assert.deepStrictEqual([...allJobKinds].sort(), [...kindOrder].sort(), "kindOrder must contain all job kinds");
+
 // These are outputs for the ProcessResults job, specifying which results were
 // produced previously and need to be processed. This is a space separated list,
 // iterated in the pipeline in bash.
-setOutputVariable(`TSPERF_PROCESS_KINDS`, [...processKinds].sort().join(" "));
+setOutputVariable(`TSPERF_PROCESS_KINDS`, kindOrder.filter(kind => processKinds.has(kind)).join(" "));
 setOutputVariable(`TSPERF_PROCESS_LOCATIONS`, [...processLocations].sort().join(","));
