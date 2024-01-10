@@ -163,7 +163,8 @@ async function runCompilerScenario(
 
     const samples: CompilerSample[] = [];
     const numIterations = options.iterations || 5;
-    for (let i = 0; i < numIterations; i++) {
+    for (let i = 0; i < numIterations + 1; i++) {
+        const isWarmup = i === 0;
         const values: { [key: string]: number; } = Object.create(null);
         if (hasBuild) {
             const cleanProcess = spawn(clean!, cleanargs);
@@ -207,7 +208,7 @@ async function runCompilerScenario(
         }
         catch {}
 
-        if (values["Total time"]) {
+        if (!isWarmup && values["Total time"]) {
             samples.push({
                 project: name,
                 parseTime: +values["Parse time"],
@@ -274,7 +275,8 @@ async function runTSServerScenario(
     const samples: TSServerSample[] = [];
     const valueKeys = new Set<string>();
     const numIterations = options.iterations || 5;
-    for (let i = 0; i < numIterations; i++) {
+    for (let i = 0; i < numIterations + 1; i++) {
+        const isWarmup = i === 0;
         const values: { [key: string]: number; } = Object.create(null);
         const runAndParseOutput = () => {
             const childProcess = spawn(cmd!, args);
@@ -305,7 +307,9 @@ async function runTSServerScenario(
         }
         catch {}
 
-        samples.push(values);
+        if (!isWarmup) {
+            samples.push(values);
+        }
     }
 
     const metrics: { [key: string]: Value | undefined; } = Object.create(null);
@@ -367,7 +371,8 @@ async function runStartupScenario(
 
     const samples: StartupSample[] = [];
     const numIterations = options.iterations || 5;
-    for (let i = 0; i < numIterations; i++) {
+    for (let i = 0; i < numIterations + 1; i++) {
+        const isWarmup = i === 0;
         let exitCode: number | undefined;
 
         const beforeAll = performance.now();
@@ -376,9 +381,11 @@ async function runStartupScenario(
             exitCode ??= await execute();
             const after = performance.now();
 
-            samples.push({
-                executionTime: after - before,
-            });
+            if (!isWarmup) {
+                samples.push({
+                    executionTime: after - before,
+                });
+            }
         }
         const afterAll = performance.now();
 
