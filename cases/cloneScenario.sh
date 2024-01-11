@@ -8,8 +8,8 @@ set -exo pipefail
 # We're assuming that $PWD is the directory containing scenario.json.
 
 SCENARIO_REPO=$1
-SCENARIO_NAME=${SCENARIO_NAME:-$(basename $PWD)}
-SOLUTION_DIR=${SOLUTION_DIR:-../../solutions/$SCENARIO_NAME}
+SCENARIO_NAME=$(basename $PWD)
+SOLUTION_DIR=../../solutions/$SCENARIO_NAME
 
 if ! test -d $SOLUTION_DIR; then
   git clone --filter blob:none $SCENARIO_REPO $SOLUTION_DIR
