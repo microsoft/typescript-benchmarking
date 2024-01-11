@@ -1,0 +1,13 @@
+{
+    "name": "vscode-1",
+    "kind": "tsc",
+    "args": [
+        "-p",
+        "${suiteDirectory}/vscode-1/src",
+        "--outdir",
+        "${outDirectory}"
+    ],
+    "platforms": [
+        "linux"
+    ]
+}
