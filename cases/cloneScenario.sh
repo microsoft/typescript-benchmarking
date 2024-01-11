@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 # https://stackoverflow.com/a/28776166
-(return 0 2>/dev/null) && (echo "This script should be sourced, not executed."; exit 1)
+(return 0 2>/dev/null) || (echo "This script should be sourced, not executed."; exit 1)
 
 set -exo pipefail
 
