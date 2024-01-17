@@ -69,3 +69,29 @@ jobs:
           run_install: true
 
       - run: pnpm dprint check
+
+  required:
+    runs-on: ubuntu-latest
+    if: ${{ always() }}
+    needs:
+      - build
+      - test
+      - lint
+      - format
+
+    steps:
+      - name: Check required jobs
+        run: |
+          results=(
+            "${{ needs.build.result }}"
+            "${{ needs.test.result }}"
+            "${{ needs.lint.result }}"
+            "${{ needs.format.result }}"
+          )
+
+          for result in "${results[@]}"; do
+            if [[ "$result" != "success" ]]; then
+              echo "One or more jobs failed"
+              exit 1
+            fi
+          done
