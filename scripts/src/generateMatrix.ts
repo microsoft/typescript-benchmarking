@@ -250,7 +250,8 @@ export function generateMatrix(presetArg: string, baselining: boolean, log?: boo
     // produced previously and need to be processed. This is a space separated list,
     // iterated in the pipeline in bash.
     outputVariables[`TSPERF_PROCESS_KINDS`] = kindOrder.filter(kind => processKinds.has(kind)).join(" ");
-    outputVariables[`TSPERF_PROCESS_LOCATIONS`] = [...processLocations].sort().join(" ");
+    // Comma separated, parsed by runTsPerf.ts.
+    outputVariables[`TSPERF_PROCESS_LOCATIONS`] = [...processLocations].sort().join(",");
 
     return { matrix, outputVariables };
 }
