@@ -55,12 +55,12 @@ const allScenarios: readonly BaseScenario[] = [
     { kind: "tsc", name: "Compiler-Unions", agent: "ts-perf2", location: "internal", runIn: RunType.All },
     { kind: "tsc", name: "xstate", agent: "ts-perf3", location: "internal", runIn: RunType.All },
     { kind: "tsc", name: "vscode", agent: "ts-perf1", location: "public", runIn: RunType.All },
-    { kind: "tsc", name: "self-compiler", agent: "ts-perf2", location: "public", runIn: RunType.OnDemand }, // TODO(jakebailey): baseline
-    { kind: "tsc", name: "self-build-src", agent: "ts-perf3", location: "public", runIn: RunType.OnDemand }, // TODO(jakebailey): baseline
+    { kind: "tsc", name: "self-compiler", agent: "ts-perf2", location: "public", runIn: RunType.All },
+    { kind: "tsc", name: "self-build-src", agent: "ts-perf3", location: "public", runIn: RunType.All },
     { kind: "tsc", name: "mui-docs", agent: "ts-perf1", location: "public", runIn: RunType.OnDemand },
-    { kind: "tsc", name: "mui-docs-1", agent: "ts-perf1", location: "public", runIn: RunType.None }, // TODO(jakebailey): baseline
+    { kind: "tsc", name: "mui-docs-1", agent: "ts-perf1", location: "public", runIn: RunType.Baseline },
     { kind: "tsc", name: "webpack", agent: "ts-perf3", location: "public", runIn: RunType.OnDemand },
-    { kind: "tsc", name: "webpack-1", agent: "ts-perf3", location: "public", runIn: RunType.None }, // TODO(jakebailey): baseline
+    { kind: "tsc", name: "webpack-1", agent: "ts-perf3", location: "public", runIn: RunType.Baseline },
     { kind: "tsserver", name: "Compiler-UnionsTSServer", agent: "ts-perf1", location: "internal", runIn: RunType.All },
     { kind: "tsserver", name: "CompilerTSServer", agent: "ts-perf2", location: "internal", runIn: RunType.All },
     { kind: "tsserver", name: "xstateTSServer", agent: "ts-perf3", location: "internal", runIn: RunType.All },
