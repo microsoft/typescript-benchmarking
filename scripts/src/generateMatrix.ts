@@ -20,9 +20,8 @@ const defaultIterations = 6;
 const hosts = {
     // This version is arbitrary (just what was latest on 2023-08-12).
     node20: "node@20.5.1",
+    // This matches a recent VS Code version via Electron.
     node18: "node@18.15.0",
-    // These two versions match those found in recent VS Code versions via Electron.
-    node16: "node@16.17.1",
     bun: "bun@1.0.15",
     vscode: "vscode@1.82.1",
 } as const satisfies Record<string, string>;
@@ -85,7 +84,7 @@ const onDemandScenarios = allScenarios.filter(scenario => scenario.runIn & RunTy
 function* generateBaselinePreset(scenarios: readonly BaseScenario[]): Iterable<Scenario> {
     for (const scenario of scenarios) {
         if (scenario.kind === "tsc") {
-            for (const host of [hosts.node20, hosts.node18, hosts.node16]) {
+            for (const host of [hosts.node20, hosts.node18]) {
                 yield {
                     ...scenario,
                     host,
@@ -96,7 +95,7 @@ function* generateBaselinePreset(scenarios: readonly BaseScenario[]): Iterable<S
         else {
             yield {
                 ...scenario,
-                host: hosts.node16, // TODO(jakebailey): node18
+                host: hosts.node18,
                 iterations: defaultIterations,
             };
         }
