@@ -23,7 +23,8 @@
     ],
     "ignorePatterns": [
         "**/node_modules/**",
-        "**/dist/**"
+        "**/dist/**",
+        "/vitest.workspace.mjs"
     ],
     "rules": {
         // eslint
