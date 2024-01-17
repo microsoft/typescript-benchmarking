@@ -18,7 +18,6 @@ test.each(tests)("generateMatrix preset=%s baselining=%s", (preset, baselining) 
     catch (e) {
         error = e;
     }
-    expect(result?.matrix).toMatchSnapshot("matrix");
-    expect(result?.outputVariables).toMatchSnapshot("outputVariables");
+    expect(result).toMatchSnapshot("result");
     expect(error).toMatchSnapshot("error");
 });
