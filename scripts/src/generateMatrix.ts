@@ -2,6 +2,7 @@ import assert from "node:assert";
 
 import esMain from "es-main";
 import minimist from "minimist";
+import sortKeys from "sort-keys";
 
 import { setOutputVariable } from "./utils.js";
 
@@ -201,7 +202,7 @@ export function generateMatrix(presetArg: string, baselining: boolean, log?: boo
         throw new Error(`Unknown preset: ${presetArg}`);
     }
 
-    const matrix: Matrix = {
+    let matrix: Matrix = {
         "any": {},
         "ts-perf1": {},
         "ts-perf2": {},
@@ -235,6 +236,8 @@ export function generateMatrix(presetArg: string, baselining: boolean, log?: boo
             }
         }
     }
+
+    matrix = sortKeys(matrix, { deep: true });
 
     const outputVariables: Record<string, string> = {};
 
