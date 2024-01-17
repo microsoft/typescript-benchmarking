@@ -82,50 +82,31 @@ interface Scenario extends BaseScenario {
 const baselineScenarios = allScenarios.filter(scenario => scenario.runIn & RunType.Baseline);
 const onDemandScenarios = allScenarios.filter(scenario => scenario.runIn & RunType.OnDemand);
 
+function* generateBaselinePreset(scenarios: readonly BaseScenario[]): Iterable<Scenario> {
+    for (const scenario of scenarios) {
+        if (scenario.kind === "tsc") {
+            for (const host of [hosts.node20, hosts.node18, hosts.node16]) {
+                yield {
+                    ...scenario,
+                    host,
+                    iterations: defaultIterations,
+                };
+            }
+        }
+        else {
+            yield {
+                ...scenario,
+                host: hosts.node16, // TODO(jakebailey): node18
+                iterations: defaultIterations,
+            };
+        }
+    }
+}
+
 // Note: keep this up to date with TSPERF_PRESET and https://github.com/microsoft/typescript-bot-test-triggerer
 const presets = {
-    *"baseline"() {
-        for (const scenario of baselineScenarios) {
-            if (scenario.kind === "tsc") {
-                for (const host of [hosts.node20, hosts.node18, hosts.node16]) {
-                    yield {
-                        ...scenario,
-                        host,
-                        iterations: defaultIterations,
-                    };
-                }
-            }
-            else {
-                yield {
-                    ...scenario,
-                    host: hosts.node16, // TODO(jakebailey): node18
-                    iterations: defaultIterations,
-                };
-            }
-        }
-    },
-    *"full"() {
-        // This is just the `baseline` preset, but with the on demand scenarios instead.
-        // TODO(jakebailey): share code
-        for (const scenario of onDemandScenarios) {
-            if (scenario.kind === "tsc") {
-                for (const host of [hosts.node20, hosts.node18, hosts.node16]) {
-                    yield {
-                        ...scenario,
-                        host,
-                        iterations: defaultIterations,
-                    };
-                }
-            }
-            else {
-                yield {
-                    ...scenario,
-                    host: hosts.node16, // TODO(jakebailey): node18
-                    iterations: defaultIterations,
-                };
-            }
-        }
-    },
+    "baseline": () => generateBaselinePreset(baselineScenarios),
+    "full": () => generateBaselinePreset(onDemandScenarios),
     *"regular"() {
         for (const scenario of onDemandScenarios) {
             yield {
