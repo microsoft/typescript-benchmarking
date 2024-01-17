@@ -1,5 +1,6 @@
 import assert from "node:assert";
 
+import esMain from "es-main";
 import minimist from "minimist";
 
 import { setOutputVariable } from "./utils.js";
@@ -165,25 +166,18 @@ const presets: Record<string, Preset | undefined> = {
     },
 };
 
-const args = minimist(process.argv.slice(2), {
-    string: ["preset"],
-});
-
-const presetArg = args.preset;
-const baselining = (process.env.USE_BASELINE_MACHINE || "FALSE").toUpperCase() === "TRUE";
-
-const preset = presets[presetArg];
-if (!preset) {
-    // TODO(jakebailey): if "custom", build a custom matrix from arguments
-    console.error(`Unknown preset: ${presetArg}`);
-    process.exit(1);
-}
+export const allPresetNames: ReadonlySet<string> = new Set(Object.keys(presets));
 
 type JobName = string & { __sanitizedJobName: never; };
 
 function sanitizeJobName(name: string): JobName {
     return name.replace(/[^a-zA-Z0-9_]/g, "_") as JobName;
 }
+
+// This defines the sort order, which is seen in PR replies; tsc is the most important and should be first.
+const kindOrder: readonly JobKind[] = ["tsc", "tsserver", "startup"];
+
+assert.deepStrictEqual([...allJobKinds].sort(), [...kindOrder].sort(), "kindOrder must contain all job kinds");
 
 interface Job {
     TSPERF_JOB_KIND: JobKind;
@@ -200,53 +194,77 @@ type Matrix = {
     };
 };
 
-const matrix: Matrix = {
-    "any": {},
-    "ts-perf1": {},
-    "ts-perf2": {},
-    "ts-perf3": {},
-    "ts-perf4": {},
-};
-
-const processKinds = new Set<JobKind>();
-const processLocations = new Set<ScenarioLocation>();
-
-for (const jobKind of allJobKinds) {
-    const p = preset[jobKind];
-    if (!p) {
-        continue;
+export function generateMatrix(presetArg: string, baselining: boolean, log?: boolean) {
+    const preset = presets[presetArg];
+    if (!preset) {
+        // TODO(jakebailey): if "custom", build a custom matrix from arguments
+        throw new Error(`Unknown preset: ${presetArg}`);
     }
 
-    for (const host of p.hosts) {
-        for (const scenario of p.scenarios) {
-            const agent = baselining ? scenario.agent : "any";
-            const jobName = sanitizeJobName(`${jobKind}_${host}_${scenario.name}`);
-            matrix[agent][jobName] = {
-                TSPERF_JOB_KIND: jobKind,
-                TSPERF_JOB_NAME: jobName,
-                TSPERF_JOB_HOST: host,
-                TSPERF_JOB_SCENARIO: scenario.name,
-                TSPERF_JOB_ITERATIONS: p.iterations,
-                TSPERF_JOB_LOCATION: scenario.location,
-            };
-            processKinds.add(jobKind);
-            processLocations.add(scenario.location);
+    const matrix: Matrix = {
+        "any": {},
+        "ts-perf1": {},
+        "ts-perf2": {},
+        "ts-perf3": {},
+        "ts-perf4": {},
+    };
+
+    const processKinds = new Set<JobKind>();
+    const processLocations = new Set<ScenarioLocation>();
+
+    for (const jobKind of allJobKinds) {
+        const p = preset[jobKind];
+        if (!p) {
+            continue;
+        }
+
+        for (const host of p.hosts) {
+            for (const scenario of p.scenarios) {
+                const agent = baselining ? scenario.agent : "any";
+                const jobName = sanitizeJobName(`${jobKind}_${host}_${scenario.name}`);
+                matrix[agent][jobName] = {
+                    TSPERF_JOB_KIND: jobKind,
+                    TSPERF_JOB_NAME: jobName,
+                    TSPERF_JOB_HOST: host,
+                    TSPERF_JOB_SCENARIO: scenario.name,
+                    TSPERF_JOB_ITERATIONS: p.iterations,
+                    TSPERF_JOB_LOCATION: scenario.location,
+                };
+                processKinds.add(jobKind);
+                processLocations.add(scenario.location);
+            }
         }
     }
+
+    const outputVariables: Record<string, string> = {};
+
+    for (const [agent, value] of Object.entries(matrix)) {
+        const sanitizedAgent = agent.replace(/-/g, "_");
+        outputVariables[`MATRIX_${sanitizedAgent}`] = JSON.stringify(value);
+        if (log) {
+            console.log(sanitizedAgent, JSON.stringify(value, undefined, 4));
+        }
+    }
+
+    // These are outputs for the ProcessResults job, specifying which results were
+    // produced previously and need to be processed. This is a space separated list,
+    // iterated in the pipeline in bash.
+    outputVariables[`TSPERF_PROCESS_KINDS`] = kindOrder.filter(kind => processKinds.has(kind)).join(" ");
+    outputVariables[`TSPERF_PROCESS_LOCATIONS`] = [...processLocations].sort().join(" ");
+
+    return { matrix, outputVariables };
 }
 
-for (const [agent, value] of Object.entries(matrix)) {
-    setOutputVariable(`MATRIX_${agent.replace(/-/g, "_")}`, JSON.stringify(value));
-    console.log(JSON.stringify(value, undefined, 4));
+if (esMain(import.meta)) {
+    const args = minimist(process.argv.slice(2), {
+        string: ["preset"],
+    });
+
+    const presetArg = args.preset;
+    const baselining = (process.env.USE_BASELINE_MACHINE || "FALSE").toUpperCase() === "TRUE";
+
+    const { outputVariables } = generateMatrix(presetArg, baselining, true);
+    for (const [key, value] of Object.entries(outputVariables)) {
+        setOutputVariable(key, value);
+    }
 }
-
-// This defines the sort order, which is seen in PR replies; tsc is the most important and should be first.
-const kindOrder: readonly JobKind[] = ["tsc", "tsserver", "startup"];
-
-assert.deepStrictEqual([...allJobKinds].sort(), [...kindOrder].sort(), "kindOrder must contain all job kinds");
-
-// These are outputs for the ProcessResults job, specifying which results were
-// produced previously and need to be processed. This is a space separated list,
-// iterated in the pipeline in bash.
-setOutputVariable(`TSPERF_PROCESS_KINDS`, kindOrder.filter(kind => processKinds.has(kind)).join(" "));
-setOutputVariable(`TSPERF_PROCESS_LOCATIONS`, [...processLocations].sort().join(","));
