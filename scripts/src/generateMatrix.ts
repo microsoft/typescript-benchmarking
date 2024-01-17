@@ -29,143 +29,171 @@ const hosts = {
 
 type HostName = typeof hosts[keyof typeof hosts];
 
+const allJobKinds = ["tsc", "tsserver", "startup"] as const;
+type JobKind = typeof allJobKinds[number];
+
+const enum RunType {
+    None = 0,
+    Baseline = 1 << 0,
+    OnDemand = 1 << 1,
+    All = -1,
+}
+
 interface BaseScenario {
-    name: string;
-    agent: BaselineAgent;
-    location: ScenarioLocation;
+    readonly kind: JobKind;
+    readonly name: string;
+    readonly agent: BaselineAgent;
+    readonly location: ScenarioLocation;
+    readonly runIn: RunType;
 }
 
 // DO NOT change the agents; they must remain the same forever to keep benchmarks comparable.
-const scenarioConfig = {
-    tsc: [
-        { name: "Angular", agent: "ts-perf1", location: "internal" },
-        { name: "Monaco", agent: "ts-perf2", location: "internal" },
-        { name: "TFS", agent: "ts-perf3", location: "internal" },
-        { name: "material-ui", agent: "ts-perf1", location: "internal" },
-        { name: "Compiler-Unions", agent: "ts-perf2", location: "internal" },
-        { name: "xstate", agent: "ts-perf3", location: "internal" },
-        { name: "vscode", agent: "ts-perf1", location: "public" },
-        { name: "self-compiler", agent: "ts-perf2", location: "public" },
-        { name: "self-build-src", agent: "ts-perf3", location: "public" },
-        { name: "mui-docs", agent: "ts-perf1", location: "public" },
-        { name: "webpack", agent: "ts-perf3", location: "public" },
-    ],
-    tsserver: [
-        { name: "Compiler-UnionsTSServer", agent: "ts-perf1", location: "internal" },
-        { name: "CompilerTSServer", agent: "ts-perf2", location: "internal" },
-        { name: "xstateTSServer", agent: "ts-perf3", location: "internal" },
-    ],
-    startup: [
-        { name: "tsc-startup", agent: "ts-perf1", location: "internal" },
-        { name: "tsserver-startup", agent: "ts-perf2", location: "internal" },
-        { name: "tsserverlibrary-startup", agent: "ts-perf3", location: "internal" },
-        { name: "typescript-startup", agent: "ts-perf1", location: "internal" },
-    ],
-} as const satisfies Record<string, readonly BaseScenario[]>;
+const allScenarios: readonly BaseScenario[] = [
+    { kind: "tsc", name: "Angular", agent: "ts-perf1", location: "internal", runIn: RunType.All },
+    { kind: "tsc", name: "Monaco", agent: "ts-perf2", location: "internal", runIn: RunType.All },
+    { kind: "tsc", name: "TFS", agent: "ts-perf3", location: "internal", runIn: RunType.All },
+    { kind: "tsc", name: "material-ui", agent: "ts-perf1", location: "internal", runIn: RunType.All },
+    { kind: "tsc", name: "Compiler-Unions", agent: "ts-perf2", location: "internal", runIn: RunType.All },
+    { kind: "tsc", name: "xstate", agent: "ts-perf3", location: "internal", runIn: RunType.All },
+    { kind: "tsc", name: "vscode", agent: "ts-perf1", location: "public", runIn: RunType.All },
+    { kind: "tsc", name: "self-compiler", agent: "ts-perf2", location: "public", runIn: RunType.OnDemand }, // TODO(jakebailey): baseline
+    { kind: "tsc", name: "self-build-src", agent: "ts-perf3", location: "public", runIn: RunType.OnDemand }, // TODO(jakebailey): baseline
+    { kind: "tsc", name: "mui-docs", agent: "ts-perf1", location: "public", runIn: RunType.OnDemand },
+    { kind: "tsc", name: "mui-docs-1", agent: "ts-perf1", location: "public", runIn: RunType.None }, // TODO(jakebailey): baseline
+    { kind: "tsc", name: "webpack", agent: "ts-perf3", location: "public", runIn: RunType.OnDemand },
+    { kind: "tsc", name: "webpack-1", agent: "ts-perf3", location: "public", runIn: RunType.None }, // TODO(jakebailey): baseline
+    { kind: "tsserver", name: "Compiler-UnionsTSServer", agent: "ts-perf1", location: "internal", runIn: RunType.All },
+    { kind: "tsserver", name: "CompilerTSServer", agent: "ts-perf2", location: "internal", runIn: RunType.All },
+    { kind: "tsserver", name: "xstateTSServer", agent: "ts-perf3", location: "internal", runIn: RunType.All },
+    { kind: "startup", name: "tsc-startup", agent: "ts-perf1", location: "internal", runIn: RunType.All },
+    { kind: "startup", name: "tsserver-startup", agent: "ts-perf2", location: "internal", runIn: RunType.All },
+    { kind: "startup", name: "tsserverlibrary-startup", agent: "ts-perf3", location: "internal", runIn: RunType.All },
+    { kind: "startup", name: "typescript-startup", agent: "ts-perf1", location: "internal", runIn: RunType.All },
+];
 
-type ScenarioConfig = typeof scenarioConfig;
+type ScenarioName = typeof allScenarios[number]["name"];
 
-type JobKind = keyof ScenarioConfig;
-const allJobKinds = Object.keys(scenarioConfig) as readonly JobKind[];
-
-type ScenarioName = ScenarioConfig[JobKind][number]["name"];
-
-type Preset = {
-    [K in JobKind]?: {
-        hosts: readonly HostName[];
-        iterations: number;
-        scenarios: readonly ScenarioConfig[K][number][];
-    };
-};
-
-function onlyInternal<T extends BaseScenario>(scenarios: readonly T[]): readonly T[] {
-    return scenarios.filter(s => s.location === "internal");
+interface Scenario extends BaseScenario {
+    readonly name: ScenarioName;
+    readonly host: HostName;
+    readonly iterations: number;
 }
 
-function onlyPublic<T extends BaseScenario>(scenarios: readonly T[]): readonly T[] {
-    return scenarios.filter(s => s.location === "public");
-}
+const baselineScenarios = allScenarios.filter(scenario => scenario.runIn & RunType.Baseline);
+const onDemandScenarios = allScenarios.filter(scenario => scenario.runIn & RunType.OnDemand);
 
 // Note: keep this up to date with TSPERF_PRESET and https://github.com/microsoft/typescript-bot-test-triggerer
-const presets: Record<string, Preset | undefined> = {
-    "full": {
-        tsc: {
-            hosts: [hosts.node20, hosts.node18, hosts.node16],
-            iterations: defaultIterations,
-            scenarios: onlyInternal(scenarioConfig.tsc),
-        },
-        tsserver: {
-            hosts: [hosts.node16],
-            iterations: defaultIterations,
-            scenarios: onlyInternal(scenarioConfig.tsserver),
-        },
-        startup: {
-            hosts: [hosts.node16],
-            iterations: defaultIterations,
-            scenarios: onlyInternal(scenarioConfig.startup),
-        },
+const presets = {
+    *"baseline"() {
+        for (const scenario of baselineScenarios) {
+            if (scenario.kind === "tsc") {
+                for (const host of [hosts.node20, hosts.node18, hosts.node16]) {
+                    yield {
+                        ...scenario,
+                        host,
+                        iterations: defaultIterations,
+                    };
+                }
+            }
+            else {
+                yield {
+                    ...scenario,
+                    host: hosts.node16, // TODO(jakebailey): node18
+                    iterations: defaultIterations,
+                };
+            }
+        }
     },
-    "regular": {
-        tsc: {
-            hosts: [hosts.node18],
-            iterations: defaultIterations,
-            scenarios: onlyInternal(scenarioConfig.tsc),
-        },
-        tsserver: {
-            hosts: [hosts.node18],
-            iterations: defaultIterations,
-            scenarios: onlyInternal(scenarioConfig.tsserver),
-        },
-        startup: {
-            hosts: [hosts.node18],
-            iterations: defaultIterations,
-            scenarios: onlyInternal(scenarioConfig.startup),
-        },
+    *"full"() {
+        // This is just the `baseline` preset, but with the on demand scenarios instead.
+        // TODO(jakebailey): share code
+        for (const scenario of onDemandScenarios) {
+            if (scenario.kind === "tsc") {
+                for (const host of [hosts.node20, hosts.node18, hosts.node16]) {
+                    yield {
+                        ...scenario,
+                        host,
+                        iterations: defaultIterations,
+                    };
+                }
+            }
+            else {
+                yield {
+                    ...scenario,
+                    host: hosts.node16, // TODO(jakebailey): node18
+                    iterations: defaultIterations,
+                };
+            }
+        }
     },
-    "tsc-only": {
-        tsc: {
-            hosts: [hosts.node18],
-            iterations: defaultIterations,
-            scenarios: onlyInternal(scenarioConfig.tsc),
-        },
+    *"regular"() {
+        for (const scenario of onDemandScenarios) {
+            yield {
+                ...scenario,
+                host: hosts.node18,
+                iterations: defaultIterations,
+            };
+        }
     },
-    "bun": {
-        tsc: {
-            hosts: [hosts.bun],
-            iterations: defaultIterations * 2,
-            scenarios: onlyInternal(scenarioConfig.tsc),
-        },
-        startup: {
-            hosts: [hosts.bun],
-            iterations: defaultIterations,
-            scenarios: onlyInternal(scenarioConfig.startup).filter(s => s.name !== "tsserver-startup"),
-        },
+    *"tsc-only"() {
+        for (const scenario of onDemandScenarios) {
+            if (scenario.kind === "tsc") {
+                yield {
+                    ...scenario,
+                    host: hosts.node18,
+                    iterations: defaultIterations,
+                };
+            }
+        }
     },
-    "vscode": {
-        tsc: {
-            hosts: [hosts.vscode],
-            iterations: defaultIterations,
-            scenarios: onlyInternal(scenarioConfig.tsc),
-        },
-        tsserver: {
-            hosts: [hosts.vscode],
-            iterations: defaultIterations,
-            scenarios: onlyInternal(scenarioConfig.tsserver),
-        },
-        startup: {
-            hosts: [hosts.vscode],
-            iterations: defaultIterations,
-            scenarios: onlyInternal(scenarioConfig.startup),
-        },
+    "faster"() {
+        return this["tsc-only"]();
     },
-    "public": {
-        tsc: {
-            hosts: [hosts.node20],
-            iterations: defaultIterations,
-            scenarios: onlyPublic(scenarioConfig.tsc),
-        },
+    *"bun"() {
+        for (const scenario of onDemandScenarios) {
+            if (scenario.kind === "tsc") {
+                yield {
+                    ...scenario,
+                    host: hosts.bun,
+                    iterations: defaultIterations * 2,
+                };
+            }
+            else if (scenario.kind === "startup" && scenario.name !== "tsserver-startup") {
+                yield {
+                    ...scenario,
+                    host: hosts.bun,
+                    iterations: defaultIterations,
+                };
+            }
+        }
     },
-};
+    *"vscode"() {
+        for (const scenario of onDemandScenarios) {
+            yield {
+                ...scenario,
+                host: hosts.vscode,
+                iterations: defaultIterations,
+            };
+        }
+    },
+    *"public"() {
+        for (const scenario of onDemandScenarios) {
+            if (scenario.kind === "tsc" && scenario.location === "public") {
+                yield {
+                    ...scenario,
+                    host: hosts.node20,
+                    iterations: defaultIterations,
+                };
+            }
+        }
+    },
+} satisfies Record<string, () => Iterable<Scenario>>;
+
+type PresetName = keyof typeof presets;
+
+function isPresetName(name: string): name is PresetName {
+    return name in presets;
+}
 
 export const allPresetNames: ReadonlySet<string> = new Set(Object.keys(presets));
 
@@ -196,11 +224,11 @@ type Matrix = {
 };
 
 export function generateMatrix(presetArg: string, baselining: boolean, log?: boolean) {
-    const preset = presets[presetArg];
-    if (!preset) {
-        // TODO(jakebailey): if "custom", build a custom matrix from arguments
+    if (!isPresetName(presetArg)) {
         throw new Error(`Unknown preset: ${presetArg}`);
     }
+
+    const preset = presets[presetArg];
 
     let matrix: Matrix = {
         "any": {},
@@ -213,28 +241,19 @@ export function generateMatrix(presetArg: string, baselining: boolean, log?: boo
     const processKinds = new Set<JobKind>();
     const processLocations = new Set<ScenarioLocation>();
 
-    for (const jobKind of allJobKinds) {
-        const p = preset[jobKind];
-        if (!p) {
-            continue;
-        }
-
-        for (const host of p.hosts) {
-            for (const scenario of p.scenarios) {
-                const agent = baselining ? scenario.agent : "any";
-                const jobName = sanitizeJobName(`${jobKind}_${host}_${scenario.name}`);
-                matrix[agent][jobName] = {
-                    TSPERF_JOB_KIND: jobKind,
-                    TSPERF_JOB_NAME: jobName,
-                    TSPERF_JOB_HOST: host,
-                    TSPERF_JOB_SCENARIO: scenario.name,
-                    TSPERF_JOB_ITERATIONS: p.iterations,
-                    TSPERF_JOB_LOCATION: scenario.location,
-                };
-                processKinds.add(jobKind);
-                processLocations.add(scenario.location);
-            }
-        }
+    for (const scenario of preset()) {
+        const agent = baselining ? scenario.agent : "any";
+        const jobName = sanitizeJobName(`${scenario.kind}_${scenario.host}_${scenario.name}`);
+        matrix[agent][jobName] = {
+            TSPERF_JOB_KIND: scenario.kind,
+            TSPERF_JOB_NAME: jobName,
+            TSPERF_JOB_HOST: scenario.host,
+            TSPERF_JOB_SCENARIO: scenario.name,
+            TSPERF_JOB_ITERATIONS: scenario.iterations,
+            TSPERF_JOB_LOCATION: scenario.location,
+        };
+        processKinds.add(scenario.kind);
+        processLocations.add(scenario.location);
     }
 
     matrix = sortKeys(matrix, { deep: true });
