@@ -265,7 +265,6 @@ export function generateMatrix(presetArg: string, baselining: boolean, log?: boo
     const processLocations = new Set<ScenarioLocation>();
 
     const jobOverhead = 40; // Time taken per benchmark job to clone, build, etc
-    const setupAndProcessOverhead = 250; // Time taken in the setup and process jobs
     let totalCost = 0;
     let maxCost = 0;
     const costPerAgent = new Map<Agent, number>();
@@ -313,15 +312,13 @@ export function generateMatrix(presetArg: string, baselining: boolean, log?: boo
     outputVariables[`TSPERF_PROCESS_LOCATIONS`] = [...processLocations].sort().join(",");
 
     const costInParallel = baselining ? Math.max(...costPerAgent.values()) : (totalCost / allAgents.length);
-    const totalPipeline = costInParallel + setupAndProcessOverhead;
 
     return {
         matrix,
         outputVariables,
-        cost: {
-            compute: prettyMilliseconds(totalCost * 1000),
-            computeParallel: prettyMilliseconds(costInParallel * 1000),
-            totalPipeline: prettyMilliseconds(totalPipeline * 1000),
+        compute: {
+            total: prettyMilliseconds(totalCost * 1000),
+            parallel: prettyMilliseconds(costInParallel * 1000),
         },
     };
 }

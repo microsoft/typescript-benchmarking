@@ -4,10 +4,9 @@ exports[`generateMatrix preset=baseline baselining=false > error 1`] = `undefine
 
 exports[`generateMatrix preset=baseline baselining=false > result 1`] = `
 {
-  "cost": {
-    "compute": "3h 12m 52s",
-    "computeParallel": "48m 13s",
-    "totalPipeline": "52m 23s",
+  "compute": {
+    "parallel": "48m 13s",
+    "total": "3h 12m 52s",
   },
   "matrix": {
     "any": {
@@ -265,10 +264,9 @@ exports[`generateMatrix preset=baseline baselining=true > error 1`] = `undefined
 
 exports[`generateMatrix preset=baseline baselining=true > result 1`] = `
 {
-  "cost": {
-    "compute": "1h 36m 26s",
-    "computeParallel": "51m 2s",
-    "totalPipeline": "55m 12s",
+  "compute": {
+    "parallel": "51m 2s",
+    "total": "1h 36m 26s",
   },
   "matrix": {
     "any": {},
@@ -528,10 +526,9 @@ exports[`generateMatrix preset=bun baselining=false > error 1`] = `undefined`;
 
 exports[`generateMatrix preset=bun baselining=false > result 1`] = `
 {
-  "cost": {
-    "compute": "2h 39m 52s",
-    "computeParallel": "39m 58s",
-    "totalPipeline": "44m 8s",
+  "compute": {
+    "parallel": "39m 58s",
+    "total": "2h 39m 52s",
   },
   "matrix": {
     "any": {
@@ -669,10 +666,9 @@ exports[`generateMatrix preset=bun baselining=true > error 1`] = `undefined`;
 
 exports[`generateMatrix preset=bun baselining=true > result 1`] = `
 {
-  "cost": {
-    "compute": "1h 19m 56s",
-    "computeParallel": "46m 12s",
-    "totalPipeline": "50m 22s",
+  "compute": {
+    "parallel": "46m 12s",
+    "total": "1h 19m 56s",
   },
   "matrix": {
     "any": {},
@@ -820,10 +816,9 @@ exports[`generateMatrix preset=faster baselining=false > error 1`] = `undefined`
 
 exports[`generateMatrix preset=faster baselining=false > result 1`] = `
 {
-  "cost": {
-    "compute": "1h 18m 52s",
-    "computeParallel": "19m 43s",
-    "totalPipeline": "23m 53s",
+  "compute": {
+    "parallel": "19m 43s",
+    "total": "1h 18m 52s",
   },
   "matrix": {
     "any": {
@@ -937,10 +932,9 @@ exports[`generateMatrix preset=faster baselining=true > error 1`] = `undefined`;
 
 exports[`generateMatrix preset=faster baselining=true > result 1`] = `
 {
-  "cost": {
-    "compute": "39m 26s",
-    "computeParallel": "21m 46s",
-    "totalPipeline": "25m 56s",
+  "compute": {
+    "parallel": "21m 46s",
+    "total": "39m 26s",
   },
   "matrix": {
     "any": {},
@@ -1056,10 +1050,9 @@ exports[`generateMatrix preset=full baselining=false > error 1`] = `undefined`;
 
 exports[`generateMatrix preset=full baselining=false > result 1`] = `
 {
-  "cost": {
-    "compute": "3h 12m 52s",
-    "computeParallel": "48m 13s",
-    "totalPipeline": "52m 23s",
+  "compute": {
+    "parallel": "48m 13s",
+    "total": "3h 12m 52s",
   },
   "matrix": {
     "any": {
@@ -1317,10 +1310,9 @@ exports[`generateMatrix preset=full baselining=true > error 1`] = `undefined`;
 
 exports[`generateMatrix preset=full baselining=true > result 1`] = `
 {
-  "cost": {
-    "compute": "1h 36m 26s",
-    "computeParallel": "51m 2s",
-    "totalPipeline": "55m 12s",
+  "compute": {
+    "parallel": "51m 2s",
+    "total": "1h 36m 26s",
   },
   "matrix": {
     "any": {},
@@ -1580,10 +1572,9 @@ exports[`generateMatrix preset=public baselining=false > error 1`] = `undefined`
 
 exports[`generateMatrix preset=public baselining=false > result 1`] = `
 {
-  "cost": {
-    "compute": "53m 4s",
-    "computeParallel": "13m 16s",
-    "totalPipeline": "17m 26s",
+  "compute": {
+    "parallel": "13m 16s",
+    "total": "53m 4s",
   },
   "matrix": {
     "any": {
@@ -1649,10 +1640,9 @@ exports[`generateMatrix preset=public baselining=true > error 1`] = `undefined`;
 
 exports[`generateMatrix preset=public baselining=true > result 1`] = `
 {
-  "cost": {
-    "compute": "26m 32s",
-    "computeParallel": "16m 32s",
-    "totalPipeline": "20m 42s",
+  "compute": {
+    "parallel": "16m 32s",
+    "total": "26m 32s",
   },
   "matrix": {
     "any": {},
@@ -1720,10 +1710,9 @@ exports[`generateMatrix preset=regular baselining=false > error 1`] = `undefined
 
 exports[`generateMatrix preset=regular baselining=false > result 1`] = `
 {
-  "cost": {
-    "compute": "1h 54m",
-    "computeParallel": "28m 30s",
-    "totalPipeline": "32m 40s",
+  "compute": {
+    "parallel": "28m 30s",
+    "total": "1h 54m",
   },
   "matrix": {
     "any": {
@@ -1893,10 +1882,9 @@ exports[`generateMatrix preset=regular baselining=true > error 1`] = `undefined`
 
 exports[`generateMatrix preset=regular baselining=true > result 1`] = `
 {
-  "cost": {
-    "compute": "57m",
-    "computeParallel": "29m 16s",
-    "totalPipeline": "33m 26s",
+  "compute": {
+    "parallel": "29m 16s",
+    "total": "57m",
   },
   "matrix": {
     "any": {},
@@ -2068,10 +2056,9 @@ exports[`generateMatrix preset=tsc-only baselining=false > error 1`] = `undefine
 
 exports[`generateMatrix preset=tsc-only baselining=false > result 1`] = `
 {
-  "cost": {
-    "compute": "1h 18m 52s",
-    "computeParallel": "19m 43s",
-    "totalPipeline": "23m 53s",
+  "compute": {
+    "parallel": "19m 43s",
+    "total": "1h 18m 52s",
   },
   "matrix": {
     "any": {
@@ -2185,10 +2172,9 @@ exports[`generateMatrix preset=tsc-only baselining=true > error 1`] = `undefined
 
 exports[`generateMatrix preset=tsc-only baselining=true > result 1`] = `
 {
-  "cost": {
-    "compute": "39m 26s",
-    "computeParallel": "21m 46s",
-    "totalPipeline": "25m 56s",
+  "compute": {
+    "parallel": "21m 46s",
+    "total": "39m 26s",
   },
   "matrix": {
     "any": {},
@@ -2312,10 +2298,9 @@ exports[`generateMatrix preset=vscode baselining=false > error 1`] = `undefined`
 
 exports[`generateMatrix preset=vscode baselining=false > result 1`] = `
 {
-  "cost": {
-    "compute": "1h 54m",
-    "computeParallel": "28m 30s",
-    "totalPipeline": "32m 40s",
+  "compute": {
+    "parallel": "28m 30s",
+    "total": "1h 54m",
   },
   "matrix": {
     "any": {
@@ -2485,10 +2470,9 @@ exports[`generateMatrix preset=vscode baselining=true > error 1`] = `undefined`;
 
 exports[`generateMatrix preset=vscode baselining=true > result 1`] = `
 {
-  "cost": {
-    "compute": "57m",
-    "computeParallel": "29m 16s",
-    "totalPipeline": "33m 26s",
+  "compute": {
+    "parallel": "29m 16s",
+    "total": "57m",
   },
   "matrix": {
     "any": {},
