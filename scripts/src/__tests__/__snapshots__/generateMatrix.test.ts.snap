@@ -4,6 +4,10 @@ exports[`generateMatrix preset=bun baselining=false > error 1`] = `undefined`;
 
 exports[`generateMatrix preset=bun baselining=false > result 1`] = `
 {
+  "compute": {
+    "parallel": "15m 6s",
+    "total": "1h 24s",
+  },
   "matrix": {
     "any": {
       "startup_bun_1_0_15_tsc_startup": {
@@ -100,6 +104,10 @@ exports[`generateMatrix preset=bun baselining=true > error 1`] = `undefined`;
 
 exports[`generateMatrix preset=bun baselining=true > result 1`] = `
 {
+  "compute": {
+    "parallel": "14m 28s",
+    "total": "30m 12s",
+  },
   "matrix": {
     "any": {},
     "ts-perf1": {
@@ -206,6 +214,10 @@ exports[`generateMatrix preset=full baselining=false > error 1`] = `undefined`;
 
 exports[`generateMatrix preset=full baselining=false > result 1`] = `
 {
+  "compute": {
+    "parallel": "28m 8s",
+    "total": "1h 52m 32s",
+  },
   "matrix": {
     "any": {
       "startup_node_16_17_1_tsc_startup": {
@@ -430,6 +442,10 @@ exports[`generateMatrix preset=full baselining=true > error 1`] = `undefined`;
 
 exports[`generateMatrix preset=full baselining=true > result 1`] = `
 {
+  "compute": {
+    "parallel": "23m 12s",
+    "total": "56m 16s",
+  },
   "matrix": {
     "any": {},
     "ts-perf1": {
@@ -656,6 +672,10 @@ exports[`generateMatrix preset=public baselining=false > error 1`] = `undefined`
 
 exports[`generateMatrix preset=public baselining=false > result 1`] = `
 {
+  "compute": {
+    "parallel": "13m 16s",
+    "total": "53m 4s",
+  },
   "matrix": {
     "any": {
       "tsc_node_20_5_1_mui_docs": {
@@ -720,6 +740,10 @@ exports[`generateMatrix preset=public baselining=true > error 1`] = `undefined`;
 
 exports[`generateMatrix preset=public baselining=true > result 1`] = `
 {
+  "compute": {
+    "parallel": "16m 32s",
+    "total": "26m 32s",
+  },
   "matrix": {
     "any": {},
     "ts-perf1": {
@@ -786,6 +810,10 @@ exports[`generateMatrix preset=regular baselining=false > error 1`] = `undefined
 
 exports[`generateMatrix preset=regular baselining=false > result 1`] = `
 {
+  "compute": {
+    "parallel": "15m 14s",
+    "total": "1h 56s",
+  },
   "matrix": {
     "any": {
       "startup_node_18_15_0_tsc_startup": {
@@ -914,6 +942,10 @@ exports[`generateMatrix preset=regular baselining=true > error 1`] = `undefined`
 
 exports[`generateMatrix preset=regular baselining=true > result 1`] = `
 {
+  "compute": {
+    "parallel": "12m 44s",
+    "total": "30m 28s",
+  },
   "matrix": {
     "any": {},
     "ts-perf1": {
@@ -1044,6 +1076,10 @@ exports[`generateMatrix preset=tsc-only baselining=false > error 1`] = `undefine
 
 exports[`generateMatrix preset=tsc-only baselining=false > result 1`] = `
 {
+  "compute": {
+    "parallel": "6m 27s",
+    "total": "25m 48s",
+  },
   "matrix": {
     "any": {
       "tsc_node_18_15_0_Angular": {
@@ -1116,6 +1152,10 @@ exports[`generateMatrix preset=tsc-only baselining=true > error 1`] = `undefined
 
 exports[`generateMatrix preset=tsc-only baselining=true > result 1`] = `
 {
+  "compute": {
+    "parallel": "5m 14s",
+    "total": "12m 54s",
+  },
   "matrix": {
     "any": {},
     "ts-perf1": {
@@ -1198,6 +1238,10 @@ exports[`generateMatrix preset=vscode baselining=false > error 1`] = `undefined`
 
 exports[`generateMatrix preset=vscode baselining=false > result 1`] = `
 {
+  "compute": {
+    "parallel": "15m 14s",
+    "total": "1h 56s",
+  },
   "matrix": {
     "any": {
       "startup_vscode_1_82_1_tsc_startup": {
@@ -1326,6 +1370,10 @@ exports[`generateMatrix preset=vscode baselining=true > error 1`] = `undefined`;
 
 exports[`generateMatrix preset=vscode baselining=true > result 1`] = `
 {
+  "compute": {
+    "parallel": "12m 44s",
+    "total": "30m 28s",
+  },
   "matrix": {
     "any": {},
     "ts-perf1": {
