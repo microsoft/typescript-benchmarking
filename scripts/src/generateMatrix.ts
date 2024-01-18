@@ -26,6 +26,7 @@ const hosts = {
     node20: "node@20.5.1",
     // This matches a recent VS Code version via Electron.
     node18: "node@18.15.0",
+    node16: "node@16.17.1",
     bun: "bun@1.0.15",
     vscode: "vscode@1.82.1",
 } as const satisfies Record<string, string>;
@@ -132,7 +133,7 @@ const internalOnDemandScenarios = onDemandScenarios.filter(s => s.location === "
 function* generateBaselinePreset(scenarios: readonly BaseScenario[]): Iterable<Scenario> {
     for (const scenario of scenarios) {
         if (scenario.kind === "tsc") {
-            for (const host of [hosts.node20, hosts.node18]) {
+            for (const host of [hosts.node20, hosts.node18, hosts.node16]) {
                 yield {
                     ...scenario,
                     host,
@@ -143,7 +144,7 @@ function* generateBaselinePreset(scenarios: readonly BaseScenario[]): Iterable<S
         else {
             yield {
                 ...scenario,
-                host: hosts.node18,
+                host: hosts.node16,
                 iterations: defaultIterations,
             };
         }
