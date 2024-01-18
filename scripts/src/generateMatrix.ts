@@ -26,7 +26,6 @@ const hosts = {
     node20: "node@20.5.1",
     // This matches a recent VS Code version via Electron.
     node18: "node@18.15.0",
-    node16: "node@16.17.1",
     bun: "bun@1.0.15",
     vscode: "vscode@1.82.1",
 } as const satisfies Record<string, string>;
@@ -64,11 +63,11 @@ const allScenarios: readonly BaseScenario[] = [
     { kind: "tsc", name: "material-ui", agent: "ts-perf1", location: "internal", runIn: RunType.Any, cost: 20 },
     { kind: "tsc", name: "Compiler-Unions", agent: "ts-perf2", location: "internal", runIn: RunType.Any, cost: 14 },
     { kind: "tsc", name: "xstate", agent: "ts-perf3", location: "internal", runIn: RunType.Any, cost: 8 },
-    { kind: "tsc", name: "vscode", agent: "ts-perf1", location: "public", runIn: RunType.Any, cost: 90 },
-    { kind: "tsc", name: "self-compiler", agent: "ts-perf2", location: "public", runIn: RunType.Any, cost: 20 },
-    { kind: "tsc", name: "self-build-src", agent: "ts-perf3", location: "public", runIn: RunType.Any, cost: 42 },
-    { kind: "tsc", name: "mui-docs", agent: "ts-perf1", location: "public", runIn: RunType.OnDemand, cost: 62 },
-    { kind: "tsc", name: "mui-docs-1", agent: "ts-perf1", location: "public", runIn: RunType.Baseline, cost: 62 },
+    { kind: "tsc", name: "vscode", agent: "ts-perf3", location: "public", runIn: RunType.Any, cost: 90 },
+    { kind: "tsc", name: "self-compiler", agent: "ts-perf1", location: "public", runIn: RunType.Any, cost: 20 },
+    { kind: "tsc", name: "self-build-src", agent: "ts-perf2", location: "public", runIn: RunType.Any, cost: 42 },
+    { kind: "tsc", name: "mui-docs", agent: "ts-perf2", location: "public", runIn: RunType.OnDemand, cost: 62 },
+    { kind: "tsc", name: "mui-docs-1", agent: "ts-perf2", location: "public", runIn: RunType.Baseline, cost: 62 },
     { kind: "tsc", name: "webpack", agent: "ts-perf3", location: "public", runIn: RunType.OnDemand, cost: 18 },
     { kind: "tsc", name: "webpack-1", agent: "ts-perf3", location: "public", runIn: RunType.Baseline, cost: 18 },
     {
@@ -123,18 +122,13 @@ interface Scenario extends BaseScenario {
     readonly iterations: number;
 }
 
-// const baselineScenarios = allScenarios.filter(scenario => scenario.runIn & RunType.Baseline);
+const baselineScenarios = allScenarios.filter(scenario => scenario.runIn & RunType.Baseline);
 const onDemandScenarios = allScenarios.filter(scenario => scenario.runIn & RunType.OnDemand);
-
-// TODO(jakebailey): unfilter internal; temporary
-// const internalBaselineScenarios = baselineScenarios.filter(s => s.location === "internal");
-const internalOnDemandScenarios = onDemandScenarios.filter(s => s.location === "internal");
 
 function* generateBaselinePreset(scenarios: readonly BaseScenario[]): Iterable<Scenario> {
     for (const scenario of scenarios) {
         if (scenario.kind === "tsc") {
-            // TODO(jakebailey): remove node16
-            for (const host of [hosts.node20, hosts.node18, hosts.node16]) {
+            for (const host of [hosts.node20, hosts.node18]) {
                 yield {
                     ...scenario,
                     host,
@@ -145,7 +139,7 @@ function* generateBaselinePreset(scenarios: readonly BaseScenario[]): Iterable<S
         else {
             yield {
                 ...scenario,
-                host: hosts.node16, // TODO(jakebailey): use node18
+                host: hosts.node18,
                 iterations: defaultIterations,
             };
         }
@@ -154,11 +148,11 @@ function* generateBaselinePreset(scenarios: readonly BaseScenario[]): Iterable<S
 
 // Note: keep this up to date with TSPERF_PRESET
 const presets = {
-    // "baseline": () => generateBaselinePreset(internalBaselineScenarios),
-    "full": () => generateBaselinePreset(internalOnDemandScenarios),
+    "baseline": () => generateBaselinePreset(baselineScenarios),
+    "full": () => generateBaselinePreset(onDemandScenarios),
     *"regular"() {
         // The bot trigger will default to "regular" when
-        for (const scenario of internalOnDemandScenarios) {
+        for (const scenario of onDemandScenarios) {
             yield {
                 ...scenario,
                 host: hosts.node18,
@@ -167,7 +161,7 @@ const presets = {
         }
     },
     *"tsc-only"() {
-        for (const scenario of internalOnDemandScenarios) {
+        for (const scenario of onDemandScenarios) {
             if (scenario.kind === "tsc") {
                 yield {
                     ...scenario,
@@ -177,9 +171,9 @@ const presets = {
             }
         }
     },
-    // "faster": (): Iterable<Scenario> => presets["tsc-only"](),
+    "faster": (): Iterable<Scenario> => presets["tsc-only"](),
     *"bun"() {
-        for (const scenario of internalOnDemandScenarios) {
+        for (const scenario of onDemandScenarios) {
             if (scenario.kind === "tsc") {
                 yield {
                     ...scenario,
@@ -197,7 +191,7 @@ const presets = {
         }
     },
     *"vscode"() {
-        for (const scenario of internalOnDemandScenarios) {
+        for (const scenario of onDemandScenarios) {
             yield {
                 ...scenario,
                 host: hosts.vscode,
