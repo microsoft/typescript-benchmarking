@@ -6,6 +6,9 @@ exports[`generateMatrix preset=bun baselining=false > result 1`] = `
 {
   "compute": {
     "parallel": "15m 6s",
+    "perAgent": {
+      "any": "1h 24s",
+    },
     "total": "1h 24s",
   },
   "matrix": {
@@ -106,6 +109,11 @@ exports[`generateMatrix preset=bun baselining=true > result 1`] = `
 {
   "compute": {
     "parallel": "14m 28s",
+    "perAgent": {
+      "ts-perf1": "14m 28s",
+      "ts-perf2": "7m 8s",
+      "ts-perf3": "8m 36s",
+    },
     "total": "30m 12s",
   },
   "matrix": {
@@ -216,6 +224,9 @@ exports[`generateMatrix preset=full baselining=false > result 1`] = `
 {
   "compute": {
     "parallel": "28m 8s",
+    "perAgent": {
+      "any": "1h 52m 32s",
+    },
     "total": "1h 52m 32s",
   },
   "matrix": {
@@ -444,6 +455,11 @@ exports[`generateMatrix preset=full baselining=true > result 1`] = `
 {
   "compute": {
     "parallel": "23m 12s",
+    "perAgent": {
+      "ts-perf1": "23m 12s",
+      "ts-perf2": "17m 50s",
+      "ts-perf3": "15m 14s",
+    },
     "total": "56m 16s",
   },
   "matrix": {
@@ -674,6 +690,9 @@ exports[`generateMatrix preset=public baselining=false > result 1`] = `
 {
   "compute": {
     "parallel": "13m 16s",
+    "perAgent": {
+      "any": "53m 4s",
+    },
     "total": "53m 4s",
   },
   "matrix": {
@@ -742,6 +761,11 @@ exports[`generateMatrix preset=public baselining=true > result 1`] = `
 {
   "compute": {
     "parallel": "16m 32s",
+    "perAgent": {
+      "ts-perf1": "16m 32s",
+      "ts-perf2": "2m 40s",
+      "ts-perf3": "7m 20s",
+    },
     "total": "26m 32s",
   },
   "matrix": {
@@ -812,6 +836,9 @@ exports[`generateMatrix preset=regular baselining=false > result 1`] = `
 {
   "compute": {
     "parallel": "15m 14s",
+    "perAgent": {
+      "any": "1h 56s",
+    },
     "total": "1h 56s",
   },
   "matrix": {
@@ -944,6 +971,11 @@ exports[`generateMatrix preset=regular baselining=true > result 1`] = `
 {
   "compute": {
     "parallel": "12m 44s",
+    "perAgent": {
+      "ts-perf1": "12m 44s",
+      "ts-perf2": "9m 22s",
+      "ts-perf3": "8m 22s",
+    },
     "total": "30m 28s",
   },
   "matrix": {
@@ -1078,6 +1110,9 @@ exports[`generateMatrix preset=tsc-only baselining=false > result 1`] = `
 {
   "compute": {
     "parallel": "6m 27s",
+    "perAgent": {
+      "any": "25m 48s",
+    },
     "total": "25m 48s",
   },
   "matrix": {
@@ -1154,6 +1189,11 @@ exports[`generateMatrix preset=tsc-only baselining=true > result 1`] = `
 {
   "compute": {
     "parallel": "5m 14s",
+    "perAgent": {
+      "ts-perf1": "5m 14s",
+      "ts-perf2": "4m 14s",
+      "ts-perf3": "3m 26s",
+    },
     "total": "12m 54s",
   },
   "matrix": {
@@ -1240,6 +1280,9 @@ exports[`generateMatrix preset=vscode baselining=false > result 1`] = `
 {
   "compute": {
     "parallel": "15m 14s",
+    "perAgent": {
+      "any": "1h 56s",
+    },
     "total": "1h 56s",
   },
   "matrix": {
@@ -1372,6 +1415,11 @@ exports[`generateMatrix preset=vscode baselining=true > result 1`] = `
 {
   "compute": {
     "parallel": "12m 44s",
+    "perAgent": {
+      "ts-perf1": "12m 44s",
+      "ts-perf2": "9m 22s",
+      "ts-perf3": "8m 22s",
+    },
     "total": "30m 28s",
   },
   "matrix": {
