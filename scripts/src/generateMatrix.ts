@@ -246,6 +246,10 @@ type Matrix = {
     };
 };
 
+function prettySeconds(seconds: number) {
+    return prettyMilliseconds(seconds * 1000);
+}
+
 export function generateMatrix(presetArg: string, baselining: boolean, log?: boolean) {
     if (!isPresetName(presetArg)) {
         throw new Error(`Unknown preset: ${presetArg}`);
@@ -312,13 +316,17 @@ export function generateMatrix(presetArg: string, baselining: boolean, log?: boo
     outputVariables[`TSPERF_PROCESS_LOCATIONS`] = [...processLocations].sort().join(",");
 
     const costInParallel = baselining ? Math.max(...costPerAgent.values()) : Math.ceil(totalCost / allAgents.length);
+    const perAgent = Object.fromEntries(
+        [...costPerAgent.entries()].map(([agent, cost]) => [agent, prettySeconds(cost)]),
+    );
 
     return {
         matrix,
         outputVariables,
         compute: {
-            total: prettyMilliseconds(totalCost * 1000),
-            parallel: prettyMilliseconds(costInParallel * 1000),
+            total: prettySeconds(totalCost),
+            parallel: prettySeconds(costInParallel),
+            perAgent,
         },
     };
 }

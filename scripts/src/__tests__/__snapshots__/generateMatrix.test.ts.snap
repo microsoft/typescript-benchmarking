@@ -6,6 +6,9 @@ exports[`generateMatrix preset=baseline baselining=false > result 1`] = `
 {
   "compute": {
     "parallel": "48m 13s",
+    "perAgent": {
+      "any": "3h 12m 52s",
+    },
     "total": "3h 12m 52s",
   },
   "matrix": {
@@ -266,6 +269,11 @@ exports[`generateMatrix preset=baseline baselining=true > result 1`] = `
 {
   "compute": {
     "parallel": "51m 2s",
+    "perAgent": {
+      "ts-perf1": "51m 2s",
+      "ts-perf2": "18m 56s",
+      "ts-perf3": "26m 28s",
+    },
     "total": "1h 36m 26s",
   },
   "matrix": {
@@ -528,6 +536,9 @@ exports[`generateMatrix preset=bun baselining=false > result 1`] = `
 {
   "compute": {
     "parallel": "39m 58s",
+    "perAgent": {
+      "any": "2h 39m 52s",
+    },
     "total": "2h 39m 52s",
   },
   "matrix": {
@@ -668,6 +679,11 @@ exports[`generateMatrix preset=bun baselining=true > result 1`] = `
 {
   "compute": {
     "parallel": "46m 12s",
+    "perAgent": {
+      "ts-perf1": "46m 12s",
+      "ts-perf2": "11m 48s",
+      "ts-perf3": "21m 56s",
+    },
     "total": "1h 19m 56s",
   },
   "matrix": {
@@ -818,6 +834,9 @@ exports[`generateMatrix preset=faster baselining=false > result 1`] = `
 {
   "compute": {
     "parallel": "19m 43s",
+    "perAgent": {
+      "any": "1h 18m 52s",
+    },
     "total": "1h 18m 52s",
   },
   "matrix": {
@@ -934,6 +953,11 @@ exports[`generateMatrix preset=faster baselining=true > result 1`] = `
 {
   "compute": {
     "parallel": "21m 46s",
+    "perAgent": {
+      "ts-perf1": "21m 46s",
+      "ts-perf2": "6m 54s",
+      "ts-perf3": "10m 46s",
+    },
     "total": "39m 26s",
   },
   "matrix": {
@@ -1052,6 +1076,9 @@ exports[`generateMatrix preset=full baselining=false > result 1`] = `
 {
   "compute": {
     "parallel": "48m 13s",
+    "perAgent": {
+      "any": "3h 12m 52s",
+    },
     "total": "3h 12m 52s",
   },
   "matrix": {
@@ -1312,6 +1339,11 @@ exports[`generateMatrix preset=full baselining=true > result 1`] = `
 {
   "compute": {
     "parallel": "51m 2s",
+    "perAgent": {
+      "ts-perf1": "51m 2s",
+      "ts-perf2": "18m 56s",
+      "ts-perf3": "26m 28s",
+    },
     "total": "1h 36m 26s",
   },
   "matrix": {
@@ -1574,6 +1606,9 @@ exports[`generateMatrix preset=public baselining=false > result 1`] = `
 {
   "compute": {
     "parallel": "13m 16s",
+    "perAgent": {
+      "any": "53m 4s",
+    },
     "total": "53m 4s",
   },
   "matrix": {
@@ -1642,6 +1677,11 @@ exports[`generateMatrix preset=public baselining=true > result 1`] = `
 {
   "compute": {
     "parallel": "16m 32s",
+    "perAgent": {
+      "ts-perf1": "16m 32s",
+      "ts-perf2": "2m 40s",
+      "ts-perf3": "7m 20s",
+    },
     "total": "26m 32s",
   },
   "matrix": {
@@ -1712,6 +1752,9 @@ exports[`generateMatrix preset=regular baselining=false > result 1`] = `
 {
   "compute": {
     "parallel": "28m 30s",
+    "perAgent": {
+      "any": "1h 54m",
+    },
     "total": "1h 54m",
   },
   "matrix": {
@@ -1884,6 +1927,11 @@ exports[`generateMatrix preset=regular baselining=true > result 1`] = `
 {
   "compute": {
     "parallel": "29m 16s",
+    "perAgent": {
+      "ts-perf1": "29m 16s",
+      "ts-perf2": "12m 2s",
+      "ts-perf3": "15m 42s",
+    },
     "total": "57m",
   },
   "matrix": {
@@ -2058,6 +2106,9 @@ exports[`generateMatrix preset=tsc-only baselining=false > result 1`] = `
 {
   "compute": {
     "parallel": "19m 43s",
+    "perAgent": {
+      "any": "1h 18m 52s",
+    },
     "total": "1h 18m 52s",
   },
   "matrix": {
@@ -2174,6 +2225,11 @@ exports[`generateMatrix preset=tsc-only baselining=true > result 1`] = `
 {
   "compute": {
     "parallel": "21m 46s",
+    "perAgent": {
+      "ts-perf1": "21m 46s",
+      "ts-perf2": "6m 54s",
+      "ts-perf3": "10m 46s",
+    },
     "total": "39m 26s",
   },
   "matrix": {
@@ -2300,6 +2356,9 @@ exports[`generateMatrix preset=vscode baselining=false > result 1`] = `
 {
   "compute": {
     "parallel": "28m 30s",
+    "perAgent": {
+      "any": "1h 54m",
+    },
     "total": "1h 54m",
   },
   "matrix": {
@@ -2472,6 +2531,11 @@ exports[`generateMatrix preset=vscode baselining=true > result 1`] = `
 {
   "compute": {
     "parallel": "29m 16s",
+    "perAgent": {
+      "ts-perf1": "29m 16s",
+      "ts-perf2": "12m 2s",
+      "ts-perf3": "15m 42s",
+    },
     "total": "57m",
   },
   "matrix": {
