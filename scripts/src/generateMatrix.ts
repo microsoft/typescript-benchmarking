@@ -122,8 +122,16 @@ interface Scenario extends BaseScenario {
     readonly iterations: number;
 }
 
-const baselineScenarios = allScenarios.filter(scenario => scenario.runIn & RunType.Baseline);
-const onDemandScenarios = allScenarios.filter(scenario => scenario.runIn & RunType.OnDemand);
+const baselineScenarios = allScenarios.filter(scenario => scenario.runIn & RunType.Baseline).filter(s =>
+    s.location === "internal"
+);
+const onDemandScenarios = allScenarios.filter(scenario => scenario.runIn & RunType.OnDemand).filter(s =>
+    s.location === "internal"
+);
+
+// TODO(jakebailey): unfilter internal; temporary
+const internalBaselineScenarios = baselineScenarios.filter(s => s.location === "internal");
+const internalOnDemandScenarios = onDemandScenarios.filter(s => s.location === "internal");
 
 function* generateBaselinePreset(scenarios: readonly BaseScenario[]): Iterable<Scenario> {
     for (const scenario of scenarios) {
@@ -148,11 +156,11 @@ function* generateBaselinePreset(scenarios: readonly BaseScenario[]): Iterable<S
 
 // Note: keep this up to date with TSPERF_PRESET
 const presets = {
-    "baseline": () => generateBaselinePreset(baselineScenarios),
-    "full": () => generateBaselinePreset(onDemandScenarios),
+    "baseline": () => generateBaselinePreset(internalBaselineScenarios),
+    "full": () => generateBaselinePreset(internalOnDemandScenarios),
     *"regular"() {
         // The bot trigger will default to "regular" when
-        for (const scenario of onDemandScenarios) {
+        for (const scenario of internalOnDemandScenarios) {
             yield {
                 ...scenario,
                 host: hosts.node18,
@@ -161,7 +169,7 @@ const presets = {
         }
     },
     *"tsc-only"() {
-        for (const scenario of onDemandScenarios) {
+        for (const scenario of internalOnDemandScenarios) {
             if (scenario.kind === "tsc") {
                 yield {
                     ...scenario,
@@ -173,7 +181,7 @@ const presets = {
     },
     "faster": (): Iterable<Scenario> => presets["tsc-only"](),
     *"bun"() {
-        for (const scenario of onDemandScenarios) {
+        for (const scenario of internalOnDemandScenarios) {
             if (scenario.kind === "tsc") {
                 yield {
                     ...scenario,
@@ -191,7 +199,7 @@ const presets = {
         }
     },
     *"vscode"() {
-        for (const scenario of onDemandScenarios) {
+        for (const scenario of internalOnDemandScenarios) {
             yield {
                 ...scenario,
                 host: hosts.vscode,

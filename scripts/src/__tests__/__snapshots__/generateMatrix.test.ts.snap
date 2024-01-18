@@ -5,8 +5,8 @@ exports[`generateMatrix preset=baseline baselining=false > error 1`] = `undefine
 exports[`generateMatrix preset=baseline baselining=false > result 1`] = `
 {
   "compute": {
-    "parallel": "48m 13s",
-    "total": "3h 12m 52s",
+    "parallel": "21m 41s",
+    "total": "1h 26m 44s",
   },
   "matrix": {
     "any": {
@@ -82,46 +82,6 @@ exports[`generateMatrix preset=baseline baselining=false > result 1`] = `
         "TSPERF_JOB_NAME": "tsc_node_18_15_0_material_ui",
         "TSPERF_JOB_SCENARIO": "material-ui",
       },
-      "tsc_node_18_15_0_mui_docs_1": {
-        "TSPERF_JOB_HOST": "node@18.15.0",
-        "TSPERF_JOB_ITERATIONS": 6,
-        "TSPERF_JOB_KIND": "tsc",
-        "TSPERF_JOB_LOCATION": "public",
-        "TSPERF_JOB_NAME": "tsc_node_18_15_0_mui_docs_1",
-        "TSPERF_JOB_SCENARIO": "mui-docs-1",
-      },
-      "tsc_node_18_15_0_self_build_src": {
-        "TSPERF_JOB_HOST": "node@18.15.0",
-        "TSPERF_JOB_ITERATIONS": 6,
-        "TSPERF_JOB_KIND": "tsc",
-        "TSPERF_JOB_LOCATION": "public",
-        "TSPERF_JOB_NAME": "tsc_node_18_15_0_self_build_src",
-        "TSPERF_JOB_SCENARIO": "self-build-src",
-      },
-      "tsc_node_18_15_0_self_compiler": {
-        "TSPERF_JOB_HOST": "node@18.15.0",
-        "TSPERF_JOB_ITERATIONS": 6,
-        "TSPERF_JOB_KIND": "tsc",
-        "TSPERF_JOB_LOCATION": "public",
-        "TSPERF_JOB_NAME": "tsc_node_18_15_0_self_compiler",
-        "TSPERF_JOB_SCENARIO": "self-compiler",
-      },
-      "tsc_node_18_15_0_vscode": {
-        "TSPERF_JOB_HOST": "node@18.15.0",
-        "TSPERF_JOB_ITERATIONS": 6,
-        "TSPERF_JOB_KIND": "tsc",
-        "TSPERF_JOB_LOCATION": "public",
-        "TSPERF_JOB_NAME": "tsc_node_18_15_0_vscode",
-        "TSPERF_JOB_SCENARIO": "vscode",
-      },
-      "tsc_node_18_15_0_webpack_1": {
-        "TSPERF_JOB_HOST": "node@18.15.0",
-        "TSPERF_JOB_ITERATIONS": 6,
-        "TSPERF_JOB_KIND": "tsc",
-        "TSPERF_JOB_LOCATION": "public",
-        "TSPERF_JOB_NAME": "tsc_node_18_15_0_webpack_1",
-        "TSPERF_JOB_SCENARIO": "webpack-1",
-      },
       "tsc_node_18_15_0_xstate": {
         "TSPERF_JOB_HOST": "node@18.15.0",
         "TSPERF_JOB_ITERATIONS": 6,
@@ -170,46 +130,6 @@ exports[`generateMatrix preset=baseline baselining=false > result 1`] = `
         "TSPERF_JOB_NAME": "tsc_node_20_5_1_material_ui",
         "TSPERF_JOB_SCENARIO": "material-ui",
       },
-      "tsc_node_20_5_1_mui_docs_1": {
-        "TSPERF_JOB_HOST": "node@20.5.1",
-        "TSPERF_JOB_ITERATIONS": 6,
-        "TSPERF_JOB_KIND": "tsc",
-        "TSPERF_JOB_LOCATION": "public",
-        "TSPERF_JOB_NAME": "tsc_node_20_5_1_mui_docs_1",
-        "TSPERF_JOB_SCENARIO": "mui-docs-1",
-      },
-      "tsc_node_20_5_1_self_build_src": {
-        "TSPERF_JOB_HOST": "node@20.5.1",
-        "TSPERF_JOB_ITERATIONS": 6,
-        "TSPERF_JOB_KIND": "tsc",
-        "TSPERF_JOB_LOCATION": "public",
-        "TSPERF_JOB_NAME": "tsc_node_20_5_1_self_build_src",
-        "TSPERF_JOB_SCENARIO": "self-build-src",
-      },
-      "tsc_node_20_5_1_self_compiler": {
-        "TSPERF_JOB_HOST": "node@20.5.1",
-        "TSPERF_JOB_ITERATIONS": 6,
-        "TSPERF_JOB_KIND": "tsc",
-        "TSPERF_JOB_LOCATION": "public",
-        "TSPERF_JOB_NAME": "tsc_node_20_5_1_self_compiler",
-        "TSPERF_JOB_SCENARIO": "self-compiler",
-      },
-      "tsc_node_20_5_1_vscode": {
-        "TSPERF_JOB_HOST": "node@20.5.1",
-        "TSPERF_JOB_ITERATIONS": 6,
-        "TSPERF_JOB_KIND": "tsc",
-        "TSPERF_JOB_LOCATION": "public",
-        "TSPERF_JOB_NAME": "tsc_node_20_5_1_vscode",
-        "TSPERF_JOB_SCENARIO": "vscode",
-      },
-      "tsc_node_20_5_1_webpack_1": {
-        "TSPERF_JOB_HOST": "node@20.5.1",
-        "TSPERF_JOB_ITERATIONS": 6,
-        "TSPERF_JOB_KIND": "tsc",
-        "TSPERF_JOB_LOCATION": "public",
-        "TSPERF_JOB_NAME": "tsc_node_20_5_1_webpack_1",
-        "TSPERF_JOB_SCENARIO": "webpack-1",
-      },
       "tsc_node_20_5_1_xstate": {
         "TSPERF_JOB_HOST": "node@20.5.1",
         "TSPERF_JOB_ITERATIONS": 6,
@@ -249,13 +169,13 @@ exports[`generateMatrix preset=baseline baselining=false > result 1`] = `
     "ts-perf4": {},
   },
   "outputVariables": {
-    "MATRIX_any": "{"startup_node_18_15_0_tsc_startup":{"TSPERF_JOB_HOST":"node@18.15.0","TSPERF_JOB_ITERATIONS":6,"TSPERF_JOB_KIND":"startup","TSPERF_JOB_LOCATION":"internal","TSPERF_JOB_NAME":"startup_node_18_15_0_tsc_startup","TSPERF_JOB_SCENARIO":"tsc-startup"},"startup_node_18_15_0_tsserver_startup":{"TSPERF_JOB_HOST":"node@18.15.0","TSPERF_JOB_ITERATIONS":6,"TSPERF_JOB_KIND":"startup","TSPERF_JOB_LOCATION":"internal","TSPERF_JOB_NAME":"startup_node_18_15_0_tsserver_startup","TSPERF_JOB_SCENARIO":"tsserver-startup"},"startup_node_18_15_0_tsserverlibrary_startup":{"TSPERF_JOB_HOST":"node@18.15.0","TSPERF_JOB_ITERATIONS":6,"TSPERF_JOB_KIND":"startup","TSPERF_JOB_LOCATION":"internal","TSPERF_JOB_NAME":"startup_node_18_15_0_tsserverlibrary_startup","TSPERF_JOB_SCENARIO":"tsserverlibrary-startup"},"startup_node_18_15_0_typescript_startup":{"TSPERF_JOB_HOST":"node@18.15.0","TSPERF_JOB_ITERATIONS":6,"TSPERF_JOB_KIND":"startup","TSPERF_JOB_LOCATION":"internal","TSPERF_JOB_NAME":"startup_node_18_15_0_typescript_startup","TSPERF_JOB_SCENARIO":"typescript-startup"},"tsc_node_18_15_0_Angular":{"TSPERF_JOB_HOST":"node@18.15.0","TSPERF_JOB_ITERATIONS":6,"TSPERF_JOB_KIND":"tsc","TSPERF_JOB_LOCATION":"internal","TSPERF_JOB_NAME":"tsc_node_18_15_0_Angular","TSPERF_JOB_SCENARIO":"Angular"},"tsc_node_18_15_0_Compiler_Unions":{"TSPERF_JOB_HOST":"node@18.15.0","TSPERF_JOB_ITERATIONS":6,"TSPERF_JOB_KIND":"tsc","TSPERF_JOB_LOCATION":"internal","TSPERF_JOB_NAME":"tsc_node_18_15_0_Compiler_Unions","TSPERF_JOB_SCENARIO":"Compiler-Unions"},"tsc_node_18_15_0_Monaco":{"TSPERF_JOB_HOST":"node@18.15.0","TSPERF_JOB_ITERATIONS":6,"TSPERF_JOB_KIND":"tsc","TSPERF_JOB_LOCATION":"internal","TSPERF_JOB_NAME":"tsc_node_18_15_0_Monaco","TSPERF_JOB_SCENARIO":"Monaco"},"tsc_node_18_15_0_TFS":{"TSPERF_JOB_HOST":"node@18.15.0","TSPERF_JOB_ITERATIONS":6,"TSPERF_JOB_KIND":"tsc","TSPERF_JOB_LOCATION":"internal","TSPERF_JOB_NAME":"tsc_node_18_15_0_TFS","TSPERF_JOB_SCENARIO":"TFS"},"tsc_node_18_15_0_material_ui":{"TSPERF_JOB_HOST":"node@18.15.0","TSPERF_JOB_ITERATIONS":6,"TSPERF_JOB_KIND":"tsc","TSPERF_JOB_LOCATION":"internal","TSPERF_JOB_NAME":"tsc_node_18_15_0_material_ui","TSPERF_JOB_SCENARIO":"material-ui"},"tsc_node_18_15_0_mui_docs_1":{"TSPERF_JOB_HOST":"node@18.15.0","TSPERF_JOB_ITERATIONS":6,"TSPERF_JOB_KIND":"tsc","TSPERF_JOB_LOCATION":"public","TSPERF_JOB_NAME":"tsc_node_18_15_0_mui_docs_1","TSPERF_JOB_SCENARIO":"mui-docs-1"},"tsc_node_18_15_0_self_build_src":{"TSPERF_JOB_HOST":"node@18.15.0","TSPERF_JOB_ITERATIONS":6,"TSPERF_JOB_KIND":"tsc","TSPERF_JOB_LOCATION":"public","TSPERF_JOB_NAME":"tsc_node_18_15_0_self_build_src","TSPERF_JOB_SCENARIO":"self-build-src"},"tsc_node_18_15_0_self_compiler":{"TSPERF_JOB_HOST":"node@18.15.0","TSPERF_JOB_ITERATIONS":6,"TSPERF_JOB_KIND":"tsc","TSPERF_JOB_LOCATION":"public","TSPERF_JOB_NAME":"tsc_node_18_15_0_self_compiler","TSPERF_JOB_SCENARIO":"self-compiler"},"tsc_node_18_15_0_vscode":{"TSPERF_JOB_HOST":"node@18.15.0","TSPERF_JOB_ITERATIONS":6,"TSPERF_JOB_KIND":"tsc","TSPERF_JOB_LOCATION":"public","TSPERF_JOB_NAME":"tsc_node_18_15_0_vscode","TSPERF_JOB_SCENARIO":"vscode"},"tsc_node_18_15_0_webpack_1":{"TSPERF_JOB_HOST":"node@18.15.0","TSPERF_JOB_ITERATIONS":6,"TSPERF_JOB_KIND":"tsc","TSPERF_JOB_LOCATION":"public","TSPERF_JOB_NAME":"tsc_node_18_15_0_webpack_1","TSPERF_JOB_SCENARIO":"webpack-1"},"tsc_node_18_15_0_xstate":{"TSPERF_JOB_HOST":"node@18.15.0","TSPERF_JOB_ITERATIONS":6,"TSPERF_JOB_KIND":"tsc","TSPERF_JOB_LOCATION":"internal","TSPERF_JOB_NAME":"tsc_node_18_15_0_xstate","TSPERF_JOB_SCENARIO":"xstate"},"tsc_node_20_5_1_Angular":{"TSPERF_JOB_HOST":"node@20.5.1","TSPERF_JOB_ITERATIONS":6,"TSPERF_JOB_KIND":"tsc","TSPERF_JOB_LOCATION":"internal","TSPERF_JOB_NAME":"tsc_node_20_5_1_Angular","TSPERF_JOB_SCENARIO":"Angular"},"tsc_node_20_5_1_Compiler_Unions":{"TSPERF_JOB_HOST":"node@20.5.1","TSPERF_JOB_ITERATIONS":6,"TSPERF_JOB_KIND":"tsc","TSPERF_JOB_LOCATION":"internal","TSPERF_JOB_NAME":"tsc_node_20_5_1_Compiler_Unions","TSPERF_JOB_SCENARIO":"Compiler-Unions"},"tsc_node_20_5_1_Monaco":{"TSPERF_JOB_HOST":"node@20.5.1","TSPERF_JOB_ITERATIONS":6,"TSPERF_JOB_KIND":"tsc","TSPERF_JOB_LOCATION":"internal","TSPERF_JOB_NAME":"tsc_node_20_5_1_Monaco","TSPERF_JOB_SCENARIO":"Monaco"},"tsc_node_20_5_1_TFS":{"TSPERF_JOB_HOST":"node@20.5.1","TSPERF_JOB_ITERATIONS":6,"TSPERF_JOB_KIND":"tsc","TSPERF_JOB_LOCATION":"internal","TSPERF_JOB_NAME":"tsc_node_20_5_1_TFS","TSPERF_JOB_SCENARIO":"TFS"},"tsc_node_20_5_1_material_ui":{"TSPERF_JOB_HOST":"node@20.5.1","TSPERF_JOB_ITERATIONS":6,"TSPERF_JOB_KIND":"tsc","TSPERF_JOB_LOCATION":"internal","TSPERF_JOB_NAME":"tsc_node_20_5_1_material_ui","TSPERF_JOB_SCENARIO":"material-ui"},"tsc_node_20_5_1_mui_docs_1":{"TSPERF_JOB_HOST":"node@20.5.1","TSPERF_JOB_ITERATIONS":6,"TSPERF_JOB_KIND":"tsc","TSPERF_JOB_LOCATION":"public","TSPERF_JOB_NAME":"tsc_node_20_5_1_mui_docs_1","TSPERF_JOB_SCENARIO":"mui-docs-1"},"tsc_node_20_5_1_self_build_src":{"TSPERF_JOB_HOST":"node@20.5.1","TSPERF_JOB_ITERATIONS":6,"TSPERF_JOB_KIND":"tsc","TSPERF_JOB_LOCATION":"public","TSPERF_JOB_NAME":"tsc_node_20_5_1_self_build_src","TSPERF_JOB_SCENARIO":"self-build-src"},"tsc_node_20_5_1_self_compiler":{"TSPERF_JOB_HOST":"node@20.5.1","TSPERF_JOB_ITERATIONS":6,"TSPERF_JOB_KIND":"tsc","TSPERF_JOB_LOCATION":"public","TSPERF_JOB_NAME":"tsc_node_20_5_1_self_compiler","TSPERF_JOB_SCENARIO":"self-compiler"},"tsc_node_20_5_1_vscode":{"TSPERF_JOB_HOST":"node@20.5.1","TSPERF_JOB_ITERATIONS":6,"TSPERF_JOB_KIND":"tsc","TSPERF_JOB_LOCATION":"public","TSPERF_JOB_NAME":"tsc_node_20_5_1_vscode","TSPERF_JOB_SCENARIO":"vscode"},"tsc_node_20_5_1_webpack_1":{"TSPERF_JOB_HOST":"node@20.5.1","TSPERF_JOB_ITERATIONS":6,"TSPERF_JOB_KIND":"tsc","TSPERF_JOB_LOCATION":"public","TSPERF_JOB_NAME":"tsc_node_20_5_1_webpack_1","TSPERF_JOB_SCENARIO":"webpack-1"},"tsc_node_20_5_1_xstate":{"TSPERF_JOB_HOST":"node@20.5.1","TSPERF_JOB_ITERATIONS":6,"TSPERF_JOB_KIND":"tsc","TSPERF_JOB_LOCATION":"internal","TSPERF_JOB_NAME":"tsc_node_20_5_1_xstate","TSPERF_JOB_SCENARIO":"xstate"},"tsserver_node_18_15_0_CompilerTSServer":{"TSPERF_JOB_HOST":"node@18.15.0","TSPERF_JOB_ITERATIONS":6,"TSPERF_JOB_KIND":"tsserver","TSPERF_JOB_LOCATION":"internal","TSPERF_JOB_NAME":"tsserver_node_18_15_0_CompilerTSServer","TSPERF_JOB_SCENARIO":"CompilerTSServer"},"tsserver_node_18_15_0_Compiler_UnionsTSServer":{"TSPERF_JOB_HOST":"node@18.15.0","TSPERF_JOB_ITERATIONS":6,"TSPERF_JOB_KIND":"tsserver","TSPERF_JOB_LOCATION":"internal","TSPERF_JOB_NAME":"tsserver_node_18_15_0_Compiler_UnionsTSServer","TSPERF_JOB_SCENARIO":"Compiler-UnionsTSServer"},"tsserver_node_18_15_0_xstateTSServer":{"TSPERF_JOB_HOST":"node@18.15.0","TSPERF_JOB_ITERATIONS":6,"TSPERF_JOB_KIND":"tsserver","TSPERF_JOB_LOCATION":"internal","TSPERF_JOB_NAME":"tsserver_node_18_15_0_xstateTSServer","TSPERF_JOB_SCENARIO":"xstateTSServer"}}",
+    "MATRIX_any": "{"startup_node_18_15_0_tsc_startup":{"TSPERF_JOB_HOST":"node@18.15.0","TSPERF_JOB_ITERATIONS":6,"TSPERF_JOB_KIND":"startup","TSPERF_JOB_LOCATION":"internal","TSPERF_JOB_NAME":"startup_node_18_15_0_tsc_startup","TSPERF_JOB_SCENARIO":"tsc-startup"},"startup_node_18_15_0_tsserver_startup":{"TSPERF_JOB_HOST":"node@18.15.0","TSPERF_JOB_ITERATIONS":6,"TSPERF_JOB_KIND":"startup","TSPERF_JOB_LOCATION":"internal","TSPERF_JOB_NAME":"startup_node_18_15_0_tsserver_startup","TSPERF_JOB_SCENARIO":"tsserver-startup"},"startup_node_18_15_0_tsserverlibrary_startup":{"TSPERF_JOB_HOST":"node@18.15.0","TSPERF_JOB_ITERATIONS":6,"TSPERF_JOB_KIND":"startup","TSPERF_JOB_LOCATION":"internal","TSPERF_JOB_NAME":"startup_node_18_15_0_tsserverlibrary_startup","TSPERF_JOB_SCENARIO":"tsserverlibrary-startup"},"startup_node_18_15_0_typescript_startup":{"TSPERF_JOB_HOST":"node@18.15.0","TSPERF_JOB_ITERATIONS":6,"TSPERF_JOB_KIND":"startup","TSPERF_JOB_LOCATION":"internal","TSPERF_JOB_NAME":"startup_node_18_15_0_typescript_startup","TSPERF_JOB_SCENARIO":"typescript-startup"},"tsc_node_18_15_0_Angular":{"TSPERF_JOB_HOST":"node@18.15.0","TSPERF_JOB_ITERATIONS":6,"TSPERF_JOB_KIND":"tsc","TSPERF_JOB_LOCATION":"internal","TSPERF_JOB_NAME":"tsc_node_18_15_0_Angular","TSPERF_JOB_SCENARIO":"Angular"},"tsc_node_18_15_0_Compiler_Unions":{"TSPERF_JOB_HOST":"node@18.15.0","TSPERF_JOB_ITERATIONS":6,"TSPERF_JOB_KIND":"tsc","TSPERF_JOB_LOCATION":"internal","TSPERF_JOB_NAME":"tsc_node_18_15_0_Compiler_Unions","TSPERF_JOB_SCENARIO":"Compiler-Unions"},"tsc_node_18_15_0_Monaco":{"TSPERF_JOB_HOST":"node@18.15.0","TSPERF_JOB_ITERATIONS":6,"TSPERF_JOB_KIND":"tsc","TSPERF_JOB_LOCATION":"internal","TSPERF_JOB_NAME":"tsc_node_18_15_0_Monaco","TSPERF_JOB_SCENARIO":"Monaco"},"tsc_node_18_15_0_TFS":{"TSPERF_JOB_HOST":"node@18.15.0","TSPERF_JOB_ITERATIONS":6,"TSPERF_JOB_KIND":"tsc","TSPERF_JOB_LOCATION":"internal","TSPERF_JOB_NAME":"tsc_node_18_15_0_TFS","TSPERF_JOB_SCENARIO":"TFS"},"tsc_node_18_15_0_material_ui":{"TSPERF_JOB_HOST":"node@18.15.0","TSPERF_JOB_ITERATIONS":6,"TSPERF_JOB_KIND":"tsc","TSPERF_JOB_LOCATION":"internal","TSPERF_JOB_NAME":"tsc_node_18_15_0_material_ui","TSPERF_JOB_SCENARIO":"material-ui"},"tsc_node_18_15_0_xstate":{"TSPERF_JOB_HOST":"node@18.15.0","TSPERF_JOB_ITERATIONS":6,"TSPERF_JOB_KIND":"tsc","TSPERF_JOB_LOCATION":"internal","TSPERF_JOB_NAME":"tsc_node_18_15_0_xstate","TSPERF_JOB_SCENARIO":"xstate"},"tsc_node_20_5_1_Angular":{"TSPERF_JOB_HOST":"node@20.5.1","TSPERF_JOB_ITERATIONS":6,"TSPERF_JOB_KIND":"tsc","TSPERF_JOB_LOCATION":"internal","TSPERF_JOB_NAME":"tsc_node_20_5_1_Angular","TSPERF_JOB_SCENARIO":"Angular"},"tsc_node_20_5_1_Compiler_Unions":{"TSPERF_JOB_HOST":"node@20.5.1","TSPERF_JOB_ITERATIONS":6,"TSPERF_JOB_KIND":"tsc","TSPERF_JOB_LOCATION":"internal","TSPERF_JOB_NAME":"tsc_node_20_5_1_Compiler_Unions","TSPERF_JOB_SCENARIO":"Compiler-Unions"},"tsc_node_20_5_1_Monaco":{"TSPERF_JOB_HOST":"node@20.5.1","TSPERF_JOB_ITERATIONS":6,"TSPERF_JOB_KIND":"tsc","TSPERF_JOB_LOCATION":"internal","TSPERF_JOB_NAME":"tsc_node_20_5_1_Monaco","TSPERF_JOB_SCENARIO":"Monaco"},"tsc_node_20_5_1_TFS":{"TSPERF_JOB_HOST":"node@20.5.1","TSPERF_JOB_ITERATIONS":6,"TSPERF_JOB_KIND":"tsc","TSPERF_JOB_LOCATION":"internal","TSPERF_JOB_NAME":"tsc_node_20_5_1_TFS","TSPERF_JOB_SCENARIO":"TFS"},"tsc_node_20_5_1_material_ui":{"TSPERF_JOB_HOST":"node@20.5.1","TSPERF_JOB_ITERATIONS":6,"TSPERF_JOB_KIND":"tsc","TSPERF_JOB_LOCATION":"internal","TSPERF_JOB_NAME":"tsc_node_20_5_1_material_ui","TSPERF_JOB_SCENARIO":"material-ui"},"tsc_node_20_5_1_xstate":{"TSPERF_JOB_HOST":"node@20.5.1","TSPERF_JOB_ITERATIONS":6,"TSPERF_JOB_KIND":"tsc","TSPERF_JOB_LOCATION":"internal","TSPERF_JOB_NAME":"tsc_node_20_5_1_xstate","TSPERF_JOB_SCENARIO":"xstate"},"tsserver_node_18_15_0_CompilerTSServer":{"TSPERF_JOB_HOST":"node@18.15.0","TSPERF_JOB_ITERATIONS":6,"TSPERF_JOB_KIND":"tsserver","TSPERF_JOB_LOCATION":"internal","TSPERF_JOB_NAME":"tsserver_node_18_15_0_CompilerTSServer","TSPERF_JOB_SCENARIO":"CompilerTSServer"},"tsserver_node_18_15_0_Compiler_UnionsTSServer":{"TSPERF_JOB_HOST":"node@18.15.0","TSPERF_JOB_ITERATIONS":6,"TSPERF_JOB_KIND":"tsserver","TSPERF_JOB_LOCATION":"internal","TSPERF_JOB_NAME":"tsserver_node_18_15_0_Compiler_UnionsTSServer","TSPERF_JOB_SCENARIO":"Compiler-UnionsTSServer"},"tsserver_node_18_15_0_xstateTSServer":{"TSPERF_JOB_HOST":"node@18.15.0","TSPERF_JOB_ITERATIONS":6,"TSPERF_JOB_KIND":"tsserver","TSPERF_JOB_LOCATION":"internal","TSPERF_JOB_NAME":"tsserver_node_18_15_0_xstateTSServer","TSPERF_JOB_SCENARIO":"xstateTSServer"}}",
     "MATRIX_ts_perf1": "{}",
     "MATRIX_ts_perf2": "{}",
     "MATRIX_ts_perf3": "{}",
     "MATRIX_ts_perf4": "{}",
     "TSPERF_PROCESS_KINDS": "tsc tsserver startup",
-    "TSPERF_PROCESS_LOCATIONS": "internal,public",
+    "TSPERF_PROCESS_LOCATIONS": "internal",
   },
 }
 `;
@@ -265,8 +185,8 @@ exports[`generateMatrix preset=baseline baselining=true > error 1`] = `undefined
 exports[`generateMatrix preset=baseline baselining=true > result 1`] = `
 {
   "compute": {
-    "parallel": "51m 2s",
-    "total": "1h 36m 26s",
+    "parallel": "17m 58s",
+    "total": "43m 22s",
   },
   "matrix": {
     "any": {},
@@ -303,22 +223,6 @@ exports[`generateMatrix preset=baseline baselining=true > result 1`] = `
         "TSPERF_JOB_NAME": "tsc_node_18_15_0_material_ui",
         "TSPERF_JOB_SCENARIO": "material-ui",
       },
-      "tsc_node_18_15_0_mui_docs_1": {
-        "TSPERF_JOB_HOST": "node@18.15.0",
-        "TSPERF_JOB_ITERATIONS": 6,
-        "TSPERF_JOB_KIND": "tsc",
-        "TSPERF_JOB_LOCATION": "public",
-        "TSPERF_JOB_NAME": "tsc_node_18_15_0_mui_docs_1",
-        "TSPERF_JOB_SCENARIO": "mui-docs-1",
-      },
-      "tsc_node_18_15_0_vscode": {
-        "TSPERF_JOB_HOST": "node@18.15.0",
-        "TSPERF_JOB_ITERATIONS": 6,
-        "TSPERF_JOB_KIND": "tsc",
-        "TSPERF_JOB_LOCATION": "public",
-        "TSPERF_JOB_NAME": "tsc_node_18_15_0_vscode",
-        "TSPERF_JOB_SCENARIO": "vscode",
-      },
       "tsc_node_20_5_1_Angular": {
         "TSPERF_JOB_HOST": "node@20.5.1",
         "TSPERF_JOB_ITERATIONS": 6,
@@ -334,22 +238,6 @@ exports[`generateMatrix preset=baseline baselining=true > result 1`] = `
         "TSPERF_JOB_LOCATION": "internal",
         "TSPERF_JOB_NAME": "tsc_node_20_5_1_material_ui",
         "TSPERF_JOB_SCENARIO": "material-ui",
-      },
-      "tsc_node_20_5_1_mui_docs_1": {
-        "TSPERF_JOB_HOST": "node@20.5.1",
-        "TSPERF_JOB_ITERATIONS": 6,
-        "TSPERF_JOB_KIND": "tsc",
-        "TSPERF_JOB_LOCATION": "public",
-        "TSPERF_JOB_NAME": "tsc_node_20_5_1_mui_docs_1",
-        "TSPERF_JOB_SCENARIO": "mui-docs-1",
-      },
-      "tsc_node_20_5_1_vscode": {
-        "TSPERF_JOB_HOST": "node@20.5.1",
-        "TSPERF_JOB_ITERATIONS": 6,
-        "TSPERF_JOB_KIND": "tsc",
-        "TSPERF_JOB_LOCATION": "public",
-        "TSPERF_JOB_NAME": "tsc_node_20_5_1_vscode",
-        "TSPERF_JOB_SCENARIO": "vscode",
       },
       "tsserver_node_18_15_0_Compiler_UnionsTSServer": {
         "TSPERF_JOB_HOST": "node@18.15.0",
@@ -385,14 +273,6 @@ exports[`generateMatrix preset=baseline baselining=true > result 1`] = `
         "TSPERF_JOB_NAME": "tsc_node_18_15_0_Monaco",
         "TSPERF_JOB_SCENARIO": "Monaco",
       },
-      "tsc_node_18_15_0_self_compiler": {
-        "TSPERF_JOB_HOST": "node@18.15.0",
-        "TSPERF_JOB_ITERATIONS": 6,
-        "TSPERF_JOB_KIND": "tsc",
-        "TSPERF_JOB_LOCATION": "public",
-        "TSPERF_JOB_NAME": "tsc_node_18_15_0_self_compiler",
-        "TSPERF_JOB_SCENARIO": "self-compiler",
-      },
       "tsc_node_20_5_1_Compiler_Unions": {
         "TSPERF_JOB_HOST": "node@20.5.1",
         "TSPERF_JOB_ITERATIONS": 6,
@@ -408,14 +288,6 @@ exports[`generateMatrix preset=baseline baselining=true > result 1`] = `
         "TSPERF_JOB_LOCATION": "internal",
         "TSPERF_JOB_NAME": "tsc_node_20_5_1_Monaco",
         "TSPERF_JOB_SCENARIO": "Monaco",
-      },
-      "tsc_node_20_5_1_self_compiler": {
-        "TSPERF_JOB_HOST": "node@20.5.1",
-        "TSPERF_JOB_ITERATIONS": 6,
-        "TSPERF_JOB_KIND": "tsc",
-        "TSPERF_JOB_LOCATION": "public",
-        "TSPERF_JOB_NAME": "tsc_node_20_5_1_self_compiler",
-        "TSPERF_JOB_SCENARIO": "self-compiler",
       },
       "tsserver_node_18_15_0_CompilerTSServer": {
         "TSPERF_JOB_HOST": "node@18.15.0",
@@ -443,22 +315,6 @@ exports[`generateMatrix preset=baseline baselining=true > result 1`] = `
         "TSPERF_JOB_NAME": "tsc_node_18_15_0_TFS",
         "TSPERF_JOB_SCENARIO": "TFS",
       },
-      "tsc_node_18_15_0_self_build_src": {
-        "TSPERF_JOB_HOST": "node@18.15.0",
-        "TSPERF_JOB_ITERATIONS": 6,
-        "TSPERF_JOB_KIND": "tsc",
-        "TSPERF_JOB_LOCATION": "public",
-        "TSPERF_JOB_NAME": "tsc_node_18_15_0_self_build_src",
-        "TSPERF_JOB_SCENARIO": "self-build-src",
-      },
-      "tsc_node_18_15_0_webpack_1": {
-        "TSPERF_JOB_HOST": "node@18.15.0",
-        "TSPERF_JOB_ITERATIONS": 6,
-        "TSPERF_JOB_KIND": "tsc",
-        "TSPERF_JOB_LOCATION": "public",
-        "TSPERF_JOB_NAME": "tsc_node_18_15_0_webpack_1",
-        "TSPERF_JOB_SCENARIO": "webpack-1",
-      },
       "tsc_node_18_15_0_xstate": {
         "TSPERF_JOB_HOST": "node@18.15.0",
         "TSPERF_JOB_ITERATIONS": 6,
@@ -474,22 +330,6 @@ exports[`generateMatrix preset=baseline baselining=true > result 1`] = `
         "TSPERF_JOB_LOCATION": "internal",
         "TSPERF_JOB_NAME": "tsc_node_20_5_1_TFS",
         "TSPERF_JOB_SCENARIO": "TFS",
-      },
-      "tsc_node_20_5_1_self_build_src": {
-        "TSPERF_JOB_HOST": "node@20.5.1",
-        "TSPERF_JOB_ITERATIONS": 6,
-        "TSPERF_JOB_KIND": "tsc",
-        "TSPERF_JOB_LOCATION": "public",
-        "TSPERF_JOB_NAME": "tsc_node_20_5_1_self_build_src",
-        "TSPERF_JOB_SCENARIO": "self-build-src",
-      },
-      "tsc_node_20_5_1_webpack_1": {
-        "TSPERF_JOB_HOST": "node@20.5.1",
-        "TSPERF_JOB_ITERATIONS": 6,
-        "TSPERF_JOB_KIND": "tsc",
-        "TSPERF_JOB_LOCATION": "public",
-        "TSPERF_JOB_NAME": "tsc_node_20_5_1_webpack_1",
-        "TSPERF_JOB_SCENARIO": "webpack-1",
       },
       "tsc_node_20_5_1_xstate": {
         "TSPERF_JOB_HOST": "node@20.5.1",
@@ -512,12 +352,12 @@ exports[`generateMatrix preset=baseline baselining=true > result 1`] = `
   },
   "outputVariables": {
     "MATRIX_any": "{}",
-    "MATRIX_ts_perf1": "{"startup_node_18_15_0_tsc_startup":{"TSPERF_JOB_HOST":"node@18.15.0","TSPERF_JOB_ITERATIONS":6,"TSPERF_JOB_KIND":"startup","TSPERF_JOB_LOCATION":"internal","TSPERF_JOB_NAME":"startup_node_18_15_0_tsc_startup","TSPERF_JOB_SCENARIO":"tsc-startup"},"startup_node_18_15_0_typescript_startup":{"TSPERF_JOB_HOST":"node@18.15.0","TSPERF_JOB_ITERATIONS":6,"TSPERF_JOB_KIND":"startup","TSPERF_JOB_LOCATION":"internal","TSPERF_JOB_NAME":"startup_node_18_15_0_typescript_startup","TSPERF_JOB_SCENARIO":"typescript-startup"},"tsc_node_18_15_0_Angular":{"TSPERF_JOB_HOST":"node@18.15.0","TSPERF_JOB_ITERATIONS":6,"TSPERF_JOB_KIND":"tsc","TSPERF_JOB_LOCATION":"internal","TSPERF_JOB_NAME":"tsc_node_18_15_0_Angular","TSPERF_JOB_SCENARIO":"Angular"},"tsc_node_18_15_0_material_ui":{"TSPERF_JOB_HOST":"node@18.15.0","TSPERF_JOB_ITERATIONS":6,"TSPERF_JOB_KIND":"tsc","TSPERF_JOB_LOCATION":"internal","TSPERF_JOB_NAME":"tsc_node_18_15_0_material_ui","TSPERF_JOB_SCENARIO":"material-ui"},"tsc_node_18_15_0_mui_docs_1":{"TSPERF_JOB_HOST":"node@18.15.0","TSPERF_JOB_ITERATIONS":6,"TSPERF_JOB_KIND":"tsc","TSPERF_JOB_LOCATION":"public","TSPERF_JOB_NAME":"tsc_node_18_15_0_mui_docs_1","TSPERF_JOB_SCENARIO":"mui-docs-1"},"tsc_node_18_15_0_vscode":{"TSPERF_JOB_HOST":"node@18.15.0","TSPERF_JOB_ITERATIONS":6,"TSPERF_JOB_KIND":"tsc","TSPERF_JOB_LOCATION":"public","TSPERF_JOB_NAME":"tsc_node_18_15_0_vscode","TSPERF_JOB_SCENARIO":"vscode"},"tsc_node_20_5_1_Angular":{"TSPERF_JOB_HOST":"node@20.5.1","TSPERF_JOB_ITERATIONS":6,"TSPERF_JOB_KIND":"tsc","TSPERF_JOB_LOCATION":"internal","TSPERF_JOB_NAME":"tsc_node_20_5_1_Angular","TSPERF_JOB_SCENARIO":"Angular"},"tsc_node_20_5_1_material_ui":{"TSPERF_JOB_HOST":"node@20.5.1","TSPERF_JOB_ITERATIONS":6,"TSPERF_JOB_KIND":"tsc","TSPERF_JOB_LOCATION":"internal","TSPERF_JOB_NAME":"tsc_node_20_5_1_material_ui","TSPERF_JOB_SCENARIO":"material-ui"},"tsc_node_20_5_1_mui_docs_1":{"TSPERF_JOB_HOST":"node@20.5.1","TSPERF_JOB_ITERATIONS":6,"TSPERF_JOB_KIND":"tsc","TSPERF_JOB_LOCATION":"public","TSPERF_JOB_NAME":"tsc_node_20_5_1_mui_docs_1","TSPERF_JOB_SCENARIO":"mui-docs-1"},"tsc_node_20_5_1_vscode":{"TSPERF_JOB_HOST":"node@20.5.1","TSPERF_JOB_ITERATIONS":6,"TSPERF_JOB_KIND":"tsc","TSPERF_JOB_LOCATION":"public","TSPERF_JOB_NAME":"tsc_node_20_5_1_vscode","TSPERF_JOB_SCENARIO":"vscode"},"tsserver_node_18_15_0_Compiler_UnionsTSServer":{"TSPERF_JOB_HOST":"node@18.15.0","TSPERF_JOB_ITERATIONS":6,"TSPERF_JOB_KIND":"tsserver","TSPERF_JOB_LOCATION":"internal","TSPERF_JOB_NAME":"tsserver_node_18_15_0_Compiler_UnionsTSServer","TSPERF_JOB_SCENARIO":"Compiler-UnionsTSServer"}}",
-    "MATRIX_ts_perf2": "{"startup_node_18_15_0_tsserver_startup":{"TSPERF_JOB_HOST":"node@18.15.0","TSPERF_JOB_ITERATIONS":6,"TSPERF_JOB_KIND":"startup","TSPERF_JOB_LOCATION":"internal","TSPERF_JOB_NAME":"startup_node_18_15_0_tsserver_startup","TSPERF_JOB_SCENARIO":"tsserver-startup"},"tsc_node_18_15_0_Compiler_Unions":{"TSPERF_JOB_HOST":"node@18.15.0","TSPERF_JOB_ITERATIONS":6,"TSPERF_JOB_KIND":"tsc","TSPERF_JOB_LOCATION":"internal","TSPERF_JOB_NAME":"tsc_node_18_15_0_Compiler_Unions","TSPERF_JOB_SCENARIO":"Compiler-Unions"},"tsc_node_18_15_0_Monaco":{"TSPERF_JOB_HOST":"node@18.15.0","TSPERF_JOB_ITERATIONS":6,"TSPERF_JOB_KIND":"tsc","TSPERF_JOB_LOCATION":"internal","TSPERF_JOB_NAME":"tsc_node_18_15_0_Monaco","TSPERF_JOB_SCENARIO":"Monaco"},"tsc_node_18_15_0_self_compiler":{"TSPERF_JOB_HOST":"node@18.15.0","TSPERF_JOB_ITERATIONS":6,"TSPERF_JOB_KIND":"tsc","TSPERF_JOB_LOCATION":"public","TSPERF_JOB_NAME":"tsc_node_18_15_0_self_compiler","TSPERF_JOB_SCENARIO":"self-compiler"},"tsc_node_20_5_1_Compiler_Unions":{"TSPERF_JOB_HOST":"node@20.5.1","TSPERF_JOB_ITERATIONS":6,"TSPERF_JOB_KIND":"tsc","TSPERF_JOB_LOCATION":"internal","TSPERF_JOB_NAME":"tsc_node_20_5_1_Compiler_Unions","TSPERF_JOB_SCENARIO":"Compiler-Unions"},"tsc_node_20_5_1_Monaco":{"TSPERF_JOB_HOST":"node@20.5.1","TSPERF_JOB_ITERATIONS":6,"TSPERF_JOB_KIND":"tsc","TSPERF_JOB_LOCATION":"internal","TSPERF_JOB_NAME":"tsc_node_20_5_1_Monaco","TSPERF_JOB_SCENARIO":"Monaco"},"tsc_node_20_5_1_self_compiler":{"TSPERF_JOB_HOST":"node@20.5.1","TSPERF_JOB_ITERATIONS":6,"TSPERF_JOB_KIND":"tsc","TSPERF_JOB_LOCATION":"public","TSPERF_JOB_NAME":"tsc_node_20_5_1_self_compiler","TSPERF_JOB_SCENARIO":"self-compiler"},"tsserver_node_18_15_0_CompilerTSServer":{"TSPERF_JOB_HOST":"node@18.15.0","TSPERF_JOB_ITERATIONS":6,"TSPERF_JOB_KIND":"tsserver","TSPERF_JOB_LOCATION":"internal","TSPERF_JOB_NAME":"tsserver_node_18_15_0_CompilerTSServer","TSPERF_JOB_SCENARIO":"CompilerTSServer"}}",
-    "MATRIX_ts_perf3": "{"startup_node_18_15_0_tsserverlibrary_startup":{"TSPERF_JOB_HOST":"node@18.15.0","TSPERF_JOB_ITERATIONS":6,"TSPERF_JOB_KIND":"startup","TSPERF_JOB_LOCATION":"internal","TSPERF_JOB_NAME":"startup_node_18_15_0_tsserverlibrary_startup","TSPERF_JOB_SCENARIO":"tsserverlibrary-startup"},"tsc_node_18_15_0_TFS":{"TSPERF_JOB_HOST":"node@18.15.0","TSPERF_JOB_ITERATIONS":6,"TSPERF_JOB_KIND":"tsc","TSPERF_JOB_LOCATION":"internal","TSPERF_JOB_NAME":"tsc_node_18_15_0_TFS","TSPERF_JOB_SCENARIO":"TFS"},"tsc_node_18_15_0_self_build_src":{"TSPERF_JOB_HOST":"node@18.15.0","TSPERF_JOB_ITERATIONS":6,"TSPERF_JOB_KIND":"tsc","TSPERF_JOB_LOCATION":"public","TSPERF_JOB_NAME":"tsc_node_18_15_0_self_build_src","TSPERF_JOB_SCENARIO":"self-build-src"},"tsc_node_18_15_0_webpack_1":{"TSPERF_JOB_HOST":"node@18.15.0","TSPERF_JOB_ITERATIONS":6,"TSPERF_JOB_KIND":"tsc","TSPERF_JOB_LOCATION":"public","TSPERF_JOB_NAME":"tsc_node_18_15_0_webpack_1","TSPERF_JOB_SCENARIO":"webpack-1"},"tsc_node_18_15_0_xstate":{"TSPERF_JOB_HOST":"node@18.15.0","TSPERF_JOB_ITERATIONS":6,"TSPERF_JOB_KIND":"tsc","TSPERF_JOB_LOCATION":"internal","TSPERF_JOB_NAME":"tsc_node_18_15_0_xstate","TSPERF_JOB_SCENARIO":"xstate"},"tsc_node_20_5_1_TFS":{"TSPERF_JOB_HOST":"node@20.5.1","TSPERF_JOB_ITERATIONS":6,"TSPERF_JOB_KIND":"tsc","TSPERF_JOB_LOCATION":"internal","TSPERF_JOB_NAME":"tsc_node_20_5_1_TFS","TSPERF_JOB_SCENARIO":"TFS"},"tsc_node_20_5_1_self_build_src":{"TSPERF_JOB_HOST":"node@20.5.1","TSPERF_JOB_ITERATIONS":6,"TSPERF_JOB_KIND":"tsc","TSPERF_JOB_LOCATION":"public","TSPERF_JOB_NAME":"tsc_node_20_5_1_self_build_src","TSPERF_JOB_SCENARIO":"self-build-src"},"tsc_node_20_5_1_webpack_1":{"TSPERF_JOB_HOST":"node@20.5.1","TSPERF_JOB_ITERATIONS":6,"TSPERF_JOB_KIND":"tsc","TSPERF_JOB_LOCATION":"public","TSPERF_JOB_NAME":"tsc_node_20_5_1_webpack_1","TSPERF_JOB_SCENARIO":"webpack-1"},"tsc_node_20_5_1_xstate":{"TSPERF_JOB_HOST":"node@20.5.1","TSPERF_JOB_ITERATIONS":6,"TSPERF_JOB_KIND":"tsc","TSPERF_JOB_LOCATION":"internal","TSPERF_JOB_NAME":"tsc_node_20_5_1_xstate","TSPERF_JOB_SCENARIO":"xstate"},"tsserver_node_18_15_0_xstateTSServer":{"TSPERF_JOB_HOST":"node@18.15.0","TSPERF_JOB_ITERATIONS":6,"TSPERF_JOB_KIND":"tsserver","TSPERF_JOB_LOCATION":"internal","TSPERF_JOB_NAME":"tsserver_node_18_15_0_xstateTSServer","TSPERF_JOB_SCENARIO":"xstateTSServer"}}",
+    "MATRIX_ts_perf1": "{"startup_node_18_15_0_tsc_startup":{"TSPERF_JOB_HOST":"node@18.15.0","TSPERF_JOB_ITERATIONS":6,"TSPERF_JOB_KIND":"startup","TSPERF_JOB_LOCATION":"internal","TSPERF_JOB_NAME":"startup_node_18_15_0_tsc_startup","TSPERF_JOB_SCENARIO":"tsc-startup"},"startup_node_18_15_0_typescript_startup":{"TSPERF_JOB_HOST":"node@18.15.0","TSPERF_JOB_ITERATIONS":6,"TSPERF_JOB_KIND":"startup","TSPERF_JOB_LOCATION":"internal","TSPERF_JOB_NAME":"startup_node_18_15_0_typescript_startup","TSPERF_JOB_SCENARIO":"typescript-startup"},"tsc_node_18_15_0_Angular":{"TSPERF_JOB_HOST":"node@18.15.0","TSPERF_JOB_ITERATIONS":6,"TSPERF_JOB_KIND":"tsc","TSPERF_JOB_LOCATION":"internal","TSPERF_JOB_NAME":"tsc_node_18_15_0_Angular","TSPERF_JOB_SCENARIO":"Angular"},"tsc_node_18_15_0_material_ui":{"TSPERF_JOB_HOST":"node@18.15.0","TSPERF_JOB_ITERATIONS":6,"TSPERF_JOB_KIND":"tsc","TSPERF_JOB_LOCATION":"internal","TSPERF_JOB_NAME":"tsc_node_18_15_0_material_ui","TSPERF_JOB_SCENARIO":"material-ui"},"tsc_node_20_5_1_Angular":{"TSPERF_JOB_HOST":"node@20.5.1","TSPERF_JOB_ITERATIONS":6,"TSPERF_JOB_KIND":"tsc","TSPERF_JOB_LOCATION":"internal","TSPERF_JOB_NAME":"tsc_node_20_5_1_Angular","TSPERF_JOB_SCENARIO":"Angular"},"tsc_node_20_5_1_material_ui":{"TSPERF_JOB_HOST":"node@20.5.1","TSPERF_JOB_ITERATIONS":6,"TSPERF_JOB_KIND":"tsc","TSPERF_JOB_LOCATION":"internal","TSPERF_JOB_NAME":"tsc_node_20_5_1_material_ui","TSPERF_JOB_SCENARIO":"material-ui"},"tsserver_node_18_15_0_Compiler_UnionsTSServer":{"TSPERF_JOB_HOST":"node@18.15.0","TSPERF_JOB_ITERATIONS":6,"TSPERF_JOB_KIND":"tsserver","TSPERF_JOB_LOCATION":"internal","TSPERF_JOB_NAME":"tsserver_node_18_15_0_Compiler_UnionsTSServer","TSPERF_JOB_SCENARIO":"Compiler-UnionsTSServer"}}",
+    "MATRIX_ts_perf2": "{"startup_node_18_15_0_tsserver_startup":{"TSPERF_JOB_HOST":"node@18.15.0","TSPERF_JOB_ITERATIONS":6,"TSPERF_JOB_KIND":"startup","TSPERF_JOB_LOCATION":"internal","TSPERF_JOB_NAME":"startup_node_18_15_0_tsserver_startup","TSPERF_JOB_SCENARIO":"tsserver-startup"},"tsc_node_18_15_0_Compiler_Unions":{"TSPERF_JOB_HOST":"node@18.15.0","TSPERF_JOB_ITERATIONS":6,"TSPERF_JOB_KIND":"tsc","TSPERF_JOB_LOCATION":"internal","TSPERF_JOB_NAME":"tsc_node_18_15_0_Compiler_Unions","TSPERF_JOB_SCENARIO":"Compiler-Unions"},"tsc_node_18_15_0_Monaco":{"TSPERF_JOB_HOST":"node@18.15.0","TSPERF_JOB_ITERATIONS":6,"TSPERF_JOB_KIND":"tsc","TSPERF_JOB_LOCATION":"internal","TSPERF_JOB_NAME":"tsc_node_18_15_0_Monaco","TSPERF_JOB_SCENARIO":"Monaco"},"tsc_node_20_5_1_Compiler_Unions":{"TSPERF_JOB_HOST":"node@20.5.1","TSPERF_JOB_ITERATIONS":6,"TSPERF_JOB_KIND":"tsc","TSPERF_JOB_LOCATION":"internal","TSPERF_JOB_NAME":"tsc_node_20_5_1_Compiler_Unions","TSPERF_JOB_SCENARIO":"Compiler-Unions"},"tsc_node_20_5_1_Monaco":{"TSPERF_JOB_HOST":"node@20.5.1","TSPERF_JOB_ITERATIONS":6,"TSPERF_JOB_KIND":"tsc","TSPERF_JOB_LOCATION":"internal","TSPERF_JOB_NAME":"tsc_node_20_5_1_Monaco","TSPERF_JOB_SCENARIO":"Monaco"},"tsserver_node_18_15_0_CompilerTSServer":{"TSPERF_JOB_HOST":"node@18.15.0","TSPERF_JOB_ITERATIONS":6,"TSPERF_JOB_KIND":"tsserver","TSPERF_JOB_LOCATION":"internal","TSPERF_JOB_NAME":"tsserver_node_18_15_0_CompilerTSServer","TSPERF_JOB_SCENARIO":"CompilerTSServer"}}",
+    "MATRIX_ts_perf3": "{"startup_node_18_15_0_tsserverlibrary_startup":{"TSPERF_JOB_HOST":"node@18.15.0","TSPERF_JOB_ITERATIONS":6,"TSPERF_JOB_KIND":"startup","TSPERF_JOB_LOCATION":"internal","TSPERF_JOB_NAME":"startup_node_18_15_0_tsserverlibrary_startup","TSPERF_JOB_SCENARIO":"tsserverlibrary-startup"},"tsc_node_18_15_0_TFS":{"TSPERF_JOB_HOST":"node@18.15.0","TSPERF_JOB_ITERATIONS":6,"TSPERF_JOB_KIND":"tsc","TSPERF_JOB_LOCATION":"internal","TSPERF_JOB_NAME":"tsc_node_18_15_0_TFS","TSPERF_JOB_SCENARIO":"TFS"},"tsc_node_18_15_0_xstate":{"TSPERF_JOB_HOST":"node@18.15.0","TSPERF_JOB_ITERATIONS":6,"TSPERF_JOB_KIND":"tsc","TSPERF_JOB_LOCATION":"internal","TSPERF_JOB_NAME":"tsc_node_18_15_0_xstate","TSPERF_JOB_SCENARIO":"xstate"},"tsc_node_20_5_1_TFS":{"TSPERF_JOB_HOST":"node@20.5.1","TSPERF_JOB_ITERATIONS":6,"TSPERF_JOB_KIND":"tsc","TSPERF_JOB_LOCATION":"internal","TSPERF_JOB_NAME":"tsc_node_20_5_1_TFS","TSPERF_JOB_SCENARIO":"TFS"},"tsc_node_20_5_1_xstate":{"TSPERF_JOB_HOST":"node@20.5.1","TSPERF_JOB_ITERATIONS":6,"TSPERF_JOB_KIND":"tsc","TSPERF_JOB_LOCATION":"internal","TSPERF_JOB_NAME":"tsc_node_20_5_1_xstate","TSPERF_JOB_SCENARIO":"xstate"},"tsserver_node_18_15_0_xstateTSServer":{"TSPERF_JOB_HOST":"node@18.15.0","TSPERF_JOB_ITERATIONS":6,"TSPERF_JOB_KIND":"tsserver","TSPERF_JOB_LOCATION":"internal","TSPERF_JOB_NAME":"tsserver_node_18_15_0_xstateTSServer","TSPERF_JOB_SCENARIO":"xstateTSServer"}}",
     "MATRIX_ts_perf4": "{}",
     "TSPERF_PROCESS_KINDS": "tsc tsserver startup",
-    "TSPERF_PROCESS_LOCATIONS": "internal,public",
+    "TSPERF_PROCESS_LOCATIONS": "internal",
   },
 }
 `;
@@ -527,8 +367,8 @@ exports[`generateMatrix preset=bun baselining=false > error 1`] = `undefined`;
 exports[`generateMatrix preset=bun baselining=false > result 1`] = `
 {
   "compute": {
-    "parallel": "39m 58s",
-    "total": "2h 39m 52s",
+    "parallel": "15m 6s",
+    "total": "1h 24s",
   },
   "matrix": {
     "any": {
@@ -596,46 +436,6 @@ exports[`generateMatrix preset=bun baselining=false > result 1`] = `
         "TSPERF_JOB_NAME": "tsc_bun_1_0_15_material_ui",
         "TSPERF_JOB_SCENARIO": "material-ui",
       },
-      "tsc_bun_1_0_15_mui_docs": {
-        "TSPERF_JOB_HOST": "bun@1.0.15",
-        "TSPERF_JOB_ITERATIONS": 12,
-        "TSPERF_JOB_KIND": "tsc",
-        "TSPERF_JOB_LOCATION": "public",
-        "TSPERF_JOB_NAME": "tsc_bun_1_0_15_mui_docs",
-        "TSPERF_JOB_SCENARIO": "mui-docs",
-      },
-      "tsc_bun_1_0_15_self_build_src": {
-        "TSPERF_JOB_HOST": "bun@1.0.15",
-        "TSPERF_JOB_ITERATIONS": 12,
-        "TSPERF_JOB_KIND": "tsc",
-        "TSPERF_JOB_LOCATION": "public",
-        "TSPERF_JOB_NAME": "tsc_bun_1_0_15_self_build_src",
-        "TSPERF_JOB_SCENARIO": "self-build-src",
-      },
-      "tsc_bun_1_0_15_self_compiler": {
-        "TSPERF_JOB_HOST": "bun@1.0.15",
-        "TSPERF_JOB_ITERATIONS": 12,
-        "TSPERF_JOB_KIND": "tsc",
-        "TSPERF_JOB_LOCATION": "public",
-        "TSPERF_JOB_NAME": "tsc_bun_1_0_15_self_compiler",
-        "TSPERF_JOB_SCENARIO": "self-compiler",
-      },
-      "tsc_bun_1_0_15_vscode": {
-        "TSPERF_JOB_HOST": "bun@1.0.15",
-        "TSPERF_JOB_ITERATIONS": 12,
-        "TSPERF_JOB_KIND": "tsc",
-        "TSPERF_JOB_LOCATION": "public",
-        "TSPERF_JOB_NAME": "tsc_bun_1_0_15_vscode",
-        "TSPERF_JOB_SCENARIO": "vscode",
-      },
-      "tsc_bun_1_0_15_webpack": {
-        "TSPERF_JOB_HOST": "bun@1.0.15",
-        "TSPERF_JOB_ITERATIONS": 12,
-        "TSPERF_JOB_KIND": "tsc",
-        "TSPERF_JOB_LOCATION": "public",
-        "TSPERF_JOB_NAME": "tsc_bun_1_0_15_webpack",
-        "TSPERF_JOB_SCENARIO": "webpack",
-      },
       "tsc_bun_1_0_15_xstate": {
         "TSPERF_JOB_HOST": "bun@1.0.15",
         "TSPERF_JOB_ITERATIONS": 12,
@@ -651,13 +451,13 @@ exports[`generateMatrix preset=bun baselining=false > result 1`] = `
     "ts-perf4": {},
   },
   "outputVariables": {
-    "MATRIX_any": "{"startup_bun_1_0_15_tsc_startup":{"TSPERF_JOB_HOST":"bun@1.0.15","TSPERF_JOB_ITERATIONS":6,"TSPERF_JOB_KIND":"startup","TSPERF_JOB_LOCATION":"internal","TSPERF_JOB_NAME":"startup_bun_1_0_15_tsc_startup","TSPERF_JOB_SCENARIO":"tsc-startup"},"startup_bun_1_0_15_tsserverlibrary_startup":{"TSPERF_JOB_HOST":"bun@1.0.15","TSPERF_JOB_ITERATIONS":6,"TSPERF_JOB_KIND":"startup","TSPERF_JOB_LOCATION":"internal","TSPERF_JOB_NAME":"startup_bun_1_0_15_tsserverlibrary_startup","TSPERF_JOB_SCENARIO":"tsserverlibrary-startup"},"startup_bun_1_0_15_typescript_startup":{"TSPERF_JOB_HOST":"bun@1.0.15","TSPERF_JOB_ITERATIONS":6,"TSPERF_JOB_KIND":"startup","TSPERF_JOB_LOCATION":"internal","TSPERF_JOB_NAME":"startup_bun_1_0_15_typescript_startup","TSPERF_JOB_SCENARIO":"typescript-startup"},"tsc_bun_1_0_15_Angular":{"TSPERF_JOB_HOST":"bun@1.0.15","TSPERF_JOB_ITERATIONS":12,"TSPERF_JOB_KIND":"tsc","TSPERF_JOB_LOCATION":"internal","TSPERF_JOB_NAME":"tsc_bun_1_0_15_Angular","TSPERF_JOB_SCENARIO":"Angular"},"tsc_bun_1_0_15_Compiler_Unions":{"TSPERF_JOB_HOST":"bun@1.0.15","TSPERF_JOB_ITERATIONS":12,"TSPERF_JOB_KIND":"tsc","TSPERF_JOB_LOCATION":"internal","TSPERF_JOB_NAME":"tsc_bun_1_0_15_Compiler_Unions","TSPERF_JOB_SCENARIO":"Compiler-Unions"},"tsc_bun_1_0_15_Monaco":{"TSPERF_JOB_HOST":"bun@1.0.15","TSPERF_JOB_ITERATIONS":12,"TSPERF_JOB_KIND":"tsc","TSPERF_JOB_LOCATION":"internal","TSPERF_JOB_NAME":"tsc_bun_1_0_15_Monaco","TSPERF_JOB_SCENARIO":"Monaco"},"tsc_bun_1_0_15_TFS":{"TSPERF_JOB_HOST":"bun@1.0.15","TSPERF_JOB_ITERATIONS":12,"TSPERF_JOB_KIND":"tsc","TSPERF_JOB_LOCATION":"internal","TSPERF_JOB_NAME":"tsc_bun_1_0_15_TFS","TSPERF_JOB_SCENARIO":"TFS"},"tsc_bun_1_0_15_material_ui":{"TSPERF_JOB_HOST":"bun@1.0.15","TSPERF_JOB_ITERATIONS":12,"TSPERF_JOB_KIND":"tsc","TSPERF_JOB_LOCATION":"internal","TSPERF_JOB_NAME":"tsc_bun_1_0_15_material_ui","TSPERF_JOB_SCENARIO":"material-ui"},"tsc_bun_1_0_15_mui_docs":{"TSPERF_JOB_HOST":"bun@1.0.15","TSPERF_JOB_ITERATIONS":12,"TSPERF_JOB_KIND":"tsc","TSPERF_JOB_LOCATION":"public","TSPERF_JOB_NAME":"tsc_bun_1_0_15_mui_docs","TSPERF_JOB_SCENARIO":"mui-docs"},"tsc_bun_1_0_15_self_build_src":{"TSPERF_JOB_HOST":"bun@1.0.15","TSPERF_JOB_ITERATIONS":12,"TSPERF_JOB_KIND":"tsc","TSPERF_JOB_LOCATION":"public","TSPERF_JOB_NAME":"tsc_bun_1_0_15_self_build_src","TSPERF_JOB_SCENARIO":"self-build-src"},"tsc_bun_1_0_15_self_compiler":{"TSPERF_JOB_HOST":"bun@1.0.15","TSPERF_JOB_ITERATIONS":12,"TSPERF_JOB_KIND":"tsc","TSPERF_JOB_LOCATION":"public","TSPERF_JOB_NAME":"tsc_bun_1_0_15_self_compiler","TSPERF_JOB_SCENARIO":"self-compiler"},"tsc_bun_1_0_15_vscode":{"TSPERF_JOB_HOST":"bun@1.0.15","TSPERF_JOB_ITERATIONS":12,"TSPERF_JOB_KIND":"tsc","TSPERF_JOB_LOCATION":"public","TSPERF_JOB_NAME":"tsc_bun_1_0_15_vscode","TSPERF_JOB_SCENARIO":"vscode"},"tsc_bun_1_0_15_webpack":{"TSPERF_JOB_HOST":"bun@1.0.15","TSPERF_JOB_ITERATIONS":12,"TSPERF_JOB_KIND":"tsc","TSPERF_JOB_LOCATION":"public","TSPERF_JOB_NAME":"tsc_bun_1_0_15_webpack","TSPERF_JOB_SCENARIO":"webpack"},"tsc_bun_1_0_15_xstate":{"TSPERF_JOB_HOST":"bun@1.0.15","TSPERF_JOB_ITERATIONS":12,"TSPERF_JOB_KIND":"tsc","TSPERF_JOB_LOCATION":"internal","TSPERF_JOB_NAME":"tsc_bun_1_0_15_xstate","TSPERF_JOB_SCENARIO":"xstate"}}",
+    "MATRIX_any": "{"startup_bun_1_0_15_tsc_startup":{"TSPERF_JOB_HOST":"bun@1.0.15","TSPERF_JOB_ITERATIONS":6,"TSPERF_JOB_KIND":"startup","TSPERF_JOB_LOCATION":"internal","TSPERF_JOB_NAME":"startup_bun_1_0_15_tsc_startup","TSPERF_JOB_SCENARIO":"tsc-startup"},"startup_bun_1_0_15_tsserverlibrary_startup":{"TSPERF_JOB_HOST":"bun@1.0.15","TSPERF_JOB_ITERATIONS":6,"TSPERF_JOB_KIND":"startup","TSPERF_JOB_LOCATION":"internal","TSPERF_JOB_NAME":"startup_bun_1_0_15_tsserverlibrary_startup","TSPERF_JOB_SCENARIO":"tsserverlibrary-startup"},"startup_bun_1_0_15_typescript_startup":{"TSPERF_JOB_HOST":"bun@1.0.15","TSPERF_JOB_ITERATIONS":6,"TSPERF_JOB_KIND":"startup","TSPERF_JOB_LOCATION":"internal","TSPERF_JOB_NAME":"startup_bun_1_0_15_typescript_startup","TSPERF_JOB_SCENARIO":"typescript-startup"},"tsc_bun_1_0_15_Angular":{"TSPERF_JOB_HOST":"bun@1.0.15","TSPERF_JOB_ITERATIONS":12,"TSPERF_JOB_KIND":"tsc","TSPERF_JOB_LOCATION":"internal","TSPERF_JOB_NAME":"tsc_bun_1_0_15_Angular","TSPERF_JOB_SCENARIO":"Angular"},"tsc_bun_1_0_15_Compiler_Unions":{"TSPERF_JOB_HOST":"bun@1.0.15","TSPERF_JOB_ITERATIONS":12,"TSPERF_JOB_KIND":"tsc","TSPERF_JOB_LOCATION":"internal","TSPERF_JOB_NAME":"tsc_bun_1_0_15_Compiler_Unions","TSPERF_JOB_SCENARIO":"Compiler-Unions"},"tsc_bun_1_0_15_Monaco":{"TSPERF_JOB_HOST":"bun@1.0.15","TSPERF_JOB_ITERATIONS":12,"TSPERF_JOB_KIND":"tsc","TSPERF_JOB_LOCATION":"internal","TSPERF_JOB_NAME":"tsc_bun_1_0_15_Monaco","TSPERF_JOB_SCENARIO":"Monaco"},"tsc_bun_1_0_15_TFS":{"TSPERF_JOB_HOST":"bun@1.0.15","TSPERF_JOB_ITERATIONS":12,"TSPERF_JOB_KIND":"tsc","TSPERF_JOB_LOCATION":"internal","TSPERF_JOB_NAME":"tsc_bun_1_0_15_TFS","TSPERF_JOB_SCENARIO":"TFS"},"tsc_bun_1_0_15_material_ui":{"TSPERF_JOB_HOST":"bun@1.0.15","TSPERF_JOB_ITERATIONS":12,"TSPERF_JOB_KIND":"tsc","TSPERF_JOB_LOCATION":"internal","TSPERF_JOB_NAME":"tsc_bun_1_0_15_material_ui","TSPERF_JOB_SCENARIO":"material-ui"},"tsc_bun_1_0_15_xstate":{"TSPERF_JOB_HOST":"bun@1.0.15","TSPERF_JOB_ITERATIONS":12,"TSPERF_JOB_KIND":"tsc","TSPERF_JOB_LOCATION":"internal","TSPERF_JOB_NAME":"tsc_bun_1_0_15_xstate","TSPERF_JOB_SCENARIO":"xstate"}}",
     "MATRIX_ts_perf1": "{}",
     "MATRIX_ts_perf2": "{}",
     "MATRIX_ts_perf3": "{}",
     "MATRIX_ts_perf4": "{}",
     "TSPERF_PROCESS_KINDS": "tsc startup",
-    "TSPERF_PROCESS_LOCATIONS": "internal,public",
+    "TSPERF_PROCESS_LOCATIONS": "internal",
   },
 }
 `;
@@ -667,8 +467,8 @@ exports[`generateMatrix preset=bun baselining=true > error 1`] = `undefined`;
 exports[`generateMatrix preset=bun baselining=true > result 1`] = `
 {
   "compute": {
-    "parallel": "46m 12s",
-    "total": "1h 19m 56s",
+    "parallel": "14m 28s",
+    "total": "30m 12s",
   },
   "matrix": {
     "any": {},
@@ -705,22 +505,6 @@ exports[`generateMatrix preset=bun baselining=true > result 1`] = `
         "TSPERF_JOB_NAME": "tsc_bun_1_0_15_material_ui",
         "TSPERF_JOB_SCENARIO": "material-ui",
       },
-      "tsc_bun_1_0_15_mui_docs": {
-        "TSPERF_JOB_HOST": "bun@1.0.15",
-        "TSPERF_JOB_ITERATIONS": 12,
-        "TSPERF_JOB_KIND": "tsc",
-        "TSPERF_JOB_LOCATION": "public",
-        "TSPERF_JOB_NAME": "tsc_bun_1_0_15_mui_docs",
-        "TSPERF_JOB_SCENARIO": "mui-docs",
-      },
-      "tsc_bun_1_0_15_vscode": {
-        "TSPERF_JOB_HOST": "bun@1.0.15",
-        "TSPERF_JOB_ITERATIONS": 12,
-        "TSPERF_JOB_KIND": "tsc",
-        "TSPERF_JOB_LOCATION": "public",
-        "TSPERF_JOB_NAME": "tsc_bun_1_0_15_vscode",
-        "TSPERF_JOB_SCENARIO": "vscode",
-      },
     },
     "ts-perf2": {
       "tsc_bun_1_0_15_Compiler_Unions": {
@@ -738,14 +522,6 @@ exports[`generateMatrix preset=bun baselining=true > result 1`] = `
         "TSPERF_JOB_LOCATION": "internal",
         "TSPERF_JOB_NAME": "tsc_bun_1_0_15_Monaco",
         "TSPERF_JOB_SCENARIO": "Monaco",
-      },
-      "tsc_bun_1_0_15_self_compiler": {
-        "TSPERF_JOB_HOST": "bun@1.0.15",
-        "TSPERF_JOB_ITERATIONS": 12,
-        "TSPERF_JOB_KIND": "tsc",
-        "TSPERF_JOB_LOCATION": "public",
-        "TSPERF_JOB_NAME": "tsc_bun_1_0_15_self_compiler",
-        "TSPERF_JOB_SCENARIO": "self-compiler",
       },
     },
     "ts-perf3": {
@@ -765,22 +541,6 @@ exports[`generateMatrix preset=bun baselining=true > result 1`] = `
         "TSPERF_JOB_NAME": "tsc_bun_1_0_15_TFS",
         "TSPERF_JOB_SCENARIO": "TFS",
       },
-      "tsc_bun_1_0_15_self_build_src": {
-        "TSPERF_JOB_HOST": "bun@1.0.15",
-        "TSPERF_JOB_ITERATIONS": 12,
-        "TSPERF_JOB_KIND": "tsc",
-        "TSPERF_JOB_LOCATION": "public",
-        "TSPERF_JOB_NAME": "tsc_bun_1_0_15_self_build_src",
-        "TSPERF_JOB_SCENARIO": "self-build-src",
-      },
-      "tsc_bun_1_0_15_webpack": {
-        "TSPERF_JOB_HOST": "bun@1.0.15",
-        "TSPERF_JOB_ITERATIONS": 12,
-        "TSPERF_JOB_KIND": "tsc",
-        "TSPERF_JOB_LOCATION": "public",
-        "TSPERF_JOB_NAME": "tsc_bun_1_0_15_webpack",
-        "TSPERF_JOB_SCENARIO": "webpack",
-      },
       "tsc_bun_1_0_15_xstate": {
         "TSPERF_JOB_HOST": "bun@1.0.15",
         "TSPERF_JOB_ITERATIONS": 12,
@@ -794,12 +554,12 @@ exports[`generateMatrix preset=bun baselining=true > result 1`] = `
   },
   "outputVariables": {
     "MATRIX_any": "{}",
-    "MATRIX_ts_perf1": "{"startup_bun_1_0_15_tsc_startup":{"TSPERF_JOB_HOST":"bun@1.0.15","TSPERF_JOB_ITERATIONS":6,"TSPERF_JOB_KIND":"startup","TSPERF_JOB_LOCATION":"internal","TSPERF_JOB_NAME":"startup_bun_1_0_15_tsc_startup","TSPERF_JOB_SCENARIO":"tsc-startup"},"startup_bun_1_0_15_typescript_startup":{"TSPERF_JOB_HOST":"bun@1.0.15","TSPERF_JOB_ITERATIONS":6,"TSPERF_JOB_KIND":"startup","TSPERF_JOB_LOCATION":"internal","TSPERF_JOB_NAME":"startup_bun_1_0_15_typescript_startup","TSPERF_JOB_SCENARIO":"typescript-startup"},"tsc_bun_1_0_15_Angular":{"TSPERF_JOB_HOST":"bun@1.0.15","TSPERF_JOB_ITERATIONS":12,"TSPERF_JOB_KIND":"tsc","TSPERF_JOB_LOCATION":"internal","TSPERF_JOB_NAME":"tsc_bun_1_0_15_Angular","TSPERF_JOB_SCENARIO":"Angular"},"tsc_bun_1_0_15_material_ui":{"TSPERF_JOB_HOST":"bun@1.0.15","TSPERF_JOB_ITERATIONS":12,"TSPERF_JOB_KIND":"tsc","TSPERF_JOB_LOCATION":"internal","TSPERF_JOB_NAME":"tsc_bun_1_0_15_material_ui","TSPERF_JOB_SCENARIO":"material-ui"},"tsc_bun_1_0_15_mui_docs":{"TSPERF_JOB_HOST":"bun@1.0.15","TSPERF_JOB_ITERATIONS":12,"TSPERF_JOB_KIND":"tsc","TSPERF_JOB_LOCATION":"public","TSPERF_JOB_NAME":"tsc_bun_1_0_15_mui_docs","TSPERF_JOB_SCENARIO":"mui-docs"},"tsc_bun_1_0_15_vscode":{"TSPERF_JOB_HOST":"bun@1.0.15","TSPERF_JOB_ITERATIONS":12,"TSPERF_JOB_KIND":"tsc","TSPERF_JOB_LOCATION":"public","TSPERF_JOB_NAME":"tsc_bun_1_0_15_vscode","TSPERF_JOB_SCENARIO":"vscode"}}",
-    "MATRIX_ts_perf2": "{"tsc_bun_1_0_15_Compiler_Unions":{"TSPERF_JOB_HOST":"bun@1.0.15","TSPERF_JOB_ITERATIONS":12,"TSPERF_JOB_KIND":"tsc","TSPERF_JOB_LOCATION":"internal","TSPERF_JOB_NAME":"tsc_bun_1_0_15_Compiler_Unions","TSPERF_JOB_SCENARIO":"Compiler-Unions"},"tsc_bun_1_0_15_Monaco":{"TSPERF_JOB_HOST":"bun@1.0.15","TSPERF_JOB_ITERATIONS":12,"TSPERF_JOB_KIND":"tsc","TSPERF_JOB_LOCATION":"internal","TSPERF_JOB_NAME":"tsc_bun_1_0_15_Monaco","TSPERF_JOB_SCENARIO":"Monaco"},"tsc_bun_1_0_15_self_compiler":{"TSPERF_JOB_HOST":"bun@1.0.15","TSPERF_JOB_ITERATIONS":12,"TSPERF_JOB_KIND":"tsc","TSPERF_JOB_LOCATION":"public","TSPERF_JOB_NAME":"tsc_bun_1_0_15_self_compiler","TSPERF_JOB_SCENARIO":"self-compiler"}}",
-    "MATRIX_ts_perf3": "{"startup_bun_1_0_15_tsserverlibrary_startup":{"TSPERF_JOB_HOST":"bun@1.0.15","TSPERF_JOB_ITERATIONS":6,"TSPERF_JOB_KIND":"startup","TSPERF_JOB_LOCATION":"internal","TSPERF_JOB_NAME":"startup_bun_1_0_15_tsserverlibrary_startup","TSPERF_JOB_SCENARIO":"tsserverlibrary-startup"},"tsc_bun_1_0_15_TFS":{"TSPERF_JOB_HOST":"bun@1.0.15","TSPERF_JOB_ITERATIONS":12,"TSPERF_JOB_KIND":"tsc","TSPERF_JOB_LOCATION":"internal","TSPERF_JOB_NAME":"tsc_bun_1_0_15_TFS","TSPERF_JOB_SCENARIO":"TFS"},"tsc_bun_1_0_15_self_build_src":{"TSPERF_JOB_HOST":"bun@1.0.15","TSPERF_JOB_ITERATIONS":12,"TSPERF_JOB_KIND":"tsc","TSPERF_JOB_LOCATION":"public","TSPERF_JOB_NAME":"tsc_bun_1_0_15_self_build_src","TSPERF_JOB_SCENARIO":"self-build-src"},"tsc_bun_1_0_15_webpack":{"TSPERF_JOB_HOST":"bun@1.0.15","TSPERF_JOB_ITERATIONS":12,"TSPERF_JOB_KIND":"tsc","TSPERF_JOB_LOCATION":"public","TSPERF_JOB_NAME":"tsc_bun_1_0_15_webpack","TSPERF_JOB_SCENARIO":"webpack"},"tsc_bun_1_0_15_xstate":{"TSPERF_JOB_HOST":"bun@1.0.15","TSPERF_JOB_ITERATIONS":12,"TSPERF_JOB_KIND":"tsc","TSPERF_JOB_LOCATION":"internal","TSPERF_JOB_NAME":"tsc_bun_1_0_15_xstate","TSPERF_JOB_SCENARIO":"xstate"}}",
+    "MATRIX_ts_perf1": "{"startup_bun_1_0_15_tsc_startup":{"TSPERF_JOB_HOST":"bun@1.0.15","TSPERF_JOB_ITERATIONS":6,"TSPERF_JOB_KIND":"startup","TSPERF_JOB_LOCATION":"internal","TSPERF_JOB_NAME":"startup_bun_1_0_15_tsc_startup","TSPERF_JOB_SCENARIO":"tsc-startup"},"startup_bun_1_0_15_typescript_startup":{"TSPERF_JOB_HOST":"bun@1.0.15","TSPERF_JOB_ITERATIONS":6,"TSPERF_JOB_KIND":"startup","TSPERF_JOB_LOCATION":"internal","TSPERF_JOB_NAME":"startup_bun_1_0_15_typescript_startup","TSPERF_JOB_SCENARIO":"typescript-startup"},"tsc_bun_1_0_15_Angular":{"TSPERF_JOB_HOST":"bun@1.0.15","TSPERF_JOB_ITERATIONS":12,"TSPERF_JOB_KIND":"tsc","TSPERF_JOB_LOCATION":"internal","TSPERF_JOB_NAME":"tsc_bun_1_0_15_Angular","TSPERF_JOB_SCENARIO":"Angular"},"tsc_bun_1_0_15_material_ui":{"TSPERF_JOB_HOST":"bun@1.0.15","TSPERF_JOB_ITERATIONS":12,"TSPERF_JOB_KIND":"tsc","TSPERF_JOB_LOCATION":"internal","TSPERF_JOB_NAME":"tsc_bun_1_0_15_material_ui","TSPERF_JOB_SCENARIO":"material-ui"}}",
+    "MATRIX_ts_perf2": "{"tsc_bun_1_0_15_Compiler_Unions":{"TSPERF_JOB_HOST":"bun@1.0.15","TSPERF_JOB_ITERATIONS":12,"TSPERF_JOB_KIND":"tsc","TSPERF_JOB_LOCATION":"internal","TSPERF_JOB_NAME":"tsc_bun_1_0_15_Compiler_Unions","TSPERF_JOB_SCENARIO":"Compiler-Unions"},"tsc_bun_1_0_15_Monaco":{"TSPERF_JOB_HOST":"bun@1.0.15","TSPERF_JOB_ITERATIONS":12,"TSPERF_JOB_KIND":"tsc","TSPERF_JOB_LOCATION":"internal","TSPERF_JOB_NAME":"tsc_bun_1_0_15_Monaco","TSPERF_JOB_SCENARIO":"Monaco"}}",
+    "MATRIX_ts_perf3": "{"startup_bun_1_0_15_tsserverlibrary_startup":{"TSPERF_JOB_HOST":"bun@1.0.15","TSPERF_JOB_ITERATIONS":6,"TSPERF_JOB_KIND":"startup","TSPERF_JOB_LOCATION":"internal","TSPERF_JOB_NAME":"startup_bun_1_0_15_tsserverlibrary_startup","TSPERF_JOB_SCENARIO":"tsserverlibrary-startup"},"tsc_bun_1_0_15_TFS":{"TSPERF_JOB_HOST":"bun@1.0.15","TSPERF_JOB_ITERATIONS":12,"TSPERF_JOB_KIND":"tsc","TSPERF_JOB_LOCATION":"internal","TSPERF_JOB_NAME":"tsc_bun_1_0_15_TFS","TSPERF_JOB_SCENARIO":"TFS"},"tsc_bun_1_0_15_xstate":{"TSPERF_JOB_HOST":"bun@1.0.15","TSPERF_JOB_ITERATIONS":12,"TSPERF_JOB_KIND":"tsc","TSPERF_JOB_LOCATION":"internal","TSPERF_JOB_NAME":"tsc_bun_1_0_15_xstate","TSPERF_JOB_SCENARIO":"xstate"}}",
     "MATRIX_ts_perf4": "{}",
     "TSPERF_PROCESS_KINDS": "tsc startup",
-    "TSPERF_PROCESS_LOCATIONS": "internal,public",
+    "TSPERF_PROCESS_LOCATIONS": "internal",
   },
 }
 `;
@@ -817,8 +577,8 @@ exports[`generateMatrix preset=faster baselining=false > error 1`] = `undefined`
 exports[`generateMatrix preset=faster baselining=false > result 1`] = `
 {
   "compute": {
-    "parallel": "19m 43s",
-    "total": "1h 18m 52s",
+    "parallel": "6m 27s",
+    "total": "25m 48s",
   },
   "matrix": {
     "any": {
@@ -862,46 +622,6 @@ exports[`generateMatrix preset=faster baselining=false > result 1`] = `
         "TSPERF_JOB_NAME": "tsc_node_18_15_0_material_ui",
         "TSPERF_JOB_SCENARIO": "material-ui",
       },
-      "tsc_node_18_15_0_mui_docs": {
-        "TSPERF_JOB_HOST": "node@18.15.0",
-        "TSPERF_JOB_ITERATIONS": 6,
-        "TSPERF_JOB_KIND": "tsc",
-        "TSPERF_JOB_LOCATION": "public",
-        "TSPERF_JOB_NAME": "tsc_node_18_15_0_mui_docs",
-        "TSPERF_JOB_SCENARIO": "mui-docs",
-      },
-      "tsc_node_18_15_0_self_build_src": {
-        "TSPERF_JOB_HOST": "node@18.15.0",
-        "TSPERF_JOB_ITERATIONS": 6,
-        "TSPERF_JOB_KIND": "tsc",
-        "TSPERF_JOB_LOCATION": "public",
-        "TSPERF_JOB_NAME": "tsc_node_18_15_0_self_build_src",
-        "TSPERF_JOB_SCENARIO": "self-build-src",
-      },
-      "tsc_node_18_15_0_self_compiler": {
-        "TSPERF_JOB_HOST": "node@18.15.0",
-        "TSPERF_JOB_ITERATIONS": 6,
-        "TSPERF_JOB_KIND": "tsc",
-        "TSPERF_JOB_LOCATION": "public",
-        "TSPERF_JOB_NAME": "tsc_node_18_15_0_self_compiler",
-        "TSPERF_JOB_SCENARIO": "self-compiler",
-      },
-      "tsc_node_18_15_0_vscode": {
-        "TSPERF_JOB_HOST": "node@18.15.0",
-        "TSPERF_JOB_ITERATIONS": 6,
-        "TSPERF_JOB_KIND": "tsc",
-        "TSPERF_JOB_LOCATION": "public",
-        "TSPERF_JOB_NAME": "tsc_node_18_15_0_vscode",
-        "TSPERF_JOB_SCENARIO": "vscode",
-      },
-      "tsc_node_18_15_0_webpack": {
-        "TSPERF_JOB_HOST": "node@18.15.0",
-        "TSPERF_JOB_ITERATIONS": 6,
-        "TSPERF_JOB_KIND": "tsc",
-        "TSPERF_JOB_LOCATION": "public",
-        "TSPERF_JOB_NAME": "tsc_node_18_15_0_webpack",
-        "TSPERF_JOB_SCENARIO": "webpack",
-      },
       "tsc_node_18_15_0_xstate": {
         "TSPERF_JOB_HOST": "node@18.15.0",
         "TSPERF_JOB_ITERATIONS": 6,
@@ -917,13 +637,13 @@ exports[`generateMatrix preset=faster baselining=false > result 1`] = `
     "ts-perf4": {},
   },
   "outputVariables": {
-    "MATRIX_any": "{"tsc_node_18_15_0_Angular":{"TSPERF_JOB_HOST":"node@18.15.0","TSPERF_JOB_ITERATIONS":6,"TSPERF_JOB_KIND":"tsc","TSPERF_JOB_LOCATION":"internal","TSPERF_JOB_NAME":"tsc_node_18_15_0_Angular","TSPERF_JOB_SCENARIO":"Angular"},"tsc_node_18_15_0_Compiler_Unions":{"TSPERF_JOB_HOST":"node@18.15.0","TSPERF_JOB_ITERATIONS":6,"TSPERF_JOB_KIND":"tsc","TSPERF_JOB_LOCATION":"internal","TSPERF_JOB_NAME":"tsc_node_18_15_0_Compiler_Unions","TSPERF_JOB_SCENARIO":"Compiler-Unions"},"tsc_node_18_15_0_Monaco":{"TSPERF_JOB_HOST":"node@18.15.0","TSPERF_JOB_ITERATIONS":6,"TSPERF_JOB_KIND":"tsc","TSPERF_JOB_LOCATION":"internal","TSPERF_JOB_NAME":"tsc_node_18_15_0_Monaco","TSPERF_JOB_SCENARIO":"Monaco"},"tsc_node_18_15_0_TFS":{"TSPERF_JOB_HOST":"node@18.15.0","TSPERF_JOB_ITERATIONS":6,"TSPERF_JOB_KIND":"tsc","TSPERF_JOB_LOCATION":"internal","TSPERF_JOB_NAME":"tsc_node_18_15_0_TFS","TSPERF_JOB_SCENARIO":"TFS"},"tsc_node_18_15_0_material_ui":{"TSPERF_JOB_HOST":"node@18.15.0","TSPERF_JOB_ITERATIONS":6,"TSPERF_JOB_KIND":"tsc","TSPERF_JOB_LOCATION":"internal","TSPERF_JOB_NAME":"tsc_node_18_15_0_material_ui","TSPERF_JOB_SCENARIO":"material-ui"},"tsc_node_18_15_0_mui_docs":{"TSPERF_JOB_HOST":"node@18.15.0","TSPERF_JOB_ITERATIONS":6,"TSPERF_JOB_KIND":"tsc","TSPERF_JOB_LOCATION":"public","TSPERF_JOB_NAME":"tsc_node_18_15_0_mui_docs","TSPERF_JOB_SCENARIO":"mui-docs"},"tsc_node_18_15_0_self_build_src":{"TSPERF_JOB_HOST":"node@18.15.0","TSPERF_JOB_ITERATIONS":6,"TSPERF_JOB_KIND":"tsc","TSPERF_JOB_LOCATION":"public","TSPERF_JOB_NAME":"tsc_node_18_15_0_self_build_src","TSPERF_JOB_SCENARIO":"self-build-src"},"tsc_node_18_15_0_self_compiler":{"TSPERF_JOB_HOST":"node@18.15.0","TSPERF_JOB_ITERATIONS":6,"TSPERF_JOB_KIND":"tsc","TSPERF_JOB_LOCATION":"public","TSPERF_JOB_NAME":"tsc_node_18_15_0_self_compiler","TSPERF_JOB_SCENARIO":"self-compiler"},"tsc_node_18_15_0_vscode":{"TSPERF_JOB_HOST":"node@18.15.0","TSPERF_JOB_ITERATIONS":6,"TSPERF_JOB_KIND":"tsc","TSPERF_JOB_LOCATION":"public","TSPERF_JOB_NAME":"tsc_node_18_15_0_vscode","TSPERF_JOB_SCENARIO":"vscode"},"tsc_node_18_15_0_webpack":{"TSPERF_JOB_HOST":"node@18.15.0","TSPERF_JOB_ITERATIONS":6,"TSPERF_JOB_KIND":"tsc","TSPERF_JOB_LOCATION":"public","TSPERF_JOB_NAME":"tsc_node_18_15_0_webpack","TSPERF_JOB_SCENARIO":"webpack"},"tsc_node_18_15_0_xstate":{"TSPERF_JOB_HOST":"node@18.15.0","TSPERF_JOB_ITERATIONS":6,"TSPERF_JOB_KIND":"tsc","TSPERF_JOB_LOCATION":"internal","TSPERF_JOB_NAME":"tsc_node_18_15_0_xstate","TSPERF_JOB_SCENARIO":"xstate"}}",
+    "MATRIX_any": "{"tsc_node_18_15_0_Angular":{"TSPERF_JOB_HOST":"node@18.15.0","TSPERF_JOB_ITERATIONS":6,"TSPERF_JOB_KIND":"tsc","TSPERF_JOB_LOCATION":"internal","TSPERF_JOB_NAME":"tsc_node_18_15_0_Angular","TSPERF_JOB_SCENARIO":"Angular"},"tsc_node_18_15_0_Compiler_Unions":{"TSPERF_JOB_HOST":"node@18.15.0","TSPERF_JOB_ITERATIONS":6,"TSPERF_JOB_KIND":"tsc","TSPERF_JOB_LOCATION":"internal","TSPERF_JOB_NAME":"tsc_node_18_15_0_Compiler_Unions","TSPERF_JOB_SCENARIO":"Compiler-Unions"},"tsc_node_18_15_0_Monaco":{"TSPERF_JOB_HOST":"node@18.15.0","TSPERF_JOB_ITERATIONS":6,"TSPERF_JOB_KIND":"tsc","TSPERF_JOB_LOCATION":"internal","TSPERF_JOB_NAME":"tsc_node_18_15_0_Monaco","TSPERF_JOB_SCENARIO":"Monaco"},"tsc_node_18_15_0_TFS":{"TSPERF_JOB_HOST":"node@18.15.0","TSPERF_JOB_ITERATIONS":6,"TSPERF_JOB_KIND":"tsc","TSPERF_JOB_LOCATION":"internal","TSPERF_JOB_NAME":"tsc_node_18_15_0_TFS","TSPERF_JOB_SCENARIO":"TFS"},"tsc_node_18_15_0_material_ui":{"TSPERF_JOB_HOST":"node@18.15.0","TSPERF_JOB_ITERATIONS":6,"TSPERF_JOB_KIND":"tsc","TSPERF_JOB_LOCATION":"internal","TSPERF_JOB_NAME":"tsc_node_18_15_0_material_ui","TSPERF_JOB_SCENARIO":"material-ui"},"tsc_node_18_15_0_xstate":{"TSPERF_JOB_HOST":"node@18.15.0","TSPERF_JOB_ITERATIONS":6,"TSPERF_JOB_KIND":"tsc","TSPERF_JOB_LOCATION":"internal","TSPERF_JOB_NAME":"tsc_node_18_15_0_xstate","TSPERF_JOB_SCENARIO":"xstate"}}",
     "MATRIX_ts_perf1": "{}",
     "MATRIX_ts_perf2": "{}",
     "MATRIX_ts_perf3": "{}",
     "MATRIX_ts_perf4": "{}",
     "TSPERF_PROCESS_KINDS": "tsc",
-    "TSPERF_PROCESS_LOCATIONS": "internal,public",
+    "TSPERF_PROCESS_LOCATIONS": "internal",
   },
 }
 `;
@@ -933,8 +653,8 @@ exports[`generateMatrix preset=faster baselining=true > error 1`] = `undefined`;
 exports[`generateMatrix preset=faster baselining=true > result 1`] = `
 {
   "compute": {
-    "parallel": "21m 46s",
-    "total": "39m 26s",
+    "parallel": "5m 14s",
+    "total": "12m 54s",
   },
   "matrix": {
     "any": {},
@@ -955,22 +675,6 @@ exports[`generateMatrix preset=faster baselining=true > result 1`] = `
         "TSPERF_JOB_NAME": "tsc_node_18_15_0_material_ui",
         "TSPERF_JOB_SCENARIO": "material-ui",
       },
-      "tsc_node_18_15_0_mui_docs": {
-        "TSPERF_JOB_HOST": "node@18.15.0",
-        "TSPERF_JOB_ITERATIONS": 6,
-        "TSPERF_JOB_KIND": "tsc",
-        "TSPERF_JOB_LOCATION": "public",
-        "TSPERF_JOB_NAME": "tsc_node_18_15_0_mui_docs",
-        "TSPERF_JOB_SCENARIO": "mui-docs",
-      },
-      "tsc_node_18_15_0_vscode": {
-        "TSPERF_JOB_HOST": "node@18.15.0",
-        "TSPERF_JOB_ITERATIONS": 6,
-        "TSPERF_JOB_KIND": "tsc",
-        "TSPERF_JOB_LOCATION": "public",
-        "TSPERF_JOB_NAME": "tsc_node_18_15_0_vscode",
-        "TSPERF_JOB_SCENARIO": "vscode",
-      },
     },
     "ts-perf2": {
       "tsc_node_18_15_0_Compiler_Unions": {
@@ -989,14 +693,6 @@ exports[`generateMatrix preset=faster baselining=true > result 1`] = `
         "TSPERF_JOB_NAME": "tsc_node_18_15_0_Monaco",
         "TSPERF_JOB_SCENARIO": "Monaco",
       },
-      "tsc_node_18_15_0_self_compiler": {
-        "TSPERF_JOB_HOST": "node@18.15.0",
-        "TSPERF_JOB_ITERATIONS": 6,
-        "TSPERF_JOB_KIND": "tsc",
-        "TSPERF_JOB_LOCATION": "public",
-        "TSPERF_JOB_NAME": "tsc_node_18_15_0_self_compiler",
-        "TSPERF_JOB_SCENARIO": "self-compiler",
-      },
     },
     "ts-perf3": {
       "tsc_node_18_15_0_TFS": {
@@ -1006,22 +702,6 @@ exports[`generateMatrix preset=faster baselining=true > result 1`] = `
         "TSPERF_JOB_LOCATION": "internal",
         "TSPERF_JOB_NAME": "tsc_node_18_15_0_TFS",
         "TSPERF_JOB_SCENARIO": "TFS",
-      },
-      "tsc_node_18_15_0_self_build_src": {
-        "TSPERF_JOB_HOST": "node@18.15.0",
-        "TSPERF_JOB_ITERATIONS": 6,
-        "TSPERF_JOB_KIND": "tsc",
-        "TSPERF_JOB_LOCATION": "public",
-        "TSPERF_JOB_NAME": "tsc_node_18_15_0_self_build_src",
-        "TSPERF_JOB_SCENARIO": "self-build-src",
-      },
-      "tsc_node_18_15_0_webpack": {
-        "TSPERF_JOB_HOST": "node@18.15.0",
-        "TSPERF_JOB_ITERATIONS": 6,
-        "TSPERF_JOB_KIND": "tsc",
-        "TSPERF_JOB_LOCATION": "public",
-        "TSPERF_JOB_NAME": "tsc_node_18_15_0_webpack",
-        "TSPERF_JOB_SCENARIO": "webpack",
       },
       "tsc_node_18_15_0_xstate": {
         "TSPERF_JOB_HOST": "node@18.15.0",
@@ -1036,12 +716,12 @@ exports[`generateMatrix preset=faster baselining=true > result 1`] = `
   },
   "outputVariables": {
     "MATRIX_any": "{}",
-    "MATRIX_ts_perf1": "{"tsc_node_18_15_0_Angular":{"TSPERF_JOB_HOST":"node@18.15.0","TSPERF_JOB_ITERATIONS":6,"TSPERF_JOB_KIND":"tsc","TSPERF_JOB_LOCATION":"internal","TSPERF_JOB_NAME":"tsc_node_18_15_0_Angular","TSPERF_JOB_SCENARIO":"Angular"},"tsc_node_18_15_0_material_ui":{"TSPERF_JOB_HOST":"node@18.15.0","TSPERF_JOB_ITERATIONS":6,"TSPERF_JOB_KIND":"tsc","TSPERF_JOB_LOCATION":"internal","TSPERF_JOB_NAME":"tsc_node_18_15_0_material_ui","TSPERF_JOB_SCENARIO":"material-ui"},"tsc_node_18_15_0_mui_docs":{"TSPERF_JOB_HOST":"node@18.15.0","TSPERF_JOB_ITERATIONS":6,"TSPERF_JOB_KIND":"tsc","TSPERF_JOB_LOCATION":"public","TSPERF_JOB_NAME":"tsc_node_18_15_0_mui_docs","TSPERF_JOB_SCENARIO":"mui-docs"},"tsc_node_18_15_0_vscode":{"TSPERF_JOB_HOST":"node@18.15.0","TSPERF_JOB_ITERATIONS":6,"TSPERF_JOB_KIND":"tsc","TSPERF_JOB_LOCATION":"public","TSPERF_JOB_NAME":"tsc_node_18_15_0_vscode","TSPERF_JOB_SCENARIO":"vscode"}}",
-    "MATRIX_ts_perf2": "{"tsc_node_18_15_0_Compiler_Unions":{"TSPERF_JOB_HOST":"node@18.15.0","TSPERF_JOB_ITERATIONS":6,"TSPERF_JOB_KIND":"tsc","TSPERF_JOB_LOCATION":"internal","TSPERF_JOB_NAME":"tsc_node_18_15_0_Compiler_Unions","TSPERF_JOB_SCENARIO":"Compiler-Unions"},"tsc_node_18_15_0_Monaco":{"TSPERF_JOB_HOST":"node@18.15.0","TSPERF_JOB_ITERATIONS":6,"TSPERF_JOB_KIND":"tsc","TSPERF_JOB_LOCATION":"internal","TSPERF_JOB_NAME":"tsc_node_18_15_0_Monaco","TSPERF_JOB_SCENARIO":"Monaco"},"tsc_node_18_15_0_self_compiler":{"TSPERF_JOB_HOST":"node@18.15.0","TSPERF_JOB_ITERATIONS":6,"TSPERF_JOB_KIND":"tsc","TSPERF_JOB_LOCATION":"public","TSPERF_JOB_NAME":"tsc_node_18_15_0_self_compiler","TSPERF_JOB_SCENARIO":"self-compiler"}}",
-    "MATRIX_ts_perf3": "{"tsc_node_18_15_0_TFS":{"TSPERF_JOB_HOST":"node@18.15.0","TSPERF_JOB_ITERATIONS":6,"TSPERF_JOB_KIND":"tsc","TSPERF_JOB_LOCATION":"internal","TSPERF_JOB_NAME":"tsc_node_18_15_0_TFS","TSPERF_JOB_SCENARIO":"TFS"},"tsc_node_18_15_0_self_build_src":{"TSPERF_JOB_HOST":"node@18.15.0","TSPERF_JOB_ITERATIONS":6,"TSPERF_JOB_KIND":"tsc","TSPERF_JOB_LOCATION":"public","TSPERF_JOB_NAME":"tsc_node_18_15_0_self_build_src","TSPERF_JOB_SCENARIO":"self-build-src"},"tsc_node_18_15_0_webpack":{"TSPERF_JOB_HOST":"node@18.15.0","TSPERF_JOB_ITERATIONS":6,"TSPERF_JOB_KIND":"tsc","TSPERF_JOB_LOCATION":"public","TSPERF_JOB_NAME":"tsc_node_18_15_0_webpack","TSPERF_JOB_SCENARIO":"webpack"},"tsc_node_18_15_0_xstate":{"TSPERF_JOB_HOST":"node@18.15.0","TSPERF_JOB_ITERATIONS":6,"TSPERF_JOB_KIND":"tsc","TSPERF_JOB_LOCATION":"internal","TSPERF_JOB_NAME":"tsc_node_18_15_0_xstate","TSPERF_JOB_SCENARIO":"xstate"}}",
+    "MATRIX_ts_perf1": "{"tsc_node_18_15_0_Angular":{"TSPERF_JOB_HOST":"node@18.15.0","TSPERF_JOB_ITERATIONS":6,"TSPERF_JOB_KIND":"tsc","TSPERF_JOB_LOCATION":"internal","TSPERF_JOB_NAME":"tsc_node_18_15_0_Angular","TSPERF_JOB_SCENARIO":"Angular"},"tsc_node_18_15_0_material_ui":{"TSPERF_JOB_HOST":"node@18.15.0","TSPERF_JOB_ITERATIONS":6,"TSPERF_JOB_KIND":"tsc","TSPERF_JOB_LOCATION":"internal","TSPERF_JOB_NAME":"tsc_node_18_15_0_material_ui","TSPERF_JOB_SCENARIO":"material-ui"}}",
+    "MATRIX_ts_perf2": "{"tsc_node_18_15_0_Compiler_Unions":{"TSPERF_JOB_HOST":"node@18.15.0","TSPERF_JOB_ITERATIONS":6,"TSPERF_JOB_KIND":"tsc","TSPERF_JOB_LOCATION":"internal","TSPERF_JOB_NAME":"tsc_node_18_15_0_Compiler_Unions","TSPERF_JOB_SCENARIO":"Compiler-Unions"},"tsc_node_18_15_0_Monaco":{"TSPERF_JOB_HOST":"node@18.15.0","TSPERF_JOB_ITERATIONS":6,"TSPERF_JOB_KIND":"tsc","TSPERF_JOB_LOCATION":"internal","TSPERF_JOB_NAME":"tsc_node_18_15_0_Monaco","TSPERF_JOB_SCENARIO":"Monaco"}}",
+    "MATRIX_ts_perf3": "{"tsc_node_18_15_0_TFS":{"TSPERF_JOB_HOST":"node@18.15.0","TSPERF_JOB_ITERATIONS":6,"TSPERF_JOB_KIND":"tsc","TSPERF_JOB_LOCATION":"internal","TSPERF_JOB_NAME":"tsc_node_18_15_0_TFS","TSPERF_JOB_SCENARIO":"TFS"},"tsc_node_18_15_0_xstate":{"TSPERF_JOB_HOST":"node@18.15.0","TSPERF_JOB_ITERATIONS":6,"TSPERF_JOB_KIND":"tsc","TSPERF_JOB_LOCATION":"internal","TSPERF_JOB_NAME":"tsc_node_18_15_0_xstate","TSPERF_JOB_SCENARIO":"xstate"}}",
     "MATRIX_ts_perf4": "{}",
     "TSPERF_PROCESS_KINDS": "tsc",
-    "TSPERF_PROCESS_LOCATIONS": "internal,public",
+    "TSPERF_PROCESS_LOCATIONS": "internal",
   },
 }
 `;
@@ -1051,8 +731,8 @@ exports[`generateMatrix preset=full baselining=false > error 1`] = `undefined`;
 exports[`generateMatrix preset=full baselining=false > result 1`] = `
 {
   "compute": {
-    "parallel": "48m 13s",
-    "total": "3h 12m 52s",
+    "parallel": "21m 41s",
+    "total": "1h 26m 44s",
   },
   "matrix": {
     "any": {
@@ -1128,46 +808,6 @@ exports[`generateMatrix preset=full baselining=false > result 1`] = `
         "TSPERF_JOB_NAME": "tsc_node_18_15_0_material_ui",
         "TSPERF_JOB_SCENARIO": "material-ui",
       },
-      "tsc_node_18_15_0_mui_docs": {
-        "TSPERF_JOB_HOST": "node@18.15.0",
-        "TSPERF_JOB_ITERATIONS": 6,
-        "TSPERF_JOB_KIND": "tsc",
-        "TSPERF_JOB_LOCATION": "public",
-        "TSPERF_JOB_NAME": "tsc_node_18_15_0_mui_docs",
-        "TSPERF_JOB_SCENARIO": "mui-docs",
-      },
-      "tsc_node_18_15_0_self_build_src": {
-        "TSPERF_JOB_HOST": "node@18.15.0",
-        "TSPERF_JOB_ITERATIONS": 6,
-        "TSPERF_JOB_KIND": "tsc",
-        "TSPERF_JOB_LOCATION": "public",
-        "TSPERF_JOB_NAME": "tsc_node_18_15_0_self_build_src",
-        "TSPERF_JOB_SCENARIO": "self-build-src",
-      },
-      "tsc_node_18_15_0_self_compiler": {
-        "TSPERF_JOB_HOST": "node@18.15.0",
-        "TSPERF_JOB_ITERATIONS": 6,
-        "TSPERF_JOB_KIND": "tsc",
-        "TSPERF_JOB_LOCATION": "public",
-        "TSPERF_JOB_NAME": "tsc_node_18_15_0_self_compiler",
-        "TSPERF_JOB_SCENARIO": "self-compiler",
-      },
-      "tsc_node_18_15_0_vscode": {
-        "TSPERF_JOB_HOST": "node@18.15.0",
-        "TSPERF_JOB_ITERATIONS": 6,
-        "TSPERF_JOB_KIND": "tsc",
-        "TSPERF_JOB_LOCATION": "public",
-        "TSPERF_JOB_NAME": "tsc_node_18_15_0_vscode",
-        "TSPERF_JOB_SCENARIO": "vscode",
-      },
-      "tsc_node_18_15_0_webpack": {
-        "TSPERF_JOB_HOST": "node@18.15.0",
-        "TSPERF_JOB_ITERATIONS": 6,
-        "TSPERF_JOB_KIND": "tsc",
-        "TSPERF_JOB_LOCATION": "public",
-        "TSPERF_JOB_NAME": "tsc_node_18_15_0_webpack",
-        "TSPERF_JOB_SCENARIO": "webpack",
-      },
       "tsc_node_18_15_0_xstate": {
         "TSPERF_JOB_HOST": "node@18.15.0",
         "TSPERF_JOB_ITERATIONS": 6,
@@ -1216,46 +856,6 @@ exports[`generateMatrix preset=full baselining=false > result 1`] = `
         "TSPERF_JOB_NAME": "tsc_node_20_5_1_material_ui",
         "TSPERF_JOB_SCENARIO": "material-ui",
       },
-      "tsc_node_20_5_1_mui_docs": {
-        "TSPERF_JOB_HOST": "node@20.5.1",
-        "TSPERF_JOB_ITERATIONS": 6,
-        "TSPERF_JOB_KIND": "tsc",
-        "TSPERF_JOB_LOCATION": "public",
-        "TSPERF_JOB_NAME": "tsc_node_20_5_1_mui_docs",
-        "TSPERF_JOB_SCENARIO": "mui-docs",
-      },
-      "tsc_node_20_5_1_self_build_src": {
-        "TSPERF_JOB_HOST": "node@20.5.1",
-        "TSPERF_JOB_ITERATIONS": 6,
-        "TSPERF_JOB_KIND": "tsc",
-        "TSPERF_JOB_LOCATION": "public",
-        "TSPERF_JOB_NAME": "tsc_node_20_5_1_self_build_src",
-        "TSPERF_JOB_SCENARIO": "self-build-src",
-      },
-      "tsc_node_20_5_1_self_compiler": {
-        "TSPERF_JOB_HOST": "node@20.5.1",
-        "TSPERF_JOB_ITERATIONS": 6,
-        "TSPERF_JOB_KIND": "tsc",
-        "TSPERF_JOB_LOCATION": "public",
-        "TSPERF_JOB_NAME": "tsc_node_20_5_1_self_compiler",
-        "TSPERF_JOB_SCENARIO": "self-compiler",
-      },
-      "tsc_node_20_5_1_vscode": {
-        "TSPERF_JOB_HOST": "node@20.5.1",
-        "TSPERF_JOB_ITERATIONS": 6,
-        "TSPERF_JOB_KIND": "tsc",
-        "TSPERF_JOB_LOCATION": "public",
-        "TSPERF_JOB_NAME": "tsc_node_20_5_1_vscode",
-        "TSPERF_JOB_SCENARIO": "vscode",
-      },
-      "tsc_node_20_5_1_webpack": {
-        "TSPERF_JOB_HOST": "node@20.5.1",
-        "TSPERF_JOB_ITERATIONS": 6,
-        "TSPERF_JOB_KIND": "tsc",
-        "TSPERF_JOB_LOCATION": "public",
-        "TSPERF_JOB_NAME": "tsc_node_20_5_1_webpack",
-        "TSPERF_JOB_SCENARIO": "webpack",
-      },
       "tsc_node_20_5_1_xstate": {
         "TSPERF_JOB_HOST": "node@20.5.1",
         "TSPERF_JOB_ITERATIONS": 6,
@@ -1295,13 +895,13 @@ exports[`generateMatrix preset=full baselining=false > result 1`] = `
     "ts-perf4": {},
   },
   "outputVariables": {
-    "MATRIX_any": "{"startup_node_18_15_0_tsc_startup":{"TSPERF_JOB_HOST":"node@18.15.0","TSPERF_JOB_ITERATIONS":6,"TSPERF_JOB_KIND":"startup","TSPERF_JOB_LOCATION":"internal","TSPERF_JOB_NAME":"startup_node_18_15_0_tsc_startup","TSPERF_JOB_SCENARIO":"tsc-startup"},"startup_node_18_15_0_tsserver_startup":{"TSPERF_JOB_HOST":"node@18.15.0","TSPERF_JOB_ITERATIONS":6,"TSPERF_JOB_KIND":"startup","TSPERF_JOB_LOCATION":"internal","TSPERF_JOB_NAME":"startup_node_18_15_0_tsserver_startup","TSPERF_JOB_SCENARIO":"tsserver-startup"},"startup_node_18_15_0_tsserverlibrary_startup":{"TSPERF_JOB_HOST":"node@18.15.0","TSPERF_JOB_ITERATIONS":6,"TSPERF_JOB_KIND":"startup","TSPERF_JOB_LOCATION":"internal","TSPERF_JOB_NAME":"startup_node_18_15_0_tsserverlibrary_startup","TSPERF_JOB_SCENARIO":"tsserverlibrary-startup"},"startup_node_18_15_0_typescript_startup":{"TSPERF_JOB_HOST":"node@18.15.0","TSPERF_JOB_ITERATIONS":6,"TSPERF_JOB_KIND":"startup","TSPERF_JOB_LOCATION":"internal","TSPERF_JOB_NAME":"startup_node_18_15_0_typescript_startup","TSPERF_JOB_SCENARIO":"typescript-startup"},"tsc_node_18_15_0_Angular":{"TSPERF_JOB_HOST":"node@18.15.0","TSPERF_JOB_ITERATIONS":6,"TSPERF_JOB_KIND":"tsc","TSPERF_JOB_LOCATION":"internal","TSPERF_JOB_NAME":"tsc_node_18_15_0_Angular","TSPERF_JOB_SCENARIO":"Angular"},"tsc_node_18_15_0_Compiler_Unions":{"TSPERF_JOB_HOST":"node@18.15.0","TSPERF_JOB_ITERATIONS":6,"TSPERF_JOB_KIND":"tsc","TSPERF_JOB_LOCATION":"internal","TSPERF_JOB_NAME":"tsc_node_18_15_0_Compiler_Unions","TSPERF_JOB_SCENARIO":"Compiler-Unions"},"tsc_node_18_15_0_Monaco":{"TSPERF_JOB_HOST":"node@18.15.0","TSPERF_JOB_ITERATIONS":6,"TSPERF_JOB_KIND":"tsc","TSPERF_JOB_LOCATION":"internal","TSPERF_JOB_NAME":"tsc_node_18_15_0_Monaco","TSPERF_JOB_SCENARIO":"Monaco"},"tsc_node_18_15_0_TFS":{"TSPERF_JOB_HOST":"node@18.15.0","TSPERF_JOB_ITERATIONS":6,"TSPERF_JOB_KIND":"tsc","TSPERF_JOB_LOCATION":"internal","TSPERF_JOB_NAME":"tsc_node_18_15_0_TFS","TSPERF_JOB_SCENARIO":"TFS"},"tsc_node_18_15_0_material_ui":{"TSPERF_JOB_HOST":"node@18.15.0","TSPERF_JOB_ITERATIONS":6,"TSPERF_JOB_KIND":"tsc","TSPERF_JOB_LOCATION":"internal","TSPERF_JOB_NAME":"tsc_node_18_15_0_material_ui","TSPERF_JOB_SCENARIO":"material-ui"},"tsc_node_18_15_0_mui_docs":{"TSPERF_JOB_HOST":"node@18.15.0","TSPERF_JOB_ITERATIONS":6,"TSPERF_JOB_KIND":"tsc","TSPERF_JOB_LOCATION":"public","TSPERF_JOB_NAME":"tsc_node_18_15_0_mui_docs","TSPERF_JOB_SCENARIO":"mui-docs"},"tsc_node_18_15_0_self_build_src":{"TSPERF_JOB_HOST":"node@18.15.0","TSPERF_JOB_ITERATIONS":6,"TSPERF_JOB_KIND":"tsc","TSPERF_JOB_LOCATION":"public","TSPERF_JOB_NAME":"tsc_node_18_15_0_self_build_src","TSPERF_JOB_SCENARIO":"self-build-src"},"tsc_node_18_15_0_self_compiler":{"TSPERF_JOB_HOST":"node@18.15.0","TSPERF_JOB_ITERATIONS":6,"TSPERF_JOB_KIND":"tsc","TSPERF_JOB_LOCATION":"public","TSPERF_JOB_NAME":"tsc_node_18_15_0_self_compiler","TSPERF_JOB_SCENARIO":"self-compiler"},"tsc_node_18_15_0_vscode":{"TSPERF_JOB_HOST":"node@18.15.0","TSPERF_JOB_ITERATIONS":6,"TSPERF_JOB_KIND":"tsc","TSPERF_JOB_LOCATION":"public","TSPERF_JOB_NAME":"tsc_node_18_15_0_vscode","TSPERF_JOB_SCENARIO":"vscode"},"tsc_node_18_15_0_webpack":{"TSPERF_JOB_HOST":"node@18.15.0","TSPERF_JOB_ITERATIONS":6,"TSPERF_JOB_KIND":"tsc","TSPERF_JOB_LOCATION":"public","TSPERF_JOB_NAME":"tsc_node_18_15_0_webpack","TSPERF_JOB_SCENARIO":"webpack"},"tsc_node_18_15_0_xstate":{"TSPERF_JOB_HOST":"node@18.15.0","TSPERF_JOB_ITERATIONS":6,"TSPERF_JOB_KIND":"tsc","TSPERF_JOB_LOCATION":"internal","TSPERF_JOB_NAME":"tsc_node_18_15_0_xstate","TSPERF_JOB_SCENARIO":"xstate"},"tsc_node_20_5_1_Angular":{"TSPERF_JOB_HOST":"node@20.5.1","TSPERF_JOB_ITERATIONS":6,"TSPERF_JOB_KIND":"tsc","TSPERF_JOB_LOCATION":"internal","TSPERF_JOB_NAME":"tsc_node_20_5_1_Angular","TSPERF_JOB_SCENARIO":"Angular"},"tsc_node_20_5_1_Compiler_Unions":{"TSPERF_JOB_HOST":"node@20.5.1","TSPERF_JOB_ITERATIONS":6,"TSPERF_JOB_KIND":"tsc","TSPERF_JOB_LOCATION":"internal","TSPERF_JOB_NAME":"tsc_node_20_5_1_Compiler_Unions","TSPERF_JOB_SCENARIO":"Compiler-Unions"},"tsc_node_20_5_1_Monaco":{"TSPERF_JOB_HOST":"node@20.5.1","TSPERF_JOB_ITERATIONS":6,"TSPERF_JOB_KIND":"tsc","TSPERF_JOB_LOCATION":"internal","TSPERF_JOB_NAME":"tsc_node_20_5_1_Monaco","TSPERF_JOB_SCENARIO":"Monaco"},"tsc_node_20_5_1_TFS":{"TSPERF_JOB_HOST":"node@20.5.1","TSPERF_JOB_ITERATIONS":6,"TSPERF_JOB_KIND":"tsc","TSPERF_JOB_LOCATION":"internal","TSPERF_JOB_NAME":"tsc_node_20_5_1_TFS","TSPERF_JOB_SCENARIO":"TFS"},"tsc_node_20_5_1_material_ui":{"TSPERF_JOB_HOST":"node@20.5.1","TSPERF_JOB_ITERATIONS":6,"TSPERF_JOB_KIND":"tsc","TSPERF_JOB_LOCATION":"internal","TSPERF_JOB_NAME":"tsc_node_20_5_1_material_ui","TSPERF_JOB_SCENARIO":"material-ui"},"tsc_node_20_5_1_mui_docs":{"TSPERF_JOB_HOST":"node@20.5.1","TSPERF_JOB_ITERATIONS":6,"TSPERF_JOB_KIND":"tsc","TSPERF_JOB_LOCATION":"public","TSPERF_JOB_NAME":"tsc_node_20_5_1_mui_docs","TSPERF_JOB_SCENARIO":"mui-docs"},"tsc_node_20_5_1_self_build_src":{"TSPERF_JOB_HOST":"node@20.5.1","TSPERF_JOB_ITERATIONS":6,"TSPERF_JOB_KIND":"tsc","TSPERF_JOB_LOCATION":"public","TSPERF_JOB_NAME":"tsc_node_20_5_1_self_build_src","TSPERF_JOB_SCENARIO":"self-build-src"},"tsc_node_20_5_1_self_compiler":{"TSPERF_JOB_HOST":"node@20.5.1","TSPERF_JOB_ITERATIONS":6,"TSPERF_JOB_KIND":"tsc","TSPERF_JOB_LOCATION":"public","TSPERF_JOB_NAME":"tsc_node_20_5_1_self_compiler","TSPERF_JOB_SCENARIO":"self-compiler"},"tsc_node_20_5_1_vscode":{"TSPERF_JOB_HOST":"node@20.5.1","TSPERF_JOB_ITERATIONS":6,"TSPERF_JOB_KIND":"tsc","TSPERF_JOB_LOCATION":"public","TSPERF_JOB_NAME":"tsc_node_20_5_1_vscode","TSPERF_JOB_SCENARIO":"vscode"},"tsc_node_20_5_1_webpack":{"TSPERF_JOB_HOST":"node@20.5.1","TSPERF_JOB_ITERATIONS":6,"TSPERF_JOB_KIND":"tsc","TSPERF_JOB_LOCATION":"public","TSPERF_JOB_NAME":"tsc_node_20_5_1_webpack","TSPERF_JOB_SCENARIO":"webpack"},"tsc_node_20_5_1_xstate":{"TSPERF_JOB_HOST":"node@20.5.1","TSPERF_JOB_ITERATIONS":6,"TSPERF_JOB_KIND":"tsc","TSPERF_JOB_LOCATION":"internal","TSPERF_JOB_NAME":"tsc_node_20_5_1_xstate","TSPERF_JOB_SCENARIO":"xstate"},"tsserver_node_18_15_0_CompilerTSServer":{"TSPERF_JOB_HOST":"node@18.15.0","TSPERF_JOB_ITERATIONS":6,"TSPERF_JOB_KIND":"tsserver","TSPERF_JOB_LOCATION":"internal","TSPERF_JOB_NAME":"tsserver_node_18_15_0_CompilerTSServer","TSPERF_JOB_SCENARIO":"CompilerTSServer"},"tsserver_node_18_15_0_Compiler_UnionsTSServer":{"TSPERF_JOB_HOST":"node@18.15.0","TSPERF_JOB_ITERATIONS":6,"TSPERF_JOB_KIND":"tsserver","TSPERF_JOB_LOCATION":"internal","TSPERF_JOB_NAME":"tsserver_node_18_15_0_Compiler_UnionsTSServer","TSPERF_JOB_SCENARIO":"Compiler-UnionsTSServer"},"tsserver_node_18_15_0_xstateTSServer":{"TSPERF_JOB_HOST":"node@18.15.0","TSPERF_JOB_ITERATIONS":6,"TSPERF_JOB_KIND":"tsserver","TSPERF_JOB_LOCATION":"internal","TSPERF_JOB_NAME":"tsserver_node_18_15_0_xstateTSServer","TSPERF_JOB_SCENARIO":"xstateTSServer"}}",
+    "MATRIX_any": "{"startup_node_18_15_0_tsc_startup":{"TSPERF_JOB_HOST":"node@18.15.0","TSPERF_JOB_ITERATIONS":6,"TSPERF_JOB_KIND":"startup","TSPERF_JOB_LOCATION":"internal","TSPERF_JOB_NAME":"startup_node_18_15_0_tsc_startup","TSPERF_JOB_SCENARIO":"tsc-startup"},"startup_node_18_15_0_tsserver_startup":{"TSPERF_JOB_HOST":"node@18.15.0","TSPERF_JOB_ITERATIONS":6,"TSPERF_JOB_KIND":"startup","TSPERF_JOB_LOCATION":"internal","TSPERF_JOB_NAME":"startup_node_18_15_0_tsserver_startup","TSPERF_JOB_SCENARIO":"tsserver-startup"},"startup_node_18_15_0_tsserverlibrary_startup":{"TSPERF_JOB_HOST":"node@18.15.0","TSPERF_JOB_ITERATIONS":6,"TSPERF_JOB_KIND":"startup","TSPERF_JOB_LOCATION":"internal","TSPERF_JOB_NAME":"startup_node_18_15_0_tsserverlibrary_startup","TSPERF_JOB_SCENARIO":"tsserverlibrary-startup"},"startup_node_18_15_0_typescript_startup":{"TSPERF_JOB_HOST":"node@18.15.0","TSPERF_JOB_ITERATIONS":6,"TSPERF_JOB_KIND":"startup","TSPERF_JOB_LOCATION":"internal","TSPERF_JOB_NAME":"startup_node_18_15_0_typescript_startup","TSPERF_JOB_SCENARIO":"typescript-startup"},"tsc_node_18_15_0_Angular":{"TSPERF_JOB_HOST":"node@18.15.0","TSPERF_JOB_ITERATIONS":6,"TSPERF_JOB_KIND":"tsc","TSPERF_JOB_LOCATION":"internal","TSPERF_JOB_NAME":"tsc_node_18_15_0_Angular","TSPERF_JOB_SCENARIO":"Angular"},"tsc_node_18_15_0_Compiler_Unions":{"TSPERF_JOB_HOST":"node@18.15.0","TSPERF_JOB_ITERATIONS":6,"TSPERF_JOB_KIND":"tsc","TSPERF_JOB_LOCATION":"internal","TSPERF_JOB_NAME":"tsc_node_18_15_0_Compiler_Unions","TSPERF_JOB_SCENARIO":"Compiler-Unions"},"tsc_node_18_15_0_Monaco":{"TSPERF_JOB_HOST":"node@18.15.0","TSPERF_JOB_ITERATIONS":6,"TSPERF_JOB_KIND":"tsc","TSPERF_JOB_LOCATION":"internal","TSPERF_JOB_NAME":"tsc_node_18_15_0_Monaco","TSPERF_JOB_SCENARIO":"Monaco"},"tsc_node_18_15_0_TFS":{"TSPERF_JOB_HOST":"node@18.15.0","TSPERF_JOB_ITERATIONS":6,"TSPERF_JOB_KIND":"tsc","TSPERF_JOB_LOCATION":"internal","TSPERF_JOB_NAME":"tsc_node_18_15_0_TFS","TSPERF_JOB_SCENARIO":"TFS"},"tsc_node_18_15_0_material_ui":{"TSPERF_JOB_HOST":"node@18.15.0","TSPERF_JOB_ITERATIONS":6,"TSPERF_JOB_KIND":"tsc","TSPERF_JOB_LOCATION":"internal","TSPERF_JOB_NAME":"tsc_node_18_15_0_material_ui","TSPERF_JOB_SCENARIO":"material-ui"},"tsc_node_18_15_0_xstate":{"TSPERF_JOB_HOST":"node@18.15.0","TSPERF_JOB_ITERATIONS":6,"TSPERF_JOB_KIND":"tsc","TSPERF_JOB_LOCATION":"internal","TSPERF_JOB_NAME":"tsc_node_18_15_0_xstate","TSPERF_JOB_SCENARIO":"xstate"},"tsc_node_20_5_1_Angular":{"TSPERF_JOB_HOST":"node@20.5.1","TSPERF_JOB_ITERATIONS":6,"TSPERF_JOB_KIND":"tsc","TSPERF_JOB_LOCATION":"internal","TSPERF_JOB_NAME":"tsc_node_20_5_1_Angular","TSPERF_JOB_SCENARIO":"Angular"},"tsc_node_20_5_1_Compiler_Unions":{"TSPERF_JOB_HOST":"node@20.5.1","TSPERF_JOB_ITERATIONS":6,"TSPERF_JOB_KIND":"tsc","TSPERF_JOB_LOCATION":"internal","TSPERF_JOB_NAME":"tsc_node_20_5_1_Compiler_Unions","TSPERF_JOB_SCENARIO":"Compiler-Unions"},"tsc_node_20_5_1_Monaco":{"TSPERF_JOB_HOST":"node@20.5.1","TSPERF_JOB_ITERATIONS":6,"TSPERF_JOB_KIND":"tsc","TSPERF_JOB_LOCATION":"internal","TSPERF_JOB_NAME":"tsc_node_20_5_1_Monaco","TSPERF_JOB_SCENARIO":"Monaco"},"tsc_node_20_5_1_TFS":{"TSPERF_JOB_HOST":"node@20.5.1","TSPERF_JOB_ITERATIONS":6,"TSPERF_JOB_KIND":"tsc","TSPERF_JOB_LOCATION":"internal","TSPERF_JOB_NAME":"tsc_node_20_5_1_TFS","TSPERF_JOB_SCENARIO":"TFS"},"tsc_node_20_5_1_material_ui":{"TSPERF_JOB_HOST":"node@20.5.1","TSPERF_JOB_ITERATIONS":6,"TSPERF_JOB_KIND":"tsc","TSPERF_JOB_LOCATION":"internal","TSPERF_JOB_NAME":"tsc_node_20_5_1_material_ui","TSPERF_JOB_SCENARIO":"material-ui"},"tsc_node_20_5_1_xstate":{"TSPERF_JOB_HOST":"node@20.5.1","TSPERF_JOB_ITERATIONS":6,"TSPERF_JOB_KIND":"tsc","TSPERF_JOB_LOCATION":"internal","TSPERF_JOB_NAME":"tsc_node_20_5_1_xstate","TSPERF_JOB_SCENARIO":"xstate"},"tsserver_node_18_15_0_CompilerTSServer":{"TSPERF_JOB_HOST":"node@18.15.0","TSPERF_JOB_ITERATIONS":6,"TSPERF_JOB_KIND":"tsserver","TSPERF_JOB_LOCATION":"internal","TSPERF_JOB_NAME":"tsserver_node_18_15_0_CompilerTSServer","TSPERF_JOB_SCENARIO":"CompilerTSServer"},"tsserver_node_18_15_0_Compiler_UnionsTSServer":{"TSPERF_JOB_HOST":"node@18.15.0","TSPERF_JOB_ITERATIONS":6,"TSPERF_JOB_KIND":"tsserver","TSPERF_JOB_LOCATION":"internal","TSPERF_JOB_NAME":"tsserver_node_18_15_0_Compiler_UnionsTSServer","TSPERF_JOB_SCENARIO":"Compiler-UnionsTSServer"},"tsserver_node_18_15_0_xstateTSServer":{"TSPERF_JOB_HOST":"node@18.15.0","TSPERF_JOB_ITERATIONS":6,"TSPERF_JOB_KIND":"tsserver","TSPERF_JOB_LOCATION":"internal","TSPERF_JOB_NAME":"tsserver_node_18_15_0_xstateTSServer","TSPERF_JOB_SCENARIO":"xstateTSServer"}}",
     "MATRIX_ts_perf1": "{}",
     "MATRIX_ts_perf2": "{}",
     "MATRIX_ts_perf3": "{}",
     "MATRIX_ts_perf4": "{}",
     "TSPERF_PROCESS_KINDS": "tsc tsserver startup",
-    "TSPERF_PROCESS_LOCATIONS": "internal,public",
+    "TSPERF_PROCESS_LOCATIONS": "internal",
   },
 }
 `;
@@ -1311,8 +911,8 @@ exports[`generateMatrix preset=full baselining=true > error 1`] = `undefined`;
 exports[`generateMatrix preset=full baselining=true > result 1`] = `
 {
   "compute": {
-    "parallel": "51m 2s",
-    "total": "1h 36m 26s",
+    "parallel": "17m 58s",
+    "total": "43m 22s",
   },
   "matrix": {
     "any": {},
@@ -1349,22 +949,6 @@ exports[`generateMatrix preset=full baselining=true > result 1`] = `
         "TSPERF_JOB_NAME": "tsc_node_18_15_0_material_ui",
         "TSPERF_JOB_SCENARIO": "material-ui",
       },
-      "tsc_node_18_15_0_mui_docs": {
-        "TSPERF_JOB_HOST": "node@18.15.0",
-        "TSPERF_JOB_ITERATIONS": 6,
-        "TSPERF_JOB_KIND": "tsc",
-        "TSPERF_JOB_LOCATION": "public",
-        "TSPERF_JOB_NAME": "tsc_node_18_15_0_mui_docs",
-        "TSPERF_JOB_SCENARIO": "mui-docs",
-      },
-      "tsc_node_18_15_0_vscode": {
-        "TSPERF_JOB_HOST": "node@18.15.0",
-        "TSPERF_JOB_ITERATIONS": 6,
-        "TSPERF_JOB_KIND": "tsc",
-        "TSPERF_JOB_LOCATION": "public",
-        "TSPERF_JOB_NAME": "tsc_node_18_15_0_vscode",
-        "TSPERF_JOB_SCENARIO": "vscode",
-      },
       "tsc_node_20_5_1_Angular": {
         "TSPERF_JOB_HOST": "node@20.5.1",
         "TSPERF_JOB_ITERATIONS": 6,
@@ -1380,22 +964,6 @@ exports[`generateMatrix preset=full baselining=true > result 1`] = `
         "TSPERF_JOB_LOCATION": "internal",
         "TSPERF_JOB_NAME": "tsc_node_20_5_1_material_ui",
         "TSPERF_JOB_SCENARIO": "material-ui",
-      },
-      "tsc_node_20_5_1_mui_docs": {
-        "TSPERF_JOB_HOST": "node@20.5.1",
-        "TSPERF_JOB_ITERATIONS": 6,
-        "TSPERF_JOB_KIND": "tsc",
-        "TSPERF_JOB_LOCATION": "public",
-        "TSPERF_JOB_NAME": "tsc_node_20_5_1_mui_docs",
-        "TSPERF_JOB_SCENARIO": "mui-docs",
-      },
-      "tsc_node_20_5_1_vscode": {
-        "TSPERF_JOB_HOST": "node@20.5.1",
-        "TSPERF_JOB_ITERATIONS": 6,
-        "TSPERF_JOB_KIND": "tsc",
-        "TSPERF_JOB_LOCATION": "public",
-        "TSPERF_JOB_NAME": "tsc_node_20_5_1_vscode",
-        "TSPERF_JOB_SCENARIO": "vscode",
       },
       "tsserver_node_18_15_0_Compiler_UnionsTSServer": {
         "TSPERF_JOB_HOST": "node@18.15.0",
@@ -1431,14 +999,6 @@ exports[`generateMatrix preset=full baselining=true > result 1`] = `
         "TSPERF_JOB_NAME": "tsc_node_18_15_0_Monaco",
         "TSPERF_JOB_SCENARIO": "Monaco",
       },
-      "tsc_node_18_15_0_self_compiler": {
-        "TSPERF_JOB_HOST": "node@18.15.0",
-        "TSPERF_JOB_ITERATIONS": 6,
-        "TSPERF_JOB_KIND": "tsc",
-        "TSPERF_JOB_LOCATION": "public",
-        "TSPERF_JOB_NAME": "tsc_node_18_15_0_self_compiler",
-        "TSPERF_JOB_SCENARIO": "self-compiler",
-      },
       "tsc_node_20_5_1_Compiler_Unions": {
         "TSPERF_JOB_HOST": "node@20.5.1",
         "TSPERF_JOB_ITERATIONS": 6,
@@ -1454,14 +1014,6 @@ exports[`generateMatrix preset=full baselining=true > result 1`] = `
         "TSPERF_JOB_LOCATION": "internal",
         "TSPERF_JOB_NAME": "tsc_node_20_5_1_Monaco",
         "TSPERF_JOB_SCENARIO": "Monaco",
-      },
-      "tsc_node_20_5_1_self_compiler": {
-        "TSPERF_JOB_HOST": "node@20.5.1",
-        "TSPERF_JOB_ITERATIONS": 6,
-        "TSPERF_JOB_KIND": "tsc",
-        "TSPERF_JOB_LOCATION": "public",
-        "TSPERF_JOB_NAME": "tsc_node_20_5_1_self_compiler",
-        "TSPERF_JOB_SCENARIO": "self-compiler",
       },
       "tsserver_node_18_15_0_CompilerTSServer": {
         "TSPERF_JOB_HOST": "node@18.15.0",
@@ -1489,22 +1041,6 @@ exports[`generateMatrix preset=full baselining=true > result 1`] = `
         "TSPERF_JOB_NAME": "tsc_node_18_15_0_TFS",
         "TSPERF_JOB_SCENARIO": "TFS",
       },
-      "tsc_node_18_15_0_self_build_src": {
-        "TSPERF_JOB_HOST": "node@18.15.0",
-        "TSPERF_JOB_ITERATIONS": 6,
-        "TSPERF_JOB_KIND": "tsc",
-        "TSPERF_JOB_LOCATION": "public",
-        "TSPERF_JOB_NAME": "tsc_node_18_15_0_self_build_src",
-        "TSPERF_JOB_SCENARIO": "self-build-src",
-      },
-      "tsc_node_18_15_0_webpack": {
-        "TSPERF_JOB_HOST": "node@18.15.0",
-        "TSPERF_JOB_ITERATIONS": 6,
-        "TSPERF_JOB_KIND": "tsc",
-        "TSPERF_JOB_LOCATION": "public",
-        "TSPERF_JOB_NAME": "tsc_node_18_15_0_webpack",
-        "TSPERF_JOB_SCENARIO": "webpack",
-      },
       "tsc_node_18_15_0_xstate": {
         "TSPERF_JOB_HOST": "node@18.15.0",
         "TSPERF_JOB_ITERATIONS": 6,
@@ -1520,22 +1056,6 @@ exports[`generateMatrix preset=full baselining=true > result 1`] = `
         "TSPERF_JOB_LOCATION": "internal",
         "TSPERF_JOB_NAME": "tsc_node_20_5_1_TFS",
         "TSPERF_JOB_SCENARIO": "TFS",
-      },
-      "tsc_node_20_5_1_self_build_src": {
-        "TSPERF_JOB_HOST": "node@20.5.1",
-        "TSPERF_JOB_ITERATIONS": 6,
-        "TSPERF_JOB_KIND": "tsc",
-        "TSPERF_JOB_LOCATION": "public",
-        "TSPERF_JOB_NAME": "tsc_node_20_5_1_self_build_src",
-        "TSPERF_JOB_SCENARIO": "self-build-src",
-      },
-      "tsc_node_20_5_1_webpack": {
-        "TSPERF_JOB_HOST": "node@20.5.1",
-        "TSPERF_JOB_ITERATIONS": 6,
-        "TSPERF_JOB_KIND": "tsc",
-        "TSPERF_JOB_LOCATION": "public",
-        "TSPERF_JOB_NAME": "tsc_node_20_5_1_webpack",
-        "TSPERF_JOB_SCENARIO": "webpack",
       },
       "tsc_node_20_5_1_xstate": {
         "TSPERF_JOB_HOST": "node@20.5.1",
@@ -1558,12 +1078,12 @@ exports[`generateMatrix preset=full baselining=true > result 1`] = `
   },
   "outputVariables": {
     "MATRIX_any": "{}",
-    "MATRIX_ts_perf1": "{"startup_node_18_15_0_tsc_startup":{"TSPERF_JOB_HOST":"node@18.15.0","TSPERF_JOB_ITERATIONS":6,"TSPERF_JOB_KIND":"startup","TSPERF_JOB_LOCATION":"internal","TSPERF_JOB_NAME":"startup_node_18_15_0_tsc_startup","TSPERF_JOB_SCENARIO":"tsc-startup"},"startup_node_18_15_0_typescript_startup":{"TSPERF_JOB_HOST":"node@18.15.0","TSPERF_JOB_ITERATIONS":6,"TSPERF_JOB_KIND":"startup","TSPERF_JOB_LOCATION":"internal","TSPERF_JOB_NAME":"startup_node_18_15_0_typescript_startup","TSPERF_JOB_SCENARIO":"typescript-startup"},"tsc_node_18_15_0_Angular":{"TSPERF_JOB_HOST":"node@18.15.0","TSPERF_JOB_ITERATIONS":6,"TSPERF_JOB_KIND":"tsc","TSPERF_JOB_LOCATION":"internal","TSPERF_JOB_NAME":"tsc_node_18_15_0_Angular","TSPERF_JOB_SCENARIO":"Angular"},"tsc_node_18_15_0_material_ui":{"TSPERF_JOB_HOST":"node@18.15.0","TSPERF_JOB_ITERATIONS":6,"TSPERF_JOB_KIND":"tsc","TSPERF_JOB_LOCATION":"internal","TSPERF_JOB_NAME":"tsc_node_18_15_0_material_ui","TSPERF_JOB_SCENARIO":"material-ui"},"tsc_node_18_15_0_mui_docs":{"TSPERF_JOB_HOST":"node@18.15.0","TSPERF_JOB_ITERATIONS":6,"TSPERF_JOB_KIND":"tsc","TSPERF_JOB_LOCATION":"public","TSPERF_JOB_NAME":"tsc_node_18_15_0_mui_docs","TSPERF_JOB_SCENARIO":"mui-docs"},"tsc_node_18_15_0_vscode":{"TSPERF_JOB_HOST":"node@18.15.0","TSPERF_JOB_ITERATIONS":6,"TSPERF_JOB_KIND":"tsc","TSPERF_JOB_LOCATION":"public","TSPERF_JOB_NAME":"tsc_node_18_15_0_vscode","TSPERF_JOB_SCENARIO":"vscode"},"tsc_node_20_5_1_Angular":{"TSPERF_JOB_HOST":"node@20.5.1","TSPERF_JOB_ITERATIONS":6,"TSPERF_JOB_KIND":"tsc","TSPERF_JOB_LOCATION":"internal","TSPERF_JOB_NAME":"tsc_node_20_5_1_Angular","TSPERF_JOB_SCENARIO":"Angular"},"tsc_node_20_5_1_material_ui":{"TSPERF_JOB_HOST":"node@20.5.1","TSPERF_JOB_ITERATIONS":6,"TSPERF_JOB_KIND":"tsc","TSPERF_JOB_LOCATION":"internal","TSPERF_JOB_NAME":"tsc_node_20_5_1_material_ui","TSPERF_JOB_SCENARIO":"material-ui"},"tsc_node_20_5_1_mui_docs":{"TSPERF_JOB_HOST":"node@20.5.1","TSPERF_JOB_ITERATIONS":6,"TSPERF_JOB_KIND":"tsc","TSPERF_JOB_LOCATION":"public","TSPERF_JOB_NAME":"tsc_node_20_5_1_mui_docs","TSPERF_JOB_SCENARIO":"mui-docs"},"tsc_node_20_5_1_vscode":{"TSPERF_JOB_HOST":"node@20.5.1","TSPERF_JOB_ITERATIONS":6,"TSPERF_JOB_KIND":"tsc","TSPERF_JOB_LOCATION":"public","TSPERF_JOB_NAME":"tsc_node_20_5_1_vscode","TSPERF_JOB_SCENARIO":"vscode"},"tsserver_node_18_15_0_Compiler_UnionsTSServer":{"TSPERF_JOB_HOST":"node@18.15.0","TSPERF_JOB_ITERATIONS":6,"TSPERF_JOB_KIND":"tsserver","TSPERF_JOB_LOCATION":"internal","TSPERF_JOB_NAME":"tsserver_node_18_15_0_Compiler_UnionsTSServer","TSPERF_JOB_SCENARIO":"Compiler-UnionsTSServer"}}",
-    "MATRIX_ts_perf2": "{"startup_node_18_15_0_tsserver_startup":{"TSPERF_JOB_HOST":"node@18.15.0","TSPERF_JOB_ITERATIONS":6,"TSPERF_JOB_KIND":"startup","TSPERF_JOB_LOCATION":"internal","TSPERF_JOB_NAME":"startup_node_18_15_0_tsserver_startup","TSPERF_JOB_SCENARIO":"tsserver-startup"},"tsc_node_18_15_0_Compiler_Unions":{"TSPERF_JOB_HOST":"node@18.15.0","TSPERF_JOB_ITERATIONS":6,"TSPERF_JOB_KIND":"tsc","TSPERF_JOB_LOCATION":"internal","TSPERF_JOB_NAME":"tsc_node_18_15_0_Compiler_Unions","TSPERF_JOB_SCENARIO":"Compiler-Unions"},"tsc_node_18_15_0_Monaco":{"TSPERF_JOB_HOST":"node@18.15.0","TSPERF_JOB_ITERATIONS":6,"TSPERF_JOB_KIND":"tsc","TSPERF_JOB_LOCATION":"internal","TSPERF_JOB_NAME":"tsc_node_18_15_0_Monaco","TSPERF_JOB_SCENARIO":"Monaco"},"tsc_node_18_15_0_self_compiler":{"TSPERF_JOB_HOST":"node@18.15.0","TSPERF_JOB_ITERATIONS":6,"TSPERF_JOB_KIND":"tsc","TSPERF_JOB_LOCATION":"public","TSPERF_JOB_NAME":"tsc_node_18_15_0_self_compiler","TSPERF_JOB_SCENARIO":"self-compiler"},"tsc_node_20_5_1_Compiler_Unions":{"TSPERF_JOB_HOST":"node@20.5.1","TSPERF_JOB_ITERATIONS":6,"TSPERF_JOB_KIND":"tsc","TSPERF_JOB_LOCATION":"internal","TSPERF_JOB_NAME":"tsc_node_20_5_1_Compiler_Unions","TSPERF_JOB_SCENARIO":"Compiler-Unions"},"tsc_node_20_5_1_Monaco":{"TSPERF_JOB_HOST":"node@20.5.1","TSPERF_JOB_ITERATIONS":6,"TSPERF_JOB_KIND":"tsc","TSPERF_JOB_LOCATION":"internal","TSPERF_JOB_NAME":"tsc_node_20_5_1_Monaco","TSPERF_JOB_SCENARIO":"Monaco"},"tsc_node_20_5_1_self_compiler":{"TSPERF_JOB_HOST":"node@20.5.1","TSPERF_JOB_ITERATIONS":6,"TSPERF_JOB_KIND":"tsc","TSPERF_JOB_LOCATION":"public","TSPERF_JOB_NAME":"tsc_node_20_5_1_self_compiler","TSPERF_JOB_SCENARIO":"self-compiler"},"tsserver_node_18_15_0_CompilerTSServer":{"TSPERF_JOB_HOST":"node@18.15.0","TSPERF_JOB_ITERATIONS":6,"TSPERF_JOB_KIND":"tsserver","TSPERF_JOB_LOCATION":"internal","TSPERF_JOB_NAME":"tsserver_node_18_15_0_CompilerTSServer","TSPERF_JOB_SCENARIO":"CompilerTSServer"}}",
-    "MATRIX_ts_perf3": "{"startup_node_18_15_0_tsserverlibrary_startup":{"TSPERF_JOB_HOST":"node@18.15.0","TSPERF_JOB_ITERATIONS":6,"TSPERF_JOB_KIND":"startup","TSPERF_JOB_LOCATION":"internal","TSPERF_JOB_NAME":"startup_node_18_15_0_tsserverlibrary_startup","TSPERF_JOB_SCENARIO":"tsserverlibrary-startup"},"tsc_node_18_15_0_TFS":{"TSPERF_JOB_HOST":"node@18.15.0","TSPERF_JOB_ITERATIONS":6,"TSPERF_JOB_KIND":"tsc","TSPERF_JOB_LOCATION":"internal","TSPERF_JOB_NAME":"tsc_node_18_15_0_TFS","TSPERF_JOB_SCENARIO":"TFS"},"tsc_node_18_15_0_self_build_src":{"TSPERF_JOB_HOST":"node@18.15.0","TSPERF_JOB_ITERATIONS":6,"TSPERF_JOB_KIND":"tsc","TSPERF_JOB_LOCATION":"public","TSPERF_JOB_NAME":"tsc_node_18_15_0_self_build_src","TSPERF_JOB_SCENARIO":"self-build-src"},"tsc_node_18_15_0_webpack":{"TSPERF_JOB_HOST":"node@18.15.0","TSPERF_JOB_ITERATIONS":6,"TSPERF_JOB_KIND":"tsc","TSPERF_JOB_LOCATION":"public","TSPERF_JOB_NAME":"tsc_node_18_15_0_webpack","TSPERF_JOB_SCENARIO":"webpack"},"tsc_node_18_15_0_xstate":{"TSPERF_JOB_HOST":"node@18.15.0","TSPERF_JOB_ITERATIONS":6,"TSPERF_JOB_KIND":"tsc","TSPERF_JOB_LOCATION":"internal","TSPERF_JOB_NAME":"tsc_node_18_15_0_xstate","TSPERF_JOB_SCENARIO":"xstate"},"tsc_node_20_5_1_TFS":{"TSPERF_JOB_HOST":"node@20.5.1","TSPERF_JOB_ITERATIONS":6,"TSPERF_JOB_KIND":"tsc","TSPERF_JOB_LOCATION":"internal","TSPERF_JOB_NAME":"tsc_node_20_5_1_TFS","TSPERF_JOB_SCENARIO":"TFS"},"tsc_node_20_5_1_self_build_src":{"TSPERF_JOB_HOST":"node@20.5.1","TSPERF_JOB_ITERATIONS":6,"TSPERF_JOB_KIND":"tsc","TSPERF_JOB_LOCATION":"public","TSPERF_JOB_NAME":"tsc_node_20_5_1_self_build_src","TSPERF_JOB_SCENARIO":"self-build-src"},"tsc_node_20_5_1_webpack":{"TSPERF_JOB_HOST":"node@20.5.1","TSPERF_JOB_ITERATIONS":6,"TSPERF_JOB_KIND":"tsc","TSPERF_JOB_LOCATION":"public","TSPERF_JOB_NAME":"tsc_node_20_5_1_webpack","TSPERF_JOB_SCENARIO":"webpack"},"tsc_node_20_5_1_xstate":{"TSPERF_JOB_HOST":"node@20.5.1","TSPERF_JOB_ITERATIONS":6,"TSPERF_JOB_KIND":"tsc","TSPERF_JOB_LOCATION":"internal","TSPERF_JOB_NAME":"tsc_node_20_5_1_xstate","TSPERF_JOB_SCENARIO":"xstate"},"tsserver_node_18_15_0_xstateTSServer":{"TSPERF_JOB_HOST":"node@18.15.0","TSPERF_JOB_ITERATIONS":6,"TSPERF_JOB_KIND":"tsserver","TSPERF_JOB_LOCATION":"internal","TSPERF_JOB_NAME":"tsserver_node_18_15_0_xstateTSServer","TSPERF_JOB_SCENARIO":"xstateTSServer"}}",
+    "MATRIX_ts_perf1": "{"startup_node_18_15_0_tsc_startup":{"TSPERF_JOB_HOST":"node@18.15.0","TSPERF_JOB_ITERATIONS":6,"TSPERF_JOB_KIND":"startup","TSPERF_JOB_LOCATION":"internal","TSPERF_JOB_NAME":"startup_node_18_15_0_tsc_startup","TSPERF_JOB_SCENARIO":"tsc-startup"},"startup_node_18_15_0_typescript_startup":{"TSPERF_JOB_HOST":"node@18.15.0","TSPERF_JOB_ITERATIONS":6,"TSPERF_JOB_KIND":"startup","TSPERF_JOB_LOCATION":"internal","TSPERF_JOB_NAME":"startup_node_18_15_0_typescript_startup","TSPERF_JOB_SCENARIO":"typescript-startup"},"tsc_node_18_15_0_Angular":{"TSPERF_JOB_HOST":"node@18.15.0","TSPERF_JOB_ITERATIONS":6,"TSPERF_JOB_KIND":"tsc","TSPERF_JOB_LOCATION":"internal","TSPERF_JOB_NAME":"tsc_node_18_15_0_Angular","TSPERF_JOB_SCENARIO":"Angular"},"tsc_node_18_15_0_material_ui":{"TSPERF_JOB_HOST":"node@18.15.0","TSPERF_JOB_ITERATIONS":6,"TSPERF_JOB_KIND":"tsc","TSPERF_JOB_LOCATION":"internal","TSPERF_JOB_NAME":"tsc_node_18_15_0_material_ui","TSPERF_JOB_SCENARIO":"material-ui"},"tsc_node_20_5_1_Angular":{"TSPERF_JOB_HOST":"node@20.5.1","TSPERF_JOB_ITERATIONS":6,"TSPERF_JOB_KIND":"tsc","TSPERF_JOB_LOCATION":"internal","TSPERF_JOB_NAME":"tsc_node_20_5_1_Angular","TSPERF_JOB_SCENARIO":"Angular"},"tsc_node_20_5_1_material_ui":{"TSPERF_JOB_HOST":"node@20.5.1","TSPERF_JOB_ITERATIONS":6,"TSPERF_JOB_KIND":"tsc","TSPERF_JOB_LOCATION":"internal","TSPERF_JOB_NAME":"tsc_node_20_5_1_material_ui","TSPERF_JOB_SCENARIO":"material-ui"},"tsserver_node_18_15_0_Compiler_UnionsTSServer":{"TSPERF_JOB_HOST":"node@18.15.0","TSPERF_JOB_ITERATIONS":6,"TSPERF_JOB_KIND":"tsserver","TSPERF_JOB_LOCATION":"internal","TSPERF_JOB_NAME":"tsserver_node_18_15_0_Compiler_UnionsTSServer","TSPERF_JOB_SCENARIO":"Compiler-UnionsTSServer"}}",
+    "MATRIX_ts_perf2": "{"startup_node_18_15_0_tsserver_startup":{"TSPERF_JOB_HOST":"node@18.15.0","TSPERF_JOB_ITERATIONS":6,"TSPERF_JOB_KIND":"startup","TSPERF_JOB_LOCATION":"internal","TSPERF_JOB_NAME":"startup_node_18_15_0_tsserver_startup","TSPERF_JOB_SCENARIO":"tsserver-startup"},"tsc_node_18_15_0_Compiler_Unions":{"TSPERF_JOB_HOST":"node@18.15.0","TSPERF_JOB_ITERATIONS":6,"TSPERF_JOB_KIND":"tsc","TSPERF_JOB_LOCATION":"internal","TSPERF_JOB_NAME":"tsc_node_18_15_0_Compiler_Unions","TSPERF_JOB_SCENARIO":"Compiler-Unions"},"tsc_node_18_15_0_Monaco":{"TSPERF_JOB_HOST":"node@18.15.0","TSPERF_JOB_ITERATIONS":6,"TSPERF_JOB_KIND":"tsc","TSPERF_JOB_LOCATION":"internal","TSPERF_JOB_NAME":"tsc_node_18_15_0_Monaco","TSPERF_JOB_SCENARIO":"Monaco"},"tsc_node_20_5_1_Compiler_Unions":{"TSPERF_JOB_HOST":"node@20.5.1","TSPERF_JOB_ITERATIONS":6,"TSPERF_JOB_KIND":"tsc","TSPERF_JOB_LOCATION":"internal","TSPERF_JOB_NAME":"tsc_node_20_5_1_Compiler_Unions","TSPERF_JOB_SCENARIO":"Compiler-Unions"},"tsc_node_20_5_1_Monaco":{"TSPERF_JOB_HOST":"node@20.5.1","TSPERF_JOB_ITERATIONS":6,"TSPERF_JOB_KIND":"tsc","TSPERF_JOB_LOCATION":"internal","TSPERF_JOB_NAME":"tsc_node_20_5_1_Monaco","TSPERF_JOB_SCENARIO":"Monaco"},"tsserver_node_18_15_0_CompilerTSServer":{"TSPERF_JOB_HOST":"node@18.15.0","TSPERF_JOB_ITERATIONS":6,"TSPERF_JOB_KIND":"tsserver","TSPERF_JOB_LOCATION":"internal","TSPERF_JOB_NAME":"tsserver_node_18_15_0_CompilerTSServer","TSPERF_JOB_SCENARIO":"CompilerTSServer"}}",
+    "MATRIX_ts_perf3": "{"startup_node_18_15_0_tsserverlibrary_startup":{"TSPERF_JOB_HOST":"node@18.15.0","TSPERF_JOB_ITERATIONS":6,"TSPERF_JOB_KIND":"startup","TSPERF_JOB_LOCATION":"internal","TSPERF_JOB_NAME":"startup_node_18_15_0_tsserverlibrary_startup","TSPERF_JOB_SCENARIO":"tsserverlibrary-startup"},"tsc_node_18_15_0_TFS":{"TSPERF_JOB_HOST":"node@18.15.0","TSPERF_JOB_ITERATIONS":6,"TSPERF_JOB_KIND":"tsc","TSPERF_JOB_LOCATION":"internal","TSPERF_JOB_NAME":"tsc_node_18_15_0_TFS","TSPERF_JOB_SCENARIO":"TFS"},"tsc_node_18_15_0_xstate":{"TSPERF_JOB_HOST":"node@18.15.0","TSPERF_JOB_ITERATIONS":6,"TSPERF_JOB_KIND":"tsc","TSPERF_JOB_LOCATION":"internal","TSPERF_JOB_NAME":"tsc_node_18_15_0_xstate","TSPERF_JOB_SCENARIO":"xstate"},"tsc_node_20_5_1_TFS":{"TSPERF_JOB_HOST":"node@20.5.1","TSPERF_JOB_ITERATIONS":6,"TSPERF_JOB_KIND":"tsc","TSPERF_JOB_LOCATION":"internal","TSPERF_JOB_NAME":"tsc_node_20_5_1_TFS","TSPERF_JOB_SCENARIO":"TFS"},"tsc_node_20_5_1_xstate":{"TSPERF_JOB_HOST":"node@20.5.1","TSPERF_JOB_ITERATIONS":6,"TSPERF_JOB_KIND":"tsc","TSPERF_JOB_LOCATION":"internal","TSPERF_JOB_NAME":"tsc_node_20_5_1_xstate","TSPERF_JOB_SCENARIO":"xstate"},"tsserver_node_18_15_0_xstateTSServer":{"TSPERF_JOB_HOST":"node@18.15.0","TSPERF_JOB_ITERATIONS":6,"TSPERF_JOB_KIND":"tsserver","TSPERF_JOB_LOCATION":"internal","TSPERF_JOB_NAME":"tsserver_node_18_15_0_xstateTSServer","TSPERF_JOB_SCENARIO":"xstateTSServer"}}",
     "MATRIX_ts_perf4": "{}",
     "TSPERF_PROCESS_KINDS": "tsc tsserver startup",
-    "TSPERF_PROCESS_LOCATIONS": "internal,public",
+    "TSPERF_PROCESS_LOCATIONS": "internal",
   },
 }
 `;
@@ -1573,146 +1093,39 @@ exports[`generateMatrix preset=public baselining=false > error 1`] = `undefined`
 exports[`generateMatrix preset=public baselining=false > result 1`] = `
 {
   "compute": {
-    "parallel": "13m 16s",
-    "total": "53m 4s",
+    "parallel": "0ms",
+    "total": "0ms",
   },
   "matrix": {
-    "any": {
-      "tsc_node_20_5_1_mui_docs": {
-        "TSPERF_JOB_HOST": "node@20.5.1",
-        "TSPERF_JOB_ITERATIONS": 6,
-        "TSPERF_JOB_KIND": "tsc",
-        "TSPERF_JOB_LOCATION": "public",
-        "TSPERF_JOB_NAME": "tsc_node_20_5_1_mui_docs",
-        "TSPERF_JOB_SCENARIO": "mui-docs",
-      },
-      "tsc_node_20_5_1_self_build_src": {
-        "TSPERF_JOB_HOST": "node@20.5.1",
-        "TSPERF_JOB_ITERATIONS": 6,
-        "TSPERF_JOB_KIND": "tsc",
-        "TSPERF_JOB_LOCATION": "public",
-        "TSPERF_JOB_NAME": "tsc_node_20_5_1_self_build_src",
-        "TSPERF_JOB_SCENARIO": "self-build-src",
-      },
-      "tsc_node_20_5_1_self_compiler": {
-        "TSPERF_JOB_HOST": "node@20.5.1",
-        "TSPERF_JOB_ITERATIONS": 6,
-        "TSPERF_JOB_KIND": "tsc",
-        "TSPERF_JOB_LOCATION": "public",
-        "TSPERF_JOB_NAME": "tsc_node_20_5_1_self_compiler",
-        "TSPERF_JOB_SCENARIO": "self-compiler",
-      },
-      "tsc_node_20_5_1_vscode": {
-        "TSPERF_JOB_HOST": "node@20.5.1",
-        "TSPERF_JOB_ITERATIONS": 6,
-        "TSPERF_JOB_KIND": "tsc",
-        "TSPERF_JOB_LOCATION": "public",
-        "TSPERF_JOB_NAME": "tsc_node_20_5_1_vscode",
-        "TSPERF_JOB_SCENARIO": "vscode",
-      },
-      "tsc_node_20_5_1_webpack": {
-        "TSPERF_JOB_HOST": "node@20.5.1",
-        "TSPERF_JOB_ITERATIONS": 6,
-        "TSPERF_JOB_KIND": "tsc",
-        "TSPERF_JOB_LOCATION": "public",
-        "TSPERF_JOB_NAME": "tsc_node_20_5_1_webpack",
-        "TSPERF_JOB_SCENARIO": "webpack",
-      },
-    },
+    "any": {},
     "ts-perf1": {},
     "ts-perf2": {},
     "ts-perf3": {},
     "ts-perf4": {},
   },
   "outputVariables": {
-    "MATRIX_any": "{"tsc_node_20_5_1_mui_docs":{"TSPERF_JOB_HOST":"node@20.5.1","TSPERF_JOB_ITERATIONS":6,"TSPERF_JOB_KIND":"tsc","TSPERF_JOB_LOCATION":"public","TSPERF_JOB_NAME":"tsc_node_20_5_1_mui_docs","TSPERF_JOB_SCENARIO":"mui-docs"},"tsc_node_20_5_1_self_build_src":{"TSPERF_JOB_HOST":"node@20.5.1","TSPERF_JOB_ITERATIONS":6,"TSPERF_JOB_KIND":"tsc","TSPERF_JOB_LOCATION":"public","TSPERF_JOB_NAME":"tsc_node_20_5_1_self_build_src","TSPERF_JOB_SCENARIO":"self-build-src"},"tsc_node_20_5_1_self_compiler":{"TSPERF_JOB_HOST":"node@20.5.1","TSPERF_JOB_ITERATIONS":6,"TSPERF_JOB_KIND":"tsc","TSPERF_JOB_LOCATION":"public","TSPERF_JOB_NAME":"tsc_node_20_5_1_self_compiler","TSPERF_JOB_SCENARIO":"self-compiler"},"tsc_node_20_5_1_vscode":{"TSPERF_JOB_HOST":"node@20.5.1","TSPERF_JOB_ITERATIONS":6,"TSPERF_JOB_KIND":"tsc","TSPERF_JOB_LOCATION":"public","TSPERF_JOB_NAME":"tsc_node_20_5_1_vscode","TSPERF_JOB_SCENARIO":"vscode"},"tsc_node_20_5_1_webpack":{"TSPERF_JOB_HOST":"node@20.5.1","TSPERF_JOB_ITERATIONS":6,"TSPERF_JOB_KIND":"tsc","TSPERF_JOB_LOCATION":"public","TSPERF_JOB_NAME":"tsc_node_20_5_1_webpack","TSPERF_JOB_SCENARIO":"webpack"}}",
+    "MATRIX_any": "{}",
     "MATRIX_ts_perf1": "{}",
     "MATRIX_ts_perf2": "{}",
     "MATRIX_ts_perf3": "{}",
     "MATRIX_ts_perf4": "{}",
-    "TSPERF_PROCESS_KINDS": "tsc",
-    "TSPERF_PROCESS_LOCATIONS": "public",
+    "TSPERF_PROCESS_KINDS": "",
+    "TSPERF_PROCESS_LOCATIONS": "",
   },
 }
 `;
 
-exports[`generateMatrix preset=public baselining=true > error 1`] = `undefined`;
+exports[`generateMatrix preset=public baselining=true > error 1`] = `[TypeError: Expected a finite number]`;
 
-exports[`generateMatrix preset=public baselining=true > result 1`] = `
-{
-  "compute": {
-    "parallel": "16m 32s",
-    "total": "26m 32s",
-  },
-  "matrix": {
-    "any": {},
-    "ts-perf1": {
-      "tsc_node_20_5_1_mui_docs": {
-        "TSPERF_JOB_HOST": "node@20.5.1",
-        "TSPERF_JOB_ITERATIONS": 6,
-        "TSPERF_JOB_KIND": "tsc",
-        "TSPERF_JOB_LOCATION": "public",
-        "TSPERF_JOB_NAME": "tsc_node_20_5_1_mui_docs",
-        "TSPERF_JOB_SCENARIO": "mui-docs",
-      },
-      "tsc_node_20_5_1_vscode": {
-        "TSPERF_JOB_HOST": "node@20.5.1",
-        "TSPERF_JOB_ITERATIONS": 6,
-        "TSPERF_JOB_KIND": "tsc",
-        "TSPERF_JOB_LOCATION": "public",
-        "TSPERF_JOB_NAME": "tsc_node_20_5_1_vscode",
-        "TSPERF_JOB_SCENARIO": "vscode",
-      },
-    },
-    "ts-perf2": {
-      "tsc_node_20_5_1_self_compiler": {
-        "TSPERF_JOB_HOST": "node@20.5.1",
-        "TSPERF_JOB_ITERATIONS": 6,
-        "TSPERF_JOB_KIND": "tsc",
-        "TSPERF_JOB_LOCATION": "public",
-        "TSPERF_JOB_NAME": "tsc_node_20_5_1_self_compiler",
-        "TSPERF_JOB_SCENARIO": "self-compiler",
-      },
-    },
-    "ts-perf3": {
-      "tsc_node_20_5_1_self_build_src": {
-        "TSPERF_JOB_HOST": "node@20.5.1",
-        "TSPERF_JOB_ITERATIONS": 6,
-        "TSPERF_JOB_KIND": "tsc",
-        "TSPERF_JOB_LOCATION": "public",
-        "TSPERF_JOB_NAME": "tsc_node_20_5_1_self_build_src",
-        "TSPERF_JOB_SCENARIO": "self-build-src",
-      },
-      "tsc_node_20_5_1_webpack": {
-        "TSPERF_JOB_HOST": "node@20.5.1",
-        "TSPERF_JOB_ITERATIONS": 6,
-        "TSPERF_JOB_KIND": "tsc",
-        "TSPERF_JOB_LOCATION": "public",
-        "TSPERF_JOB_NAME": "tsc_node_20_5_1_webpack",
-        "TSPERF_JOB_SCENARIO": "webpack",
-      },
-    },
-    "ts-perf4": {},
-  },
-  "outputVariables": {
-    "MATRIX_any": "{}",
-    "MATRIX_ts_perf1": "{"tsc_node_20_5_1_mui_docs":{"TSPERF_JOB_HOST":"node@20.5.1","TSPERF_JOB_ITERATIONS":6,"TSPERF_JOB_KIND":"tsc","TSPERF_JOB_LOCATION":"public","TSPERF_JOB_NAME":"tsc_node_20_5_1_mui_docs","TSPERF_JOB_SCENARIO":"mui-docs"},"tsc_node_20_5_1_vscode":{"TSPERF_JOB_HOST":"node@20.5.1","TSPERF_JOB_ITERATIONS":6,"TSPERF_JOB_KIND":"tsc","TSPERF_JOB_LOCATION":"public","TSPERF_JOB_NAME":"tsc_node_20_5_1_vscode","TSPERF_JOB_SCENARIO":"vscode"}}",
-    "MATRIX_ts_perf2": "{"tsc_node_20_5_1_self_compiler":{"TSPERF_JOB_HOST":"node@20.5.1","TSPERF_JOB_ITERATIONS":6,"TSPERF_JOB_KIND":"tsc","TSPERF_JOB_LOCATION":"public","TSPERF_JOB_NAME":"tsc_node_20_5_1_self_compiler","TSPERF_JOB_SCENARIO":"self-compiler"}}",
-    "MATRIX_ts_perf3": "{"tsc_node_20_5_1_self_build_src":{"TSPERF_JOB_HOST":"node@20.5.1","TSPERF_JOB_ITERATIONS":6,"TSPERF_JOB_KIND":"tsc","TSPERF_JOB_LOCATION":"public","TSPERF_JOB_NAME":"tsc_node_20_5_1_self_build_src","TSPERF_JOB_SCENARIO":"self-build-src"},"tsc_node_20_5_1_webpack":{"TSPERF_JOB_HOST":"node@20.5.1","TSPERF_JOB_ITERATIONS":6,"TSPERF_JOB_KIND":"tsc","TSPERF_JOB_LOCATION":"public","TSPERF_JOB_NAME":"tsc_node_20_5_1_webpack","TSPERF_JOB_SCENARIO":"webpack"}}",
-    "MATRIX_ts_perf4": "{}",
-    "TSPERF_PROCESS_KINDS": "tsc",
-    "TSPERF_PROCESS_LOCATIONS": "public",
-  },
-}
-`;
+exports[`generateMatrix preset=public baselining=true > result 1`] = `undefined`;
 
 exports[`generateMatrix preset=regular baselining=false > error 1`] = `undefined`;
 
 exports[`generateMatrix preset=regular baselining=false > result 1`] = `
 {
   "compute": {
-    "parallel": "28m 30s",
-    "total": "1h 54m",
+    "parallel": "15m 14s",
+    "total": "1h 56s",
   },
   "matrix": {
     "any": {
@@ -1788,46 +1201,6 @@ exports[`generateMatrix preset=regular baselining=false > result 1`] = `
         "TSPERF_JOB_NAME": "tsc_node_18_15_0_material_ui",
         "TSPERF_JOB_SCENARIO": "material-ui",
       },
-      "tsc_node_18_15_0_mui_docs": {
-        "TSPERF_JOB_HOST": "node@18.15.0",
-        "TSPERF_JOB_ITERATIONS": 6,
-        "TSPERF_JOB_KIND": "tsc",
-        "TSPERF_JOB_LOCATION": "public",
-        "TSPERF_JOB_NAME": "tsc_node_18_15_0_mui_docs",
-        "TSPERF_JOB_SCENARIO": "mui-docs",
-      },
-      "tsc_node_18_15_0_self_build_src": {
-        "TSPERF_JOB_HOST": "node@18.15.0",
-        "TSPERF_JOB_ITERATIONS": 6,
-        "TSPERF_JOB_KIND": "tsc",
-        "TSPERF_JOB_LOCATION": "public",
-        "TSPERF_JOB_NAME": "tsc_node_18_15_0_self_build_src",
-        "TSPERF_JOB_SCENARIO": "self-build-src",
-      },
-      "tsc_node_18_15_0_self_compiler": {
-        "TSPERF_JOB_HOST": "node@18.15.0",
-        "TSPERF_JOB_ITERATIONS": 6,
-        "TSPERF_JOB_KIND": "tsc",
-        "TSPERF_JOB_LOCATION": "public",
-        "TSPERF_JOB_NAME": "tsc_node_18_15_0_self_compiler",
-        "TSPERF_JOB_SCENARIO": "self-compiler",
-      },
-      "tsc_node_18_15_0_vscode": {
-        "TSPERF_JOB_HOST": "node@18.15.0",
-        "TSPERF_JOB_ITERATIONS": 6,
-        "TSPERF_JOB_KIND": "tsc",
-        "TSPERF_JOB_LOCATION": "public",
-        "TSPERF_JOB_NAME": "tsc_node_18_15_0_vscode",
-        "TSPERF_JOB_SCENARIO": "vscode",
-      },
-      "tsc_node_18_15_0_webpack": {
-        "TSPERF_JOB_HOST": "node@18.15.0",
-        "TSPERF_JOB_ITERATIONS": 6,
-        "TSPERF_JOB_KIND": "tsc",
-        "TSPERF_JOB_LOCATION": "public",
-        "TSPERF_JOB_NAME": "tsc_node_18_15_0_webpack",
-        "TSPERF_JOB_SCENARIO": "webpack",
-      },
       "tsc_node_18_15_0_xstate": {
         "TSPERF_JOB_HOST": "node@18.15.0",
         "TSPERF_JOB_ITERATIONS": 6,
@@ -1867,13 +1240,13 @@ exports[`generateMatrix preset=regular baselining=false > result 1`] = `
     "ts-perf4": {},
   },
   "outputVariables": {
-    "MATRIX_any": "{"startup_node_18_15_0_tsc_startup":{"TSPERF_JOB_HOST":"node@18.15.0","TSPERF_JOB_ITERATIONS":6,"TSPERF_JOB_KIND":"startup","TSPERF_JOB_LOCATION":"internal","TSPERF_JOB_NAME":"startup_node_18_15_0_tsc_startup","TSPERF_JOB_SCENARIO":"tsc-startup"},"startup_node_18_15_0_tsserver_startup":{"TSPERF_JOB_HOST":"node@18.15.0","TSPERF_JOB_ITERATIONS":6,"TSPERF_JOB_KIND":"startup","TSPERF_JOB_LOCATION":"internal","TSPERF_JOB_NAME":"startup_node_18_15_0_tsserver_startup","TSPERF_JOB_SCENARIO":"tsserver-startup"},"startup_node_18_15_0_tsserverlibrary_startup":{"TSPERF_JOB_HOST":"node@18.15.0","TSPERF_JOB_ITERATIONS":6,"TSPERF_JOB_KIND":"startup","TSPERF_JOB_LOCATION":"internal","TSPERF_JOB_NAME":"startup_node_18_15_0_tsserverlibrary_startup","TSPERF_JOB_SCENARIO":"tsserverlibrary-startup"},"startup_node_18_15_0_typescript_startup":{"TSPERF_JOB_HOST":"node@18.15.0","TSPERF_JOB_ITERATIONS":6,"TSPERF_JOB_KIND":"startup","TSPERF_JOB_LOCATION":"internal","TSPERF_JOB_NAME":"startup_node_18_15_0_typescript_startup","TSPERF_JOB_SCENARIO":"typescript-startup"},"tsc_node_18_15_0_Angular":{"TSPERF_JOB_HOST":"node@18.15.0","TSPERF_JOB_ITERATIONS":6,"TSPERF_JOB_KIND":"tsc","TSPERF_JOB_LOCATION":"internal","TSPERF_JOB_NAME":"tsc_node_18_15_0_Angular","TSPERF_JOB_SCENARIO":"Angular"},"tsc_node_18_15_0_Compiler_Unions":{"TSPERF_JOB_HOST":"node@18.15.0","TSPERF_JOB_ITERATIONS":6,"TSPERF_JOB_KIND":"tsc","TSPERF_JOB_LOCATION":"internal","TSPERF_JOB_NAME":"tsc_node_18_15_0_Compiler_Unions","TSPERF_JOB_SCENARIO":"Compiler-Unions"},"tsc_node_18_15_0_Monaco":{"TSPERF_JOB_HOST":"node@18.15.0","TSPERF_JOB_ITERATIONS":6,"TSPERF_JOB_KIND":"tsc","TSPERF_JOB_LOCATION":"internal","TSPERF_JOB_NAME":"tsc_node_18_15_0_Monaco","TSPERF_JOB_SCENARIO":"Monaco"},"tsc_node_18_15_0_TFS":{"TSPERF_JOB_HOST":"node@18.15.0","TSPERF_JOB_ITERATIONS":6,"TSPERF_JOB_KIND":"tsc","TSPERF_JOB_LOCATION":"internal","TSPERF_JOB_NAME":"tsc_node_18_15_0_TFS","TSPERF_JOB_SCENARIO":"TFS"},"tsc_node_18_15_0_material_ui":{"TSPERF_JOB_HOST":"node@18.15.0","TSPERF_JOB_ITERATIONS":6,"TSPERF_JOB_KIND":"tsc","TSPERF_JOB_LOCATION":"internal","TSPERF_JOB_NAME":"tsc_node_18_15_0_material_ui","TSPERF_JOB_SCENARIO":"material-ui"},"tsc_node_18_15_0_mui_docs":{"TSPERF_JOB_HOST":"node@18.15.0","TSPERF_JOB_ITERATIONS":6,"TSPERF_JOB_KIND":"tsc","TSPERF_JOB_LOCATION":"public","TSPERF_JOB_NAME":"tsc_node_18_15_0_mui_docs","TSPERF_JOB_SCENARIO":"mui-docs"},"tsc_node_18_15_0_self_build_src":{"TSPERF_JOB_HOST":"node@18.15.0","TSPERF_JOB_ITERATIONS":6,"TSPERF_JOB_KIND":"tsc","TSPERF_JOB_LOCATION":"public","TSPERF_JOB_NAME":"tsc_node_18_15_0_self_build_src","TSPERF_JOB_SCENARIO":"self-build-src"},"tsc_node_18_15_0_self_compiler":{"TSPERF_JOB_HOST":"node@18.15.0","TSPERF_JOB_ITERATIONS":6,"TSPERF_JOB_KIND":"tsc","TSPERF_JOB_LOCATION":"public","TSPERF_JOB_NAME":"tsc_node_18_15_0_self_compiler","TSPERF_JOB_SCENARIO":"self-compiler"},"tsc_node_18_15_0_vscode":{"TSPERF_JOB_HOST":"node@18.15.0","TSPERF_JOB_ITERATIONS":6,"TSPERF_JOB_KIND":"tsc","TSPERF_JOB_LOCATION":"public","TSPERF_JOB_NAME":"tsc_node_18_15_0_vscode","TSPERF_JOB_SCENARIO":"vscode"},"tsc_node_18_15_0_webpack":{"TSPERF_JOB_HOST":"node@18.15.0","TSPERF_JOB_ITERATIONS":6,"TSPERF_JOB_KIND":"tsc","TSPERF_JOB_LOCATION":"public","TSPERF_JOB_NAME":"tsc_node_18_15_0_webpack","TSPERF_JOB_SCENARIO":"webpack"},"tsc_node_18_15_0_xstate":{"TSPERF_JOB_HOST":"node@18.15.0","TSPERF_JOB_ITERATIONS":6,"TSPERF_JOB_KIND":"tsc","TSPERF_JOB_LOCATION":"internal","TSPERF_JOB_NAME":"tsc_node_18_15_0_xstate","TSPERF_JOB_SCENARIO":"xstate"},"tsserver_node_18_15_0_CompilerTSServer":{"TSPERF_JOB_HOST":"node@18.15.0","TSPERF_JOB_ITERATIONS":6,"TSPERF_JOB_KIND":"tsserver","TSPERF_JOB_LOCATION":"internal","TSPERF_JOB_NAME":"tsserver_node_18_15_0_CompilerTSServer","TSPERF_JOB_SCENARIO":"CompilerTSServer"},"tsserver_node_18_15_0_Compiler_UnionsTSServer":{"TSPERF_JOB_HOST":"node@18.15.0","TSPERF_JOB_ITERATIONS":6,"TSPERF_JOB_KIND":"tsserver","TSPERF_JOB_LOCATION":"internal","TSPERF_JOB_NAME":"tsserver_node_18_15_0_Compiler_UnionsTSServer","TSPERF_JOB_SCENARIO":"Compiler-UnionsTSServer"},"tsserver_node_18_15_0_xstateTSServer":{"TSPERF_JOB_HOST":"node@18.15.0","TSPERF_JOB_ITERATIONS":6,"TSPERF_JOB_KIND":"tsserver","TSPERF_JOB_LOCATION":"internal","TSPERF_JOB_NAME":"tsserver_node_18_15_0_xstateTSServer","TSPERF_JOB_SCENARIO":"xstateTSServer"}}",
+    "MATRIX_any": "{"startup_node_18_15_0_tsc_startup":{"TSPERF_JOB_HOST":"node@18.15.0","TSPERF_JOB_ITERATIONS":6,"TSPERF_JOB_KIND":"startup","TSPERF_JOB_LOCATION":"internal","TSPERF_JOB_NAME":"startup_node_18_15_0_tsc_startup","TSPERF_JOB_SCENARIO":"tsc-startup"},"startup_node_18_15_0_tsserver_startup":{"TSPERF_JOB_HOST":"node@18.15.0","TSPERF_JOB_ITERATIONS":6,"TSPERF_JOB_KIND":"startup","TSPERF_JOB_LOCATION":"internal","TSPERF_JOB_NAME":"startup_node_18_15_0_tsserver_startup","TSPERF_JOB_SCENARIO":"tsserver-startup"},"startup_node_18_15_0_tsserverlibrary_startup":{"TSPERF_JOB_HOST":"node@18.15.0","TSPERF_JOB_ITERATIONS":6,"TSPERF_JOB_KIND":"startup","TSPERF_JOB_LOCATION":"internal","TSPERF_JOB_NAME":"startup_node_18_15_0_tsserverlibrary_startup","TSPERF_JOB_SCENARIO":"tsserverlibrary-startup"},"startup_node_18_15_0_typescript_startup":{"TSPERF_JOB_HOST":"node@18.15.0","TSPERF_JOB_ITERATIONS":6,"TSPERF_JOB_KIND":"startup","TSPERF_JOB_LOCATION":"internal","TSPERF_JOB_NAME":"startup_node_18_15_0_typescript_startup","TSPERF_JOB_SCENARIO":"typescript-startup"},"tsc_node_18_15_0_Angular":{"TSPERF_JOB_HOST":"node@18.15.0","TSPERF_JOB_ITERATIONS":6,"TSPERF_JOB_KIND":"tsc","TSPERF_JOB_LOCATION":"internal","TSPERF_JOB_NAME":"tsc_node_18_15_0_Angular","TSPERF_JOB_SCENARIO":"Angular"},"tsc_node_18_15_0_Compiler_Unions":{"TSPERF_JOB_HOST":"node@18.15.0","TSPERF_JOB_ITERATIONS":6,"TSPERF_JOB_KIND":"tsc","TSPERF_JOB_LOCATION":"internal","TSPERF_JOB_NAME":"tsc_node_18_15_0_Compiler_Unions","TSPERF_JOB_SCENARIO":"Compiler-Unions"},"tsc_node_18_15_0_Monaco":{"TSPERF_JOB_HOST":"node@18.15.0","TSPERF_JOB_ITERATIONS":6,"TSPERF_JOB_KIND":"tsc","TSPERF_JOB_LOCATION":"internal","TSPERF_JOB_NAME":"tsc_node_18_15_0_Monaco","TSPERF_JOB_SCENARIO":"Monaco"},"tsc_node_18_15_0_TFS":{"TSPERF_JOB_HOST":"node@18.15.0","TSPERF_JOB_ITERATIONS":6,"TSPERF_JOB_KIND":"tsc","TSPERF_JOB_LOCATION":"internal","TSPERF_JOB_NAME":"tsc_node_18_15_0_TFS","TSPERF_JOB_SCENARIO":"TFS"},"tsc_node_18_15_0_material_ui":{"TSPERF_JOB_HOST":"node@18.15.0","TSPERF_JOB_ITERATIONS":6,"TSPERF_JOB_KIND":"tsc","TSPERF_JOB_LOCATION":"internal","TSPERF_JOB_NAME":"tsc_node_18_15_0_material_ui","TSPERF_JOB_SCENARIO":"material-ui"},"tsc_node_18_15_0_xstate":{"TSPERF_JOB_HOST":"node@18.15.0","TSPERF_JOB_ITERATIONS":6,"TSPERF_JOB_KIND":"tsc","TSPERF_JOB_LOCATION":"internal","TSPERF_JOB_NAME":"tsc_node_18_15_0_xstate","TSPERF_JOB_SCENARIO":"xstate"},"tsserver_node_18_15_0_CompilerTSServer":{"TSPERF_JOB_HOST":"node@18.15.0","TSPERF_JOB_ITERATIONS":6,"TSPERF_JOB_KIND":"tsserver","TSPERF_JOB_LOCATION":"internal","TSPERF_JOB_NAME":"tsserver_node_18_15_0_CompilerTSServer","TSPERF_JOB_SCENARIO":"CompilerTSServer"},"tsserver_node_18_15_0_Compiler_UnionsTSServer":{"TSPERF_JOB_HOST":"node@18.15.0","TSPERF_JOB_ITERATIONS":6,"TSPERF_JOB_KIND":"tsserver","TSPERF_JOB_LOCATION":"internal","TSPERF_JOB_NAME":"tsserver_node_18_15_0_Compiler_UnionsTSServer","TSPERF_JOB_SCENARIO":"Compiler-UnionsTSServer"},"tsserver_node_18_15_0_xstateTSServer":{"TSPERF_JOB_HOST":"node@18.15.0","TSPERF_JOB_ITERATIONS":6,"TSPERF_JOB_KIND":"tsserver","TSPERF_JOB_LOCATION":"internal","TSPERF_JOB_NAME":"tsserver_node_18_15_0_xstateTSServer","TSPERF_JOB_SCENARIO":"xstateTSServer"}}",
     "MATRIX_ts_perf1": "{}",
     "MATRIX_ts_perf2": "{}",
     "MATRIX_ts_perf3": "{}",
     "MATRIX_ts_perf4": "{}",
     "TSPERF_PROCESS_KINDS": "tsc tsserver startup",
-    "TSPERF_PROCESS_LOCATIONS": "internal,public",
+    "TSPERF_PROCESS_LOCATIONS": "internal",
   },
 }
 `;
@@ -1883,8 +1256,8 @@ exports[`generateMatrix preset=regular baselining=true > error 1`] = `undefined`
 exports[`generateMatrix preset=regular baselining=true > result 1`] = `
 {
   "compute": {
-    "parallel": "29m 16s",
-    "total": "57m",
+    "parallel": "12m 44s",
+    "total": "30m 28s",
   },
   "matrix": {
     "any": {},
@@ -1921,22 +1294,6 @@ exports[`generateMatrix preset=regular baselining=true > result 1`] = `
         "TSPERF_JOB_NAME": "tsc_node_18_15_0_material_ui",
         "TSPERF_JOB_SCENARIO": "material-ui",
       },
-      "tsc_node_18_15_0_mui_docs": {
-        "TSPERF_JOB_HOST": "node@18.15.0",
-        "TSPERF_JOB_ITERATIONS": 6,
-        "TSPERF_JOB_KIND": "tsc",
-        "TSPERF_JOB_LOCATION": "public",
-        "TSPERF_JOB_NAME": "tsc_node_18_15_0_mui_docs",
-        "TSPERF_JOB_SCENARIO": "mui-docs",
-      },
-      "tsc_node_18_15_0_vscode": {
-        "TSPERF_JOB_HOST": "node@18.15.0",
-        "TSPERF_JOB_ITERATIONS": 6,
-        "TSPERF_JOB_KIND": "tsc",
-        "TSPERF_JOB_LOCATION": "public",
-        "TSPERF_JOB_NAME": "tsc_node_18_15_0_vscode",
-        "TSPERF_JOB_SCENARIO": "vscode",
-      },
       "tsserver_node_18_15_0_Compiler_UnionsTSServer": {
         "TSPERF_JOB_HOST": "node@18.15.0",
         "TSPERF_JOB_ITERATIONS": 6,
@@ -1971,14 +1328,6 @@ exports[`generateMatrix preset=regular baselining=true > result 1`] = `
         "TSPERF_JOB_NAME": "tsc_node_18_15_0_Monaco",
         "TSPERF_JOB_SCENARIO": "Monaco",
       },
-      "tsc_node_18_15_0_self_compiler": {
-        "TSPERF_JOB_HOST": "node@18.15.0",
-        "TSPERF_JOB_ITERATIONS": 6,
-        "TSPERF_JOB_KIND": "tsc",
-        "TSPERF_JOB_LOCATION": "public",
-        "TSPERF_JOB_NAME": "tsc_node_18_15_0_self_compiler",
-        "TSPERF_JOB_SCENARIO": "self-compiler",
-      },
       "tsserver_node_18_15_0_CompilerTSServer": {
         "TSPERF_JOB_HOST": "node@18.15.0",
         "TSPERF_JOB_ITERATIONS": 6,
@@ -2005,22 +1354,6 @@ exports[`generateMatrix preset=regular baselining=true > result 1`] = `
         "TSPERF_JOB_NAME": "tsc_node_18_15_0_TFS",
         "TSPERF_JOB_SCENARIO": "TFS",
       },
-      "tsc_node_18_15_0_self_build_src": {
-        "TSPERF_JOB_HOST": "node@18.15.0",
-        "TSPERF_JOB_ITERATIONS": 6,
-        "TSPERF_JOB_KIND": "tsc",
-        "TSPERF_JOB_LOCATION": "public",
-        "TSPERF_JOB_NAME": "tsc_node_18_15_0_self_build_src",
-        "TSPERF_JOB_SCENARIO": "self-build-src",
-      },
-      "tsc_node_18_15_0_webpack": {
-        "TSPERF_JOB_HOST": "node@18.15.0",
-        "TSPERF_JOB_ITERATIONS": 6,
-        "TSPERF_JOB_KIND": "tsc",
-        "TSPERF_JOB_LOCATION": "public",
-        "TSPERF_JOB_NAME": "tsc_node_18_15_0_webpack",
-        "TSPERF_JOB_SCENARIO": "webpack",
-      },
       "tsc_node_18_15_0_xstate": {
         "TSPERF_JOB_HOST": "node@18.15.0",
         "TSPERF_JOB_ITERATIONS": 6,
@@ -2042,12 +1375,12 @@ exports[`generateMatrix preset=regular baselining=true > result 1`] = `
   },
   "outputVariables": {
     "MATRIX_any": "{}",
-    "MATRIX_ts_perf1": "{"startup_node_18_15_0_tsc_startup":{"TSPERF_JOB_HOST":"node@18.15.0","TSPERF_JOB_ITERATIONS":6,"TSPERF_JOB_KIND":"startup","TSPERF_JOB_LOCATION":"internal","TSPERF_JOB_NAME":"startup_node_18_15_0_tsc_startup","TSPERF_JOB_SCENARIO":"tsc-startup"},"startup_node_18_15_0_typescript_startup":{"TSPERF_JOB_HOST":"node@18.15.0","TSPERF_JOB_ITERATIONS":6,"TSPERF_JOB_KIND":"startup","TSPERF_JOB_LOCATION":"internal","TSPERF_JOB_NAME":"startup_node_18_15_0_typescript_startup","TSPERF_JOB_SCENARIO":"typescript-startup"},"tsc_node_18_15_0_Angular":{"TSPERF_JOB_HOST":"node@18.15.0","TSPERF_JOB_ITERATIONS":6,"TSPERF_JOB_KIND":"tsc","TSPERF_JOB_LOCATION":"internal","TSPERF_JOB_NAME":"tsc_node_18_15_0_Angular","TSPERF_JOB_SCENARIO":"Angular"},"tsc_node_18_15_0_material_ui":{"TSPERF_JOB_HOST":"node@18.15.0","TSPERF_JOB_ITERATIONS":6,"TSPERF_JOB_KIND":"tsc","TSPERF_JOB_LOCATION":"internal","TSPERF_JOB_NAME":"tsc_node_18_15_0_material_ui","TSPERF_JOB_SCENARIO":"material-ui"},"tsc_node_18_15_0_mui_docs":{"TSPERF_JOB_HOST":"node@18.15.0","TSPERF_JOB_ITERATIONS":6,"TSPERF_JOB_KIND":"tsc","TSPERF_JOB_LOCATION":"public","TSPERF_JOB_NAME":"tsc_node_18_15_0_mui_docs","TSPERF_JOB_SCENARIO":"mui-docs"},"tsc_node_18_15_0_vscode":{"TSPERF_JOB_HOST":"node@18.15.0","TSPERF_JOB_ITERATIONS":6,"TSPERF_JOB_KIND":"tsc","TSPERF_JOB_LOCATION":"public","TSPERF_JOB_NAME":"tsc_node_18_15_0_vscode","TSPERF_JOB_SCENARIO":"vscode"},"tsserver_node_18_15_0_Compiler_UnionsTSServer":{"TSPERF_JOB_HOST":"node@18.15.0","TSPERF_JOB_ITERATIONS":6,"TSPERF_JOB_KIND":"tsserver","TSPERF_JOB_LOCATION":"internal","TSPERF_JOB_NAME":"tsserver_node_18_15_0_Compiler_UnionsTSServer","TSPERF_JOB_SCENARIO":"Compiler-UnionsTSServer"}}",
-    "MATRIX_ts_perf2": "{"startup_node_18_15_0_tsserver_startup":{"TSPERF_JOB_HOST":"node@18.15.0","TSPERF_JOB_ITERATIONS":6,"TSPERF_JOB_KIND":"startup","TSPERF_JOB_LOCATION":"internal","TSPERF_JOB_NAME":"startup_node_18_15_0_tsserver_startup","TSPERF_JOB_SCENARIO":"tsserver-startup"},"tsc_node_18_15_0_Compiler_Unions":{"TSPERF_JOB_HOST":"node@18.15.0","TSPERF_JOB_ITERATIONS":6,"TSPERF_JOB_KIND":"tsc","TSPERF_JOB_LOCATION":"internal","TSPERF_JOB_NAME":"tsc_node_18_15_0_Compiler_Unions","TSPERF_JOB_SCENARIO":"Compiler-Unions"},"tsc_node_18_15_0_Monaco":{"TSPERF_JOB_HOST":"node@18.15.0","TSPERF_JOB_ITERATIONS":6,"TSPERF_JOB_KIND":"tsc","TSPERF_JOB_LOCATION":"internal","TSPERF_JOB_NAME":"tsc_node_18_15_0_Monaco","TSPERF_JOB_SCENARIO":"Monaco"},"tsc_node_18_15_0_self_compiler":{"TSPERF_JOB_HOST":"node@18.15.0","TSPERF_JOB_ITERATIONS":6,"TSPERF_JOB_KIND":"tsc","TSPERF_JOB_LOCATION":"public","TSPERF_JOB_NAME":"tsc_node_18_15_0_self_compiler","TSPERF_JOB_SCENARIO":"self-compiler"},"tsserver_node_18_15_0_CompilerTSServer":{"TSPERF_JOB_HOST":"node@18.15.0","TSPERF_JOB_ITERATIONS":6,"TSPERF_JOB_KIND":"tsserver","TSPERF_JOB_LOCATION":"internal","TSPERF_JOB_NAME":"tsserver_node_18_15_0_CompilerTSServer","TSPERF_JOB_SCENARIO":"CompilerTSServer"}}",
-    "MATRIX_ts_perf3": "{"startup_node_18_15_0_tsserverlibrary_startup":{"TSPERF_JOB_HOST":"node@18.15.0","TSPERF_JOB_ITERATIONS":6,"TSPERF_JOB_KIND":"startup","TSPERF_JOB_LOCATION":"internal","TSPERF_JOB_NAME":"startup_node_18_15_0_tsserverlibrary_startup","TSPERF_JOB_SCENARIO":"tsserverlibrary-startup"},"tsc_node_18_15_0_TFS":{"TSPERF_JOB_HOST":"node@18.15.0","TSPERF_JOB_ITERATIONS":6,"TSPERF_JOB_KIND":"tsc","TSPERF_JOB_LOCATION":"internal","TSPERF_JOB_NAME":"tsc_node_18_15_0_TFS","TSPERF_JOB_SCENARIO":"TFS"},"tsc_node_18_15_0_self_build_src":{"TSPERF_JOB_HOST":"node@18.15.0","TSPERF_JOB_ITERATIONS":6,"TSPERF_JOB_KIND":"tsc","TSPERF_JOB_LOCATION":"public","TSPERF_JOB_NAME":"tsc_node_18_15_0_self_build_src","TSPERF_JOB_SCENARIO":"self-build-src"},"tsc_node_18_15_0_webpack":{"TSPERF_JOB_HOST":"node@18.15.0","TSPERF_JOB_ITERATIONS":6,"TSPERF_JOB_KIND":"tsc","TSPERF_JOB_LOCATION":"public","TSPERF_JOB_NAME":"tsc_node_18_15_0_webpack","TSPERF_JOB_SCENARIO":"webpack"},"tsc_node_18_15_0_xstate":{"TSPERF_JOB_HOST":"node@18.15.0","TSPERF_JOB_ITERATIONS":6,"TSPERF_JOB_KIND":"tsc","TSPERF_JOB_LOCATION":"internal","TSPERF_JOB_NAME":"tsc_node_18_15_0_xstate","TSPERF_JOB_SCENARIO":"xstate"},"tsserver_node_18_15_0_xstateTSServer":{"TSPERF_JOB_HOST":"node@18.15.0","TSPERF_JOB_ITERATIONS":6,"TSPERF_JOB_KIND":"tsserver","TSPERF_JOB_LOCATION":"internal","TSPERF_JOB_NAME":"tsserver_node_18_15_0_xstateTSServer","TSPERF_JOB_SCENARIO":"xstateTSServer"}}",
+    "MATRIX_ts_perf1": "{"startup_node_18_15_0_tsc_startup":{"TSPERF_JOB_HOST":"node@18.15.0","TSPERF_JOB_ITERATIONS":6,"TSPERF_JOB_KIND":"startup","TSPERF_JOB_LOCATION":"internal","TSPERF_JOB_NAME":"startup_node_18_15_0_tsc_startup","TSPERF_JOB_SCENARIO":"tsc-startup"},"startup_node_18_15_0_typescript_startup":{"TSPERF_JOB_HOST":"node@18.15.0","TSPERF_JOB_ITERATIONS":6,"TSPERF_JOB_KIND":"startup","TSPERF_JOB_LOCATION":"internal","TSPERF_JOB_NAME":"startup_node_18_15_0_typescript_startup","TSPERF_JOB_SCENARIO":"typescript-startup"},"tsc_node_18_15_0_Angular":{"TSPERF_JOB_HOST":"node@18.15.0","TSPERF_JOB_ITERATIONS":6,"TSPERF_JOB_KIND":"tsc","TSPERF_JOB_LOCATION":"internal","TSPERF_JOB_NAME":"tsc_node_18_15_0_Angular","TSPERF_JOB_SCENARIO":"Angular"},"tsc_node_18_15_0_material_ui":{"TSPERF_JOB_HOST":"node@18.15.0","TSPERF_JOB_ITERATIONS":6,"TSPERF_JOB_KIND":"tsc","TSPERF_JOB_LOCATION":"internal","TSPERF_JOB_NAME":"tsc_node_18_15_0_material_ui","TSPERF_JOB_SCENARIO":"material-ui"},"tsserver_node_18_15_0_Compiler_UnionsTSServer":{"TSPERF_JOB_HOST":"node@18.15.0","TSPERF_JOB_ITERATIONS":6,"TSPERF_JOB_KIND":"tsserver","TSPERF_JOB_LOCATION":"internal","TSPERF_JOB_NAME":"tsserver_node_18_15_0_Compiler_UnionsTSServer","TSPERF_JOB_SCENARIO":"Compiler-UnionsTSServer"}}",
+    "MATRIX_ts_perf2": "{"startup_node_18_15_0_tsserver_startup":{"TSPERF_JOB_HOST":"node@18.15.0","TSPERF_JOB_ITERATIONS":6,"TSPERF_JOB_KIND":"startup","TSPERF_JOB_LOCATION":"internal","TSPERF_JOB_NAME":"startup_node_18_15_0_tsserver_startup","TSPERF_JOB_SCENARIO":"tsserver-startup"},"tsc_node_18_15_0_Compiler_Unions":{"TSPERF_JOB_HOST":"node@18.15.0","TSPERF_JOB_ITERATIONS":6,"TSPERF_JOB_KIND":"tsc","TSPERF_JOB_LOCATION":"internal","TSPERF_JOB_NAME":"tsc_node_18_15_0_Compiler_Unions","TSPERF_JOB_SCENARIO":"Compiler-Unions"},"tsc_node_18_15_0_Monaco":{"TSPERF_JOB_HOST":"node@18.15.0","TSPERF_JOB_ITERATIONS":6,"TSPERF_JOB_KIND":"tsc","TSPERF_JOB_LOCATION":"internal","TSPERF_JOB_NAME":"tsc_node_18_15_0_Monaco","TSPERF_JOB_SCENARIO":"Monaco"},"tsserver_node_18_15_0_CompilerTSServer":{"TSPERF_JOB_HOST":"node@18.15.0","TSPERF_JOB_ITERATIONS":6,"TSPERF_JOB_KIND":"tsserver","TSPERF_JOB_LOCATION":"internal","TSPERF_JOB_NAME":"tsserver_node_18_15_0_CompilerTSServer","TSPERF_JOB_SCENARIO":"CompilerTSServer"}}",
+    "MATRIX_ts_perf3": "{"startup_node_18_15_0_tsserverlibrary_startup":{"TSPERF_JOB_HOST":"node@18.15.0","TSPERF_JOB_ITERATIONS":6,"TSPERF_JOB_KIND":"startup","TSPERF_JOB_LOCATION":"internal","TSPERF_JOB_NAME":"startup_node_18_15_0_tsserverlibrary_startup","TSPERF_JOB_SCENARIO":"tsserverlibrary-startup"},"tsc_node_18_15_0_TFS":{"TSPERF_JOB_HOST":"node@18.15.0","TSPERF_JOB_ITERATIONS":6,"TSPERF_JOB_KIND":"tsc","TSPERF_JOB_LOCATION":"internal","TSPERF_JOB_NAME":"tsc_node_18_15_0_TFS","TSPERF_JOB_SCENARIO":"TFS"},"tsc_node_18_15_0_xstate":{"TSPERF_JOB_HOST":"node@18.15.0","TSPERF_JOB_ITERATIONS":6,"TSPERF_JOB_KIND":"tsc","TSPERF_JOB_LOCATION":"internal","TSPERF_JOB_NAME":"tsc_node_18_15_0_xstate","TSPERF_JOB_SCENARIO":"xstate"},"tsserver_node_18_15_0_xstateTSServer":{"TSPERF_JOB_HOST":"node@18.15.0","TSPERF_JOB_ITERATIONS":6,"TSPERF_JOB_KIND":"tsserver","TSPERF_JOB_LOCATION":"internal","TSPERF_JOB_NAME":"tsserver_node_18_15_0_xstateTSServer","TSPERF_JOB_SCENARIO":"xstateTSServer"}}",
     "MATRIX_ts_perf4": "{}",
     "TSPERF_PROCESS_KINDS": "tsc tsserver startup",
-    "TSPERF_PROCESS_LOCATIONS": "internal,public",
+    "TSPERF_PROCESS_LOCATIONS": "internal",
   },
 }
 `;
@@ -2057,8 +1390,8 @@ exports[`generateMatrix preset=tsc-only baselining=false > error 1`] = `undefine
 exports[`generateMatrix preset=tsc-only baselining=false > result 1`] = `
 {
   "compute": {
-    "parallel": "19m 43s",
-    "total": "1h 18m 52s",
+    "parallel": "6m 27s",
+    "total": "25m 48s",
   },
   "matrix": {
     "any": {
@@ -2102,46 +1435,6 @@ exports[`generateMatrix preset=tsc-only baselining=false > result 1`] = `
         "TSPERF_JOB_NAME": "tsc_node_18_15_0_material_ui",
         "TSPERF_JOB_SCENARIO": "material-ui",
       },
-      "tsc_node_18_15_0_mui_docs": {
-        "TSPERF_JOB_HOST": "node@18.15.0",
-        "TSPERF_JOB_ITERATIONS": 6,
-        "TSPERF_JOB_KIND": "tsc",
-        "TSPERF_JOB_LOCATION": "public",
-        "TSPERF_JOB_NAME": "tsc_node_18_15_0_mui_docs",
-        "TSPERF_JOB_SCENARIO": "mui-docs",
-      },
-      "tsc_node_18_15_0_self_build_src": {
-        "TSPERF_JOB_HOST": "node@18.15.0",
-        "TSPERF_JOB_ITERATIONS": 6,
-        "TSPERF_JOB_KIND": "tsc",
-        "TSPERF_JOB_LOCATION": "public",
-        "TSPERF_JOB_NAME": "tsc_node_18_15_0_self_build_src",
-        "TSPERF_JOB_SCENARIO": "self-build-src",
-      },
-      "tsc_node_18_15_0_self_compiler": {
-        "TSPERF_JOB_HOST": "node@18.15.0",
-        "TSPERF_JOB_ITERATIONS": 6,
-        "TSPERF_JOB_KIND": "tsc",
-        "TSPERF_JOB_LOCATION": "public",
-        "TSPERF_JOB_NAME": "tsc_node_18_15_0_self_compiler",
-        "TSPERF_JOB_SCENARIO": "self-compiler",
-      },
-      "tsc_node_18_15_0_vscode": {
-        "TSPERF_JOB_HOST": "node@18.15.0",
-        "TSPERF_JOB_ITERATIONS": 6,
-        "TSPERF_JOB_KIND": "tsc",
-        "TSPERF_JOB_LOCATION": "public",
-        "TSPERF_JOB_NAME": "tsc_node_18_15_0_vscode",
-        "TSPERF_JOB_SCENARIO": "vscode",
-      },
-      "tsc_node_18_15_0_webpack": {
-        "TSPERF_JOB_HOST": "node@18.15.0",
-        "TSPERF_JOB_ITERATIONS": 6,
-        "TSPERF_JOB_KIND": "tsc",
-        "TSPERF_JOB_LOCATION": "public",
-        "TSPERF_JOB_NAME": "tsc_node_18_15_0_webpack",
-        "TSPERF_JOB_SCENARIO": "webpack",
-      },
       "tsc_node_18_15_0_xstate": {
         "TSPERF_JOB_HOST": "node@18.15.0",
         "TSPERF_JOB_ITERATIONS": 6,
@@ -2157,13 +1450,13 @@ exports[`generateMatrix preset=tsc-only baselining=false > result 1`] = `
     "ts-perf4": {},
   },
   "outputVariables": {
-    "MATRIX_any": "{"tsc_node_18_15_0_Angular":{"TSPERF_JOB_HOST":"node@18.15.0","TSPERF_JOB_ITERATIONS":6,"TSPERF_JOB_KIND":"tsc","TSPERF_JOB_LOCATION":"internal","TSPERF_JOB_NAME":"tsc_node_18_15_0_Angular","TSPERF_JOB_SCENARIO":"Angular"},"tsc_node_18_15_0_Compiler_Unions":{"TSPERF_JOB_HOST":"node@18.15.0","TSPERF_JOB_ITERATIONS":6,"TSPERF_JOB_KIND":"tsc","TSPERF_JOB_LOCATION":"internal","TSPERF_JOB_NAME":"tsc_node_18_15_0_Compiler_Unions","TSPERF_JOB_SCENARIO":"Compiler-Unions"},"tsc_node_18_15_0_Monaco":{"TSPERF_JOB_HOST":"node@18.15.0","TSPERF_JOB_ITERATIONS":6,"TSPERF_JOB_KIND":"tsc","TSPERF_JOB_LOCATION":"internal","TSPERF_JOB_NAME":"tsc_node_18_15_0_Monaco","TSPERF_JOB_SCENARIO":"Monaco"},"tsc_node_18_15_0_TFS":{"TSPERF_JOB_HOST":"node@18.15.0","TSPERF_JOB_ITERATIONS":6,"TSPERF_JOB_KIND":"tsc","TSPERF_JOB_LOCATION":"internal","TSPERF_JOB_NAME":"tsc_node_18_15_0_TFS","TSPERF_JOB_SCENARIO":"TFS"},"tsc_node_18_15_0_material_ui":{"TSPERF_JOB_HOST":"node@18.15.0","TSPERF_JOB_ITERATIONS":6,"TSPERF_JOB_KIND":"tsc","TSPERF_JOB_LOCATION":"internal","TSPERF_JOB_NAME":"tsc_node_18_15_0_material_ui","TSPERF_JOB_SCENARIO":"material-ui"},"tsc_node_18_15_0_mui_docs":{"TSPERF_JOB_HOST":"node@18.15.0","TSPERF_JOB_ITERATIONS":6,"TSPERF_JOB_KIND":"tsc","TSPERF_JOB_LOCATION":"public","TSPERF_JOB_NAME":"tsc_node_18_15_0_mui_docs","TSPERF_JOB_SCENARIO":"mui-docs"},"tsc_node_18_15_0_self_build_src":{"TSPERF_JOB_HOST":"node@18.15.0","TSPERF_JOB_ITERATIONS":6,"TSPERF_JOB_KIND":"tsc","TSPERF_JOB_LOCATION":"public","TSPERF_JOB_NAME":"tsc_node_18_15_0_self_build_src","TSPERF_JOB_SCENARIO":"self-build-src"},"tsc_node_18_15_0_self_compiler":{"TSPERF_JOB_HOST":"node@18.15.0","TSPERF_JOB_ITERATIONS":6,"TSPERF_JOB_KIND":"tsc","TSPERF_JOB_LOCATION":"public","TSPERF_JOB_NAME":"tsc_node_18_15_0_self_compiler","TSPERF_JOB_SCENARIO":"self-compiler"},"tsc_node_18_15_0_vscode":{"TSPERF_JOB_HOST":"node@18.15.0","TSPERF_JOB_ITERATIONS":6,"TSPERF_JOB_KIND":"tsc","TSPERF_JOB_LOCATION":"public","TSPERF_JOB_NAME":"tsc_node_18_15_0_vscode","TSPERF_JOB_SCENARIO":"vscode"},"tsc_node_18_15_0_webpack":{"TSPERF_JOB_HOST":"node@18.15.0","TSPERF_JOB_ITERATIONS":6,"TSPERF_JOB_KIND":"tsc","TSPERF_JOB_LOCATION":"public","TSPERF_JOB_NAME":"tsc_node_18_15_0_webpack","TSPERF_JOB_SCENARIO":"webpack"},"tsc_node_18_15_0_xstate":{"TSPERF_JOB_HOST":"node@18.15.0","TSPERF_JOB_ITERATIONS":6,"TSPERF_JOB_KIND":"tsc","TSPERF_JOB_LOCATION":"internal","TSPERF_JOB_NAME":"tsc_node_18_15_0_xstate","TSPERF_JOB_SCENARIO":"xstate"}}",
+    "MATRIX_any": "{"tsc_node_18_15_0_Angular":{"TSPERF_JOB_HOST":"node@18.15.0","TSPERF_JOB_ITERATIONS":6,"TSPERF_JOB_KIND":"tsc","TSPERF_JOB_LOCATION":"internal","TSPERF_JOB_NAME":"tsc_node_18_15_0_Angular","TSPERF_JOB_SCENARIO":"Angular"},"tsc_node_18_15_0_Compiler_Unions":{"TSPERF_JOB_HOST":"node@18.15.0","TSPERF_JOB_ITERATIONS":6,"TSPERF_JOB_KIND":"tsc","TSPERF_JOB_LOCATION":"internal","TSPERF_JOB_NAME":"tsc_node_18_15_0_Compiler_Unions","TSPERF_JOB_SCENARIO":"Compiler-Unions"},"tsc_node_18_15_0_Monaco":{"TSPERF_JOB_HOST":"node@18.15.0","TSPERF_JOB_ITERATIONS":6,"TSPERF_JOB_KIND":"tsc","TSPERF_JOB_LOCATION":"internal","TSPERF_JOB_NAME":"tsc_node_18_15_0_Monaco","TSPERF_JOB_SCENARIO":"Monaco"},"tsc_node_18_15_0_TFS":{"TSPERF_JOB_HOST":"node@18.15.0","TSPERF_JOB_ITERATIONS":6,"TSPERF_JOB_KIND":"tsc","TSPERF_JOB_LOCATION":"internal","TSPERF_JOB_NAME":"tsc_node_18_15_0_TFS","TSPERF_JOB_SCENARIO":"TFS"},"tsc_node_18_15_0_material_ui":{"TSPERF_JOB_HOST":"node@18.15.0","TSPERF_JOB_ITERATIONS":6,"TSPERF_JOB_KIND":"tsc","TSPERF_JOB_LOCATION":"internal","TSPERF_JOB_NAME":"tsc_node_18_15_0_material_ui","TSPERF_JOB_SCENARIO":"material-ui"},"tsc_node_18_15_0_xstate":{"TSPERF_JOB_HOST":"node@18.15.0","TSPERF_JOB_ITERATIONS":6,"TSPERF_JOB_KIND":"tsc","TSPERF_JOB_LOCATION":"internal","TSPERF_JOB_NAME":"tsc_node_18_15_0_xstate","TSPERF_JOB_SCENARIO":"xstate"}}",
     "MATRIX_ts_perf1": "{}",
     "MATRIX_ts_perf2": "{}",
     "MATRIX_ts_perf3": "{}",
     "MATRIX_ts_perf4": "{}",
     "TSPERF_PROCESS_KINDS": "tsc",
-    "TSPERF_PROCESS_LOCATIONS": "internal,public",
+    "TSPERF_PROCESS_LOCATIONS": "internal",
   },
 }
 `;
@@ -2173,8 +1466,8 @@ exports[`generateMatrix preset=tsc-only baselining=true > error 1`] = `undefined
 exports[`generateMatrix preset=tsc-only baselining=true > result 1`] = `
 {
   "compute": {
-    "parallel": "21m 46s",
-    "total": "39m 26s",
+    "parallel": "5m 14s",
+    "total": "12m 54s",
   },
   "matrix": {
     "any": {},
@@ -2195,22 +1488,6 @@ exports[`generateMatrix preset=tsc-only baselining=true > result 1`] = `
         "TSPERF_JOB_NAME": "tsc_node_18_15_0_material_ui",
         "TSPERF_JOB_SCENARIO": "material-ui",
       },
-      "tsc_node_18_15_0_mui_docs": {
-        "TSPERF_JOB_HOST": "node@18.15.0",
-        "TSPERF_JOB_ITERATIONS": 6,
-        "TSPERF_JOB_KIND": "tsc",
-        "TSPERF_JOB_LOCATION": "public",
-        "TSPERF_JOB_NAME": "tsc_node_18_15_0_mui_docs",
-        "TSPERF_JOB_SCENARIO": "mui-docs",
-      },
-      "tsc_node_18_15_0_vscode": {
-        "TSPERF_JOB_HOST": "node@18.15.0",
-        "TSPERF_JOB_ITERATIONS": 6,
-        "TSPERF_JOB_KIND": "tsc",
-        "TSPERF_JOB_LOCATION": "public",
-        "TSPERF_JOB_NAME": "tsc_node_18_15_0_vscode",
-        "TSPERF_JOB_SCENARIO": "vscode",
-      },
     },
     "ts-perf2": {
       "tsc_node_18_15_0_Compiler_Unions": {
@@ -2229,14 +1506,6 @@ exports[`generateMatrix preset=tsc-only baselining=true > result 1`] = `
         "TSPERF_JOB_NAME": "tsc_node_18_15_0_Monaco",
         "TSPERF_JOB_SCENARIO": "Monaco",
       },
-      "tsc_node_18_15_0_self_compiler": {
-        "TSPERF_JOB_HOST": "node@18.15.0",
-        "TSPERF_JOB_ITERATIONS": 6,
-        "TSPERF_JOB_KIND": "tsc",
-        "TSPERF_JOB_LOCATION": "public",
-        "TSPERF_JOB_NAME": "tsc_node_18_15_0_self_compiler",
-        "TSPERF_JOB_SCENARIO": "self-compiler",
-      },
     },
     "ts-perf3": {
       "tsc_node_18_15_0_TFS": {
@@ -2246,22 +1515,6 @@ exports[`generateMatrix preset=tsc-only baselining=true > result 1`] = `
         "TSPERF_JOB_LOCATION": "internal",
         "TSPERF_JOB_NAME": "tsc_node_18_15_0_TFS",
         "TSPERF_JOB_SCENARIO": "TFS",
-      },
-      "tsc_node_18_15_0_self_build_src": {
-        "TSPERF_JOB_HOST": "node@18.15.0",
-        "TSPERF_JOB_ITERATIONS": 6,
-        "TSPERF_JOB_KIND": "tsc",
-        "TSPERF_JOB_LOCATION": "public",
-        "TSPERF_JOB_NAME": "tsc_node_18_15_0_self_build_src",
-        "TSPERF_JOB_SCENARIO": "self-build-src",
-      },
-      "tsc_node_18_15_0_webpack": {
-        "TSPERF_JOB_HOST": "node@18.15.0",
-        "TSPERF_JOB_ITERATIONS": 6,
-        "TSPERF_JOB_KIND": "tsc",
-        "TSPERF_JOB_LOCATION": "public",
-        "TSPERF_JOB_NAME": "tsc_node_18_15_0_webpack",
-        "TSPERF_JOB_SCENARIO": "webpack",
       },
       "tsc_node_18_15_0_xstate": {
         "TSPERF_JOB_HOST": "node@18.15.0",
@@ -2276,12 +1529,12 @@ exports[`generateMatrix preset=tsc-only baselining=true > result 1`] = `
   },
   "outputVariables": {
     "MATRIX_any": "{}",
-    "MATRIX_ts_perf1": "{"tsc_node_18_15_0_Angular":{"TSPERF_JOB_HOST":"node@18.15.0","TSPERF_JOB_ITERATIONS":6,"TSPERF_JOB_KIND":"tsc","TSPERF_JOB_LOCATION":"internal","TSPERF_JOB_NAME":"tsc_node_18_15_0_Angular","TSPERF_JOB_SCENARIO":"Angular"},"tsc_node_18_15_0_material_ui":{"TSPERF_JOB_HOST":"node@18.15.0","TSPERF_JOB_ITERATIONS":6,"TSPERF_JOB_KIND":"tsc","TSPERF_JOB_LOCATION":"internal","TSPERF_JOB_NAME":"tsc_node_18_15_0_material_ui","TSPERF_JOB_SCENARIO":"material-ui"},"tsc_node_18_15_0_mui_docs":{"TSPERF_JOB_HOST":"node@18.15.0","TSPERF_JOB_ITERATIONS":6,"TSPERF_JOB_KIND":"tsc","TSPERF_JOB_LOCATION":"public","TSPERF_JOB_NAME":"tsc_node_18_15_0_mui_docs","TSPERF_JOB_SCENARIO":"mui-docs"},"tsc_node_18_15_0_vscode":{"TSPERF_JOB_HOST":"node@18.15.0","TSPERF_JOB_ITERATIONS":6,"TSPERF_JOB_KIND":"tsc","TSPERF_JOB_LOCATION":"public","TSPERF_JOB_NAME":"tsc_node_18_15_0_vscode","TSPERF_JOB_SCENARIO":"vscode"}}",
-    "MATRIX_ts_perf2": "{"tsc_node_18_15_0_Compiler_Unions":{"TSPERF_JOB_HOST":"node@18.15.0","TSPERF_JOB_ITERATIONS":6,"TSPERF_JOB_KIND":"tsc","TSPERF_JOB_LOCATION":"internal","TSPERF_JOB_NAME":"tsc_node_18_15_0_Compiler_Unions","TSPERF_JOB_SCENARIO":"Compiler-Unions"},"tsc_node_18_15_0_Monaco":{"TSPERF_JOB_HOST":"node@18.15.0","TSPERF_JOB_ITERATIONS":6,"TSPERF_JOB_KIND":"tsc","TSPERF_JOB_LOCATION":"internal","TSPERF_JOB_NAME":"tsc_node_18_15_0_Monaco","TSPERF_JOB_SCENARIO":"Monaco"},"tsc_node_18_15_0_self_compiler":{"TSPERF_JOB_HOST":"node@18.15.0","TSPERF_JOB_ITERATIONS":6,"TSPERF_JOB_KIND":"tsc","TSPERF_JOB_LOCATION":"public","TSPERF_JOB_NAME":"tsc_node_18_15_0_self_compiler","TSPERF_JOB_SCENARIO":"self-compiler"}}",
-    "MATRIX_ts_perf3": "{"tsc_node_18_15_0_TFS":{"TSPERF_JOB_HOST":"node@18.15.0","TSPERF_JOB_ITERATIONS":6,"TSPERF_JOB_KIND":"tsc","TSPERF_JOB_LOCATION":"internal","TSPERF_JOB_NAME":"tsc_node_18_15_0_TFS","TSPERF_JOB_SCENARIO":"TFS"},"tsc_node_18_15_0_self_build_src":{"TSPERF_JOB_HOST":"node@18.15.0","TSPERF_JOB_ITERATIONS":6,"TSPERF_JOB_KIND":"tsc","TSPERF_JOB_LOCATION":"public","TSPERF_JOB_NAME":"tsc_node_18_15_0_self_build_src","TSPERF_JOB_SCENARIO":"self-build-src"},"tsc_node_18_15_0_webpack":{"TSPERF_JOB_HOST":"node@18.15.0","TSPERF_JOB_ITERATIONS":6,"TSPERF_JOB_KIND":"tsc","TSPERF_JOB_LOCATION":"public","TSPERF_JOB_NAME":"tsc_node_18_15_0_webpack","TSPERF_JOB_SCENARIO":"webpack"},"tsc_node_18_15_0_xstate":{"TSPERF_JOB_HOST":"node@18.15.0","TSPERF_JOB_ITERATIONS":6,"TSPERF_JOB_KIND":"tsc","TSPERF_JOB_LOCATION":"internal","TSPERF_JOB_NAME":"tsc_node_18_15_0_xstate","TSPERF_JOB_SCENARIO":"xstate"}}",
+    "MATRIX_ts_perf1": "{"tsc_node_18_15_0_Angular":{"TSPERF_JOB_HOST":"node@18.15.0","TSPERF_JOB_ITERATIONS":6,"TSPERF_JOB_KIND":"tsc","TSPERF_JOB_LOCATION":"internal","TSPERF_JOB_NAME":"tsc_node_18_15_0_Angular","TSPERF_JOB_SCENARIO":"Angular"},"tsc_node_18_15_0_material_ui":{"TSPERF_JOB_HOST":"node@18.15.0","TSPERF_JOB_ITERATIONS":6,"TSPERF_JOB_KIND":"tsc","TSPERF_JOB_LOCATION":"internal","TSPERF_JOB_NAME":"tsc_node_18_15_0_material_ui","TSPERF_JOB_SCENARIO":"material-ui"}}",
+    "MATRIX_ts_perf2": "{"tsc_node_18_15_0_Compiler_Unions":{"TSPERF_JOB_HOST":"node@18.15.0","TSPERF_JOB_ITERATIONS":6,"TSPERF_JOB_KIND":"tsc","TSPERF_JOB_LOCATION":"internal","TSPERF_JOB_NAME":"tsc_node_18_15_0_Compiler_Unions","TSPERF_JOB_SCENARIO":"Compiler-Unions"},"tsc_node_18_15_0_Monaco":{"TSPERF_JOB_HOST":"node@18.15.0","TSPERF_JOB_ITERATIONS":6,"TSPERF_JOB_KIND":"tsc","TSPERF_JOB_LOCATION":"internal","TSPERF_JOB_NAME":"tsc_node_18_15_0_Monaco","TSPERF_JOB_SCENARIO":"Monaco"}}",
+    "MATRIX_ts_perf3": "{"tsc_node_18_15_0_TFS":{"TSPERF_JOB_HOST":"node@18.15.0","TSPERF_JOB_ITERATIONS":6,"TSPERF_JOB_KIND":"tsc","TSPERF_JOB_LOCATION":"internal","TSPERF_JOB_NAME":"tsc_node_18_15_0_TFS","TSPERF_JOB_SCENARIO":"TFS"},"tsc_node_18_15_0_xstate":{"TSPERF_JOB_HOST":"node@18.15.0","TSPERF_JOB_ITERATIONS":6,"TSPERF_JOB_KIND":"tsc","TSPERF_JOB_LOCATION":"internal","TSPERF_JOB_NAME":"tsc_node_18_15_0_xstate","TSPERF_JOB_SCENARIO":"xstate"}}",
     "MATRIX_ts_perf4": "{}",
     "TSPERF_PROCESS_KINDS": "tsc",
-    "TSPERF_PROCESS_LOCATIONS": "internal,public",
+    "TSPERF_PROCESS_LOCATIONS": "internal",
   },
 }
 `;
@@ -2299,8 +1552,8 @@ exports[`generateMatrix preset=vscode baselining=false > error 1`] = `undefined`
 exports[`generateMatrix preset=vscode baselining=false > result 1`] = `
 {
   "compute": {
-    "parallel": "28m 30s",
-    "total": "1h 54m",
+    "parallel": "15m 14s",
+    "total": "1h 56s",
   },
   "matrix": {
     "any": {
@@ -2376,46 +1629,6 @@ exports[`generateMatrix preset=vscode baselining=false > result 1`] = `
         "TSPERF_JOB_NAME": "tsc_vscode_1_82_1_material_ui",
         "TSPERF_JOB_SCENARIO": "material-ui",
       },
-      "tsc_vscode_1_82_1_mui_docs": {
-        "TSPERF_JOB_HOST": "vscode@1.82.1",
-        "TSPERF_JOB_ITERATIONS": 6,
-        "TSPERF_JOB_KIND": "tsc",
-        "TSPERF_JOB_LOCATION": "public",
-        "TSPERF_JOB_NAME": "tsc_vscode_1_82_1_mui_docs",
-        "TSPERF_JOB_SCENARIO": "mui-docs",
-      },
-      "tsc_vscode_1_82_1_self_build_src": {
-        "TSPERF_JOB_HOST": "vscode@1.82.1",
-        "TSPERF_JOB_ITERATIONS": 6,
-        "TSPERF_JOB_KIND": "tsc",
-        "TSPERF_JOB_LOCATION": "public",
-        "TSPERF_JOB_NAME": "tsc_vscode_1_82_1_self_build_src",
-        "TSPERF_JOB_SCENARIO": "self-build-src",
-      },
-      "tsc_vscode_1_82_1_self_compiler": {
-        "TSPERF_JOB_HOST": "vscode@1.82.1",
-        "TSPERF_JOB_ITERATIONS": 6,
-        "TSPERF_JOB_KIND": "tsc",
-        "TSPERF_JOB_LOCATION": "public",
-        "TSPERF_JOB_NAME": "tsc_vscode_1_82_1_self_compiler",
-        "TSPERF_JOB_SCENARIO": "self-compiler",
-      },
-      "tsc_vscode_1_82_1_vscode": {
-        "TSPERF_JOB_HOST": "vscode@1.82.1",
-        "TSPERF_JOB_ITERATIONS": 6,
-        "TSPERF_JOB_KIND": "tsc",
-        "TSPERF_JOB_LOCATION": "public",
-        "TSPERF_JOB_NAME": "tsc_vscode_1_82_1_vscode",
-        "TSPERF_JOB_SCENARIO": "vscode",
-      },
-      "tsc_vscode_1_82_1_webpack": {
-        "TSPERF_JOB_HOST": "vscode@1.82.1",
-        "TSPERF_JOB_ITERATIONS": 6,
-        "TSPERF_JOB_KIND": "tsc",
-        "TSPERF_JOB_LOCATION": "public",
-        "TSPERF_JOB_NAME": "tsc_vscode_1_82_1_webpack",
-        "TSPERF_JOB_SCENARIO": "webpack",
-      },
       "tsc_vscode_1_82_1_xstate": {
         "TSPERF_JOB_HOST": "vscode@1.82.1",
         "TSPERF_JOB_ITERATIONS": 6,
@@ -2455,13 +1668,13 @@ exports[`generateMatrix preset=vscode baselining=false > result 1`] = `
     "ts-perf4": {},
   },
   "outputVariables": {
-    "MATRIX_any": "{"startup_vscode_1_82_1_tsc_startup":{"TSPERF_JOB_HOST":"vscode@1.82.1","TSPERF_JOB_ITERATIONS":6,"TSPERF_JOB_KIND":"startup","TSPERF_JOB_LOCATION":"internal","TSPERF_JOB_NAME":"startup_vscode_1_82_1_tsc_startup","TSPERF_JOB_SCENARIO":"tsc-startup"},"startup_vscode_1_82_1_tsserver_startup":{"TSPERF_JOB_HOST":"vscode@1.82.1","TSPERF_JOB_ITERATIONS":6,"TSPERF_JOB_KIND":"startup","TSPERF_JOB_LOCATION":"internal","TSPERF_JOB_NAME":"startup_vscode_1_82_1_tsserver_startup","TSPERF_JOB_SCENARIO":"tsserver-startup"},"startup_vscode_1_82_1_tsserverlibrary_startup":{"TSPERF_JOB_HOST":"vscode@1.82.1","TSPERF_JOB_ITERATIONS":6,"TSPERF_JOB_KIND":"startup","TSPERF_JOB_LOCATION":"internal","TSPERF_JOB_NAME":"startup_vscode_1_82_1_tsserverlibrary_startup","TSPERF_JOB_SCENARIO":"tsserverlibrary-startup"},"startup_vscode_1_82_1_typescript_startup":{"TSPERF_JOB_HOST":"vscode@1.82.1","TSPERF_JOB_ITERATIONS":6,"TSPERF_JOB_KIND":"startup","TSPERF_JOB_LOCATION":"internal","TSPERF_JOB_NAME":"startup_vscode_1_82_1_typescript_startup","TSPERF_JOB_SCENARIO":"typescript-startup"},"tsc_vscode_1_82_1_Angular":{"TSPERF_JOB_HOST":"vscode@1.82.1","TSPERF_JOB_ITERATIONS":6,"TSPERF_JOB_KIND":"tsc","TSPERF_JOB_LOCATION":"internal","TSPERF_JOB_NAME":"tsc_vscode_1_82_1_Angular","TSPERF_JOB_SCENARIO":"Angular"},"tsc_vscode_1_82_1_Compiler_Unions":{"TSPERF_JOB_HOST":"vscode@1.82.1","TSPERF_JOB_ITERATIONS":6,"TSPERF_JOB_KIND":"tsc","TSPERF_JOB_LOCATION":"internal","TSPERF_JOB_NAME":"tsc_vscode_1_82_1_Compiler_Unions","TSPERF_JOB_SCENARIO":"Compiler-Unions"},"tsc_vscode_1_82_1_Monaco":{"TSPERF_JOB_HOST":"vscode@1.82.1","TSPERF_JOB_ITERATIONS":6,"TSPERF_JOB_KIND":"tsc","TSPERF_JOB_LOCATION":"internal","TSPERF_JOB_NAME":"tsc_vscode_1_82_1_Monaco","TSPERF_JOB_SCENARIO":"Monaco"},"tsc_vscode_1_82_1_TFS":{"TSPERF_JOB_HOST":"vscode@1.82.1","TSPERF_JOB_ITERATIONS":6,"TSPERF_JOB_KIND":"tsc","TSPERF_JOB_LOCATION":"internal","TSPERF_JOB_NAME":"tsc_vscode_1_82_1_TFS","TSPERF_JOB_SCENARIO":"TFS"},"tsc_vscode_1_82_1_material_ui":{"TSPERF_JOB_HOST":"vscode@1.82.1","TSPERF_JOB_ITERATIONS":6,"TSPERF_JOB_KIND":"tsc","TSPERF_JOB_LOCATION":"internal","TSPERF_JOB_NAME":"tsc_vscode_1_82_1_material_ui","TSPERF_JOB_SCENARIO":"material-ui"},"tsc_vscode_1_82_1_mui_docs":{"TSPERF_JOB_HOST":"vscode@1.82.1","TSPERF_JOB_ITERATIONS":6,"TSPERF_JOB_KIND":"tsc","TSPERF_JOB_LOCATION":"public","TSPERF_JOB_NAME":"tsc_vscode_1_82_1_mui_docs","TSPERF_JOB_SCENARIO":"mui-docs"},"tsc_vscode_1_82_1_self_build_src":{"TSPERF_JOB_HOST":"vscode@1.82.1","TSPERF_JOB_ITERATIONS":6,"TSPERF_JOB_KIND":"tsc","TSPERF_JOB_LOCATION":"public","TSPERF_JOB_NAME":"tsc_vscode_1_82_1_self_build_src","TSPERF_JOB_SCENARIO":"self-build-src"},"tsc_vscode_1_82_1_self_compiler":{"TSPERF_JOB_HOST":"vscode@1.82.1","TSPERF_JOB_ITERATIONS":6,"TSPERF_JOB_KIND":"tsc","TSPERF_JOB_LOCATION":"public","TSPERF_JOB_NAME":"tsc_vscode_1_82_1_self_compiler","TSPERF_JOB_SCENARIO":"self-compiler"},"tsc_vscode_1_82_1_vscode":{"TSPERF_JOB_HOST":"vscode@1.82.1","TSPERF_JOB_ITERATIONS":6,"TSPERF_JOB_KIND":"tsc","TSPERF_JOB_LOCATION":"public","TSPERF_JOB_NAME":"tsc_vscode_1_82_1_vscode","TSPERF_JOB_SCENARIO":"vscode"},"tsc_vscode_1_82_1_webpack":{"TSPERF_JOB_HOST":"vscode@1.82.1","TSPERF_JOB_ITERATIONS":6,"TSPERF_JOB_KIND":"tsc","TSPERF_JOB_LOCATION":"public","TSPERF_JOB_NAME":"tsc_vscode_1_82_1_webpack","TSPERF_JOB_SCENARIO":"webpack"},"tsc_vscode_1_82_1_xstate":{"TSPERF_JOB_HOST":"vscode@1.82.1","TSPERF_JOB_ITERATIONS":6,"TSPERF_JOB_KIND":"tsc","TSPERF_JOB_LOCATION":"internal","TSPERF_JOB_NAME":"tsc_vscode_1_82_1_xstate","TSPERF_JOB_SCENARIO":"xstate"},"tsserver_vscode_1_82_1_CompilerTSServer":{"TSPERF_JOB_HOST":"vscode@1.82.1","TSPERF_JOB_ITERATIONS":6,"TSPERF_JOB_KIND":"tsserver","TSPERF_JOB_LOCATION":"internal","TSPERF_JOB_NAME":"tsserver_vscode_1_82_1_CompilerTSServer","TSPERF_JOB_SCENARIO":"CompilerTSServer"},"tsserver_vscode_1_82_1_Compiler_UnionsTSServer":{"TSPERF_JOB_HOST":"vscode@1.82.1","TSPERF_JOB_ITERATIONS":6,"TSPERF_JOB_KIND":"tsserver","TSPERF_JOB_LOCATION":"internal","TSPERF_JOB_NAME":"tsserver_vscode_1_82_1_Compiler_UnionsTSServer","TSPERF_JOB_SCENARIO":"Compiler-UnionsTSServer"},"tsserver_vscode_1_82_1_xstateTSServer":{"TSPERF_JOB_HOST":"vscode@1.82.1","TSPERF_JOB_ITERATIONS":6,"TSPERF_JOB_KIND":"tsserver","TSPERF_JOB_LOCATION":"internal","TSPERF_JOB_NAME":"tsserver_vscode_1_82_1_xstateTSServer","TSPERF_JOB_SCENARIO":"xstateTSServer"}}",
+    "MATRIX_any": "{"startup_vscode_1_82_1_tsc_startup":{"TSPERF_JOB_HOST":"vscode@1.82.1","TSPERF_JOB_ITERATIONS":6,"TSPERF_JOB_KIND":"startup","TSPERF_JOB_LOCATION":"internal","TSPERF_JOB_NAME":"startup_vscode_1_82_1_tsc_startup","TSPERF_JOB_SCENARIO":"tsc-startup"},"startup_vscode_1_82_1_tsserver_startup":{"TSPERF_JOB_HOST":"vscode@1.82.1","TSPERF_JOB_ITERATIONS":6,"TSPERF_JOB_KIND":"startup","TSPERF_JOB_LOCATION":"internal","TSPERF_JOB_NAME":"startup_vscode_1_82_1_tsserver_startup","TSPERF_JOB_SCENARIO":"tsserver-startup"},"startup_vscode_1_82_1_tsserverlibrary_startup":{"TSPERF_JOB_HOST":"vscode@1.82.1","TSPERF_JOB_ITERATIONS":6,"TSPERF_JOB_KIND":"startup","TSPERF_JOB_LOCATION":"internal","TSPERF_JOB_NAME":"startup_vscode_1_82_1_tsserverlibrary_startup","TSPERF_JOB_SCENARIO":"tsserverlibrary-startup"},"startup_vscode_1_82_1_typescript_startup":{"TSPERF_JOB_HOST":"vscode@1.82.1","TSPERF_JOB_ITERATIONS":6,"TSPERF_JOB_KIND":"startup","TSPERF_JOB_LOCATION":"internal","TSPERF_JOB_NAME":"startup_vscode_1_82_1_typescript_startup","TSPERF_JOB_SCENARIO":"typescript-startup"},"tsc_vscode_1_82_1_Angular":{"TSPERF_JOB_HOST":"vscode@1.82.1","TSPERF_JOB_ITERATIONS":6,"TSPERF_JOB_KIND":"tsc","TSPERF_JOB_LOCATION":"internal","TSPERF_JOB_NAME":"tsc_vscode_1_82_1_Angular","TSPERF_JOB_SCENARIO":"Angular"},"tsc_vscode_1_82_1_Compiler_Unions":{"TSPERF_JOB_HOST":"vscode@1.82.1","TSPERF_JOB_ITERATIONS":6,"TSPERF_JOB_KIND":"tsc","TSPERF_JOB_LOCATION":"internal","TSPERF_JOB_NAME":"tsc_vscode_1_82_1_Compiler_Unions","TSPERF_JOB_SCENARIO":"Compiler-Unions"},"tsc_vscode_1_82_1_Monaco":{"TSPERF_JOB_HOST":"vscode@1.82.1","TSPERF_JOB_ITERATIONS":6,"TSPERF_JOB_KIND":"tsc","TSPERF_JOB_LOCATION":"internal","TSPERF_JOB_NAME":"tsc_vscode_1_82_1_Monaco","TSPERF_JOB_SCENARIO":"Monaco"},"tsc_vscode_1_82_1_TFS":{"TSPERF_JOB_HOST":"vscode@1.82.1","TSPERF_JOB_ITERATIONS":6,"TSPERF_JOB_KIND":"tsc","TSPERF_JOB_LOCATION":"internal","TSPERF_JOB_NAME":"tsc_vscode_1_82_1_TFS","TSPERF_JOB_SCENARIO":"TFS"},"tsc_vscode_1_82_1_material_ui":{"TSPERF_JOB_HOST":"vscode@1.82.1","TSPERF_JOB_ITERATIONS":6,"TSPERF_JOB_KIND":"tsc","TSPERF_JOB_LOCATION":"internal","TSPERF_JOB_NAME":"tsc_vscode_1_82_1_material_ui","TSPERF_JOB_SCENARIO":"material-ui"},"tsc_vscode_1_82_1_xstate":{"TSPERF_JOB_HOST":"vscode@1.82.1","TSPERF_JOB_ITERATIONS":6,"TSPERF_JOB_KIND":"tsc","TSPERF_JOB_LOCATION":"internal","TSPERF_JOB_NAME":"tsc_vscode_1_82_1_xstate","TSPERF_JOB_SCENARIO":"xstate"},"tsserver_vscode_1_82_1_CompilerTSServer":{"TSPERF_JOB_HOST":"vscode@1.82.1","TSPERF_JOB_ITERATIONS":6,"TSPERF_JOB_KIND":"tsserver","TSPERF_JOB_LOCATION":"internal","TSPERF_JOB_NAME":"tsserver_vscode_1_82_1_CompilerTSServer","TSPERF_JOB_SCENARIO":"CompilerTSServer"},"tsserver_vscode_1_82_1_Compiler_UnionsTSServer":{"TSPERF_JOB_HOST":"vscode@1.82.1","TSPERF_JOB_ITERATIONS":6,"TSPERF_JOB_KIND":"tsserver","TSPERF_JOB_LOCATION":"internal","TSPERF_JOB_NAME":"tsserver_vscode_1_82_1_Compiler_UnionsTSServer","TSPERF_JOB_SCENARIO":"Compiler-UnionsTSServer"},"tsserver_vscode_1_82_1_xstateTSServer":{"TSPERF_JOB_HOST":"vscode@1.82.1","TSPERF_JOB_ITERATIONS":6,"TSPERF_JOB_KIND":"tsserver","TSPERF_JOB_LOCATION":"internal","TSPERF_JOB_NAME":"tsserver_vscode_1_82_1_xstateTSServer","TSPERF_JOB_SCENARIO":"xstateTSServer"}}",
     "MATRIX_ts_perf1": "{}",
     "MATRIX_ts_perf2": "{}",
     "MATRIX_ts_perf3": "{}",
     "MATRIX_ts_perf4": "{}",
     "TSPERF_PROCESS_KINDS": "tsc tsserver startup",
-    "TSPERF_PROCESS_LOCATIONS": "internal,public",
+    "TSPERF_PROCESS_LOCATIONS": "internal",
   },
 }
 `;
@@ -2471,8 +1684,8 @@ exports[`generateMatrix preset=vscode baselining=true > error 1`] = `undefined`;
 exports[`generateMatrix preset=vscode baselining=true > result 1`] = `
 {
   "compute": {
-    "parallel": "29m 16s",
-    "total": "57m",
+    "parallel": "12m 44s",
+    "total": "30m 28s",
   },
   "matrix": {
     "any": {},
@@ -2509,22 +1722,6 @@ exports[`generateMatrix preset=vscode baselining=true > result 1`] = `
         "TSPERF_JOB_NAME": "tsc_vscode_1_82_1_material_ui",
         "TSPERF_JOB_SCENARIO": "material-ui",
       },
-      "tsc_vscode_1_82_1_mui_docs": {
-        "TSPERF_JOB_HOST": "vscode@1.82.1",
-        "TSPERF_JOB_ITERATIONS": 6,
-        "TSPERF_JOB_KIND": "tsc",
-        "TSPERF_JOB_LOCATION": "public",
-        "TSPERF_JOB_NAME": "tsc_vscode_1_82_1_mui_docs",
-        "TSPERF_JOB_SCENARIO": "mui-docs",
-      },
-      "tsc_vscode_1_82_1_vscode": {
-        "TSPERF_JOB_HOST": "vscode@1.82.1",
-        "TSPERF_JOB_ITERATIONS": 6,
-        "TSPERF_JOB_KIND": "tsc",
-        "TSPERF_JOB_LOCATION": "public",
-        "TSPERF_JOB_NAME": "tsc_vscode_1_82_1_vscode",
-        "TSPERF_JOB_SCENARIO": "vscode",
-      },
       "tsserver_vscode_1_82_1_Compiler_UnionsTSServer": {
         "TSPERF_JOB_HOST": "vscode@1.82.1",
         "TSPERF_JOB_ITERATIONS": 6,
@@ -2559,14 +1756,6 @@ exports[`generateMatrix preset=vscode baselining=true > result 1`] = `
         "TSPERF_JOB_NAME": "tsc_vscode_1_82_1_Monaco",
         "TSPERF_JOB_SCENARIO": "Monaco",
       },
-      "tsc_vscode_1_82_1_self_compiler": {
-        "TSPERF_JOB_HOST": "vscode@1.82.1",
-        "TSPERF_JOB_ITERATIONS": 6,
-        "TSPERF_JOB_KIND": "tsc",
-        "TSPERF_JOB_LOCATION": "public",
-        "TSPERF_JOB_NAME": "tsc_vscode_1_82_1_self_compiler",
-        "TSPERF_JOB_SCENARIO": "self-compiler",
-      },
       "tsserver_vscode_1_82_1_CompilerTSServer": {
         "TSPERF_JOB_HOST": "vscode@1.82.1",
         "TSPERF_JOB_ITERATIONS": 6,
@@ -2593,22 +1782,6 @@ exports[`generateMatrix preset=vscode baselining=true > result 1`] = `
         "TSPERF_JOB_NAME": "tsc_vscode_1_82_1_TFS",
         "TSPERF_JOB_SCENARIO": "TFS",
       },
-      "tsc_vscode_1_82_1_self_build_src": {
-        "TSPERF_JOB_HOST": "vscode@1.82.1",
-        "TSPERF_JOB_ITERATIONS": 6,
-        "TSPERF_JOB_KIND": "tsc",
-        "TSPERF_JOB_LOCATION": "public",
-        "TSPERF_JOB_NAME": "tsc_vscode_1_82_1_self_build_src",
-        "TSPERF_JOB_SCENARIO": "self-build-src",
-      },
-      "tsc_vscode_1_82_1_webpack": {
-        "TSPERF_JOB_HOST": "vscode@1.82.1",
-        "TSPERF_JOB_ITERATIONS": 6,
-        "TSPERF_JOB_KIND": "tsc",
-        "TSPERF_JOB_LOCATION": "public",
-        "TSPERF_JOB_NAME": "tsc_vscode_1_82_1_webpack",
-        "TSPERF_JOB_SCENARIO": "webpack",
-      },
       "tsc_vscode_1_82_1_xstate": {
         "TSPERF_JOB_HOST": "vscode@1.82.1",
         "TSPERF_JOB_ITERATIONS": 6,
@@ -2630,12 +1803,12 @@ exports[`generateMatrix preset=vscode baselining=true > result 1`] = `
   },
   "outputVariables": {
     "MATRIX_any": "{}",
-    "MATRIX_ts_perf1": "{"startup_vscode_1_82_1_tsc_startup":{"TSPERF_JOB_HOST":"vscode@1.82.1","TSPERF_JOB_ITERATIONS":6,"TSPERF_JOB_KIND":"startup","TSPERF_JOB_LOCATION":"internal","TSPERF_JOB_NAME":"startup_vscode_1_82_1_tsc_startup","TSPERF_JOB_SCENARIO":"tsc-startup"},"startup_vscode_1_82_1_typescript_startup":{"TSPERF_JOB_HOST":"vscode@1.82.1","TSPERF_JOB_ITERATIONS":6,"TSPERF_JOB_KIND":"startup","TSPERF_JOB_LOCATION":"internal","TSPERF_JOB_NAME":"startup_vscode_1_82_1_typescript_startup","TSPERF_JOB_SCENARIO":"typescript-startup"},"tsc_vscode_1_82_1_Angular":{"TSPERF_JOB_HOST":"vscode@1.82.1","TSPERF_JOB_ITERATIONS":6,"TSPERF_JOB_KIND":"tsc","TSPERF_JOB_LOCATION":"internal","TSPERF_JOB_NAME":"tsc_vscode_1_82_1_Angular","TSPERF_JOB_SCENARIO":"Angular"},"tsc_vscode_1_82_1_material_ui":{"TSPERF_JOB_HOST":"vscode@1.82.1","TSPERF_JOB_ITERATIONS":6,"TSPERF_JOB_KIND":"tsc","TSPERF_JOB_LOCATION":"internal","TSPERF_JOB_NAME":"tsc_vscode_1_82_1_material_ui","TSPERF_JOB_SCENARIO":"material-ui"},"tsc_vscode_1_82_1_mui_docs":{"TSPERF_JOB_HOST":"vscode@1.82.1","TSPERF_JOB_ITERATIONS":6,"TSPERF_JOB_KIND":"tsc","TSPERF_JOB_LOCATION":"public","TSPERF_JOB_NAME":"tsc_vscode_1_82_1_mui_docs","TSPERF_JOB_SCENARIO":"mui-docs"},"tsc_vscode_1_82_1_vscode":{"TSPERF_JOB_HOST":"vscode@1.82.1","TSPERF_JOB_ITERATIONS":6,"TSPERF_JOB_KIND":"tsc","TSPERF_JOB_LOCATION":"public","TSPERF_JOB_NAME":"tsc_vscode_1_82_1_vscode","TSPERF_JOB_SCENARIO":"vscode"},"tsserver_vscode_1_82_1_Compiler_UnionsTSServer":{"TSPERF_JOB_HOST":"vscode@1.82.1","TSPERF_JOB_ITERATIONS":6,"TSPERF_JOB_KIND":"tsserver","TSPERF_JOB_LOCATION":"internal","TSPERF_JOB_NAME":"tsserver_vscode_1_82_1_Compiler_UnionsTSServer","TSPERF_JOB_SCENARIO":"Compiler-UnionsTSServer"}}",
-    "MATRIX_ts_perf2": "{"startup_vscode_1_82_1_tsserver_startup":{"TSPERF_JOB_HOST":"vscode@1.82.1","TSPERF_JOB_ITERATIONS":6,"TSPERF_JOB_KIND":"startup","TSPERF_JOB_LOCATION":"internal","TSPERF_JOB_NAME":"startup_vscode_1_82_1_tsserver_startup","TSPERF_JOB_SCENARIO":"tsserver-startup"},"tsc_vscode_1_82_1_Compiler_Unions":{"TSPERF_JOB_HOST":"vscode@1.82.1","TSPERF_JOB_ITERATIONS":6,"TSPERF_JOB_KIND":"tsc","TSPERF_JOB_LOCATION":"internal","TSPERF_JOB_NAME":"tsc_vscode_1_82_1_Compiler_Unions","TSPERF_JOB_SCENARIO":"Compiler-Unions"},"tsc_vscode_1_82_1_Monaco":{"TSPERF_JOB_HOST":"vscode@1.82.1","TSPERF_JOB_ITERATIONS":6,"TSPERF_JOB_KIND":"tsc","TSPERF_JOB_LOCATION":"internal","TSPERF_JOB_NAME":"tsc_vscode_1_82_1_Monaco","TSPERF_JOB_SCENARIO":"Monaco"},"tsc_vscode_1_82_1_self_compiler":{"TSPERF_JOB_HOST":"vscode@1.82.1","TSPERF_JOB_ITERATIONS":6,"TSPERF_JOB_KIND":"tsc","TSPERF_JOB_LOCATION":"public","TSPERF_JOB_NAME":"tsc_vscode_1_82_1_self_compiler","TSPERF_JOB_SCENARIO":"self-compiler"},"tsserver_vscode_1_82_1_CompilerTSServer":{"TSPERF_JOB_HOST":"vscode@1.82.1","TSPERF_JOB_ITERATIONS":6,"TSPERF_JOB_KIND":"tsserver","TSPERF_JOB_LOCATION":"internal","TSPERF_JOB_NAME":"tsserver_vscode_1_82_1_CompilerTSServer","TSPERF_JOB_SCENARIO":"CompilerTSServer"}}",
-    "MATRIX_ts_perf3": "{"startup_vscode_1_82_1_tsserverlibrary_startup":{"TSPERF_JOB_HOST":"vscode@1.82.1","TSPERF_JOB_ITERATIONS":6,"TSPERF_JOB_KIND":"startup","TSPERF_JOB_LOCATION":"internal","TSPERF_JOB_NAME":"startup_vscode_1_82_1_tsserverlibrary_startup","TSPERF_JOB_SCENARIO":"tsserverlibrary-startup"},"tsc_vscode_1_82_1_TFS":{"TSPERF_JOB_HOST":"vscode@1.82.1","TSPERF_JOB_ITERATIONS":6,"TSPERF_JOB_KIND":"tsc","TSPERF_JOB_LOCATION":"internal","TSPERF_JOB_NAME":"tsc_vscode_1_82_1_TFS","TSPERF_JOB_SCENARIO":"TFS"},"tsc_vscode_1_82_1_self_build_src":{"TSPERF_JOB_HOST":"vscode@1.82.1","TSPERF_JOB_ITERATIONS":6,"TSPERF_JOB_KIND":"tsc","TSPERF_JOB_LOCATION":"public","TSPERF_JOB_NAME":"tsc_vscode_1_82_1_self_build_src","TSPERF_JOB_SCENARIO":"self-build-src"},"tsc_vscode_1_82_1_webpack":{"TSPERF_JOB_HOST":"vscode@1.82.1","TSPERF_JOB_ITERATIONS":6,"TSPERF_JOB_KIND":"tsc","TSPERF_JOB_LOCATION":"public","TSPERF_JOB_NAME":"tsc_vscode_1_82_1_webpack","TSPERF_JOB_SCENARIO":"webpack"},"tsc_vscode_1_82_1_xstate":{"TSPERF_JOB_HOST":"vscode@1.82.1","TSPERF_JOB_ITERATIONS":6,"TSPERF_JOB_KIND":"tsc","TSPERF_JOB_LOCATION":"internal","TSPERF_JOB_NAME":"tsc_vscode_1_82_1_xstate","TSPERF_JOB_SCENARIO":"xstate"},"tsserver_vscode_1_82_1_xstateTSServer":{"TSPERF_JOB_HOST":"vscode@1.82.1","TSPERF_JOB_ITERATIONS":6,"TSPERF_JOB_KIND":"tsserver","TSPERF_JOB_LOCATION":"internal","TSPERF_JOB_NAME":"tsserver_vscode_1_82_1_xstateTSServer","TSPERF_JOB_SCENARIO":"xstateTSServer"}}",
+    "MATRIX_ts_perf1": "{"startup_vscode_1_82_1_tsc_startup":{"TSPERF_JOB_HOST":"vscode@1.82.1","TSPERF_JOB_ITERATIONS":6,"TSPERF_JOB_KIND":"startup","TSPERF_JOB_LOCATION":"internal","TSPERF_JOB_NAME":"startup_vscode_1_82_1_tsc_startup","TSPERF_JOB_SCENARIO":"tsc-startup"},"startup_vscode_1_82_1_typescript_startup":{"TSPERF_JOB_HOST":"vscode@1.82.1","TSPERF_JOB_ITERATIONS":6,"TSPERF_JOB_KIND":"startup","TSPERF_JOB_LOCATION":"internal","TSPERF_JOB_NAME":"startup_vscode_1_82_1_typescript_startup","TSPERF_JOB_SCENARIO":"typescript-startup"},"tsc_vscode_1_82_1_Angular":{"TSPERF_JOB_HOST":"vscode@1.82.1","TSPERF_JOB_ITERATIONS":6,"TSPERF_JOB_KIND":"tsc","TSPERF_JOB_LOCATION":"internal","TSPERF_JOB_NAME":"tsc_vscode_1_82_1_Angular","TSPERF_JOB_SCENARIO":"Angular"},"tsc_vscode_1_82_1_material_ui":{"TSPERF_JOB_HOST":"vscode@1.82.1","TSPERF_JOB_ITERATIONS":6,"TSPERF_JOB_KIND":"tsc","TSPERF_JOB_LOCATION":"internal","TSPERF_JOB_NAME":"tsc_vscode_1_82_1_material_ui","TSPERF_JOB_SCENARIO":"material-ui"},"tsserver_vscode_1_82_1_Compiler_UnionsTSServer":{"TSPERF_JOB_HOST":"vscode@1.82.1","TSPERF_JOB_ITERATIONS":6,"TSPERF_JOB_KIND":"tsserver","TSPERF_JOB_LOCATION":"internal","TSPERF_JOB_NAME":"tsserver_vscode_1_82_1_Compiler_UnionsTSServer","TSPERF_JOB_SCENARIO":"Compiler-UnionsTSServer"}}",
+    "MATRIX_ts_perf2": "{"startup_vscode_1_82_1_tsserver_startup":{"TSPERF_JOB_HOST":"vscode@1.82.1","TSPERF_JOB_ITERATIONS":6,"TSPERF_JOB_KIND":"startup","TSPERF_JOB_LOCATION":"internal","TSPERF_JOB_NAME":"startup_vscode_1_82_1_tsserver_startup","TSPERF_JOB_SCENARIO":"tsserver-startup"},"tsc_vscode_1_82_1_Compiler_Unions":{"TSPERF_JOB_HOST":"vscode@1.82.1","TSPERF_JOB_ITERATIONS":6,"TSPERF_JOB_KIND":"tsc","TSPERF_JOB_LOCATION":"internal","TSPERF_JOB_NAME":"tsc_vscode_1_82_1_Compiler_Unions","TSPERF_JOB_SCENARIO":"Compiler-Unions"},"tsc_vscode_1_82_1_Monaco":{"TSPERF_JOB_HOST":"vscode@1.82.1","TSPERF_JOB_ITERATIONS":6,"TSPERF_JOB_KIND":"tsc","TSPERF_JOB_LOCATION":"internal","TSPERF_JOB_NAME":"tsc_vscode_1_82_1_Monaco","TSPERF_JOB_SCENARIO":"Monaco"},"tsserver_vscode_1_82_1_CompilerTSServer":{"TSPERF_JOB_HOST":"vscode@1.82.1","TSPERF_JOB_ITERATIONS":6,"TSPERF_JOB_KIND":"tsserver","TSPERF_JOB_LOCATION":"internal","TSPERF_JOB_NAME":"tsserver_vscode_1_82_1_CompilerTSServer","TSPERF_JOB_SCENARIO":"CompilerTSServer"}}",
+    "MATRIX_ts_perf3": "{"startup_vscode_1_82_1_tsserverlibrary_startup":{"TSPERF_JOB_HOST":"vscode@1.82.1","TSPERF_JOB_ITERATIONS":6,"TSPERF_JOB_KIND":"startup","TSPERF_JOB_LOCATION":"internal","TSPERF_JOB_NAME":"startup_vscode_1_82_1_tsserverlibrary_startup","TSPERF_JOB_SCENARIO":"tsserverlibrary-startup"},"tsc_vscode_1_82_1_TFS":{"TSPERF_JOB_HOST":"vscode@1.82.1","TSPERF_JOB_ITERATIONS":6,"TSPERF_JOB_KIND":"tsc","TSPERF_JOB_LOCATION":"internal","TSPERF_JOB_NAME":"tsc_vscode_1_82_1_TFS","TSPERF_JOB_SCENARIO":"TFS"},"tsc_vscode_1_82_1_xstate":{"TSPERF_JOB_HOST":"vscode@1.82.1","TSPERF_JOB_ITERATIONS":6,"TSPERF_JOB_KIND":"tsc","TSPERF_JOB_LOCATION":"internal","TSPERF_JOB_NAME":"tsc_vscode_1_82_1_xstate","TSPERF_JOB_SCENARIO":"xstate"},"tsserver_vscode_1_82_1_xstateTSServer":{"TSPERF_JOB_HOST":"vscode@1.82.1","TSPERF_JOB_ITERATIONS":6,"TSPERF_JOB_KIND":"tsserver","TSPERF_JOB_LOCATION":"internal","TSPERF_JOB_NAME":"tsserver_vscode_1_82_1_xstateTSServer","TSPERF_JOB_SCENARIO":"xstateTSServer"}}",
     "MATRIX_ts_perf4": "{}",
     "TSPERF_PROCESS_KINDS": "tsc tsserver startup",
-    "TSPERF_PROCESS_LOCATIONS": "internal,public",
+    "TSPERF_PROCESS_LOCATIONS": "internal",
   },
 }
 `;
