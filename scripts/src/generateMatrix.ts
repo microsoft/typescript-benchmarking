@@ -133,6 +133,7 @@ const internalOnDemandScenarios = onDemandScenarios.filter(s => s.location === "
 function* generateBaselinePreset(scenarios: readonly BaseScenario[]): Iterable<Scenario> {
     for (const scenario of scenarios) {
         if (scenario.kind === "tsc") {
+            // TODO(jakebailey): remove node16
             for (const host of [hosts.node20, hosts.node18, hosts.node16]) {
                 yield {
                     ...scenario,
@@ -144,7 +145,7 @@ function* generateBaselinePreset(scenarios: readonly BaseScenario[]): Iterable<S
         else {
             yield {
                 ...scenario,
-                host: hosts.node16,
+                host: hosts.node16, // TODO(jakebailey): use node18
                 iterations: defaultIterations,
             };
         }
@@ -176,7 +177,7 @@ const presets = {
             }
         }
     },
-    "faster": (): Iterable<Scenario> => presets["tsc-only"](),
+    // "faster": (): Iterable<Scenario> => presets["tsc-only"](),
     *"bun"() {
         for (const scenario of internalOnDemandScenarios) {
             if (scenario.kind === "tsc") {
