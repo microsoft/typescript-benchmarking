@@ -18,6 +18,7 @@
         "execa": "^8.0.1",
         "minimist": "^1.2.8",
         "ora": "^8.0.1",
+        "pretty-ms": "^8.0.0",
         "sort-keys": "^5.0.0"
     },
     "scripts": {

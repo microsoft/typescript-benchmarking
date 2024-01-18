@@ -2,15 +2,18 @@ import assert from "node:assert";
 
 import esMain from "es-main";
 import minimist from "minimist";
+import prettyMilliseconds from "pretty-ms";
 import sortKeys from "sort-keys";
 
 import { setOutputVariable } from "./utils.js";
 
 // Keep in sync with inventory.yml and benchmark.yml.
-type AllAgents = "ts-perf1" | "ts-perf2" | "ts-perf3" | "ts-perf4";
+const allAgents = ["ts-perf1", "ts-perf2", "ts-perf3", "ts-perf4"] as const;
+type AllAgents = typeof allAgents[number];
 // We reserve some agents so that non-baseline jobs can make progress.
-type ReserveAgent = "ts-perf4";
-type BaselineAgent = Exclude<AllAgents, ReserveAgent>;
+const reserveAgents = ["ts-perf4"] as const;
+type ReserveAgents = typeof reserveAgents[number];
+type BaselineAgent = Exclude<AllAgents, ReserveAgents>;
 type Agent = "any" | AllAgents;
 
 type ScenarioLocation = "internal" | "public";
@@ -45,30 +48,70 @@ interface BaseScenario {
     readonly agent: BaselineAgent;
     readonly location: ScenarioLocation;
     readonly runIn: RunType;
+    /**
+     * Rough time cost per iteration in seconds
+     * This is solely used for gauging how expensive a preset is.
+     */
+    readonly cost: number;
 }
 
 // DO NOT change the agents; they must remain the same forever to keep benchmarks comparable.
 const allScenarios: readonly BaseScenario[] = [
-    { kind: "tsc", name: "Angular", agent: "ts-perf1", location: "internal", runIn: RunType.Any },
-    { kind: "tsc", name: "Monaco", agent: "ts-perf2", location: "internal", runIn: RunType.Any },
-    { kind: "tsc", name: "TFS", agent: "ts-perf3", location: "internal", runIn: RunType.Any },
-    { kind: "tsc", name: "material-ui", agent: "ts-perf1", location: "internal", runIn: RunType.Any },
-    { kind: "tsc", name: "Compiler-Unions", agent: "ts-perf2", location: "internal", runIn: RunType.Any },
-    { kind: "tsc", name: "xstate", agent: "ts-perf3", location: "internal", runIn: RunType.Any },
-    { kind: "tsc", name: "vscode", agent: "ts-perf1", location: "public", runIn: RunType.Any },
-    { kind: "tsc", name: "self-compiler", agent: "ts-perf2", location: "public", runIn: RunType.Any },
-    { kind: "tsc", name: "self-build-src", agent: "ts-perf3", location: "public", runIn: RunType.Any },
-    { kind: "tsc", name: "mui-docs", agent: "ts-perf1", location: "public", runIn: RunType.OnDemand },
-    { kind: "tsc", name: "mui-docs-1", agent: "ts-perf1", location: "public", runIn: RunType.Baseline },
-    { kind: "tsc", name: "webpack", agent: "ts-perf3", location: "public", runIn: RunType.OnDemand },
-    { kind: "tsc", name: "webpack-1", agent: "ts-perf3", location: "public", runIn: RunType.Baseline },
-    { kind: "tsserver", name: "Compiler-UnionsTSServer", agent: "ts-perf1", location: "internal", runIn: RunType.Any },
-    { kind: "tsserver", name: "CompilerTSServer", agent: "ts-perf2", location: "internal", runIn: RunType.Any },
-    { kind: "tsserver", name: "xstateTSServer", agent: "ts-perf3", location: "internal", runIn: RunType.Any },
-    { kind: "startup", name: "tsc-startup", agent: "ts-perf1", location: "internal", runIn: RunType.Any },
-    { kind: "startup", name: "tsserver-startup", agent: "ts-perf2", location: "internal", runIn: RunType.Any },
-    { kind: "startup", name: "tsserverlibrary-startup", agent: "ts-perf3", location: "internal", runIn: RunType.Any },
-    { kind: "startup", name: "typescript-startup", agent: "ts-perf1", location: "internal", runIn: RunType.Any },
+    { kind: "tsc", name: "Angular", agent: "ts-perf1", location: "internal", runIn: RunType.Any, cost: 19 },
+    { kind: "tsc", name: "Monaco", agent: "ts-perf2", location: "internal", runIn: RunType.Any, cost: 15 },
+    { kind: "tsc", name: "TFS", agent: "ts-perf3", location: "internal", runIn: RunType.Any, cost: 13 },
+    { kind: "tsc", name: "material-ui", agent: "ts-perf1", location: "internal", runIn: RunType.Any, cost: 20 },
+    { kind: "tsc", name: "Compiler-Unions", agent: "ts-perf2", location: "internal", runIn: RunType.Any, cost: 14 },
+    { kind: "tsc", name: "xstate", agent: "ts-perf3", location: "internal", runIn: RunType.Any, cost: 8 },
+    { kind: "tsc", name: "vscode", agent: "ts-perf1", location: "public", runIn: RunType.Any, cost: 90 },
+    { kind: "tsc", name: "self-compiler", agent: "ts-perf2", location: "public", runIn: RunType.Any, cost: 20 },
+    { kind: "tsc", name: "self-build-src", agent: "ts-perf3", location: "public", runIn: RunType.Any, cost: 42 },
+    { kind: "tsc", name: "mui-docs", agent: "ts-perf1", location: "public", runIn: RunType.OnDemand, cost: 62 },
+    { kind: "tsc", name: "mui-docs-1", agent: "ts-perf1", location: "public", runIn: RunType.Baseline, cost: 62 },
+    { kind: "tsc", name: "webpack", agent: "ts-perf3", location: "public", runIn: RunType.OnDemand, cost: 18 },
+    { kind: "tsc", name: "webpack-1", agent: "ts-perf3", location: "public", runIn: RunType.Baseline, cost: 18 },
+    {
+        kind: "tsserver",
+        name: "Compiler-UnionsTSServer",
+        agent: "ts-perf1",
+        location: "internal",
+        runIn: RunType.Any,
+        cost: 15,
+    },
+    {
+        kind: "tsserver",
+        name: "CompilerTSServer",
+        agent: "ts-perf2",
+        location: "internal",
+        runIn: RunType.Any,
+        cost: 14,
+    },
+    { kind: "tsserver", name: "xstateTSServer", agent: "ts-perf3", location: "internal", runIn: RunType.Any, cost: 12 },
+    { kind: "startup", name: "tsc-startup", agent: "ts-perf1", location: "internal", runIn: RunType.Any, cost: 16 },
+    {
+        kind: "startup",
+        name: "tsserver-startup",
+        agent: "ts-perf2",
+        location: "internal",
+        runIn: RunType.Any,
+        cost: 24,
+    },
+    {
+        kind: "startup",
+        name: "tsserverlibrary-startup",
+        agent: "ts-perf3",
+        location: "internal",
+        runIn: RunType.Any,
+        cost: 24,
+    },
+    {
+        kind: "startup",
+        name: "typescript-startup",
+        agent: "ts-perf1",
+        location: "internal",
+        runIn: RunType.Any,
+        cost: 24,
+    },
 ];
 
 type ScenarioName = typeof allScenarios[number]["name"];
@@ -128,9 +171,7 @@ const presets = {
             }
         }
     },
-    "faster"() {
-        return this["tsc-only"]();
-    },
+    "faster": (): Iterable<Scenario> => presets["tsc-only"](),
     *"bun"() {
         for (const scenario of onDemandScenarios) {
             if (scenario.kind === "tsc") {
@@ -223,6 +264,12 @@ export function generateMatrix(presetArg: string, baselining: boolean, log?: boo
     const processKinds = new Set<JobKind>();
     const processLocations = new Set<ScenarioLocation>();
 
+    const jobOverhead = 40; // Time taken per benchmark job to clone, build, etc
+    const setupAndProcessOverhead = 250; // Time taken in the setup and process jobs
+    let totalCost = 0;
+    let maxCost = 0;
+    const costPerAgent = new Map<Agent, number>();
+
     for (const scenario of preset()) {
         const agent = baselining ? scenario.agent : "any";
         const jobName = sanitizeJobName(`${scenario.kind}_${scenario.host}_${scenario.name}`);
@@ -236,6 +283,14 @@ export function generateMatrix(presetArg: string, baselining: boolean, log?: boo
         };
         processKinds.add(scenario.kind);
         processLocations.add(scenario.location);
+
+        let cost = scenario.cost * scenario.iterations + jobOverhead;
+        if (!baselining) {
+            cost *= 2;
+        }
+        totalCost += cost;
+        maxCost = Math.max(maxCost, cost);
+        costPerAgent.set(agent, (costPerAgent.get(agent) ?? 0) + cost);
     }
 
     matrix = sortKeys(matrix, { deep: true });
@@ -257,7 +312,18 @@ export function generateMatrix(presetArg: string, baselining: boolean, log?: boo
     // Comma separated, parsed by runTsPerf.ts.
     outputVariables[`TSPERF_PROCESS_LOCATIONS`] = [...processLocations].sort().join(",");
 
-    return { matrix, outputVariables };
+    const costInParallel = baselining ? Math.max(...costPerAgent.values()) : (totalCost / allAgents.length);
+    const totalPipeline = costInParallel + setupAndProcessOverhead;
+
+    return {
+        matrix,
+        outputVariables,
+        cost: {
+            compute: prettyMilliseconds(totalCost * 1000),
+            computeParallel: prettyMilliseconds(costInParallel * 1000),
+            totalPipeline: prettyMilliseconds(totalPipeline * 1000),
+        },
+    };
 }
 
 if (esMain(import.meta)) {

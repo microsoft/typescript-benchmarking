@@ -4,6 +4,11 @@ exports[`generateMatrix preset=baseline baselining=false > error 1`] = `undefine
 
 exports[`generateMatrix preset=baseline baselining=false > result 1`] = `
 {
+  "cost": {
+    "compute": "3h 12m 52s",
+    "computeParallel": "48m 13s",
+    "totalPipeline": "52m 23s",
+  },
   "matrix": {
     "any": {
       "startup_node_18_15_0_tsc_startup": {
@@ -260,6 +265,11 @@ exports[`generateMatrix preset=baseline baselining=true > error 1`] = `undefined
 
 exports[`generateMatrix preset=baseline baselining=true > result 1`] = `
 {
+  "cost": {
+    "compute": "1h 36m 26s",
+    "computeParallel": "51m 2s",
+    "totalPipeline": "55m 12s",
+  },
   "matrix": {
     "any": {},
     "ts-perf1": {
@@ -518,6 +528,11 @@ exports[`generateMatrix preset=bun baselining=false > error 1`] = `undefined`;
 
 exports[`generateMatrix preset=bun baselining=false > result 1`] = `
 {
+  "cost": {
+    "compute": "2h 39m 52s",
+    "computeParallel": "39m 58s",
+    "totalPipeline": "44m 8s",
+  },
   "matrix": {
     "any": {
       "startup_bun_1_0_15_tsc_startup": {
@@ -654,6 +669,11 @@ exports[`generateMatrix preset=bun baselining=true > error 1`] = `undefined`;
 
 exports[`generateMatrix preset=bun baselining=true > result 1`] = `
 {
+  "cost": {
+    "compute": "1h 19m 56s",
+    "computeParallel": "46m 12s",
+    "totalPipeline": "50m 22s",
+  },
   "matrix": {
     "any": {},
     "ts-perf1": {
@@ -796,18 +816,251 @@ exports[`generateMatrix preset=custom baselining=true > error 1`] = `[Error: Unk
 
 exports[`generateMatrix preset=custom baselining=true > result 1`] = `undefined`;
 
-exports[`generateMatrix preset=faster baselining=false > error 1`] = `[TypeError: Cannot read properties of undefined (reading 'tsc-only')]`;
+exports[`generateMatrix preset=faster baselining=false > error 1`] = `undefined`;
 
-exports[`generateMatrix preset=faster baselining=false > result 1`] = `undefined`;
+exports[`generateMatrix preset=faster baselining=false > result 1`] = `
+{
+  "cost": {
+    "compute": "1h 18m 52s",
+    "computeParallel": "19m 43s",
+    "totalPipeline": "23m 53s",
+  },
+  "matrix": {
+    "any": {
+      "tsc_node_18_15_0_Angular": {
+        "TSPERF_JOB_HOST": "node@18.15.0",
+        "TSPERF_JOB_ITERATIONS": 6,
+        "TSPERF_JOB_KIND": "tsc",
+        "TSPERF_JOB_LOCATION": "internal",
+        "TSPERF_JOB_NAME": "tsc_node_18_15_0_Angular",
+        "TSPERF_JOB_SCENARIO": "Angular",
+      },
+      "tsc_node_18_15_0_Compiler_Unions": {
+        "TSPERF_JOB_HOST": "node@18.15.0",
+        "TSPERF_JOB_ITERATIONS": 6,
+        "TSPERF_JOB_KIND": "tsc",
+        "TSPERF_JOB_LOCATION": "internal",
+        "TSPERF_JOB_NAME": "tsc_node_18_15_0_Compiler_Unions",
+        "TSPERF_JOB_SCENARIO": "Compiler-Unions",
+      },
+      "tsc_node_18_15_0_Monaco": {
+        "TSPERF_JOB_HOST": "node@18.15.0",
+        "TSPERF_JOB_ITERATIONS": 6,
+        "TSPERF_JOB_KIND": "tsc",
+        "TSPERF_JOB_LOCATION": "internal",
+        "TSPERF_JOB_NAME": "tsc_node_18_15_0_Monaco",
+        "TSPERF_JOB_SCENARIO": "Monaco",
+      },
+      "tsc_node_18_15_0_TFS": {
+        "TSPERF_JOB_HOST": "node@18.15.0",
+        "TSPERF_JOB_ITERATIONS": 6,
+        "TSPERF_JOB_KIND": "tsc",
+        "TSPERF_JOB_LOCATION": "internal",
+        "TSPERF_JOB_NAME": "tsc_node_18_15_0_TFS",
+        "TSPERF_JOB_SCENARIO": "TFS",
+      },
+      "tsc_node_18_15_0_material_ui": {
+        "TSPERF_JOB_HOST": "node@18.15.0",
+        "TSPERF_JOB_ITERATIONS": 6,
+        "TSPERF_JOB_KIND": "tsc",
+        "TSPERF_JOB_LOCATION": "internal",
+        "TSPERF_JOB_NAME": "tsc_node_18_15_0_material_ui",
+        "TSPERF_JOB_SCENARIO": "material-ui",
+      },
+      "tsc_node_18_15_0_mui_docs": {
+        "TSPERF_JOB_HOST": "node@18.15.0",
+        "TSPERF_JOB_ITERATIONS": 6,
+        "TSPERF_JOB_KIND": "tsc",
+        "TSPERF_JOB_LOCATION": "public",
+        "TSPERF_JOB_NAME": "tsc_node_18_15_0_mui_docs",
+        "TSPERF_JOB_SCENARIO": "mui-docs",
+      },
+      "tsc_node_18_15_0_self_build_src": {
+        "TSPERF_JOB_HOST": "node@18.15.0",
+        "TSPERF_JOB_ITERATIONS": 6,
+        "TSPERF_JOB_KIND": "tsc",
+        "TSPERF_JOB_LOCATION": "public",
+        "TSPERF_JOB_NAME": "tsc_node_18_15_0_self_build_src",
+        "TSPERF_JOB_SCENARIO": "self-build-src",
+      },
+      "tsc_node_18_15_0_self_compiler": {
+        "TSPERF_JOB_HOST": "node@18.15.0",
+        "TSPERF_JOB_ITERATIONS": 6,
+        "TSPERF_JOB_KIND": "tsc",
+        "TSPERF_JOB_LOCATION": "public",
+        "TSPERF_JOB_NAME": "tsc_node_18_15_0_self_compiler",
+        "TSPERF_JOB_SCENARIO": "self-compiler",
+      },
+      "tsc_node_18_15_0_vscode": {
+        "TSPERF_JOB_HOST": "node@18.15.0",
+        "TSPERF_JOB_ITERATIONS": 6,
+        "TSPERF_JOB_KIND": "tsc",
+        "TSPERF_JOB_LOCATION": "public",
+        "TSPERF_JOB_NAME": "tsc_node_18_15_0_vscode",
+        "TSPERF_JOB_SCENARIO": "vscode",
+      },
+      "tsc_node_18_15_0_webpack": {
+        "TSPERF_JOB_HOST": "node@18.15.0",
+        "TSPERF_JOB_ITERATIONS": 6,
+        "TSPERF_JOB_KIND": "tsc",
+        "TSPERF_JOB_LOCATION": "public",
+        "TSPERF_JOB_NAME": "tsc_node_18_15_0_webpack",
+        "TSPERF_JOB_SCENARIO": "webpack",
+      },
+      "tsc_node_18_15_0_xstate": {
+        "TSPERF_JOB_HOST": "node@18.15.0",
+        "TSPERF_JOB_ITERATIONS": 6,
+        "TSPERF_JOB_KIND": "tsc",
+        "TSPERF_JOB_LOCATION": "internal",
+        "TSPERF_JOB_NAME": "tsc_node_18_15_0_xstate",
+        "TSPERF_JOB_SCENARIO": "xstate",
+      },
+    },
+    "ts-perf1": {},
+    "ts-perf2": {},
+    "ts-perf3": {},
+    "ts-perf4": {},
+  },
+  "outputVariables": {
+    "MATRIX_any": "{"tsc_node_18_15_0_Angular":{"TSPERF_JOB_HOST":"node@18.15.0","TSPERF_JOB_ITERATIONS":6,"TSPERF_JOB_KIND":"tsc","TSPERF_JOB_LOCATION":"internal","TSPERF_JOB_NAME":"tsc_node_18_15_0_Angular","TSPERF_JOB_SCENARIO":"Angular"},"tsc_node_18_15_0_Compiler_Unions":{"TSPERF_JOB_HOST":"node@18.15.0","TSPERF_JOB_ITERATIONS":6,"TSPERF_JOB_KIND":"tsc","TSPERF_JOB_LOCATION":"internal","TSPERF_JOB_NAME":"tsc_node_18_15_0_Compiler_Unions","TSPERF_JOB_SCENARIO":"Compiler-Unions"},"tsc_node_18_15_0_Monaco":{"TSPERF_JOB_HOST":"node@18.15.0","TSPERF_JOB_ITERATIONS":6,"TSPERF_JOB_KIND":"tsc","TSPERF_JOB_LOCATION":"internal","TSPERF_JOB_NAME":"tsc_node_18_15_0_Monaco","TSPERF_JOB_SCENARIO":"Monaco"},"tsc_node_18_15_0_TFS":{"TSPERF_JOB_HOST":"node@18.15.0","TSPERF_JOB_ITERATIONS":6,"TSPERF_JOB_KIND":"tsc","TSPERF_JOB_LOCATION":"internal","TSPERF_JOB_NAME":"tsc_node_18_15_0_TFS","TSPERF_JOB_SCENARIO":"TFS"},"tsc_node_18_15_0_material_ui":{"TSPERF_JOB_HOST":"node@18.15.0","TSPERF_JOB_ITERATIONS":6,"TSPERF_JOB_KIND":"tsc","TSPERF_JOB_LOCATION":"internal","TSPERF_JOB_NAME":"tsc_node_18_15_0_material_ui","TSPERF_JOB_SCENARIO":"material-ui"},"tsc_node_18_15_0_mui_docs":{"TSPERF_JOB_HOST":"node@18.15.0","TSPERF_JOB_ITERATIONS":6,"TSPERF_JOB_KIND":"tsc","TSPERF_JOB_LOCATION":"public","TSPERF_JOB_NAME":"tsc_node_18_15_0_mui_docs","TSPERF_JOB_SCENARIO":"mui-docs"},"tsc_node_18_15_0_self_build_src":{"TSPERF_JOB_HOST":"node@18.15.0","TSPERF_JOB_ITERATIONS":6,"TSPERF_JOB_KIND":"tsc","TSPERF_JOB_LOCATION":"public","TSPERF_JOB_NAME":"tsc_node_18_15_0_self_build_src","TSPERF_JOB_SCENARIO":"self-build-src"},"tsc_node_18_15_0_self_compiler":{"TSPERF_JOB_HOST":"node@18.15.0","TSPERF_JOB_ITERATIONS":6,"TSPERF_JOB_KIND":"tsc","TSPERF_JOB_LOCATION":"public","TSPERF_JOB_NAME":"tsc_node_18_15_0_self_compiler","TSPERF_JOB_SCENARIO":"self-compiler"},"tsc_node_18_15_0_vscode":{"TSPERF_JOB_HOST":"node@18.15.0","TSPERF_JOB_ITERATIONS":6,"TSPERF_JOB_KIND":"tsc","TSPERF_JOB_LOCATION":"public","TSPERF_JOB_NAME":"tsc_node_18_15_0_vscode","TSPERF_JOB_SCENARIO":"vscode"},"tsc_node_18_15_0_webpack":{"TSPERF_JOB_HOST":"node@18.15.0","TSPERF_JOB_ITERATIONS":6,"TSPERF_JOB_KIND":"tsc","TSPERF_JOB_LOCATION":"public","TSPERF_JOB_NAME":"tsc_node_18_15_0_webpack","TSPERF_JOB_SCENARIO":"webpack"},"tsc_node_18_15_0_xstate":{"TSPERF_JOB_HOST":"node@18.15.0","TSPERF_JOB_ITERATIONS":6,"TSPERF_JOB_KIND":"tsc","TSPERF_JOB_LOCATION":"internal","TSPERF_JOB_NAME":"tsc_node_18_15_0_xstate","TSPERF_JOB_SCENARIO":"xstate"}}",
+    "MATRIX_ts_perf1": "{}",
+    "MATRIX_ts_perf2": "{}",
+    "MATRIX_ts_perf3": "{}",
+    "MATRIX_ts_perf4": "{}",
+    "TSPERF_PROCESS_KINDS": "tsc",
+    "TSPERF_PROCESS_LOCATIONS": "internal,public",
+  },
+}
+`;
 
-exports[`generateMatrix preset=faster baselining=true > error 1`] = `[TypeError: Cannot read properties of undefined (reading 'tsc-only')]`;
+exports[`generateMatrix preset=faster baselining=true > error 1`] = `undefined`;
 
-exports[`generateMatrix preset=faster baselining=true > result 1`] = `undefined`;
+exports[`generateMatrix preset=faster baselining=true > result 1`] = `
+{
+  "cost": {
+    "compute": "39m 26s",
+    "computeParallel": "21m 46s",
+    "totalPipeline": "25m 56s",
+  },
+  "matrix": {
+    "any": {},
+    "ts-perf1": {
+      "tsc_node_18_15_0_Angular": {
+        "TSPERF_JOB_HOST": "node@18.15.0",
+        "TSPERF_JOB_ITERATIONS": 6,
+        "TSPERF_JOB_KIND": "tsc",
+        "TSPERF_JOB_LOCATION": "internal",
+        "TSPERF_JOB_NAME": "tsc_node_18_15_0_Angular",
+        "TSPERF_JOB_SCENARIO": "Angular",
+      },
+      "tsc_node_18_15_0_material_ui": {
+        "TSPERF_JOB_HOST": "node@18.15.0",
+        "TSPERF_JOB_ITERATIONS": 6,
+        "TSPERF_JOB_KIND": "tsc",
+        "TSPERF_JOB_LOCATION": "internal",
+        "TSPERF_JOB_NAME": "tsc_node_18_15_0_material_ui",
+        "TSPERF_JOB_SCENARIO": "material-ui",
+      },
+      "tsc_node_18_15_0_mui_docs": {
+        "TSPERF_JOB_HOST": "node@18.15.0",
+        "TSPERF_JOB_ITERATIONS": 6,
+        "TSPERF_JOB_KIND": "tsc",
+        "TSPERF_JOB_LOCATION": "public",
+        "TSPERF_JOB_NAME": "tsc_node_18_15_0_mui_docs",
+        "TSPERF_JOB_SCENARIO": "mui-docs",
+      },
+      "tsc_node_18_15_0_vscode": {
+        "TSPERF_JOB_HOST": "node@18.15.0",
+        "TSPERF_JOB_ITERATIONS": 6,
+        "TSPERF_JOB_KIND": "tsc",
+        "TSPERF_JOB_LOCATION": "public",
+        "TSPERF_JOB_NAME": "tsc_node_18_15_0_vscode",
+        "TSPERF_JOB_SCENARIO": "vscode",
+      },
+    },
+    "ts-perf2": {
+      "tsc_node_18_15_0_Compiler_Unions": {
+        "TSPERF_JOB_HOST": "node@18.15.0",
+        "TSPERF_JOB_ITERATIONS": 6,
+        "TSPERF_JOB_KIND": "tsc",
+        "TSPERF_JOB_LOCATION": "internal",
+        "TSPERF_JOB_NAME": "tsc_node_18_15_0_Compiler_Unions",
+        "TSPERF_JOB_SCENARIO": "Compiler-Unions",
+      },
+      "tsc_node_18_15_0_Monaco": {
+        "TSPERF_JOB_HOST": "node@18.15.0",
+        "TSPERF_JOB_ITERATIONS": 6,
+        "TSPERF_JOB_KIND": "tsc",
+        "TSPERF_JOB_LOCATION": "internal",
+        "TSPERF_JOB_NAME": "tsc_node_18_15_0_Monaco",
+        "TSPERF_JOB_SCENARIO": "Monaco",
+      },
+      "tsc_node_18_15_0_self_compiler": {
+        "TSPERF_JOB_HOST": "node@18.15.0",
+        "TSPERF_JOB_ITERATIONS": 6,
+        "TSPERF_JOB_KIND": "tsc",
+        "TSPERF_JOB_LOCATION": "public",
+        "TSPERF_JOB_NAME": "tsc_node_18_15_0_self_compiler",
+        "TSPERF_JOB_SCENARIO": "self-compiler",
+      },
+    },
+    "ts-perf3": {
+      "tsc_node_18_15_0_TFS": {
+        "TSPERF_JOB_HOST": "node@18.15.0",
+        "TSPERF_JOB_ITERATIONS": 6,
+        "TSPERF_JOB_KIND": "tsc",
+        "TSPERF_JOB_LOCATION": "internal",
+        "TSPERF_JOB_NAME": "tsc_node_18_15_0_TFS",
+        "TSPERF_JOB_SCENARIO": "TFS",
+      },
+      "tsc_node_18_15_0_self_build_src": {
+        "TSPERF_JOB_HOST": "node@18.15.0",
+        "TSPERF_JOB_ITERATIONS": 6,
+        "TSPERF_JOB_KIND": "tsc",
+        "TSPERF_JOB_LOCATION": "public",
+        "TSPERF_JOB_NAME": "tsc_node_18_15_0_self_build_src",
+        "TSPERF_JOB_SCENARIO": "self-build-src",
+      },
+      "tsc_node_18_15_0_webpack": {
+        "TSPERF_JOB_HOST": "node@18.15.0",
+        "TSPERF_JOB_ITERATIONS": 6,
+        "TSPERF_JOB_KIND": "tsc",
+        "TSPERF_JOB_LOCATION": "public",
+        "TSPERF_JOB_NAME": "tsc_node_18_15_0_webpack",
+        "TSPERF_JOB_SCENARIO": "webpack",
+      },
+      "tsc_node_18_15_0_xstate": {
+        "TSPERF_JOB_HOST": "node@18.15.0",
+        "TSPERF_JOB_ITERATIONS": 6,
+        "TSPERF_JOB_KIND": "tsc",
+        "TSPERF_JOB_LOCATION": "internal",
+        "TSPERF_JOB_NAME": "tsc_node_18_15_0_xstate",
+        "TSPERF_JOB_SCENARIO": "xstate",
+      },
+    },
+    "ts-perf4": {},
+  },
+  "outputVariables": {
+    "MATRIX_any": "{}",
+    "MATRIX_ts_perf1": "{"tsc_node_18_15_0_Angular":{"TSPERF_JOB_HOST":"node@18.15.0","TSPERF_JOB_ITERATIONS":6,"TSPERF_JOB_KIND":"tsc","TSPERF_JOB_LOCATION":"internal","TSPERF_JOB_NAME":"tsc_node_18_15_0_Angular","TSPERF_JOB_SCENARIO":"Angular"},"tsc_node_18_15_0_material_ui":{"TSPERF_JOB_HOST":"node@18.15.0","TSPERF_JOB_ITERATIONS":6,"TSPERF_JOB_KIND":"tsc","TSPERF_JOB_LOCATION":"internal","TSPERF_JOB_NAME":"tsc_node_18_15_0_material_ui","TSPERF_JOB_SCENARIO":"material-ui"},"tsc_node_18_15_0_mui_docs":{"TSPERF_JOB_HOST":"node@18.15.0","TSPERF_JOB_ITERATIONS":6,"TSPERF_JOB_KIND":"tsc","TSPERF_JOB_LOCATION":"public","TSPERF_JOB_NAME":"tsc_node_18_15_0_mui_docs","TSPERF_JOB_SCENARIO":"mui-docs"},"tsc_node_18_15_0_vscode":{"TSPERF_JOB_HOST":"node@18.15.0","TSPERF_JOB_ITERATIONS":6,"TSPERF_JOB_KIND":"tsc","TSPERF_JOB_LOCATION":"public","TSPERF_JOB_NAME":"tsc_node_18_15_0_vscode","TSPERF_JOB_SCENARIO":"vscode"}}",
+    "MATRIX_ts_perf2": "{"tsc_node_18_15_0_Compiler_Unions":{"TSPERF_JOB_HOST":"node@18.15.0","TSPERF_JOB_ITERATIONS":6,"TSPERF_JOB_KIND":"tsc","TSPERF_JOB_LOCATION":"internal","TSPERF_JOB_NAME":"tsc_node_18_15_0_Compiler_Unions","TSPERF_JOB_SCENARIO":"Compiler-Unions"},"tsc_node_18_15_0_Monaco":{"TSPERF_JOB_HOST":"node@18.15.0","TSPERF_JOB_ITERATIONS":6,"TSPERF_JOB_KIND":"tsc","TSPERF_JOB_LOCATION":"internal","TSPERF_JOB_NAME":"tsc_node_18_15_0_Monaco","TSPERF_JOB_SCENARIO":"Monaco"},"tsc_node_18_15_0_self_compiler":{"TSPERF_JOB_HOST":"node@18.15.0","TSPERF_JOB_ITERATIONS":6,"TSPERF_JOB_KIND":"tsc","TSPERF_JOB_LOCATION":"public","TSPERF_JOB_NAME":"tsc_node_18_15_0_self_compiler","TSPERF_JOB_SCENARIO":"self-compiler"}}",
+    "MATRIX_ts_perf3": "{"tsc_node_18_15_0_TFS":{"TSPERF_JOB_HOST":"node@18.15.0","TSPERF_JOB_ITERATIONS":6,"TSPERF_JOB_KIND":"tsc","TSPERF_JOB_LOCATION":"internal","TSPERF_JOB_NAME":"tsc_node_18_15_0_TFS","TSPERF_JOB_SCENARIO":"TFS"},"tsc_node_18_15_0_self_build_src":{"TSPERF_JOB_HOST":"node@18.15.0","TSPERF_JOB_ITERATIONS":6,"TSPERF_JOB_KIND":"tsc","TSPERF_JOB_LOCATION":"public","TSPERF_JOB_NAME":"tsc_node_18_15_0_self_build_src","TSPERF_JOB_SCENARIO":"self-build-src"},"tsc_node_18_15_0_webpack":{"TSPERF_JOB_HOST":"node@18.15.0","TSPERF_JOB_ITERATIONS":6,"TSPERF_JOB_KIND":"tsc","TSPERF_JOB_LOCATION":"public","TSPERF_JOB_NAME":"tsc_node_18_15_0_webpack","TSPERF_JOB_SCENARIO":"webpack"},"tsc_node_18_15_0_xstate":{"TSPERF_JOB_HOST":"node@18.15.0","TSPERF_JOB_ITERATIONS":6,"TSPERF_JOB_KIND":"tsc","TSPERF_JOB_LOCATION":"internal","TSPERF_JOB_NAME":"tsc_node_18_15_0_xstate","TSPERF_JOB_SCENARIO":"xstate"}}",
+    "MATRIX_ts_perf4": "{}",
+    "TSPERF_PROCESS_KINDS": "tsc",
+    "TSPERF_PROCESS_LOCATIONS": "internal,public",
+  },
+}
+`;
 
 exports[`generateMatrix preset=full baselining=false > error 1`] = `undefined`;
 
 exports[`generateMatrix preset=full baselining=false > result 1`] = `
 {
+  "cost": {
+    "compute": "3h 12m 52s",
+    "computeParallel": "48m 13s",
+    "totalPipeline": "52m 23s",
+  },
   "matrix": {
     "any": {
       "startup_node_18_15_0_tsc_startup": {
@@ -1064,6 +1317,11 @@ exports[`generateMatrix preset=full baselining=true > error 1`] = `undefined`;
 
 exports[`generateMatrix preset=full baselining=true > result 1`] = `
 {
+  "cost": {
+    "compute": "1h 36m 26s",
+    "computeParallel": "51m 2s",
+    "totalPipeline": "55m 12s",
+  },
   "matrix": {
     "any": {},
     "ts-perf1": {
@@ -1322,6 +1580,11 @@ exports[`generateMatrix preset=public baselining=false > error 1`] = `undefined`
 
 exports[`generateMatrix preset=public baselining=false > result 1`] = `
 {
+  "cost": {
+    "compute": "53m 4s",
+    "computeParallel": "13m 16s",
+    "totalPipeline": "17m 26s",
+  },
   "matrix": {
     "any": {
       "tsc_node_20_5_1_mui_docs": {
@@ -1386,6 +1649,11 @@ exports[`generateMatrix preset=public baselining=true > error 1`] = `undefined`;
 
 exports[`generateMatrix preset=public baselining=true > result 1`] = `
 {
+  "cost": {
+    "compute": "26m 32s",
+    "computeParallel": "16m 32s",
+    "totalPipeline": "20m 42s",
+  },
   "matrix": {
     "any": {},
     "ts-perf1": {
@@ -1452,6 +1720,11 @@ exports[`generateMatrix preset=regular baselining=false > error 1`] = `undefined
 
 exports[`generateMatrix preset=regular baselining=false > result 1`] = `
 {
+  "cost": {
+    "compute": "1h 54m",
+    "computeParallel": "28m 30s",
+    "totalPipeline": "32m 40s",
+  },
   "matrix": {
     "any": {
       "startup_node_18_15_0_tsc_startup": {
@@ -1620,6 +1893,11 @@ exports[`generateMatrix preset=regular baselining=true > error 1`] = `undefined`
 
 exports[`generateMatrix preset=regular baselining=true > result 1`] = `
 {
+  "cost": {
+    "compute": "57m",
+    "computeParallel": "29m 16s",
+    "totalPipeline": "33m 26s",
+  },
   "matrix": {
     "any": {},
     "ts-perf1": {
@@ -1790,6 +2068,11 @@ exports[`generateMatrix preset=tsc-only baselining=false > error 1`] = `undefine
 
 exports[`generateMatrix preset=tsc-only baselining=false > result 1`] = `
 {
+  "cost": {
+    "compute": "1h 18m 52s",
+    "computeParallel": "19m 43s",
+    "totalPipeline": "23m 53s",
+  },
   "matrix": {
     "any": {
       "tsc_node_18_15_0_Angular": {
@@ -1902,6 +2185,11 @@ exports[`generateMatrix preset=tsc-only baselining=true > error 1`] = `undefined
 
 exports[`generateMatrix preset=tsc-only baselining=true > result 1`] = `
 {
+  "cost": {
+    "compute": "39m 26s",
+    "computeParallel": "21m 46s",
+    "totalPipeline": "25m 56s",
+  },
   "matrix": {
     "any": {},
     "ts-perf1": {
@@ -2024,6 +2312,11 @@ exports[`generateMatrix preset=vscode baselining=false > error 1`] = `undefined`
 
 exports[`generateMatrix preset=vscode baselining=false > result 1`] = `
 {
+  "cost": {
+    "compute": "1h 54m",
+    "computeParallel": "28m 30s",
+    "totalPipeline": "32m 40s",
+  },
   "matrix": {
     "any": {
       "startup_vscode_1_82_1_tsc_startup": {
@@ -2192,6 +2485,11 @@ exports[`generateMatrix preset=vscode baselining=true > error 1`] = `undefined`;
 
 exports[`generateMatrix preset=vscode baselining=true > result 1`] = `
 {
+  "cost": {
+    "compute": "57m",
+    "computeParallel": "29m 16s",
+    "totalPipeline": "33m 26s",
+  },
   "matrix": {
     "any": {},
     "ts-perf1": {
