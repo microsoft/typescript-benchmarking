@@ -122,15 +122,11 @@ interface Scenario extends BaseScenario {
     readonly iterations: number;
 }
 
-const baselineScenarios = allScenarios.filter(scenario => scenario.runIn & RunType.Baseline).filter(s =>
-    s.location === "internal"
-);
-const onDemandScenarios = allScenarios.filter(scenario => scenario.runIn & RunType.OnDemand).filter(s =>
-    s.location === "internal"
-);
+// const baselineScenarios = allScenarios.filter(scenario => scenario.runIn & RunType.Baseline);
+const onDemandScenarios = allScenarios.filter(scenario => scenario.runIn & RunType.OnDemand);
 
 // TODO(jakebailey): unfilter internal; temporary
-const internalBaselineScenarios = baselineScenarios.filter(s => s.location === "internal");
+// const internalBaselineScenarios = baselineScenarios.filter(s => s.location === "internal");
 const internalOnDemandScenarios = onDemandScenarios.filter(s => s.location === "internal");
 
 function* generateBaselinePreset(scenarios: readonly BaseScenario[]): Iterable<Scenario> {
@@ -156,7 +152,7 @@ function* generateBaselinePreset(scenarios: readonly BaseScenario[]): Iterable<S
 
 // Note: keep this up to date with TSPERF_PRESET
 const presets = {
-    "baseline": () => generateBaselinePreset(internalBaselineScenarios),
+    // "baseline": () => generateBaselinePreset(internalBaselineScenarios),
     "full": () => generateBaselinePreset(internalOnDemandScenarios),
     *"regular"() {
         // The bot trigger will default to "regular" when
