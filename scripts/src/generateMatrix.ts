@@ -49,7 +49,7 @@ interface BaseScenario {
     readonly location: ScenarioLocation;
     readonly runIn: RunType;
     /**
-     * Rough time cost per iteration in seconds
+     * Rough time cost per iteration in seconds.
      * This is solely used for gauging how expensive a preset is.
      */
     readonly cost: number;
