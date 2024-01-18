@@ -1,0 +1,7 @@
+{
+  "parallel": "13m 16s",
+  "perAgent": {
+    "any": "53m 4s",
+  },
+  "total": "53m 4s",
+}
