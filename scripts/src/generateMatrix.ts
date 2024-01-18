@@ -17,6 +17,7 @@ type ScenarioLocation = "internal" | "public";
 
 const defaultIterations = 6;
 
+// TODO(jakebailey): have unpinned variants; ts-perf mostly supports @latest.
 const hosts = {
     // This version is arbitrary (just what was latest on 2023-08-12).
     node20: "node@20.5.1",
@@ -33,9 +34,9 @@ type JobKind = typeof allJobKinds[number];
 
 const enum RunType {
     None = 0,
+    Any = -1,
     Baseline = 1 << 0,
     OnDemand = 1 << 1,
-    All = -1,
 }
 
 interface BaseScenario {
@@ -48,26 +49,26 @@ interface BaseScenario {
 
 // DO NOT change the agents; they must remain the same forever to keep benchmarks comparable.
 const allScenarios: readonly BaseScenario[] = [
-    { kind: "tsc", name: "Angular", agent: "ts-perf1", location: "internal", runIn: RunType.All },
-    { kind: "tsc", name: "Monaco", agent: "ts-perf2", location: "internal", runIn: RunType.All },
-    { kind: "tsc", name: "TFS", agent: "ts-perf3", location: "internal", runIn: RunType.All },
-    { kind: "tsc", name: "material-ui", agent: "ts-perf1", location: "internal", runIn: RunType.All },
-    { kind: "tsc", name: "Compiler-Unions", agent: "ts-perf2", location: "internal", runIn: RunType.All },
-    { kind: "tsc", name: "xstate", agent: "ts-perf3", location: "internal", runIn: RunType.All },
-    { kind: "tsc", name: "vscode", agent: "ts-perf1", location: "public", runIn: RunType.All },
-    { kind: "tsc", name: "self-compiler", agent: "ts-perf2", location: "public", runIn: RunType.All },
-    { kind: "tsc", name: "self-build-src", agent: "ts-perf3", location: "public", runIn: RunType.All },
+    { kind: "tsc", name: "Angular", agent: "ts-perf1", location: "internal", runIn: RunType.Any },
+    { kind: "tsc", name: "Monaco", agent: "ts-perf2", location: "internal", runIn: RunType.Any },
+    { kind: "tsc", name: "TFS", agent: "ts-perf3", location: "internal", runIn: RunType.Any },
+    { kind: "tsc", name: "material-ui", agent: "ts-perf1", location: "internal", runIn: RunType.Any },
+    { kind: "tsc", name: "Compiler-Unions", agent: "ts-perf2", location: "internal", runIn: RunType.Any },
+    { kind: "tsc", name: "xstate", agent: "ts-perf3", location: "internal", runIn: RunType.Any },
+    { kind: "tsc", name: "vscode", agent: "ts-perf1", location: "public", runIn: RunType.Any },
+    { kind: "tsc", name: "self-compiler", agent: "ts-perf2", location: "public", runIn: RunType.Any },
+    { kind: "tsc", name: "self-build-src", agent: "ts-perf3", location: "public", runIn: RunType.Any },
     { kind: "tsc", name: "mui-docs", agent: "ts-perf1", location: "public", runIn: RunType.OnDemand },
     { kind: "tsc", name: "mui-docs-1", agent: "ts-perf1", location: "public", runIn: RunType.Baseline },
     { kind: "tsc", name: "webpack", agent: "ts-perf3", location: "public", runIn: RunType.OnDemand },
     { kind: "tsc", name: "webpack-1", agent: "ts-perf3", location: "public", runIn: RunType.Baseline },
-    { kind: "tsserver", name: "Compiler-UnionsTSServer", agent: "ts-perf1", location: "internal", runIn: RunType.All },
-    { kind: "tsserver", name: "CompilerTSServer", agent: "ts-perf2", location: "internal", runIn: RunType.All },
-    { kind: "tsserver", name: "xstateTSServer", agent: "ts-perf3", location: "internal", runIn: RunType.All },
-    { kind: "startup", name: "tsc-startup", agent: "ts-perf1", location: "internal", runIn: RunType.All },
-    { kind: "startup", name: "tsserver-startup", agent: "ts-perf2", location: "internal", runIn: RunType.All },
-    { kind: "startup", name: "tsserverlibrary-startup", agent: "ts-perf3", location: "internal", runIn: RunType.All },
-    { kind: "startup", name: "typescript-startup", agent: "ts-perf1", location: "internal", runIn: RunType.All },
+    { kind: "tsserver", name: "Compiler-UnionsTSServer", agent: "ts-perf1", location: "internal", runIn: RunType.Any },
+    { kind: "tsserver", name: "CompilerTSServer", agent: "ts-perf2", location: "internal", runIn: RunType.Any },
+    { kind: "tsserver", name: "xstateTSServer", agent: "ts-perf3", location: "internal", runIn: RunType.Any },
+    { kind: "startup", name: "tsc-startup", agent: "ts-perf1", location: "internal", runIn: RunType.Any },
+    { kind: "startup", name: "tsserver-startup", agent: "ts-perf2", location: "internal", runIn: RunType.Any },
+    { kind: "startup", name: "tsserverlibrary-startup", agent: "ts-perf3", location: "internal", runIn: RunType.Any },
+    { kind: "startup", name: "typescript-startup", agent: "ts-perf1", location: "internal", runIn: RunType.Any },
 ];
 
 type ScenarioName = typeof allScenarios[number]["name"];
@@ -102,11 +103,12 @@ function* generateBaselinePreset(scenarios: readonly BaseScenario[]): Iterable<S
     }
 }
 
-// Note: keep this up to date with TSPERF_PRESET and https://github.com/microsoft/typescript-bot-test-triggerer
+// Note: keep this up to date with TSPERF_PRESET
 const presets = {
     "baseline": () => generateBaselinePreset(baselineScenarios),
     "full": () => generateBaselinePreset(onDemandScenarios),
     *"regular"() {
+        // The bot trigger will default to "regular" when
         for (const scenario of onDemandScenarios) {
             yield {
                 ...scenario,
