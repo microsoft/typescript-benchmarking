@@ -311,7 +311,7 @@ export function generateMatrix(presetArg: string, baselining: boolean, log?: boo
     // Comma separated, parsed by runTsPerf.ts.
     outputVariables[`TSPERF_PROCESS_LOCATIONS`] = [...processLocations].sort().join(",");
 
-    const costInParallel = baselining ? Math.max(...costPerAgent.values()) : (totalCost / allAgents.length);
+    const costInParallel = baselining ? Math.max(...costPerAgent.values()) : Math.ceil(totalCost / allAgents.length);
 
     return {
         matrix,
