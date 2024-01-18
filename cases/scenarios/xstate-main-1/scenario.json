@@ -1,0 +1,13 @@
+{
+    "name": "xstate-main",
+    "kind": "tsc",
+    "args": [
+        "-p",
+        "${suiteDirectory}/xstate-main",
+        "--outdir",
+        "${outDirectory}"
+    ],
+    "platforms": [
+        "linux"
+    ]
+}

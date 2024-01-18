@@ -1,190 +1,237 @@
 import assert from "node:assert";
 
+import esMain from "es-main";
 import minimist from "minimist";
+import prettyMilliseconds from "pretty-ms";
+import sortKeys from "sort-keys";
 
 import { setOutputVariable } from "./utils.js";
 
 // Keep in sync with inventory.yml and benchmark.yml.
-type AllAgents = "ts-perf1" | "ts-perf2" | "ts-perf3" | "ts-perf4";
+const allAgents = ["ts-perf1", "ts-perf2", "ts-perf3", "ts-perf4"] as const;
+type AllAgents = typeof allAgents[number];
 // We reserve some agents so that non-baseline jobs can make progress.
-type ReserveAgent = "ts-perf4";
-type BaselineAgent = Exclude<AllAgents, ReserveAgent>;
+const reserveAgents = ["ts-perf4"] as const;
+type ReserveAgents = typeof reserveAgents[number];
+type BaselineAgent = Exclude<AllAgents, ReserveAgents>;
 type Agent = "any" | AllAgents;
 
 type ScenarioLocation = "internal" | "public";
 
 const defaultIterations = 6;
 
+// TODO(jakebailey): have unpinned variants; ts-perf mostly supports @latest.
 const hosts = {
     // This version is arbitrary (just what was latest on 2023-08-12).
     node20: "node@20.5.1",
+    // This matches a recent VS Code version via Electron.
     node18: "node@18.15.0",
-    // These two versions match those found in recent VS Code versions via Electron.
-    node16: "node@16.17.1",
     bun: "bun@1.0.15",
     vscode: "vscode@1.82.1",
 } as const satisfies Record<string, string>;
 
 type HostName = typeof hosts[keyof typeof hosts];
 
+const allJobKinds = ["tsc", "tsserver", "startup"] as const;
+type JobKind = typeof allJobKinds[number];
+
+const enum RunType {
+    None = 0,
+    Any = -1,
+    Baseline = 1 << 0,
+    OnDemand = 1 << 1,
+}
+
 interface BaseScenario {
-    name: string;
-    agent: BaselineAgent;
-    location: ScenarioLocation;
+    readonly kind: JobKind;
+    readonly name: string;
+    readonly agent: BaselineAgent;
+    readonly location: ScenarioLocation;
+    readonly runIn: RunType;
+    /**
+     * Rough time cost per iteration in seconds.
+     * This is solely used for gauging how expensive a preset is.
+     */
+    readonly cost: number;
 }
 
 // DO NOT change the agents; they must remain the same forever to keep benchmarks comparable.
-const scenarioConfig = {
-    tsc: [
-        { name: "Angular", agent: "ts-perf1", location: "internal" },
-        { name: "Monaco", agent: "ts-perf2", location: "internal" },
-        { name: "TFS", agent: "ts-perf3", location: "internal" },
-        { name: "material-ui", agent: "ts-perf1", location: "internal" },
-        { name: "Compiler-Unions", agent: "ts-perf2", location: "internal" },
-        { name: "xstate", agent: "ts-perf3", location: "internal" },
-        { name: "vscode", agent: "ts-perf1", location: "public" },
-        { name: "self-compiler", agent: "ts-perf2", location: "public" },
-        { name: "self-build-src", agent: "ts-perf3", location: "public" },
-        { name: "mui-docs", agent: "ts-perf1", location: "public" },
-        { name: "xstate-5", agent: "ts-perf2", location: "public" },
-        { name: "webpack", agent: "ts-perf3", location: "public" },
-    ],
-    tsserver: [
-        { name: "Compiler-UnionsTSServer", agent: "ts-perf1", location: "internal" },
-        { name: "CompilerTSServer", agent: "ts-perf2", location: "internal" },
-        { name: "xstateTSServer", agent: "ts-perf3", location: "internal" },
-    ],
-    startup: [
-        { name: "tsc-startup", agent: "ts-perf1", location: "internal" },
-        { name: "tsserver-startup", agent: "ts-perf2", location: "internal" },
-        { name: "tsserverlibrary-startup", agent: "ts-perf3", location: "internal" },
-        { name: "typescript-startup", agent: "ts-perf1", location: "internal" },
-    ],
-} as const satisfies Record<string, readonly BaseScenario[]>;
+const allScenarios: readonly BaseScenario[] = [
+    { kind: "tsc", name: "Angular", agent: "ts-perf1", location: "internal", runIn: RunType.Any, cost: 19 },
+    { kind: "tsc", name: "Monaco", agent: "ts-perf2", location: "internal", runIn: RunType.Any, cost: 15 },
+    { kind: "tsc", name: "TFS", agent: "ts-perf3", location: "internal", runIn: RunType.Any, cost: 13 },
+    { kind: "tsc", name: "material-ui", agent: "ts-perf1", location: "internal", runIn: RunType.Any, cost: 20 },
+    { kind: "tsc", name: "Compiler-Unions", agent: "ts-perf2", location: "internal", runIn: RunType.Any, cost: 14 },
+    { kind: "tsc", name: "xstate", agent: "ts-perf3", location: "internal", runIn: RunType.Any, cost: 8 },
+    { kind: "tsc", name: "vscode", agent: "ts-perf3", location: "public", runIn: RunType.Any, cost: 90 },
+    { kind: "tsc", name: "self-compiler", agent: "ts-perf1", location: "public", runIn: RunType.Any, cost: 20 },
+    { kind: "tsc", name: "self-build-src", agent: "ts-perf2", location: "public", runIn: RunType.Any, cost: 42 },
+    { kind: "tsc", name: "mui-docs", agent: "ts-perf2", location: "public", runIn: RunType.OnDemand, cost: 62 },
+    { kind: "tsc", name: "mui-docs-1", agent: "ts-perf2", location: "public", runIn: RunType.Baseline, cost: 62 },
+    { kind: "tsc", name: "webpack", agent: "ts-perf3", location: "public", runIn: RunType.OnDemand, cost: 18 },
+    { kind: "tsc", name: "webpack-1", agent: "ts-perf3", location: "public", runIn: RunType.Baseline, cost: 18 },
+    { kind: "tsc", name: "xstate-main", agent: "ts-perf1", location: "public", runIn: RunType.OnDemand, cost: 10 },
+    { kind: "tsc", name: "xstate-main-1", agent: "ts-perf2", location: "public", runIn: RunType.Baseline, cost: 110 },
+    {
+        kind: "tsserver",
+        name: "Compiler-UnionsTSServer",
+        agent: "ts-perf1",
+        location: "internal",
+        runIn: RunType.Any,
+        cost: 15,
+    },
+    {
+        kind: "tsserver",
+        name: "CompilerTSServer",
+        agent: "ts-perf2",
+        location: "internal",
+        runIn: RunType.Any,
+        cost: 14,
+    },
+    { kind: "tsserver", name: "xstateTSServer", agent: "ts-perf3", location: "internal", runIn: RunType.Any, cost: 12 },
+    { kind: "startup", name: "tsc-startup", agent: "ts-perf1", location: "internal", runIn: RunType.Any, cost: 16 },
+    {
+        kind: "startup",
+        name: "tsserver-startup",
+        agent: "ts-perf2",
+        location: "internal",
+        runIn: RunType.Any,
+        cost: 24,
+    },
+    {
+        kind: "startup",
+        name: "tsserverlibrary-startup",
+        agent: "ts-perf3",
+        location: "internal",
+        runIn: RunType.Any,
+        cost: 24,
+    },
+    {
+        kind: "startup",
+        name: "typescript-startup",
+        agent: "ts-perf1",
+        location: "internal",
+        runIn: RunType.Any,
+        cost: 24,
+    },
+];
 
-type ScenarioConfig = typeof scenarioConfig;
+type ScenarioName = typeof allScenarios[number]["name"];
 
-type JobKind = keyof ScenarioConfig;
-const allJobKinds = Object.keys(scenarioConfig) as readonly JobKind[];
-
-type ScenarioName = ScenarioConfig[JobKind][number]["name"];
-
-type Preset = {
-    [K in JobKind]?: {
-        hosts: readonly HostName[];
-        iterations: number;
-        scenarios: readonly ScenarioConfig[K][number][];
-    };
-};
-
-function onlyInternal<T extends BaseScenario>(scenarios: readonly T[]): readonly T[] {
-    return scenarios.filter(s => s.location === "internal");
+interface Scenario extends BaseScenario {
+    readonly name: ScenarioName;
+    readonly host: HostName;
+    readonly iterations: number;
 }
 
-function onlyPublic<T extends BaseScenario>(scenarios: readonly T[]): readonly T[] {
-    return scenarios.filter(s => s.location === "public");
+const baselineScenarios = allScenarios.filter(scenario => scenario.runIn & RunType.Baseline);
+const onDemandScenarios = allScenarios.filter(scenario => scenario.runIn & RunType.OnDemand);
+
+function* generateBaselinePreset(scenarios: readonly BaseScenario[]): Iterable<Scenario> {
+    for (const scenario of scenarios) {
+        if (scenario.kind === "tsc") {
+            for (const host of [hosts.node20, hosts.node18]) {
+                yield {
+                    ...scenario,
+                    host,
+                    iterations: defaultIterations,
+                };
+            }
+        }
+        else {
+            yield {
+                ...scenario,
+                host: hosts.node18,
+                iterations: defaultIterations,
+            };
+        }
+    }
 }
 
-// Note: keep this up to date with TSPERF_PRESET and https://github.com/microsoft/typescript-bot-test-triggerer
-const presets: Record<string, Preset | undefined> = {
-    "full": {
-        tsc: {
-            hosts: [hosts.node20, hosts.node18, hosts.node16],
-            iterations: defaultIterations,
-            scenarios: onlyInternal(scenarioConfig.tsc),
-        },
-        tsserver: {
-            hosts: [hosts.node16],
-            iterations: defaultIterations,
-            scenarios: onlyInternal(scenarioConfig.tsserver),
-        },
-        startup: {
-            hosts: [hosts.node16],
-            iterations: defaultIterations,
-            scenarios: onlyInternal(scenarioConfig.startup),
-        },
+// Note: keep this up to date with TSPERF_PRESET
+const presets = {
+    "baseline": () => generateBaselinePreset(baselineScenarios),
+    "full": () => generateBaselinePreset(onDemandScenarios),
+    *"regular"() {
+        // The bot trigger will default to "regular" when
+        for (const scenario of onDemandScenarios) {
+            yield {
+                ...scenario,
+                host: hosts.node18,
+                iterations: defaultIterations,
+            };
+        }
     },
-    "regular": {
-        tsc: {
-            hosts: [hosts.node18],
-            iterations: defaultIterations,
-            scenarios: onlyInternal(scenarioConfig.tsc),
-        },
-        tsserver: {
-            hosts: [hosts.node18],
-            iterations: defaultIterations,
-            scenarios: onlyInternal(scenarioConfig.tsserver),
-        },
-        startup: {
-            hosts: [hosts.node18],
-            iterations: defaultIterations,
-            scenarios: onlyInternal(scenarioConfig.startup),
-        },
+    *"tsc-only"() {
+        for (const scenario of onDemandScenarios) {
+            if (scenario.kind === "tsc") {
+                yield {
+                    ...scenario,
+                    host: hosts.node18,
+                    iterations: defaultIterations,
+                };
+            }
+        }
     },
-    "tsc-only": {
-        tsc: {
-            hosts: [hosts.node18],
-            iterations: defaultIterations,
-            scenarios: onlyInternal(scenarioConfig.tsc),
-        },
+    "faster": (): Iterable<Scenario> => presets["tsc-only"](),
+    *"bun"() {
+        for (const scenario of onDemandScenarios) {
+            if (scenario.kind === "tsc") {
+                yield {
+                    ...scenario,
+                    host: hosts.bun,
+                    iterations: defaultIterations * 2,
+                };
+            }
+            else if (scenario.kind === "startup" && scenario.name !== "tsserver-startup") {
+                yield {
+                    ...scenario,
+                    host: hosts.bun,
+                    iterations: defaultIterations,
+                };
+            }
+        }
     },
-    "bun": {
-        tsc: {
-            hosts: [hosts.bun],
-            iterations: defaultIterations * 2,
-            scenarios: onlyInternal(scenarioConfig.tsc),
-        },
-        startup: {
-            hosts: [hosts.bun],
-            iterations: defaultIterations,
-            scenarios: onlyInternal(scenarioConfig.startup).filter(s => s.name !== "tsserver-startup"),
-        },
+    *"vscode"() {
+        for (const scenario of onDemandScenarios) {
+            yield {
+                ...scenario,
+                host: hosts.vscode,
+                iterations: defaultIterations,
+            };
+        }
     },
-    "vscode": {
-        tsc: {
-            hosts: [hosts.vscode],
-            iterations: defaultIterations,
-            scenarios: onlyInternal(scenarioConfig.tsc),
-        },
-        tsserver: {
-            hosts: [hosts.vscode],
-            iterations: defaultIterations,
-            scenarios: onlyInternal(scenarioConfig.tsserver),
-        },
-        startup: {
-            hosts: [hosts.vscode],
-            iterations: defaultIterations,
-            scenarios: onlyInternal(scenarioConfig.startup),
-        },
+    *"public"() {
+        for (const scenario of onDemandScenarios) {
+            if (scenario.kind === "tsc" && scenario.location === "public") {
+                yield {
+                    ...scenario,
+                    host: hosts.node20,
+                    iterations: defaultIterations,
+                };
+            }
+        }
     },
-    "public": {
-        tsc: {
-            hosts: [hosts.node20],
-            iterations: defaultIterations,
-            scenarios: onlyPublic(scenarioConfig.tsc),
-        },
-    },
-};
+} satisfies Record<string, () => Iterable<Scenario>>;
 
-const args = minimist(process.argv.slice(2), {
-    string: ["preset"],
-});
+type PresetName = keyof typeof presets;
 
-const presetArg = args.preset;
-const baselining = (process.env.USE_BASELINE_MACHINE || "FALSE").toUpperCase() === "TRUE";
-
-const preset = presets[presetArg];
-if (!preset) {
-    // TODO(jakebailey): if "custom", build a custom matrix from arguments
-    console.error(`Unknown preset: ${presetArg}`);
-    process.exit(1);
+function isPresetName(name: string): name is PresetName {
+    return name in presets;
 }
+
+export const allPresetNames: ReadonlySet<string> = new Set(Object.keys(presets));
 
 type JobName = string & { __sanitizedJobName: never; };
 
 function sanitizeJobName(name: string): JobName {
     return name.replace(/[^a-zA-Z0-9_]/g, "_") as JobName;
 }
+
+// This defines the sort order, which is seen in PR replies; tsc is the most important and should be first.
+const kindOrder: readonly JobKind[] = ["tsc", "tsserver", "startup"];
+
+assert.deepStrictEqual([...allJobKinds].sort(), [...kindOrder].sort(), "kindOrder must contain all job kinds");
 
 interface Job {
     TSPERF_JOB_KIND: JobKind;
@@ -201,53 +248,101 @@ type Matrix = {
     };
 };
 
-const matrix: Matrix = {
-    "any": {},
-    "ts-perf1": {},
-    "ts-perf2": {},
-    "ts-perf3": {},
-    "ts-perf4": {},
-};
+function prettySeconds(seconds: number) {
+    return prettyMilliseconds(seconds * 1000);
+}
 
-const processKinds = new Set<JobKind>();
-const processLocations = new Set<ScenarioLocation>();
-
-for (const jobKind of allJobKinds) {
-    const p = preset[jobKind];
-    if (!p) {
-        continue;
+export function generateMatrix(presetArg: string, baselining: boolean, log?: boolean) {
+    if (!isPresetName(presetArg)) {
+        throw new Error(`Unknown preset: ${presetArg}`);
     }
 
-    for (const host of p.hosts) {
-        for (const scenario of p.scenarios) {
-            const agent = baselining ? scenario.agent : "any";
-            const jobName = sanitizeJobName(`${jobKind}_${host}_${scenario.name}`);
-            matrix[agent][jobName] = {
-                TSPERF_JOB_KIND: jobKind,
-                TSPERF_JOB_NAME: jobName,
-                TSPERF_JOB_HOST: host,
-                TSPERF_JOB_SCENARIO: scenario.name,
-                TSPERF_JOB_ITERATIONS: p.iterations,
-                TSPERF_JOB_LOCATION: scenario.location,
-            };
-            processKinds.add(jobKind);
-            processLocations.add(scenario.location);
+    const preset = presets[presetArg];
+
+    let matrix: Matrix = {
+        "any": {},
+        "ts-perf1": {},
+        "ts-perf2": {},
+        "ts-perf3": {},
+        "ts-perf4": {},
+    };
+
+    const processKinds = new Set<JobKind>();
+    const processLocations = new Set<ScenarioLocation>();
+
+    const jobOverhead = 40; // Time taken per benchmark job to clone, build, etc
+    let totalCost = 0;
+    let maxCost = 0;
+    const costPerAgent = new Map<Agent, number>();
+
+    for (const scenario of preset()) {
+        const agent = baselining ? scenario.agent : "any";
+        const jobName = sanitizeJobName(`${scenario.kind}_${scenario.host}_${scenario.name}`);
+        matrix[agent][jobName] = {
+            TSPERF_JOB_KIND: scenario.kind,
+            TSPERF_JOB_NAME: jobName,
+            TSPERF_JOB_HOST: scenario.host,
+            TSPERF_JOB_SCENARIO: scenario.name,
+            TSPERF_JOB_ITERATIONS: scenario.iterations,
+            TSPERF_JOB_LOCATION: scenario.location,
+        };
+        processKinds.add(scenario.kind);
+        processLocations.add(scenario.location);
+
+        let cost = scenario.cost * scenario.iterations + jobOverhead;
+        if (!baselining) {
+            cost *= 2;
+        }
+        totalCost += cost;
+        maxCost = Math.max(maxCost, cost);
+        costPerAgent.set(agent, (costPerAgent.get(agent) ?? 0) + cost);
+    }
+
+    matrix = sortKeys(matrix, { deep: true });
+
+    const outputVariables: Record<string, string> = {};
+
+    for (const [agent, value] of Object.entries(matrix)) {
+        const sanitizedAgent = agent.replace(/-/g, "_");
+        outputVariables[`MATRIX_${sanitizedAgent}`] = JSON.stringify(value);
+        if (log) {
+            console.log(sanitizedAgent, JSON.stringify(value, undefined, 4));
         }
     }
+
+    // These are outputs for the ProcessResults job, specifying which results were
+    // produced previously and need to be processed. This is a space separated list,
+    // iterated in the pipeline in bash.
+    outputVariables[`TSPERF_PROCESS_KINDS`] = kindOrder.filter(kind => processKinds.has(kind)).join(" ");
+    // Comma separated, parsed by runTsPerf.ts.
+    outputVariables[`TSPERF_PROCESS_LOCATIONS`] = [...processLocations].sort().join(",");
+
+    const costInParallel = baselining ? Math.max(...costPerAgent.values()) : Math.ceil(totalCost / allAgents.length);
+    const perAgent = Object.fromEntries(
+        [...costPerAgent.entries()].map(([agent, cost]) => [agent, prettySeconds(cost)]),
+    );
+
+    return {
+        matrix,
+        outputVariables,
+        compute: {
+            total: prettySeconds(totalCost),
+            parallel: prettySeconds(costInParallel),
+            perAgent,
+        },
+    };
 }
 
-for (const [agent, value] of Object.entries(matrix)) {
-    setOutputVariable(`MATRIX_${agent.replace(/-/g, "_")}`, JSON.stringify(value));
-    console.log(JSON.stringify(value, undefined, 4));
+if (esMain(import.meta)) {
+    const args = minimist(process.argv.slice(2), {
+        string: ["preset"],
+    });
+
+    const presetArg = args.preset;
+    const baselining = (process.env.USE_BASELINE_MACHINE || "FALSE").toUpperCase() === "TRUE";
+
+    const { outputVariables } = generateMatrix(presetArg, baselining, true);
+    for (const [key, value] of Object.entries(outputVariables)) {
+        setOutputVariable(key, value);
+    }
 }
-
-// This defines the sort order, which is seen in PR replies; tsc is the most important and should be first.
-const kindOrder: readonly JobKind[] = ["tsc", "tsserver", "startup"];
-
-assert.deepStrictEqual([...allJobKinds].sort(), [...kindOrder].sort(), "kindOrder must contain all job kinds");
-
-// These are outputs for the ProcessResults job, specifying which results were
-// produced previously and need to be processed. This is a space separated list,
-// iterated in the pipeline in bash.
-setOutputVariable(`TSPERF_PROCESS_KINDS`, kindOrder.filter(kind => processKinds.has(kind)).join(" "));
-setOutputVariable(`TSPERF_PROCESS_LOCATIONS`, [...processLocations].sort().join(","));

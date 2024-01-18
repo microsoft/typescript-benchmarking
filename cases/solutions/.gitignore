@@ -1,6 +1,2 @@
-/vscode/
-/self-compiler/
-/self-build-src/
-/mui-docs/
-/webpack/
-/xstate-5/
+# Ignore all directories; manually add new dirs as unignored if needed.
+/*/

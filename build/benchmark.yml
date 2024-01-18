@@ -58,13 +58,15 @@ parameters:
     displayName: Preset
     # Note: keep this up to date with generateMatrix and https://github.com/microsoft/typescript-bot-test-triggerer
     values:
-      - full
+      - baseline
       - regular
+      - full
       - tsc-only
+      - faster
       - bun
       - vscode
       - public
-    default: full # Branch pushes use the defaults, so this is set to full.
+    default: baseline # Branch pushes use the defaults, so this is set to the preset we want to baseline.
 
   - name: HISTORICAL_RUN
     displayName: This is a historical run (only check this if you know what you're doing)

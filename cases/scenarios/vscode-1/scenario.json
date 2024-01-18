@@ -1,9 +1,9 @@
 {
-    "name": "xstate-5",
+    "name": "vscode-1",
     "kind": "tsc",
     "args": [
         "-p",
-        "${suiteDirectory}/xstate-5",
+        "${suiteDirectory}/vscode-1/src",
         "--outdir",
         "${outDirectory}"
     ],
