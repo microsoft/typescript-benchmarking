@@ -14,8 +14,8 @@ const snapshotDir = path.join(__dirname, "__file_snapshots__", "generateMatrix")
 
 const allSnapshotKinds = ["matrix", "outputVariables", "compute", "error"] as const;
 
-function getSnapshotPath(preset: string, baselining: boolean, kind: typeof allSnapshotKinds[number]) {
-    return path.join(snapshotDir, preset, `${baselining ? "baselining" : "non-baselining"}.${kind}.snap`);
+function getSnapshotPath(preset: string, kind: typeof allSnapshotKinds[number]) {
+    return path.join(snapshotDir, preset, `${kind}.snap`);
 }
 
 const presets = [
@@ -24,9 +24,9 @@ const presets = [
     "custom",
 ];
 
-const tests = presets.flatMap<[string, boolean]>(p => [[p, false], [p, true]]);
+test.each(presets)("generateMatrix preset=%s", preset => {
+    const baselining = preset === "baseline";
 
-test.each(tests)("generateMatrix preset=%s baselining=%s", (preset, baselining) => {
     let result, error;
     try {
         result = generateMatrix(preset, baselining);
@@ -35,17 +35,15 @@ test.each(tests)("generateMatrix preset=%s baselining=%s", (preset, baselining) 
         error = e;
     }
 
-    expect(result?.matrix).toMatchFileSnapshot(getSnapshotPath(preset, baselining, "matrix"));
-    expect(result?.outputVariables).toMatchFileSnapshot(getSnapshotPath(preset, baselining, "outputVariables"));
-    expect(result?.compute).toMatchFileSnapshot(getSnapshotPath(preset, baselining, "compute"));
-    expect(error).toMatchFileSnapshot(getSnapshotPath(preset, baselining, "error"));
+    expect(result?.matrix).toMatchFileSnapshot(getSnapshotPath(preset, "matrix"));
+    expect(result?.outputVariables).toMatchFileSnapshot(getSnapshotPath(preset, "outputVariables"));
+    expect(result?.compute).toMatchFileSnapshot(getSnapshotPath(preset, "compute"));
+    expect(error).toMatchFileSnapshot(getSnapshotPath(preset, "error"));
 });
 
 function getAllExpectedSnapshots() {
     return new Set(
-        allSnapshotKinds.flatMap(kind =>
-            tests.map(([preset, baselining]) => getSnapshotPath(preset, baselining, kind))
-        ),
+        allSnapshotKinds.flatMap(kind => presets.map(preset => getSnapshotPath(preset, kind))),
     );
 }
 
