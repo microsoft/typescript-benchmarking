@@ -1,0 +1,13 @@
+{
+    "name": "webpack-1",
+    "kind": "tsc",
+    "args": [
+        "-p",
+        "${suiteDirectory}/webpack-1",
+        "--outdir",
+        "${outDirectory}"
+    ],
+    "platforms": [
+        "linux"
+    ]
+}
