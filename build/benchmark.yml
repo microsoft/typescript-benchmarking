@@ -269,7 +269,10 @@ jobs:
       - Setup
       - ${{ each agent in split(parameters.AGENTS, ',') }}:
           - Benchmark_${{ replace(agent, '-', '_') }}
-    condition: not(failed()) # If any dependency was skipped, then this job would normally also be skipped.
+    # If any dependency was skipped (which will always be the case in the above matrix),
+    # "succeeded()" will be false. Instead, only run when the build has not failed.
+    # "not(failed())" is also true when the build has been canceled, so ignore that too.
+    condition: and(not(failed()), not(canceled()))
     pool:
       vmImage: ubuntu-latest
     workspace:
