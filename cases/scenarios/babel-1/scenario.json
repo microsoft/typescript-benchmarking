@@ -1,0 +1,13 @@
+{
+    "name": "babel-1",
+    "kind": "tsc",
+    "args": [
+        "-p",
+        "${suiteDirectory}/babel-1",
+        "--outdir",
+        "${outDirectory}"
+    ],
+    "platforms": [
+        "linux"
+    ]
+}

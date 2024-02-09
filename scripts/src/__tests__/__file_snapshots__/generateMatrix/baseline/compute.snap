@@ -1,9 +1,9 @@
 {
   "parallel": "37m 4s",
   "perAgent": {
-    "ts-perf1": "23m 18s",
+    "ts-perf1": "36m 38s",
     "ts-perf2": "37m 4s",
     "ts-perf3": "36m 4s",
   },
-  "total": "1h 36m 26s",
+  "total": "1h 49m 46s",
 }

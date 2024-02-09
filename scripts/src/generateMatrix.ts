@@ -70,6 +70,8 @@ const allScenarios: readonly BaseScenario[] = [
     { kind: "tsc", name: "mui-docs-1", agent: "ts-perf2", location: "public", runIn: RunType.Baseline, cost: 62 },
     { kind: "tsc", name: "webpack", agent: "ts-perf3", location: "public", runIn: RunType.OnDemand, cost: 18 },
     { kind: "tsc", name: "webpack-1", agent: "ts-perf3", location: "public", runIn: RunType.Baseline, cost: 18 },
+    { kind: "tsc", name: "babel", agent: "ts-perf1", location: "public", runIn: RunType.OnDemand, cost: 60 },
+    { kind: "tsc", name: "babel-1", agent: "ts-perf1", location: "public", runIn: RunType.Baseline, cost: 60 },
     {
         kind: "tsserver",
         name: "Compiler-UnionsTSServer",
