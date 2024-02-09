@@ -120,6 +120,14 @@
       "TSPERF_JOB_NAME": "tsc_vscode_1_82_1_xstate",
       "TSPERF_JOB_SCENARIO": "xstate",
     },
+    "tsc_vscode_1_82_1_xstate_main": {
+      "TSPERF_JOB_HOST": "vscode@1.82.1",
+      "TSPERF_JOB_ITERATIONS": 6,
+      "TSPERF_JOB_KIND": "tsc",
+      "TSPERF_JOB_LOCATION": "public",
+      "TSPERF_JOB_NAME": "tsc_vscode_1_82_1_xstate_main",
+      "TSPERF_JOB_SCENARIO": "xstate-main",
+    },
     "tsserver_vscode_1_82_1_CompilerTSServer": {
       "TSPERF_JOB_HOST": "vscode@1.82.1",
       "TSPERF_JOB_ITERATIONS": 6,
