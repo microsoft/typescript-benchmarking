@@ -33,6 +33,7 @@ export interface BenchmarkOptions extends AzureStorageOptions {
     midline?: string;
     midlineName?: string;
     benchmarkName?: string;
+    warmups?: number;
     iterations?: number;
     color?: boolean;
     date?: string;
@@ -63,6 +64,9 @@ export async function benchmark(tsoptions: TSOptions, host: HostContext) {
     const { options } = tsoptions;
     if (options.iterations === undefined) {
         options.iterations = 5;
+    }
+    if (options.warmups === undefined) {
+        options.warmups = 0;
     }
 
     if (options.baseline || options.midline) {
@@ -181,6 +185,12 @@ const command: Command<BenchmarkOptions> = {
             alias: ["iter", "iteration"],
             param: "count",
             description: "Runs the benchmark for <count> iterations (default '5').",
+            validate: validateIterations,
+        },
+        warmups: {
+            type: "number",
+            param: "count",
+            description: "Runs the benchmark for <count> warmups (default '0').",
             validate: validateIterations,
         },
         save: {

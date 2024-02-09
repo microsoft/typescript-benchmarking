@@ -26,6 +26,7 @@ export interface BenchmarkComponents {
     measurements?: readonly (Measurement | MeasurementComponents)[];
     isolatedCpus?: string;
     predictable?: boolean;
+    warmups?: number;
 }
 
 export class Benchmark {
@@ -41,6 +42,7 @@ export class Benchmark {
     public readonly version: string = Benchmark.version;
     public readonly isolatedCpus: string | undefined;
     public readonly predictable: boolean | undefined;
+    public readonly warmups: number;
 
     constructor(
         date: string | undefined,
@@ -52,6 +54,7 @@ export class Benchmark {
         measurements: readonly Measurement[] = [],
         isolatedCpus?: string,
         predictable?: boolean,
+        warmups = 0,
     ) {
         this.date = date;
         this.system = system;
@@ -62,6 +65,7 @@ export class Benchmark {
         this.measurements = measurements;
         this.isolatedCpus = isolatedCpus;
         this.predictable = predictable;
+        this.warmups = warmups;
     }
 
     public static create(components: BenchmarkComponents) {
@@ -75,6 +79,7 @@ export class Benchmark {
             components.measurements && components.measurements.map(Measurement.create),
             components.isolatedCpus,
             components.predictable,
+            components.warmups,
         );
     }
 
@@ -114,6 +119,7 @@ export class Benchmark {
             measurements: this.measurements,
             isolatedCpus: this.isolatedCpus,
             predictable: this.predictable,
+            warmups: this.warmups,
         };
     }
 
@@ -127,6 +133,7 @@ export class Benchmark {
         const { measurements = this.measurements } = components;
         const { isolatedCpus = this.isolatedCpus } = components;
         const { predictable = this.predictable } = components;
+        const { warmups = this.warmups } = components;
         if (
             this.date === date
             && this.system === system
@@ -137,6 +144,7 @@ export class Benchmark {
             && this.measurements === measurements
             && this.isolatedCpus === isolatedCpus
             && this.predictable === predictable
+            && this.warmups === warmups
         ) {
             return this;
         }
@@ -150,6 +158,7 @@ export class Benchmark {
             measurements,
             isolatedCpus,
             predictable,
+            warmups,
         });
     }
 
@@ -176,6 +185,7 @@ export class Benchmark {
             };
         }
         const iterations = this.iterations === other.iterations ? this.iterations : undefined;
+        const warmups = this.warmups === other.warmups ? this.warmups : undefined;
         const scenarios = dedupeBy([...this.scenarios, ...other.scenarios], ["name"]);
         const hosts = dedupeBy([...this.hosts, ...other.hosts], ["name", "version", "arch"]).map(host => ({
             name: host.name,
@@ -195,7 +205,7 @@ export class Benchmark {
             .groupBy(m => m.name)
             .map(group => Query.from(group.values).reduce((m1, m2) => m1.merge(m2)))
             .toArray();
-        return Benchmark.create({ date, repository, iterations, scenarios, hosts, measurements });
+        return Benchmark.create({ date, repository, iterations, scenarios, hosts, measurements, warmups });
 
         function assertEquals<T>(fieldName: string, thing: T, other: T) {
             if (thing !== other) {
@@ -308,6 +318,7 @@ export class Benchmark {
             scenarios: this.scenarios,
             hosts: this.hosts,
             measurements: this.measurements,
+            warmups: this.warmups,
         };
     }
 

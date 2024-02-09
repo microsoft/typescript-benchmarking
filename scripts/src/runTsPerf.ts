@@ -63,12 +63,14 @@ async function getCommonBenchmarkArgs() {
         const host = getNonEmptyEnv("TSPERF_JOB_HOST");
         const scenario = getNonEmptyEnv("TSPERF_JOB_SCENARIO");
         const iterations = getNonEmptyEnv("TSPERF_JOB_ITERATIONS");
+        const warmups = getNonEmptyEnv("TSPERF_JOB_WARMUPS");
         const cpu = getNonEmptyEnv("TSPERF_AGENT_BENCHMARK_CPU");
         const info = await getRepoInfo(args.builtDir);
 
         tsperfArgs.push("--host", host);
         tsperfArgs.push("--scenario", scenario);
         tsperfArgs.push("--iterations", iterations);
+        tsperfArgs.push("--warmups", warmups);
         tsperfArgs.push("--cpus", cpu);
 
         tsperfArgs.push("--date", info.date);
