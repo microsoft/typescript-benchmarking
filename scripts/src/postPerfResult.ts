@@ -1,7 +1,7 @@
 import fs from "node:fs";
 
-import { Octokit } from "@octokit/rest";
 import minimist from "minimist";
+import { Octokit } from "octokit";
 
 async function main() {
     const source = process.env.SOURCE_ISSUE;
@@ -45,7 +45,7 @@ async function main() {
                 `@${requester}\nThe results of the perf run you requested are in!\n<details><summary> Here they are:</summary><p>\n${outputTableText}\n</p>${artifactLink}</details>`;
         }
 
-        const data = await gh.issues.createComment({
+        const data = await gh.rest.issues.createComment({
             issue_number: +source,
             owner: "Microsoft",
             repo: "TypeScript",
@@ -54,13 +54,13 @@ async function main() {
 
         console.log(`Results posted!`);
         const newCommentUrl = data.data.html_url;
-        const comment = await gh.issues.getComment({
+        const comment = await gh.rest.issues.getComment({
             owner: "Microsoft",
             repo: "TypeScript",
             comment_id: +postedComment,
         });
         const newBody = `${comment.data.body}\n\nUpdate: [The results are in!](${newCommentUrl})`;
-        await gh.issues.updateComment({
+        await gh.rest.issues.updateComment({
             owner: "Microsoft",
             repo: "TypeScript",
             comment_id: +postedComment,
@@ -69,8 +69,7 @@ async function main() {
     }
     catch (e) {
         console.error(e);
-        const gh = new Octokit({ auth });
-        await gh.issues.createComment({
+        await gh.rest.issues.createComment({
             issue_number: +source,
             owner: "Microsoft",
             repo: "TypeScript",
