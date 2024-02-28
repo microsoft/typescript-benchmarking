@@ -1,0 +1,8 @@
+{
+    "name": "tsc-startup",
+    "kind": "startup",
+    "args": [
+        "tsc.js",
+        "--version"
+    ]
+}
