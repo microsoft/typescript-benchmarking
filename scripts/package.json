@@ -10,7 +10,6 @@
     },
     "devDependencies": {
         "@badrap/valita": "^0.3.0",
-        "@octokit/rest": "^20.0.2",
         "@types/minimist": "^1.2.5",
         "azure-devops-node-api": "^12.3.0",
         "dotenv": "^16.3.2",
@@ -26,8 +25,5 @@
     "scripts": {
         "build": "tsc",
         "prepack": "pnpm run build"
-    },
-    "dependencies": {
-        "remove": "^0.1.5"
     }
 }
