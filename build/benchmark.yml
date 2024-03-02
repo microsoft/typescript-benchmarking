@@ -74,6 +74,10 @@ parameters:
     default: false
 
   # PR trigger params
+  - name: DISTINCT_ID
+    displayName: Distinct ID for this run (PR runs only)
+    type: string
+    default: ''
   - name: REQUESTING_USER
     displayName: User to tag when the results are ready (PR runs only)
     type: string
@@ -367,6 +371,7 @@ jobs:
         displayName: Publish PR comment
         condition: and(succeeded(), eq(variables['IS_PR'], 'true'))
         env:
+          DISTINCT_ID: ${{ parameters.DISTINCT_ID }}
           SOURCE_ISSUE: ${{ parameters.SOURCE_ISSUE }}
           REQUESTING_USER: ${{ parameters.REQUESTING_USER }}
           STATUS_COMMENT: ${{ parameters.STATUS_COMMENT }}
@@ -423,6 +428,7 @@ jobs:
           node $(BENCH_SCRIPTS)/postPerfResult.js --failed
         displayName: Publish PR comment
         env:
+          DISTINCT_ID: ${{ parameters.DISTINCT_ID }}
           SOURCE_ISSUE: ${{ parameters.SOURCE_ISSUE }}
           REQUESTING_USER: ${{ parameters.REQUESTING_USER }}
           STATUS_COMMENT: ${{ parameters.STATUS_COMMENT }}
