@@ -56,8 +56,8 @@ async function main() {
 
     console.log(`Results posted!`);
 
-    // TODO: 👀 if the results weren't all ~?
-    const emoji = !args.failed ? "✅" : "❌";
+    // TODO: ✅/👀 depending on results?
+    const emoji = !args.failed ? "👀" : "❌";
 
     const toReplace = `<!--result-${DISTINCT_ID}-->`;
     let posted = false;
