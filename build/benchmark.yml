@@ -177,6 +177,7 @@ jobs:
 
   - ${{ each agent in split(parameters.AGENTS, ',') }}:
       - job: Benchmark_${{ replace(agent, '-', '_') }}
+        timeoutInMinutes: 360
         dependsOn: Setup
         condition: and(succeeded(), not(eq(dependencies.Setup.outputs['generateMatrix.MATRIX_${{ replace(agent, '-', '_') }}'], '{}')))
         pool:
