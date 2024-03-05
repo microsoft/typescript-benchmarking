@@ -125,7 +125,8 @@ appendCommitMessageToRunName: false
 jobs:
   - job: Setup
     pool:
-      vmImage: ubuntu-latest
+      name: TypeScript-1ES-Large
+      vmImage: ubuntu-22.04
     workspace:
       clean: all # Always start with a clean slate.
 
@@ -279,7 +280,8 @@ jobs:
     # "not(failed())" is also true when the build has been canceled, so ignore that too.
     condition: and(not(failed()), not(canceled()))
     pool:
-      vmImage: ubuntu-latest
+      name: TypeScript-1ES-Large
+      vmImage: ubuntu-22.04
     workspace:
       clean: all # Always start with a clean slate.
 
