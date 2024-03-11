@@ -265,6 +265,15 @@ jobs:
                 --save $(ARTIFACTS_DIR)/baseline_$(TSPERF_JOB_NAME).$(TSPERF_JOB_KIND).benchmark
             displayName: Run baseline $(TSPERF_JOB_KIND) benchmark
 
+          - bash: |
+              set -eo pipefail
+              node $(BENCH_SCRIPTS)/runTsPerf.js benchmark-$(TSPERF_JOB_KIND) \
+                --builtDir $(BUILT_TYPESCRIPT_DIR)/baseline \
+                --baseline $(ARTIFACTS_DIR)/baseline_$(TSPERF_JOB_NAME).$(TSPERF_JOB_KIND).benchmark \
+                --load $(ARTIFACTS_DIR)/pr_$(TSPERF_JOB_NAME).$(TSPERF_JOB_KIND).benchmark
+            displayName: Compare PR to baseline benchmark
+            condition: and(succeeded(), eq(variables['IS_PR'], 'true'))
+
           - publish: $(ARTIFACTS_DIR)
             artifact: PartialBenchmark_$(TSPERF_JOB_NAME)
             displayName: Publish benchmarks
