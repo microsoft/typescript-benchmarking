@@ -391,10 +391,21 @@ jobs:
           set -eo pipefail
           for KIND in $(TSPERF_PROCESS_KINDS); do
             echo "Uploading ${KIND} benchmarks"
+            case ${KIND} in 
+              tsc)
+                NAME="linux"
+                ;;
+              tsserver)
+                NAME="linux.server"
+                ;;
+              *)
+                NAME="linux.${KIND}"
+                ;;
+            esac
             node $(BENCH_SCRIPTS)/runTsPerf.js benchmark-${KIND} \
               --builtDir $(BUILT_TYPESCRIPT_DIR)/baseline \
               --load $(MERGED_DIR)/baseline.${KIND}.benchmark \
-              --saveBlob linux
+              --saveBlob ${NAME}
           done
         displayName: Upload benchmarks to blob store
         condition: and(succeeded(), eq(variables['SHOULD_UPLOAD'], 'true'))
