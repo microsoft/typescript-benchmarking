@@ -204,6 +204,7 @@ jobs:
               KeyVaultName: $(KeyVaultName)
               SecretsFilter: 'tslab1-mseng-PAT'
             displayName: Get secrets
+            retryCountOnTaskFailure: 3
 
           - template: templates/setup.yml
           - template: templates/cloneAndBuildBenchmarkRepo.yml # Sets $(BENCH_SCRIPTS), $(TSPERF_EXE)
@@ -306,6 +307,7 @@ jobs:
           KeyVaultName: $(KeyVaultName)
           SecretsFilter: 'tslab1-mseng-PAT, tsperf-azure-storage-connection-string, typescript-bot-github-PAT-for-comments'
         displayName: Get secrets
+        retryCountOnTaskFailure: 3
 
       - template: templates/setup.yml
 
@@ -440,6 +442,7 @@ jobs:
           KeyVaultName: $(KeyVaultName)
           SecretsFilter: 'typescript-bot-github-PAT-for-comments'
         displayName: Get secrets
+        retryCountOnTaskFailure: 3
 
       - template: templates/setup.yml
       - template: templates/cloneAndBuildBenchmarkRepo.yml # Sets $(BENCH_SCRIPTS), $(TSPERF_EXE)
