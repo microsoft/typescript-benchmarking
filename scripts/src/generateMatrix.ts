@@ -346,7 +346,11 @@ export function generateMatrix(presetArg: string, baselining: boolean, log?: boo
     // Comma separated, parsed by runTsPerf.ts.
     outputVariables[`TSPERF_PROCESS_LOCATIONS`] = [...processLocations].sort().join(",");
 
-    const costInParallel = baselining ? Math.max(...costPerAgent.values()) : Math.ceil(totalCost / allAgents.length);
+    // If baselining, the cost is determined by the longest job on any given agent.
+    // Otherwise, it's either the longest single job, or a rough estimate of the total time
+    // spread over multiple agents (i.e. when there are more jobs than agents to run them).q
+    const costInParallel = baselining ? Math.max(...costPerAgent.values())
+        : Math.max(maxCost, Math.ceil(totalCost / allAgents.length));
     const perAgent = Object.fromEntries(
         [...costPerAgent.entries()].map(([agent, cost]) => [agent, prettySeconds(cost)]),
     );
