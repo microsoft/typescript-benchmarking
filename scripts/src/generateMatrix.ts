@@ -74,32 +74,33 @@ interface BaseScenario {
     /**
      * Rough time cost per iteration in seconds.
      * This is solely used for gauging how expensive a preset is.
+     * Pull this from the logs, i.e from "compiled scenario ... in XYZs".
      */
     readonly cost: number;
 }
 
 // DO NOT change the agents; they must remain the same forever to keep benchmarks comparable.
 const allScenarios: readonly BaseScenario[] = [
-    { kind: "tsc", name: "Angular", agent: "ts-perf1", location: "internal", runIn: RunType.Any, cost: 19 },
-    { kind: "tsc", name: "Monaco", agent: "ts-perf2", location: "internal", runIn: RunType.Any, cost: 15 },
-    { kind: "tsc", name: "TFS", agent: "ts-perf3", location: "internal", runIn: RunType.Any, cost: 13 },
-    { kind: "tsc", name: "material-ui", agent: "ts-perf1", location: "internal", runIn: RunType.Any, cost: 20 },
-    { kind: "tsc", name: "Compiler-Unions", agent: "ts-perf2", location: "public", runIn: RunType.Any, cost: 14 },
-    { kind: "tsc", name: "xstate", agent: "ts-perf3", location: "internal", runIn: RunType.Any, cost: 8 },
-    { kind: "tsc", name: "vscode", agent: "ts-perf3", location: "public", runIn: RunType.Any, cost: 90 },
-    { kind: "tsc", name: "self-compiler", agent: "ts-perf1", location: "public", runIn: RunType.Any, cost: 20 },
-    { kind: "tsc", name: "self-build-src", agent: "ts-perf2", location: "public", runIn: RunType.Any, cost: 42 },
-    { kind: "tsc", name: "mui-docs", agent: "ts-perf2", location: "public", runIn: RunType.OnDemand, cost: 62 },
-    { kind: "tsc", name: "mui-docs-1", agent: "ts-perf2", location: "public", runIn: RunType.Baseline, cost: 62 },
-    { kind: "tsc", name: "webpack", agent: "ts-perf3", location: "public", runIn: RunType.OnDemand, cost: 18 },
-    { kind: "tsc", name: "webpack-1", agent: "ts-perf3", location: "public", runIn: RunType.Baseline, cost: 18 },
+    { kind: "tsc", name: "Angular", agent: "ts-perf1", location: "internal", runIn: RunType.Any, cost: 22 },
+    { kind: "tsc", name: "Monaco", agent: "ts-perf2", location: "internal", runIn: RunType.Any, cost: 17 },
+    { kind: "tsc", name: "TFS", agent: "ts-perf3", location: "internal", runIn: RunType.Any, cost: 15 },
+    { kind: "tsc", name: "material-ui", agent: "ts-perf1", location: "internal", runIn: RunType.Any, cost: 25 },
+    { kind: "tsc", name: "Compiler-Unions", agent: "ts-perf2", location: "public", runIn: RunType.Any, cost: 17 },
+    { kind: "tsc", name: "xstate", agent: "ts-perf3", location: "internal", runIn: RunType.Any, cost: 9 },
+    { kind: "tsc", name: "vscode", agent: "ts-perf3", location: "public", runIn: RunType.Any, cost: 107 },
+    { kind: "tsc", name: "self-compiler", agent: "ts-perf1", location: "public", runIn: RunType.Any, cost: 25 },
+    { kind: "tsc", name: "self-build-src", agent: "ts-perf2", location: "public", runIn: RunType.Any, cost: 51 },
+    { kind: "tsc", name: "mui-docs", agent: "ts-perf2", location: "public", runIn: RunType.OnDemand, cost: 77 },
+    { kind: "tsc", name: "mui-docs-1", agent: "ts-perf2", location: "public", runIn: RunType.Baseline, cost: 77 },
+    { kind: "tsc", name: "webpack", agent: "ts-perf3", location: "public", runIn: RunType.OnDemand, cost: 22 },
+    { kind: "tsc", name: "webpack-1", agent: "ts-perf3", location: "public", runIn: RunType.Baseline, cost: 22 },
     {
         kind: "tsserver",
         name: "Compiler-UnionsTSServer",
         agent: "ts-perf1",
         location: "public",
         runIn: RunType.Any,
-        cost: 15,
+        cost: 18,
     },
     {
         kind: "tsserver",
@@ -107,17 +108,17 @@ const allScenarios: readonly BaseScenario[] = [
         agent: "ts-perf2",
         location: "public",
         runIn: RunType.Any,
-        cost: 14,
+        cost: 17,
     },
-    { kind: "tsserver", name: "xstateTSServer", agent: "ts-perf3", location: "internal", runIn: RunType.Any, cost: 12 },
-    { kind: "startup", name: "tsc-startup", agent: "ts-perf1", location: "public", runIn: RunType.Any, cost: 16 },
+    { kind: "tsserver", name: "xstateTSServer", agent: "ts-perf3", location: "internal", runIn: RunType.Any, cost: 14 },
+    { kind: "startup", name: "tsc-startup", agent: "ts-perf1", location: "public", runIn: RunType.Any, cost: 19 },
     {
         kind: "startup",
         name: "tsserver-startup",
         agent: "ts-perf2",
         location: "public",
         runIn: RunType.Any,
-        cost: 24,
+        cost: 28,
     },
     {
         kind: "startup",
@@ -125,7 +126,7 @@ const allScenarios: readonly BaseScenario[] = [
         agent: "ts-perf3",
         location: "public",
         runIn: RunType.Any,
-        cost: 24,
+        cost: 28,
     },
     {
         kind: "startup",
@@ -133,7 +134,7 @@ const allScenarios: readonly BaseScenario[] = [
         agent: "ts-perf1",
         location: "public",
         runIn: RunType.Any,
-        cost: 24,
+        cost: 28,
     },
 ];
 
