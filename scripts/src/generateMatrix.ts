@@ -8,10 +8,33 @@ import sortKeys from "sort-keys";
 import { setOutputVariable } from "./utils.js";
 
 // Keep in sync with inventory.yml and benchmark.yml.
-const allAgents = ["ts-perf1", "ts-perf2", "ts-perf3", "ts-perf4"] as const;
+const allAgents = [
+    "ts-perf1",
+    "ts-perf2",
+    "ts-perf3",
+    "ts-perf4",
+    "ts-perf5",
+    "ts-perf6",
+    "ts-perf7",
+    "ts-perf8",
+    "ts-perf9",
+    "ts-perf10",
+    "ts-perf11",
+    "ts-perf12",
+] as const;
 type AllAgents = typeof allAgents[number];
 // We reserve some agents so that non-baseline jobs can make progress.
-const reserveAgents = ["ts-perf4"] as const;
+const reserveAgents = [
+    "ts-perf4",
+    "ts-perf5",
+    "ts-perf6",
+    "ts-perf7",
+    "ts-perf8",
+    "ts-perf9",
+    "ts-perf10",
+    "ts-perf11",
+    "ts-perf12",
+] as const;
 type ReserveAgents = typeof reserveAgents[number];
 type BaselineAgent = Exclude<AllAgents, ReserveAgents>;
 type Agent = "any" | AllAgents;
@@ -263,6 +286,14 @@ export function generateMatrix(presetArg: string, baselining: boolean, log?: boo
         "ts-perf2": {},
         "ts-perf3": {},
         "ts-perf4": {},
+        "ts-perf5": {},
+        "ts-perf6": {},
+        "ts-perf7": {},
+        "ts-perf8": {},
+        "ts-perf9": {},
+        "ts-perf10": {},
+        "ts-perf11": {},
+        "ts-perf12": {},
     };
 
     const processKinds = new Set<JobKind>();

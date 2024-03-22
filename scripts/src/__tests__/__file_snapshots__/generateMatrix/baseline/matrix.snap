@@ -74,6 +74,9 @@
       "TSPERF_JOB_SCENARIO": "Compiler-UnionsTSServer",
     },
   },
+  "ts-perf10": {},
+  "ts-perf11": {},
+  "ts-perf12": {},
   "ts-perf2": {
     "startup_node_18_15_0_tsserver_startup": {
       "TSPERF_JOB_HOST": "node@18.15.0",
@@ -239,4 +242,9 @@
     },
   },
   "ts-perf4": {},
+  "ts-perf5": {},
+  "ts-perf6": {},
+  "ts-perf7": {},
+  "ts-perf8": {},
+  "ts-perf9": {},
 }
