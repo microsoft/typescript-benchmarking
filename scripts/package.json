@@ -9,7 +9,7 @@
         "node": ">= 18.0.0"
     },
     "devDependencies": {
-        "@badrap/valita": "^0.3.6",
+        "@badrap/valita": "^0.3.8",
         "@types/minimist": "^1.2.5",
         "azure-devops-node-api": "^12.5.0",
         "dotenv": "^16.4.5",
