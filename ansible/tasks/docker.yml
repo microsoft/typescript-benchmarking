@@ -1,0 +1,111 @@
+---
+# Loosely based on: https://blog.ianpreston.ca/posts/2023-06-04-rootless-docker.html
+
+- name: Add docker gpg key
+  ansible.builtin.shell: |
+    install -m 0755 -d /etc/apt/keyrings && \
+    curl -fsSL https://download.docker.com/linux/ubuntu/gpg | gpg --dearmor -o /etc/apt/keyrings/docker.gpg && \
+    chmod a+r /etc/apt/keyrings/docker.gpg
+  args:
+    creates: '/etc/apt/keyrings/docker.gpg'
+  become: yes
+
+- name: Add docker repository to apt
+  ansible.builtin.apt_repository:
+    repo: 'deb [arch=amd64 signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu {{ ansible_distribution_release }} stable'
+    state: present
+  become: yes
+
+- name: Add gvisor gpg key
+  ansible.builtin.shell: |
+    curl -fsSL https://gvisor.dev/archive.key | gpg --dearmor -o /usr/share/keyrings/gvisor-archive-keyring.gpg
+  args:
+    creates: '/etc/apt/keyrings/docker.gpg'
+  become: yes
+
+- name: Add gvisor repository to apt
+  ansible.builtin.apt_repository:
+    repo: 'deb [arch=amd64 signed-by=usr/share/keyrings/gvisor-archive-keyring.gpg] https://storage.googleapis.com/gvisor/releases release main'
+    state: present
+  become: yes
+
+- name: Install docker
+  ansible.builtin.apt:
+    pkg:
+      - docker-ce
+      - docker-ce-cli
+      - containerd.io
+      - docker-buildx-plugin
+      - docker-compose-plugin
+      - uidmap
+      - runsc
+  become: yes
+
+- name: Stop and disable docker
+  ansible.builtin.systemd_service:
+    name: '{{ item }}'
+    state: stopped
+    enabled: false
+  with_items:
+    - 'docker.service'
+    - 'docker.socket'
+  become: yes
+
+- name: Turn on linger
+  ansible.builtin.shell: 'loginctl enable-linger {{ agent_user }}'
+  args:
+    creates: '/var/lib/systemd/linger/{{ agent_user }}'
+  become: yes
+  register: linger
+
+- name: Reboot if linger changed
+  when: linger.changed
+  ansible.builtin.shell: touch /var/run/reboot-required
+  become: yes
+
+- name: Check service status
+  ansible.builtin.command: id -u {{ agent_user }}
+  become: yes
+  register: agent_id
+
+- name: Add DOCKER_HOST to .env
+  ansible.builtin.lineinfile:
+    path: '{{ agent_root }}/.env'
+    regexp: '^DOCKER_HOST='
+    line: 'DOCKER_HOST=unix:///run/user/{{ agent_id.stdout }}/docker.sock'
+  become: yes
+  become_user: '{{ agent_user }}'
+  register: env_line
+
+# TODO: dedupe
+- name: Restart agent if .env edited
+  ansible.builtin.shell: ./svc.sh stop && ./svc.sh start
+  args:
+    chdir: '{{ agent_root }}'
+  become: yes
+  when: svc_status_running and env_line.changed
+
+- name: Create docker daemon config
+  ansible.builtin.copy:
+    dest: '{{ agent_home }}/.config/docker/daemon.json'
+    owner: '{{ agent_user }}'
+    group: '{{ agent_user }}'
+    content: |
+      {
+        "runtimes": {
+          "runsc-rootless": {
+            "path": "/usr/bin/runsc",
+            "runtimeArgs": ["--network", "host", "--ignore-cgroups"]
+          }
+        }
+      }
+  become: yes
+
+- name: Enable user docker
+  ansible.builtin.systemd_service:
+    name: 'docker.socket'
+    state: started
+    enabled: true
+    scope: user
+  become: yes
+  become_user: '{{ agent_user }}'
