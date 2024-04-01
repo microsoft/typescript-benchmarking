@@ -3,7 +3,18 @@
 set -eo pipefail
 # set -x
 
-export DOCKER_HOST=unix:///run/user/$(id -u)/docker.sock
+USER_DOCKER_SOCK=/run/user/$(id -u)/docker.sock
+
+if [ -e $USER_DOCKER_SOCK ]; then
+    echo "Using user docker socket"
+    export DOCKER_HOST=unix://$USER_DOCKER_SOCK
+    DOCKER_RUNTIME=runsc-rootless
+else
+    echo "Using default docker socket and runtime; this is not secure!"
+    export DOCKER_HOST=unix:///var/run/docker.sock
+    # No runsc here; global daemon would need to have passed "--network host" which is not the default.
+    # DOCKER_RUNTIME=runsc
+fi
 
 INTERNET=sandbox-internet
 NO_INTERNET=sandbox-internal
@@ -33,7 +44,7 @@ docker network create --driver bridge --internal $NO_INTERNET
 
 echo "Creating verdaccio server"
 docker run \
-    --runtime=runsc-rootless \
+    --runtime=$DOCKER_RUNTIME \
     --rm \
     --detach \
     --name=$VERDACCIO_CONTAINER \
@@ -43,7 +54,8 @@ docker run \
 
 docker network connect $NO_INTERNET $VERDACCIO_CONTAINER
 
-VERDACCIO_HOST_ADDR=$(docker port $VERDACCIO_CONTAINER 4873)
+REGISTRY_PORT=4873
+VERDACCIO_HOST_ADDR=$(docker port $VERDACCIO_CONTAINER $REGISTRY_PORT)
 
 # wait for server to start
 n=0
@@ -60,13 +72,13 @@ if [ "$n" -ge 5 ]; then
 fi
 
 REGISTRY_HOST=$(docker inspect --format "{{(index .NetworkSettings.Networks \"$NO_INTERNET\").IPAddress}}" $VERDACCIO_CONTAINER)
-REGISTRY_ADDR="http://$REGISTRY_HOST:4873"
+REGISTRY_ADDR="http://$REGISTRY_HOST:$REGISTRY_PORT"
 
 echo "Verdaccio is running at $REGISTRY_ADDR"
 
 echo "Running sandbox"
 docker run \
-    --runtime=$RUNSC_ROOTLESS \
+    --runtime=$DOCKER_RUNTIME \
     --name $SANDBOX_CONTAINER \
     --rm \
     --interactive \
@@ -78,7 +90,7 @@ docker run \
     --env COREPACK_NPM_REGISTRY=$REGISTRY_ADDR \
     docker.io/library/node:20 \
     sh -c '
-        echo Verifying network setup &&
+        echo Verifying network &&
         (curl -L -o /dev/null --retry 5 --retry-connrefused $REGISTRY_ADDR && echo "reached verdaccio (expected)" || (echo "could not reach verdaccio (unexpected)"; exit 1)) &&
         (! curl -L -o /dev/null https://registry.npmjs.org && echo "could not reach internet (expected)" || (echo "could reach internet (unexpected)"; exit 1)) &&
         (! curl -L -o /dev/null https://1.1.1.1 && echo "could not reach internet (expected)" || (echo "could reach internet (unexpected)"; exit 1)) &&
