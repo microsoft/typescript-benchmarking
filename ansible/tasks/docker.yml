@@ -63,28 +63,6 @@
   ansible.builtin.shell: touch /var/run/reboot-required
   become: yes
 
-- name: Check service status
-  ansible.builtin.command: id -u {{ agent_user }}
-  become: yes
-  register: agent_id
-
-- name: Add DOCKER_HOST to .env
-  ansible.builtin.lineinfile:
-    path: '{{ agent_root }}/.env'
-    regexp: '^DOCKER_HOST='
-    line: 'DOCKER_HOST=unix:///run/user/{{ agent_id.stdout }}/docker.sock'
-  become: yes
-  become_user: '{{ agent_user }}'
-  register: env_line
-
-# TODO: dedupe
-- name: Restart agent if .env edited
-  ansible.builtin.shell: ./svc.sh stop && ./svc.sh start
-  args:
-    chdir: '{{ agent_root }}'
-  become: yes
-  when: svc_status_running and env_line.changed
-
 - name: Create docker daemon config
   ansible.builtin.copy:
     dest: '{{ agent_home }}/.config/docker/daemon.json'
