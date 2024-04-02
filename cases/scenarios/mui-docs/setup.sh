@@ -3,6 +3,8 @@
 set -exo pipefail
 cd "${0%/*}"
 
-source ../../cloneScenario.sh https://github.com/mui/material-ui.git
+source ../../common.sh
 
-pnpm install --ignore-scripts
+clone_scenario https://github.com/mui/material-ui.git
+
+run_sandboxed sh -c 'corepack enable; pnpm install --ignore-scripts'
