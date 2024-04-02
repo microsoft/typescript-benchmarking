@@ -99,6 +99,10 @@ function run_sandboxed() {
     REGISTRY_HOST=$(docker inspect --format "{{(index .NetworkSettings.Networks \"$NO_INTERNET\").IPAddress}}" $VERDACCIO_CONTAINER)
     REGISTRY_ADDR="http://$REGISTRY_HOST:$REGISTRY_PORT"
 
+    if [[ -z "$DOCKER_RUNTIME" ]]; then
+        CHANGE_USER_ID=$(id -u)
+    fi
+
     echo "Verdaccio is running at $REGISTRY_ADDR"
 
     echo "Running sandbox"
@@ -114,17 +118,19 @@ function run_sandboxed() {
         --env COREPACK_NPM_REGISTRY=$REGISTRY_ADDR \
         --env COREPACK_ENABLE_DOWNLOAD_PROMPT=0 \
         --env npm_config_registry=$REGISTRY_ADDR \
+        --env CHANGE_USER_ID=$CHANGE_USER_ID \
         docker.io/library/node:20 \
         sh -c '
+            set -ex &&
             echo Verifying network &&
             (curl -L -o /dev/null --retry 5 --retry-connrefused $REGISTRY_ADDR && echo "reached verdaccio (expected)" || (echo "could not reach verdaccio (unexpected)"; exit 1)) &&
             (! curl -L -o /dev/null https://registry.npmjs.org && echo "could not reach internet (expected)" || (echo "could reach internet (unexpected)"; exit 1)) &&
             (! curl -L -o /dev/null https://1.1.1.1 && echo "could not reach internet (expected)" || (echo "could reach internet (unexpected)"; exit 1)) &&
-            exec "$@"
+            if [ -n "$CHANGE_USER_ID" ]; then
+                groupmod -g $CHANGE_USER_ID node && usermod -u $CHANGE_USER_ID -g $CHANGE_USER_ID node
+                exec su node "$@"
+            else
+                exec "$@"
+            fi
         ' -- "$@"
-
-    if [[ -z "$DOCKER_RUNTIME" ]]; then
-        echo "Container ran as root; fixing permissions"
-        sudo chown -R $(id -u):$(id -g) .
-    fi
 }

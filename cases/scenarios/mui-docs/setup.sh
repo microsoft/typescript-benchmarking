@@ -7,4 +7,4 @@ source ../../common.sh
 
 clone_scenario https://github.com/mui/material-ui.git
 
-run_sandboxed sh -c 'corepack enable; pnpm install --ignore-scripts'
+run_sandboxed sh -c 'pnpm install --ignore-scripts'
