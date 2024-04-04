@@ -93,7 +93,7 @@ const allScenarios: readonly BaseScenario[] = [
     {
         kind: "tsc",
         name: "self-build-src-public-api",
-        agent: "ts-perf3",
+        agent: "ts-perf1",
         location: "public",
         runIn: RunType.Any,
         cost: 51,
