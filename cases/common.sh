@@ -34,11 +34,11 @@ function run_sandboxed() {
         echo "Using user docker socket"
         export DOCKER_HOST=unix://$USER_DOCKER_SOCK
         DOCKER_RUNTIME=runsc-rootless
+        DOCKER_IS_ROOTLESS=1
     else
         echo "Using default docker socket and runtime; this is not secure!"
         export DOCKER_HOST=unix:///var/run/docker.sock
-        # No runsc here; global daemon would need to have passed "--network host" which is not the default.
-        DOCKER_RUNTIME=""
+        DOCKER_RUNTIME=runsc
     fi
 
     INTERNET=sandbox-internet
@@ -71,7 +71,6 @@ function run_sandboxed() {
 
     echo "Creating proxy server"
     docker run \
-        --runtime=$DOCKER_RUNTIME \
         --rm \
         --detach \
         --name=$PROXY_CONTAINER \
@@ -85,7 +84,7 @@ function run_sandboxed() {
     PROXY_HOST=$(docker inspect --format "{{(index .NetworkSettings.Networks \"$NO_INTERNET\").IPAddress}}" $PROXY_CONTAINER)
     PROXY_ADDR="http://$PROXY_HOST:$PROXY_PORT"
 
-    if [[ -z "$DOCKER_RUNTIME" ]]; then
+    if [[ -z "$DOCKER_IS_ROOTLESS" ]]; then
         CHANGE_USER_ID=$(id -u)
     fi
 
