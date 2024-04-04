@@ -9,7 +9,6 @@ clone_scenario https://github.com/webpack/webpack.git 228fc69f40c3e9ec6d99a5105f
 
 run_sandboxed sh -c '
     set -ex
-    yarn config set registry $REGISTRY_ADDR
     yarn install --ignore-scripts
 
     # https://github.com/webpack/webpack/blob/228fc69f40c3e9ec6d99a5105fdc85b5bca4ce43/.github/workflows/test.yml#L135

@@ -44,12 +44,12 @@ function run_sandboxed() {
     INTERNET=sandbox-internet
     NO_INTERNET=sandbox-internal
 
-    VERDACCIO_CONTAINER=sandbox-verdaccio
     SANDBOX_CONTAINER=sandbox
+    PROXY_CONTAINER=sandbox-proxy
 
     function cleanup {
         echo "Cleaning up..."
-        docker rm --force --volumes $VERDACCIO_CONTAINER || true
+        docker rm --force --volumes $PROXY_CONTAINER || true
         docker rm --force --volumes $SANDBOX_CONTAINER || true
         docker network rm --force $INTERNET || true
         docker network rm --force $NO_INTERNET || true
@@ -61,49 +61,34 @@ function run_sandboxed() {
 
     cleanup
 
+    (cd ../../sandbox; docker build -t sandbox-proxy -f proxy.Dockerfile .)
+
     echo "Creating networks"
     docker network create --driver bridge $INTERNET
     docker network create --driver bridge --internal $NO_INTERNET
 
-    # docker network ls --format '{{. | json}}' | jq
+    PROXY_PORT=8888
 
-    echo "Creating verdaccio server"
+    echo "Creating proxy server"
     docker run \
         --runtime=$DOCKER_RUNTIME \
         --rm \
         --detach \
-        --name=$VERDACCIO_CONTAINER \
+        --name=$PROXY_CONTAINER \
         --network=$INTERNET \
-        --publish=127.0.0.1::4873 \
-        docker.io/verdaccio/verdaccio
+        --publish=127.0.0.1::$PROXY_PORT \
+        sandbox-proxy
 
-    docker network connect $NO_INTERNET $VERDACCIO_CONTAINER
+    docker attach $PROXY_CONTAINER &
 
-    REGISTRY_PORT=4873
-    VERDACCIO_HOST_ADDR=$(docker port $VERDACCIO_CONTAINER $REGISTRY_PORT)
+    docker network connect $NO_INTERNET $PROXY_CONTAINER
 
-    # wait for server to start
-    n=0
-    until [ "$n" -ge 5 ]
-    do
-        curl -sL -o /dev/null $VERDACCIO_HOST_ADDR && break
-        n=$((n+1)) 
-        sleep 1
-    done
-
-    if [ "$n" -ge 5 ]; then
-        echo "Failed to start verdaccio"
-        exit 1
-    fi
-
-    REGISTRY_HOST=$(docker inspect --format "{{(index .NetworkSettings.Networks \"$NO_INTERNET\").IPAddress}}" $VERDACCIO_CONTAINER)
-    REGISTRY_ADDR="http://$REGISTRY_HOST:$REGISTRY_PORT"
+    PROXY_HOST=$(docker inspect --format "{{(index .NetworkSettings.Networks \"$NO_INTERNET\").IPAddress}}" $PROXY_CONTAINER)
+    PROXY_ADDR="http://$PROXY_HOST:$PROXY_PORT"
 
     if [[ -z "$DOCKER_RUNTIME" ]]; then
         CHANGE_USER_ID=$(id -u)
     fi
-
-    echo "Verdaccio is running at $REGISTRY_ADDR"
 
     echo "Running sandbox"
     docker run \
@@ -113,19 +98,19 @@ function run_sandboxed() {
         --network $NO_INTERNET \
         --volume $PWD:/sandbox \
         --workdir /sandbox \
-        --env REGISTRY_HOST=$REGISTRY_HOST \
-        --env REGISTRY_ADDR=$REGISTRY_ADDR \
-        --env COREPACK_NPM_REGISTRY=$REGISTRY_ADDR \
+        --env HTTP_PROXY=$PROXY_ADDR \
+        --env HTTPS_PROXY=$PROXY_ADDR \
+        --env YARN_HTTP_PROXY=$PROXY_ADDR \
+        --env YARN_HTTPS_PROXY=$PROXY_ADDR \
         --env COREPACK_ENABLE_DOWNLOAD_PROMPT=0 \
-        --env npm_config_registry=$REGISTRY_ADDR \
         --env CHANGE_USER_ID=$CHANGE_USER_ID \
         docker.io/library/node:20 \
         sh -c '
             set -ex &&
             echo Verifying network &&
-            (curl -L -o /dev/null --retry 5 --retry-connrefused $REGISTRY_ADDR && echo "reached verdaccio (expected)" || (echo "could not reach verdaccio (unexpected)"; exit 1)) &&
-            (! curl -L -o /dev/null https://registry.npmjs.org && echo "could not reach internet (expected)" || (echo "could reach internet (unexpected)"; exit 1)) &&
-            (! curl -L -o /dev/null https://1.1.1.1 && echo "could not reach internet (expected)" || (echo "could reach internet (unexpected)"; exit 1)) &&
+            (curl -sL -o /dev/null https://registry.npmjs.org && echo "could reach registry (expected)" || (echo "could not reach registry (unexpected)"; exit 1)) &&
+            (! curl -sL -o /dev/null https://github.com && echo "could not reach internet (expected)" || (echo "could reach internet (unexpected)"; exit 1)) &&
+            (! curl -sL -o /dev/null https://1.1.1.1 && echo "could not reach internet (expected)" || (echo "could reach internet (unexpected)"; exit 1)) &&
             if [ -n "$CHANGE_USER_ID" ]; then
                 groupmod -g $CHANGE_USER_ID node && usermod -u $CHANGE_USER_ID -g $CHANGE_USER_ID node
                 exec su node "$@"
