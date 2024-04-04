@@ -40,7 +40,7 @@ remarks:
   ts-perf host install --host node@11.1 --config default=true
   ```
 - Run a benchmark
-  - Run a compiler benchmark (must be run within the TypeScript repo unless the `--tsc` and `--suite` options are provided):
+  - Run a compiler benchmark (must be run within the TypeScript repo unless the `--builtDir` and `--suite` options are provided):
     ```powershell
     # All compiler scenarios and default hosts
     ts-perf benchmark tsc --save /path/to/file.benchmark
@@ -51,7 +51,7 @@ remarks:
     # Compare against a baseline
     ts-perf benchmark tsc --baseline /path/to/baseline.benchmark --save /path/to/file.benchmark
     ```
-  - Run a tsserver benchmark (must be run within the TypeScript repo unless the `--tsserver` and `--suite` options are provided):
+  - Run a tsserver benchmark (must be run within the TypeScript repo unless the `--builtDir` and `--suite` options are provided):
     ```powershell
     # All tsserver scenarios and default hosts
     ts-perf benchmark tsserver --save /path/to/file.benchmark
@@ -62,7 +62,7 @@ remarks:
     # Compare against a baseline
     ts-perf benchmark tsserver --baseline /path/to/baseline.benchmark --save /path/to/file.benchmark
     ```
-- Profile the commandline compiler (must be run within the TypeScript repo unless the `--tsc` and `--suite` options are provided):
+- Profile the commandline compiler (must be run within the TypeScript repo unless the `--builtDir` and `--suite` options are provided):
   ```powershell
   ts-perf profile --scenario Monaco --host node@11 --out /path/to/file.cpuprofile
   ```
