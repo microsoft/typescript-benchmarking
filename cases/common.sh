@@ -76,7 +76,6 @@ function run_sandboxed() {
         --detach \
         --name=$PROXY_CONTAINER \
         --network=$INTERNET \
-        --publish=127.0.0.1::$PROXY_PORT \
         sandbox-proxy
 
     docker attach $PROXY_CONTAINER &
