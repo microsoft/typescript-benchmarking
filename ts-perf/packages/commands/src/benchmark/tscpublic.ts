@@ -23,10 +23,13 @@ interface TypeScript {
 const ts: TypeScript = require(typescript);
 
 if (!ts.executeCommandLine) {
-    throw new Error("Expected TypeScript API to have executeCommandLine method");
+    // Don't use stderr here; tsc errors via stdout.
+    console.log("Expected TypeScript API to have executeCommandLine method.");
+    process.exit(1);
 }
 
 ts.sys.args = args;
+process.argv = [process.argv[0], ...args];
 
 // Copied from https://github.com/microsoft/TypeScript/blob/main/src/tsc/tsc.ts
 ts.Debug.loggingHost = {

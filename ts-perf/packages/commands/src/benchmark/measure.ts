@@ -139,8 +139,8 @@ async function runCompilerScenario(
 ): Promise<Measurement> {
     const tsc = path.join(options.builtDir, "tsc.js");
     const typescript = path.join(options.builtDir, "typescript.js");
+    const tscPublicWrapper = path.join(__dirname, "tscpublic.js");
     const usesPublicApi = !!scenario.tscConfig?.usePublicApi;
-    const entrypoint = usesPublicApi ? path.join(__dirname, "tscpublic.js") : tsc;
     const temp = await getTempDirectories();
     const expansion = ExpansionProvider.getProviders({ runner: { kind: "tsc", options }, temp, scenario, host });
     const { cmd, args, hasBuild } = new CommandLineArgumentsBuilder(
@@ -150,13 +150,12 @@ async function runCompilerScenario(
         options.cpus,
         options.predictable,
     )
-        .add(entrypoint)
-        .addIf(usesPublicApi, typescript)
+        .addIf(!usesPublicApi, tsc)
+        .addIf(usesPublicApi, tscPublicWrapper, typescript)
         .addCompilerOptions(options, scenario)
         .add("--diagnostics");
     const { cmd: clean, args: cleanargs } = new CommandLineArgumentsBuilder(expansion, host)
-        .add(entrypoint)
-        .addIf(usesPublicApi, typescript)
+        .add(tsc)
         .addCompilerOptions(options, scenario)
         .add("--clean");
     try {
