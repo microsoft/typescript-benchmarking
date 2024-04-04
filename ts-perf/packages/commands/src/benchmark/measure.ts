@@ -138,6 +138,9 @@ async function runCompilerScenario(
     hostIndex: number,
 ): Promise<Measurement> {
     const tsc = path.join(options.builtDir, "tsc.js");
+    const typescript = path.join(options.builtDir, "typescript.js");
+    const usesPublicApi = !!scenario.tscConfig?.usePublicApi;
+    const entrypoint = usesPublicApi ? path.join(__dirname, "tscpublic.js") : tsc;
     const temp = await getTempDirectories();
     const expansion = ExpansionProvider.getProviders({ runner: { kind: "tsc", options }, temp, scenario, host });
     const { cmd, args, hasBuild } = new CommandLineArgumentsBuilder(
@@ -147,11 +150,13 @@ async function runCompilerScenario(
         options.cpus,
         options.predictable,
     )
-        .add(tsc)
+        .add(entrypoint)
+        .addIf(usesPublicApi, typescript)
         .addCompilerOptions(options, scenario)
         .add("--diagnostics");
     const { cmd: clean, args: cleanargs } = new CommandLineArgumentsBuilder(expansion, host)
-        .add(tsc)
+        .add(entrypoint)
+        .addIf(usesPublicApi, typescript)
         .addCompilerOptions(options, scenario)
         .add("--clean");
     try {
@@ -247,7 +252,7 @@ async function runTSServerScenario(
     hostSpecifier: HostSpecifier,
     hostIndex: number,
 ): Promise<Measurement> {
-    const tsserver = path.join(options.builtDir, "tsserver.js")
+    const tsserver = path.join(options.builtDir, "tsserver.js");
     const temp = await getTempDirectories();
     const expansion = ExpansionProvider.getProviders({ runner: { kind: "tsserver", options }, temp, scenario, host });
     const argsBuilder = new CommandLineArgumentsBuilder(expansion, host, /*exposeGc*/ false)

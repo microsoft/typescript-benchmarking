@@ -1,0 +1,14 @@
+{
+    "name": "self-build-src-public-api",
+    "kind": "tsc",
+    "args": [
+        "-b",
+        "${suiteDirectory}/self-build-src-public-api/src"
+    ],
+    "platforms": [
+        "linux"
+    ],
+    "tscConfig": {
+        "usePublicApi": true
+    }
+}

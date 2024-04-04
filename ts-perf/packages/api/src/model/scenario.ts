@@ -10,6 +10,10 @@ const cachedScenarios = new Map<string, Scenario[]>();
 
 export type ScenarioKind = "tsserver" | "tsc" | "startup";
 
+export interface TscConfig {
+    usePublicApi?: boolean;
+}
+
 export interface ScenarioComponents {
     name: string;
     kind: ScenarioKind;
@@ -19,6 +23,7 @@ export interface ScenarioComponents {
     platforms?: string[];
     configFile: string;
     tsserverConfig?: TSServerConfig;
+    tscConfig?: TscConfig;
 }
 
 export class Scenario {
@@ -30,6 +35,7 @@ export class Scenario {
     public readonly platforms?: string[];
     public readonly configFile: string;
     public readonly tsserverConfig?: TSServerConfig;
+    public readonly tscConfig?: TscConfig;
 
     public isLocal?: boolean;
     public isOverriding?: boolean;
@@ -44,6 +50,7 @@ export class Scenario {
             disabled?: boolean;
             platforms?: string[];
             tsserverConfig?: TSServerConfig;
+            tscConfig?: TscConfig;
         },
     ) {
         if (kind === "tsserver" && !options?.tsserverConfig) {
@@ -57,6 +64,7 @@ export class Scenario {
         this.platforms = options && options.platforms;
         this.configFile = configFile;
         this.tsserverConfig = options && options.tsserverConfig;
+        this.tscConfig = options && options.tscConfig;
     }
 
     public get supported() {
@@ -239,6 +247,7 @@ export class Scenario {
         const { platforms = this.platforms } = components;
         const { configFile = this.configFile } = components;
         const { tsserverConfig = this.tsserverConfig } = components;
+        const { tscConfig = this.tscConfig } = components;
         if (
             this.name === name
             && this.kind === kind
@@ -256,6 +265,7 @@ export class Scenario {
             disabled,
             platforms,
             tsserverConfig,
+            tscConfig,
         });
     }
 
@@ -272,6 +282,7 @@ export class Scenario {
             disabled: this.disabled,
             platforms: this.platforms && this.platforms.slice(),
             tsserverConfig: this.tsserverConfig,
+            tscConfig: this.tscConfig,
         };
     }
 }
