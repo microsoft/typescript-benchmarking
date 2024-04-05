@@ -46,11 +46,13 @@ function run_sandboxed() {
 
     SANDBOX_CONTAINER=ts-perf-sandbox
     PROXY_CONTAINER=ts-perf-sandbox-proxy
+    PROXY_IMAGE=$PROXY_CONTAINER
 
     function cleanup {
         echo "Cleaning up..."
         docker rm --force --volumes $PROXY_CONTAINER || true
         docker rm --force --volumes $SANDBOX_CONTAINER || true
+        docker image rm --force $PROXY_IMAGE || true
         docker network rm --force $INTERNET || true
         docker network rm --force $NO_INTERNET || true
         docker system prune --force --volumes
@@ -61,7 +63,9 @@ function run_sandboxed() {
 
     cleanup
 
-    (cd ../../sandbox; docker build -t sandbox-proxy -f proxy.Dockerfile .)
+    docker pull mcr.microsoft.com/mirror/docker/library/node:20
+
+    (cd ../../sandbox; docker build -t $PROXY_IMAGE -f proxy.Dockerfile .)
 
     echo "Creating networks"
     docker network create --driver bridge $INTERNET
@@ -75,7 +79,7 @@ function run_sandboxed() {
         --detach \
         --name=$PROXY_CONTAINER \
         --network=$INTERNET \
-        sandbox-proxy
+        $PROXY_IMAGE
 
     docker attach $PROXY_CONTAINER &
 
