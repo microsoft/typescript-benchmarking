@@ -54,7 +54,7 @@ function run_sandboxed() {
         echo "Cleaning up..."
         docker rm --force --volumes $PROXY_CONTAINER || true
         docker rm --force --volumes $SANDBOX_CONTAINER || true
-        docker image rm --force $PROXY_IMAGE || true
+        # docker image rm --force $PROXY_IMAGE || true
         # docker image rm --force $NODE_IMAGE || true
         docker network rm --force $INTERNET || true
         docker network rm --force $NO_INTERNET || true
