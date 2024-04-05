@@ -31,12 +31,12 @@ function run_sandboxed() {
     USER_DOCKER_SOCK=/run/user/$(id -u)/docker.sock
 
     if [ -e $USER_DOCKER_SOCK ]; then
-        echo "Using user docker socket"
+        echo "Using user docker socket with runsc-rootless"
         export DOCKER_HOST=unix://$USER_DOCKER_SOCK
         DOCKER_RUNTIME=runsc-rootless
         DOCKER_IS_ROOTLESS=1
     else
-        echo "Using default docker socket and runtime; this is not secure!"
+        echo "Using default docker socket with runsc"
         export DOCKER_HOST=unix:///var/run/docker.sock
         DOCKER_RUNTIME=runsc
     fi
