@@ -41,6 +41,8 @@ function run_sandboxed() {
         DOCKER_RUNTIME=runsc
     fi
 
+    NODE_IMAGE=mcr.microsoft.com/mirror/docker/library/node:20
+
     INTERNET=ts-perf-sandbox-internet
     NO_INTERNET=ts-perf-sandbox-internal
 
@@ -53,6 +55,7 @@ function run_sandboxed() {
         docker rm --force --volumes $PROXY_CONTAINER || true
         docker rm --force --volumes $SANDBOX_CONTAINER || true
         docker image rm --force $PROXY_IMAGE || true
+        # docker image rm --force $NODE_IMAGE || true
         docker network rm --force $INTERNET || true
         docker network rm --force $NO_INTERNET || true
         docker system prune --force --volumes
@@ -63,9 +66,9 @@ function run_sandboxed() {
 
     cleanup
 
-    docker pull mcr.microsoft.com/mirror/docker/library/node:20
+    docker pull $NODE_IMAGE
 
-    (cd ../../sandbox; docker build -t $PROXY_IMAGE -f proxy.Dockerfile .)
+    (cd ../../sandbox; docker build -t $PROXY_IMAGE -f proxy.Dockerfile --build-arg="BASE_IMAGE=$NODE_IMAGE" .)
 
     echo "Creating networks"
     docker network create --driver bridge $INTERNET
@@ -106,7 +109,7 @@ function run_sandboxed() {
         --env YARN_HTTPS_PROXY=$PROXY_ADDR \
         --env COREPACK_ENABLE_DOWNLOAD_PROMPT=0 \
         --env CHANGE_USER_ID=$CHANGE_USER_ID \
-        mcr.microsoft.com/mirror/docker/library/node:20 \
+        $NODE_IMAGE \
         sh -c '
             set -ex &&
             echo Verifying network &&

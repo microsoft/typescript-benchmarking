@@ -1,5 +1,6 @@
 # Using the node image is overkill, but we're already going to pull it.
-FROM mcr.microsoft.com/mirror/docker/library/node:20
+ARG BASE_IMAGE=
+FROM ${BASE_IMAGE}
 
 RUN apt-get update && apt-get install -y tinyproxy
 
