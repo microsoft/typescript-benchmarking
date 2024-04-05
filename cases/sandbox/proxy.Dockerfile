@@ -1,5 +1,5 @@
-# Using the docker image is overkill, but we're already going to pull it.
-FROM docker.io/library/node:20-bookworm
+# Using the node image is overkill, but we're already going to pull it.
+FROM mcr.microsoft.com/mirror/docker/library/node:20
 
 RUN apt-get update && apt-get install -y tinyproxy
 

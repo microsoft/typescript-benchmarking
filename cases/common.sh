@@ -41,11 +41,11 @@ function run_sandboxed() {
         DOCKER_RUNTIME=runsc
     fi
 
-    INTERNET=sandbox-internet
-    NO_INTERNET=sandbox-internal
+    INTERNET=ts-perf-sandbox-internet
+    NO_INTERNET=ts-perf-sandbox-internal
 
-    SANDBOX_CONTAINER=sandbox
-    PROXY_CONTAINER=sandbox-proxy
+    SANDBOX_CONTAINER=ts-perf-sandbox
+    PROXY_CONTAINER=ts-perf-sandbox-proxy
 
     function cleanup {
         echo "Cleaning up..."
@@ -102,7 +102,7 @@ function run_sandboxed() {
         --env YARN_HTTPS_PROXY=$PROXY_ADDR \
         --env COREPACK_ENABLE_DOWNLOAD_PROMPT=0 \
         --env CHANGE_USER_ID=$CHANGE_USER_ID \
-        docker.io/library/node:20 \
+        mcr.microsoft.com/mirror/docker/library/node:20 \
         sh -c '
             set -ex &&
             echo Verifying network &&
