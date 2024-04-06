@@ -1,7 +1,6 @@
 import assert from "node:assert";
 
 import esMain from "es-main";
-import minimist from "minimist";
 import prettyMilliseconds from "pretty-ms";
 import sortKeys from "sort-keys";
 
@@ -376,14 +375,11 @@ export function generateMatrix(presetArg: string, baselining: boolean, log?: boo
 }
 
 if (esMain(import.meta)) {
-    const args = minimist(process.argv.slice(2), {
-        string: ["preset"],
-    });
-
-    const presetArg = args.preset;
+    const preset = process.env.TSPERF_PRESET;
+    assert(preset, "TSPERF_PRESET must be set");
     const baselining = (process.env.USE_BASELINE_MACHINE || "FALSE").toUpperCase() === "TRUE";
 
-    const { outputVariables } = generateMatrix(presetArg, baselining, true);
+    const { outputVariables } = generateMatrix(preset, baselining, true);
     for (const [key, value] of Object.entries(outputVariables)) {
         setOutputVariable(key, value);
     }

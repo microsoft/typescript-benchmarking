@@ -106,6 +106,7 @@ variables:
   azureSubscription: 'TypeScript Public CI'
   KeyVaultName: 'jststeam-passwords'
 
+  TSPERF_PRESET: $[ parameters.TSPERF_PRESET ]
   REF: $[ resources.repositories['TypeScript'].ref ]
   PRETTY_REF: $[ replace(replace(replace(replace(variables['REF'], '/merge', ''), 'refs/pull/', 'pr.'), 'refs/heads/', ''), '/', '_') ]
   IS_PR: $[ startsWith(variables['REF'], 'refs/pull/') ]
@@ -140,7 +141,7 @@ jobs:
 
       - bash: |
           set -eo pipefail
-          node $(BENCH_SCRIPTS)/generateMatrix.js --preset ${{ parameters.TSPERF_PRESET }}
+          node $(BENCH_SCRIPTS)/generateMatrix.js
         displayName: Generate matrix
         name: generateMatrix
 
