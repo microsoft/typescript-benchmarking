@@ -56,7 +56,7 @@ parameters:
   # TODO(jakebailey): allow custom preset
   - name: TSPERF_PRESET
     displayName: Preset
-    # Note: keep this up to date with generateMatrix and https://github.com/microsoft/typescript-bot-test-triggerer
+    # Note: keep this up to date with setupPipeline and https://github.com/microsoft/typescript-bot-test-triggerer
     values:
       - baseline
       - regular
@@ -91,7 +91,7 @@ parameters:
     type: number
     default: 0
 
-  # Keep in sync with inventory.yml and generateMatrix.ts.
+  # Keep in sync with inventory.yml and setupPipeline.ts.
   - name: AGENTS
     displayName: Exhaustive list of agents
     type: string
@@ -141,9 +141,9 @@ jobs:
 
       - bash: |
           set -eo pipefail
-          node $(BENCH_SCRIPTS)/generateMatrix.js
-        displayName: Generate matrix
-        name: generateMatrix
+          node $(BENCH_SCRIPTS)/setupPipeline.js
+        displayName: Setup pipeline
+        name: setupPipeline
 
       - checkout: TypeScript
         path: TypeScript
@@ -182,7 +182,7 @@ jobs:
       - job: Benchmark_${{ replace(agent, '-', '_') }}
         timeoutInMinutes: 360
         dependsOn: Setup
-        condition: and(succeeded(), not(eq(dependencies.Setup.outputs['generateMatrix.MATRIX_${{ replace(agent, '-', '_') }}'], '{}')))
+        condition: and(succeeded(), not(eq(dependencies.Setup.outputs['setupPipeline.MATRIX_${{ replace(agent, '-', '_') }}'], '{}')))
         pool:
           name: ts-perf-ddfun
           ${{ if not(eq(agent, 'any')) }}:
@@ -192,7 +192,7 @@ jobs:
 
         # https://stackoverflow.com/a/69345058
         strategy:
-          matrix: $[ dependencies.Setup.outputs['generateMatrix.MATRIX_${{ replace(agent, '-', '_') }}'] ]
+          matrix: $[ dependencies.Setup.outputs['setupPipeline.MATRIX_${{ replace(agent, '-', '_') }}'] ]
 
         variables:
           BUILT_TYPESCRIPT_DIR: $(Pipeline.Workspace)/BuiltTypeScript
@@ -297,8 +297,8 @@ jobs:
       clean: all # Always start with a clean slate.
 
     variables:
-      TSPERF_PROCESS_KINDS: $[ dependencies.Setup.outputs['generateMatrix.TSPERF_PROCESS_KINDS'] ]
-      TSPERF_PROCESS_LOCATIONS: $[ dependencies.Setup.outputs['generateMatrix.TSPERF_PROCESS_LOCATIONS'] ]
+      TSPERF_PROCESS_KINDS: $[ dependencies.Setup.outputs['setupPipeline.TSPERF_PROCESS_KINDS'] ]
+      TSPERF_PROCESS_LOCATIONS: $[ dependencies.Setup.outputs['setupPipeline.TSPERF_PROCESS_LOCATIONS'] ]
       BUILT_TYPESCRIPT_DIR: $(Pipeline.Workspace)/BuiltTypeScript
       BENCHMARKS_DIR: $(Pipeline.Workspace)/benchmarks
       MERGED_DIR: $(Pipeline.Workspace)/merged

@@ -281,7 +281,7 @@ function prettySeconds(seconds: number) {
     return prettyMilliseconds(seconds * 1000);
 }
 
-export function generateMatrix(presetArg: string, baselining: boolean, log?: boolean) {
+export function setupPipeline(presetArg: string, baselining: boolean, log?: boolean) {
     if (!isPresetName(presetArg)) {
         throw new Error(`Unknown preset: ${presetArg}`);
     }
@@ -379,7 +379,7 @@ if (esMain(import.meta)) {
     assert(preset, "TSPERF_PRESET must be set");
     const baselining = (process.env.USE_BASELINE_MACHINE || "FALSE").toUpperCase() === "TRUE";
 
-    const { outputVariables } = generateMatrix(preset, baselining, true);
+    const { outputVariables } = setupPipeline(preset, baselining, true);
     for (const [key, value] of Object.entries(outputVariables)) {
         setOutputVariable(key, value);
     }

@@ -5,12 +5,12 @@ import url from "node:url";
 import { globSync } from "glob";
 import { expect, test } from "vitest";
 
-import { allPresetNames, generateMatrix } from "../generateMatrix.js";
+import { allPresetNames, setupPipeline } from "../setupPipeline.js";
 
 const __filename = url.fileURLToPath(new URL(import.meta.url));
 const __dirname = path.dirname(__filename);
 
-const snapshotDir = path.join(__dirname, "__file_snapshots__", "generateMatrix");
+const snapshotDir = path.join(__dirname, "__file_snapshots__", "setupPipeline");
 
 const allSnapshotKinds = ["matrix", "outputVariables", "compute", "error"] as const;
 
@@ -24,12 +24,12 @@ const presets = [
     "custom",
 ];
 
-test.each(presets)("generateMatrix preset=%s", preset => {
+test.each(presets)("setupPipeline preset=%s", preset => {
     const baselining = preset === "baseline";
 
     let result, error;
     try {
-        result = generateMatrix(preset, baselining);
+        result = setupPipeline(preset, baselining);
     }
     catch (e) {
         error = e;

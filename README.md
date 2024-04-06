@@ -17,7 +17,7 @@ Each benchmark consists of:
 - `cases/solutions/<name>` (or an ignored dir of the same name in `cases/solutions/.gitignore`) - This is where the source code for the benchmark is stored.
   This may be code that's checked in the repo, but preferably the directory is `.gitignore`'d and `setup.sh` script clones code here.
 
-After these files are created, they must be added to `scenarioConfig` in `scripts/src/generateMatrix.ts` to be run in CI.
+After these files are created, they must be added to `scenarioConfig` in `scripts/src/setupPipeline.ts` to be run in CI.
 
 > [!NOTE]
 > Benchmark capacity is limited; we may not accept all benchmarks or run them automatically in CI.
