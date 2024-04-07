@@ -281,12 +281,71 @@ function prettySeconds(seconds: number) {
     return prettyMilliseconds(seconds * 1000);
 }
 
-export function setupPipeline(presetArg: string, baselining: boolean, log?: boolean) {
-    if (!isPresetName(presetArg)) {
-        throw new Error(`Unknown preset: ${presetArg}`);
+interface Parameters {
+    preset: PresetName;
+    predictable: boolean | undefined;
+    hosts: string[] | undefined;
+}
+
+function parseBoolean(value: string | undefined, defaultValue: boolean): boolean {
+    if (!value) return defaultValue;
+    return value.toUpperCase() === "TRUE";
+}
+
+function parseInput(input: string, isPr: boolean) {
+    const parsed: Parameters = {
+        preset: isPr ? "regular" : "baseline",
+        predictable: undefined,
+        hosts: undefined,
+    };
+
+    let parsedPresetName = false;
+
+    for (const part of input.trim().split(/\s+/)) {
+        if (!parsedPresetName) {
+            parsedPresetName = true;
+            if (isPresetName(part)) {
+                parsed.preset = part;
+                continue;
+            }
+        }
+
+        // Parse "key" or "key=value".
+        const [key, value] = part.split("=", 2) as [string, string | undefined];
+
+        switch (key) {
+            case "predictable":
+                parsed.predictable = parseBoolean(value, true);
+                break;
+            case "host":
+            case "hosts":
+                if (!value) {
+                    throw new Error(`Expected value for ${key}`);
+                }
+                (parsed.hosts ??= []).push(...value.split(","));
+                break;
+        }
     }
 
-    const preset = presets[presetArg];
+    return parsed;
+}
+
+export interface SetupPipelineInput {
+    input: string;
+    baselining: boolean;
+    isPr: boolean;
+    shouldLog: boolean;
+}
+
+export function setupPipeline({ input, baselining, isPr, shouldLog }: SetupPipelineInput) {
+    const parameters = parseInput(input, isPr);
+    if (shouldLog) {
+        console.log("Parameters", parameters);
+    }
+
+    // TODO(jakebailey): use parameters
+
+    const preset = presets[parameters.preset];
 
     let matrix: Matrix = {
         "any": {},
@@ -342,7 +401,7 @@ export function setupPipeline(presetArg: string, baselining: boolean, log?: bool
     for (const [agent, value] of Object.entries(matrix)) {
         const sanitizedAgent = agent.replace(/-/g, "_");
         outputVariables[`MATRIX_${sanitizedAgent}`] = JSON.stringify(value);
-        if (log) {
+        if (shouldLog) {
             console.log(sanitizedAgent, JSON.stringify(value, undefined, 4));
         }
     }
@@ -371,15 +430,22 @@ export function setupPipeline(presetArg: string, baselining: boolean, log?: bool
             parallel: prettySeconds(costInParallel),
             perAgent,
         },
+        parameters,
     };
 }
 
 if (esMain(import.meta)) {
-    const preset = process.env.TSPERF_PRESET;
-    assert(preset, "TSPERF_PRESET must be set");
-    const baselining = (process.env.USE_BASELINE_MACHINE || "FALSE").toUpperCase() === "TRUE";
+    const input = process.env.TSPERF_INPUT;
+    assert(input, "TSPERF_INPUT must be set");
+    const baselining = parseBoolean(process.env.USE_BASELINE_MACHINE, false);
+    const isPr = parseBoolean(process.env.IS_PR, false);
 
-    const { outputVariables } = setupPipeline(preset, baselining, true);
+    const { outputVariables } = setupPipeline({
+        input,
+        baselining,
+        isPr,
+        shouldLog: true,
+    });
     for (const [key, value] of Object.entries(outputVariables)) {
         setOutputVariable(key, value);
     }

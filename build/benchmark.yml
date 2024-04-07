@@ -54,8 +54,8 @@ resources:
 
 parameters:
   # TODO(jakebailey): allow custom preset
-  - name: TSPERF_PRESET
-    displayName: Preset
+  - name: TSPERF_INPUT
+    displayName: Input (preset/args)
     # Note: keep this up to date with setupPipeline and https://github.com/microsoft/typescript-bot-test-triggerer
     values:
       - baseline
@@ -106,7 +106,7 @@ variables:
   azureSubscription: 'TypeScript Public CI'
   KeyVaultName: 'jststeam-passwords'
 
-  TSPERF_PRESET: $[ parameters.TSPERF_PRESET ]
+  TSPERF_INPUT: $[ parameters.TSPERF_INPUT ]
   REF: $[ resources.repositories['TypeScript'].ref ]
   PRETTY_REF: $[ replace(replace(replace(replace(variables['REF'], '/merge', ''), 'refs/pull/', 'pr.'), 'refs/heads/', ''), '/', '_') ]
   IS_PR: $[ startsWith(variables['REF'], 'refs/pull/') ]

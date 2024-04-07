@@ -2,6 +2,7 @@ import fs from "node:fs";
 import path from "node:path";
 import url from "node:url";
 
+import filenamify from "filenamify";
 import { globSync } from "glob";
 import { expect, test } from "vitest";
 
@@ -12,38 +13,45 @@ const __dirname = path.dirname(__filename);
 
 const snapshotDir = path.join(__dirname, "__file_snapshots__", "setupPipeline");
 
-const allSnapshotKinds = ["matrix", "outputVariables", "compute", "error"] as const;
+const allSnapshotKinds = ["matrix", "outputVariables", "compute", "error", "parameters"] as const;
 
-function getSnapshotPath(preset: string, kind: typeof allSnapshotKinds[number]) {
-    return path.join(snapshotDir, preset, `${kind}.snap`);
+function getSnapshotPath(input: string, kind: typeof allSnapshotKinds[number]) {
+    return path.join(snapshotDir, filenamify(input), `${kind}.snap`);
 }
 
-const presets = [
+const inputs = [
     ...allPresetNames,
     "unknown",
     "custom",
+    "predictable=true",
 ];
 
-test.each(presets)("setupPipeline preset=%s", preset => {
-    const baselining = preset === "baseline";
+test.each(inputs)("setupPipeline input=%s", input => {
+    const baselining = input === "baseline";
 
     let result, error;
     try {
-        result = setupPipeline(preset, baselining);
+        result = setupPipeline({
+            input,
+            baselining,
+            isPr: !baselining,
+            shouldLog: false,
+        });
     }
     catch (e) {
         error = e;
     }
 
-    expect(result?.matrix).toMatchFileSnapshot(getSnapshotPath(preset, "matrix"));
-    expect(result?.outputVariables).toMatchFileSnapshot(getSnapshotPath(preset, "outputVariables"));
-    expect(result?.compute).toMatchFileSnapshot(getSnapshotPath(preset, "compute"));
-    expect(error).toMatchFileSnapshot(getSnapshotPath(preset, "error"));
+    expect(result?.matrix).toMatchFileSnapshot(getSnapshotPath(input, "matrix"));
+    expect(result?.outputVariables).toMatchFileSnapshot(getSnapshotPath(input, "outputVariables"));
+    expect(result?.compute).toMatchFileSnapshot(getSnapshotPath(input, "compute"));
+    expect(result?.parameters).toMatchFileSnapshot(getSnapshotPath(input, "parameters"));
+    expect(error).toMatchFileSnapshot(getSnapshotPath(input, "error"));
 });
 
 function getAllExpectedSnapshots() {
     return new Set(
-        allSnapshotKinds.flatMap(kind => presets.map(preset => getSnapshotPath(preset, kind))),
+        allSnapshotKinds.flatMap(kind => inputs.map(input => getSnapshotPath(input, kind))),
     );
 }
 
