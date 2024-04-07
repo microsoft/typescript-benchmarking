@@ -24,6 +24,8 @@ const inputs = [
     "unknown",
     "custom",
     "predictable=true",
+    "hosts=bun@1.1.3,vscode@1.88.1",
+    "this is not a preset",
 ];
 
 test.each(inputs)("setupPipeline input=%s", input => {
