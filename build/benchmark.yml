@@ -66,7 +66,7 @@ parameters:
   - name: DISTINCT_ID
     displayName: Distinct ID for this run (PR runs only)
     type: string
-    default: ''
+    default: 'unknown'
   - name: REQUESTING_USER
     displayName: User to tag when the results are ready (PR runs only)
     type: string
