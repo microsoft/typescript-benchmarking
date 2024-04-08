@@ -2,13 +2,9 @@ import assert from "node:assert";
 import fs from "node:fs";
 import path from "node:path";
 
-import { $ as _$ } from "execa";
 import minimist from "minimist";
 
-import { getNonEmptyEnv, parseBoolean, RepoInfo, retry, setOutputVariable } from "./utils.js";
-
-const $pipe = _$({ verbose: true });
-const $ = _$({ verbose: true, stdio: "inherit" });
+import { $, $pipe, getNonEmptyEnv, parseBoolean, RepoInfo, retry, setOutputVariable } from "./utils.js";
 
 const { stdout: commit } = await $pipe`git rev-parse HEAD`;
 const { stdout: commitShort } = await $pipe`git rev-parse --short HEAD`;

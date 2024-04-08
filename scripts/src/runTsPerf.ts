@@ -1,12 +1,9 @@
 import assert from "node:assert";
 import path from "node:path";
 
-import { $ as _$ } from "execa";
 import minimist from "minimist";
 
-import { checkNonEmpty, getNonEmptyEnv, getRepoInfo, parseBoolean } from "./utils.js";
-
-const $ = _$({ verbose: true, stdio: "inherit" });
+import { $, checkNonEmpty, getNonEmptyEnv, getRepoInfo, parseBoolean } from "./utils.js";
 
 const [subcommand, ...rawArgs] = process.argv.slice(2);
 

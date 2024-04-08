@@ -1,0 +1,12 @@
+{
+  "baselineCommit": "HEAD^1",
+  "baselineName": "baseline",
+  "hosts": [
+    "node@18.5.1",
+  ],
+  "isComparison": true,
+  "newCommit": "HEAD",
+  "newName": "pr",
+  "predictable": undefined,
+  "preset": "faster",
+}

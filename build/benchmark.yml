@@ -122,6 +122,7 @@ jobs:
 
     variables:
       ARTIFACTS_DIR: $(Pipeline.Workspace)/artifacts
+      TYPESCRIPT_DIR: $(Pipeline.Workspace)/TypeScript
 
     steps:
       - template: templates/setup.yml
@@ -147,14 +148,14 @@ jobs:
           git switch --detach $(TSPERF_NEW_COMMIT)
         displayName: Switch to new commit
         condition: and(succeeded(), eq(variables['TSPERF_IS_COMPARISON'], 'true'))
-        workingDirectory: $(Pipeline.Workspace)/TypeScript
+        workingDirectory: $(TYPESCRIPT_DIR)
 
       - bash: |
           set -eo pipefail
           node $(BENCH_SCRIPTS)/buildTypeScript.js --outputDir $(ARTIFACTS_DIR)/new
         displayName: Build new TypeScript
         condition: and(succeeded(), eq(variables['TSPERF_IS_COMPARISON'], 'true'))
-        workingDirectory: $(Pipeline.Workspace)/TypeScript
+        workingDirectory: $(TYPESCRIPT_DIR)
         name: buildTypeScriptNew
 
       - bash: |
@@ -162,13 +163,13 @@ jobs:
           git switch --detach $(TSPERF_BASELINE_COMMIT)
         displayName: Switch to baseline commit
         condition: and(succeeded(), not(eq(variables['TSPERF_BASELINE_COMMIT'], 'HEAD')))
-        workingDirectory: $(Pipeline.Workspace)/TypeScript
+        workingDirectory: $(TYPESCRIPT_DIR)
 
       - bash: |
           set -eo pipefail
           node $(BENCH_SCRIPTS)/buildTypeScript.js --baseline --outputDir $(ARTIFACTS_DIR)/baseline
         displayName: Build baseline TypeScript
-        workingDirectory: $(Pipeline.Workspace)/TypeScript
+        workingDirectory: $(TYPESCRIPT_DIR)
         name: buildTypeScriptBaseline
 
       - publish: $(ARTIFACTS_DIR)

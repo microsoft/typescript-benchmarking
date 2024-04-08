@@ -6,7 +6,7 @@ import filenamify from "filenamify";
 import { globSync } from "glob";
 import { expect, test } from "vitest";
 
-import { allPresetNames, setupPipeline } from "../setupPipeline.js";
+import { allPresetNames, GitParseRevResult, setupPipeline } from "../setupPipeline.js";
 
 const __filename = url.fileURLToPath(new URL(import.meta.url));
 const __dirname = path.dirname(__filename);
@@ -27,19 +27,36 @@ const inputs = [
     "hosts=bun@1.1.3,vscode@1.88.1",
     "this is not a preset",
     "faster commits=release-5.3...release-5.4",
+    "faster commits=release-5.3..release-5.4",
     "faster commits=",
+    "faster precitable host=node@18.5.1",
 ];
 
-test.each(inputs)("setupPipeline input=%s", input => {
+async function fakeGitRevParse(query: string): Promise<GitParseRevResult> {
+    switch (query) {
+        case "release-5.3...release-5.4":
+            return {
+                baselineCommit: "27047e3391323fa2d8987f46a4c42f5361d07926",
+                baselineName: "release-5.3",
+                newCommit: "6ea273cdcca99db809074d2b2d38d0e5b59ee81b",
+                newName: "release-5.4",
+            };
+        default:
+            throw new Error(`Unknown query: ${query}`);
+    }
+}
+
+test.each(inputs)("setupPipeline input=%s", async input => {
     const baselining = input === "baseline";
 
     let result, error;
     try {
-        result = setupPipeline({
+        result = await setupPipeline({
             input,
             baselining,
             isPr: !baselining,
             shouldLog: false,
+            gitParseRev: fakeGitRevParse,
         });
     }
     catch (e) {

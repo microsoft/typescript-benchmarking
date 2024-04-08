@@ -5,7 +5,7 @@ import esMain from "es-main";
 import prettyMilliseconds from "pretty-ms";
 import sortKeys from "sort-keys";
 
-import { parseBoolean, setJobVariable, setOutputVariable } from "./utils.js";
+import { $pipe, parseBoolean, setJobVariable, setOutputVariable } from "./utils.js";
 
 // Keep in sync with inventory.yml and benchmark.yml.
 const allAgents = [
@@ -290,7 +290,7 @@ interface Parameters {
     newName: string;
 }
 
-function parseInput(input: string, isPr: boolean) {
+async function parseInput({ input, isPr, gitParseRev }: SetupPipelineInput) {
     const parsed: Parameters = {
         preset: isPr ? "regular" : "baseline",
         predictable: undefined,
@@ -338,17 +338,17 @@ function parseInput(input: string, isPr: boolean) {
                 if (!value) {
                     throw new Error(`Expected value for ${key}`);
                 }
-                // TODO(jakebailey): resolve via git instead of a regex
-                // TODO(jakebailey): what about a single commit? need to mark that as non-comparison but properly set ref for other scripts
-                const match = value.match(/^(.*)\.\.\.(.*)$/);
-                if (!match) {
-                    throw new Error(`Expected A..B for ${key}`);
+
+                if (!value.includes("...") && value.includes("..")) {
+                    throw new Error(`Expected "..." in ${key}, not ".."`);
                 }
-                parsed.isComparison = true;
-                parsed.baselineCommit = match[1];
-                parsed.baselineName = match[1];
-                parsed.newCommit = match[2];
-                parsed.newName = match[2];
+
+                const { baselineCommit, baselineName, newCommit, newName } = await gitParseRev(value);
+                parsed.baselineCommit = baselineCommit;
+                parsed.baselineName = baselineName;
+                parsed.newCommit = newCommit ?? "";
+                parsed.newName = newName ?? "";
+                parsed.isComparison = !!newCommit;
                 break;
         }
     }
@@ -389,15 +389,25 @@ function* transformPreset(parameters: Parameters, iter: Iterable<Scenario>): Ite
     }
 }
 
+export interface GitParseRevResult {
+    baselineCommit: string;
+    baselineName: string;
+    newCommit?: string;
+    newName?: string;
+}
+
 export interface SetupPipelineInput {
     input: string;
     baselining: boolean;
     isPr: boolean;
     shouldLog: boolean;
+    gitParseRev: (query: string) => Promise<GitParseRevResult>;
 }
 
-export function setupPipeline({ input, baselining, isPr, shouldLog }: SetupPipelineInput) {
-    const parameters = parseInput(input, isPr);
+export async function setupPipeline(input: SetupPipelineInput) {
+    const { baselining, shouldLog } = input;
+
+    const parameters = await parseInput(input);
     if (shouldLog) {
         console.log("Parameters", parameters);
     }
@@ -499,16 +509,47 @@ export function setupPipeline({ input, baselining, isPr, shouldLog }: SetupPipel
 }
 
 if (esMain(import.meta)) {
+    async function gitParseRev(query: string): Promise<GitParseRevResult> {
+        const { stdout: stdoutHash } = await $pipe`git rev-parse ${query}`;
+        const { stdout: stdoutName } = await $pipe`git rev-parse --short --symbolic ${query}`;
+
+        const hashLines = process(stdoutHash);
+        const nameLines = process(stdoutName);
+        assert.strictEqual(hashLines.length, nameLines.length);
+
+        if (hashLines.length === 1) {
+            return {
+                baselineCommit: hashLines[0],
+                baselineName: nameLines[0],
+            };
+        }
+
+        // The order swap is intentional; git rev-parse A...B returns [B, A, merge base].
+        return {
+            baselineCommit: hashLines[1]!,
+            baselineName: nameLines[1]!,
+            newCommit: hashLines[0],
+            newName: nameLines[0],
+        };
+
+        function process(stdout: string): [first: string, second?: string] {
+            const list = stdout.split("\n").map(line => line.trim()).filter(line => line && !line.startsWith("^"));
+            assert(list.length === 1 || list.length === 2, `Expected 1 or 2 lines, got ${list.length}`);
+            return list as [string, string | undefined];
+        }
+    }
+
     const input = process.env.TSPERF_INPUT;
     assert(input, "TSPERF_INPUT must be set");
     const baselining = parseBoolean(process.env.USE_BASELINE_MACHINE, false);
     const isPr = parseBoolean(process.env.IS_PR, false);
 
-    const { outputVariables } = setupPipeline({
+    const { outputVariables } = await setupPipeline({
         input,
         baselining,
         isPr,
         shouldLog: true,
+        gitParseRev,
     });
     for (const [key, value] of Object.entries(outputVariables)) {
         setOutputVariable(key, value);
