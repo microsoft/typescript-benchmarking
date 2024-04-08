@@ -29,7 +29,7 @@ const inputs = [
     "faster commits=release-5.3...release-5.4",
     "faster commits=release-5.3..release-5.4",
     "faster commits=",
-    "faster precitable host=node@18.5.1",
+    "faster predictable host=node@18.5.1",
 ];
 
 async function fakeGitRevParse(query: string): Promise<GitParseRevResult> {

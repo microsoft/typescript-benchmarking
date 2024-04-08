@@ -7,6 +7,6 @@
   "isComparison": true,
   "newCommit": "HEAD",
   "newName": "pr",
-  "predictable": undefined,
+  "predictable": true,
   "preset": "faster",
 }

@@ -17,7 +17,7 @@
   "TSPERF_IS_COMPARISON": "true",
   "TSPERF_NEW_COMMIT": "HEAD",
   "TSPERF_NEW_NAME": "pr",
-  "TSPERF_PREDICTABLE": "false",
+  "TSPERF_PREDICTABLE": "true",
   "TSPERF_PROCESS_KINDS": "tsc",
   "TSPERF_PROCESS_LOCATIONS": "internal,public",
 }
