@@ -151,7 +151,7 @@ jobs:
           cd $(TYPESCRIPT_DIR)
           git fetch origin $(OLD_REF)
           git switch --detach FETCH_HEAD
-          for i in `git branch -a | grep remote | grep -v HEAD | grep -v master`; do git branch --track ${i#remotes/origin/} $i; done
+          for i in `git branch -a | grep remote | grep -v HEAD | grep -v main`; do git branch --track ${i#remotes/origin/} $i; done
         displayName: Convert TypeScript clone to blobless clone
         condition: and(succeeded(), contains(variables['TSPERF_INPUT'], 'commit'))
 
