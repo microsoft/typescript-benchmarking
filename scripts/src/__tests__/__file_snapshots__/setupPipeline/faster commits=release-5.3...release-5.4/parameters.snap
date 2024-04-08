@@ -3,6 +3,7 @@
   "baselineName": "release-5.3",
   "hosts": undefined,
   "isComparison": true,
+  "isCustomCommitRange": true,
   "newCommit": "6ea273cdcca99db809074d2b2d38d0e5b59ee81b",
   "newName": "release-5.4",
   "predictable": undefined,

@@ -3,6 +3,7 @@
   "baselineName": "baseline",
   "hosts": undefined,
   "isComparison": false,
+  "isCustomCommitRange": false,
   "newCommit": "",
   "newName": "",
   "predictable": undefined,

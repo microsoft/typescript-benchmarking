@@ -5,7 +5,7 @@ import esMain from "es-main";
 import prettyMilliseconds from "pretty-ms";
 import sortKeys from "sort-keys";
 
-import { $pipe, parseBoolean, setJobVariable, setOutputVariable } from "./utils.js";
+import { $pipe, getNonEmptyEnv, parseBoolean, setJobVariable, setOutputVariable } from "./utils.js";
 
 // Keep in sync with inventory.yml and benchmark.yml.
 const allAgents = [
@@ -284,6 +284,7 @@ interface Parameters {
     predictable: boolean | undefined;
     hosts: string[] | undefined;
     isComparison: boolean;
+    isCustomCommitRange: boolean;
     baselineCommit: string;
     baselineName: string;
     newCommit: string;
@@ -296,6 +297,7 @@ async function parseInput({ input, isPr, gitParseRev }: SetupPipelineInput) {
         predictable: undefined,
         hosts: undefined,
         isComparison: isPr,
+        isCustomCommitRange: false,
         ...isPr ? {
             baselineCommit: "HEAD^1",
             baselineName: "baseline",
@@ -349,6 +351,7 @@ async function parseInput({ input, isPr, gitParseRev }: SetupPipelineInput) {
                 parsed.newCommit = newCommit ?? "";
                 parsed.newName = newName ?? "";
                 parsed.isComparison = !!newCommit;
+                parsed.isCustomCommitRange = true;
                 break;
         }
     }
@@ -481,6 +484,7 @@ export async function setupPipeline(input: SetupPipelineInput) {
     outputVariables[`TSPERF_PROCESS_LOCATIONS`] = [...processLocations].sort().join(",");
 
     outputVariables[`TSPERF_PREDICTABLE`] = parameters.predictable ? "true" : "false";
+    outputVariables["TSPERF_IS_CUSTOM_COMMIT_RANGE"] = parameters.isCustomCommitRange ? "true" : "false";
     outputVariables["TSPERF_IS_COMPARISON"] = parameters.isComparison ? "true" : "false";
     outputVariables[`TSPERF_BASELINE_COMMIT`] = parameters.baselineCommit;
     outputVariables[`TSPERF_BASELINE_NAME`] = parameters.baselineName;
@@ -510,8 +514,10 @@ export async function setupPipeline(input: SetupPipelineInput) {
 
 if (esMain(import.meta)) {
     async function gitParseRev(query: string): Promise<GitParseRevResult> {
-        const { stdout: stdoutHash } = await $pipe`git rev-parse ${query}`;
-        const { stdout: stdoutName } = await $pipe`git rev-parse --short --symbolic ${query}`;
+        const cwd = getNonEmptyEnv("TYPESCRIPT_DIR");
+
+        const { stdout: stdoutHash } = await $pipe`git -C ${cwd} rev-parse ${query}`;
+        const { stdout: stdoutName } = await $pipe`git -C ${cwd} rev-parse --short --symbolic ${query}`;
 
         const hashLines = process(stdoutHash);
         const nameLines = process(stdoutName);

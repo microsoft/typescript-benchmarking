@@ -6,6 +6,7 @@
     "vscode@1.88.1",
   ],
   "isComparison": true,
+  "isCustomCommitRange": false,
   "newCommit": "HEAD",
   "newName": "pr",
   "predictable": undefined,

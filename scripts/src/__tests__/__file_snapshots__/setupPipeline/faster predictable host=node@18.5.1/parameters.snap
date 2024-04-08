@@ -5,6 +5,7 @@
     "node@18.5.1",
   ],
   "isComparison": true,
+  "isCustomCommitRange": false,
   "newCommit": "HEAD",
   "newName": "pr",
   "predictable": true,

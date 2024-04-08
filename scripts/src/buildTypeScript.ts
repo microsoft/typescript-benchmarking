@@ -40,16 +40,14 @@ await $`git reset --hard HEAD`;
 
 let branch: string | undefined;
 
-const isPR = parseBoolean(process.env.IS_PR, false);
-const isComparison = parseBoolean(getNonEmptyEnv("TSPERF_IS_COMPARISON"), false);
+const isPR = parseBoolean(getNonEmptyEnv("IS_PR"), false);
 const ref = getNonEmptyEnv("REF");
+const isCustomCommitRange = parseBoolean(getNonEmptyEnv("TSPERF_IS_CUSTOM_COMMIT_RANGE"), false);
 
-if (isComparison) {
-    const newCommit = getNonEmptyEnv("TSPERF_NEW_COMMIT");
-    const baselineCommit = getNonEmptyEnv("TSPERF_BASELINE_COMMIT");
-
-    if (isPR && newCommit === "HEAD" && baselineCommit === "HEAD^1") {
-        // This is a typical PR run. Pull the branch info from the PR.
+// If this is a custom commit range, don't bother trying to figure out what the branch names are.
+if (!isCustomCommitRange) {
+    if (isPR) {
+        // This is a PR run. Pull the branch info from the PR.
         if (args.baseline) {
             const prNumber = ref.split("/")[2];
             const resp = await fetch(`https://api.github.com/repos/microsoft/TypeScript/pulls/${prNumber}`);
@@ -61,13 +59,9 @@ if (isComparison) {
         }
     }
     else {
-        // This is a comparison run via a parameter. Don't bother setting the branch.
+        assert(ref.startsWith("refs/heads/"), "Expected ref to start with refs/heads/");
+        branch = ref.replace(/^refs\/heads\//, "");
     }
-}
-else {
-    // TODO(jakebailey): what about commit=<single commit>?
-    assert(ref.startsWith("refs/heads/"), "Expected ref to start with refs/heads/");
-    branch = ref.replace(/^refs\/heads\//, "");
 }
 
 const info: RepoInfo = {
