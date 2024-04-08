@@ -1,5 +1,10 @@
 {
+  "baselineCommit": "HEAD",
+  "baselineName": "baseline",
   "hosts": undefined,
+  "isComparison": false,
+  "newCommit": "",
+  "newName": "",
   "predictable": undefined,
   "preset": "baseline",
 }

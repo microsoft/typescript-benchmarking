@@ -5,7 +5,7 @@ import path from "node:path";
 import { $ as _$ } from "execa";
 import minimist from "minimist";
 
-import { retry, setOutputVariable } from "./utils.js";
+import { getNonEmptyEnv, parseBoolean, RepoInfo, retry, setOutputVariable } from "./utils.js";
 
 const $pipe = _$({ verbose: true });
 const $ = _$({ verbose: true, stdio: "inherit" });
@@ -19,8 +19,6 @@ const args = minimist(process.argv.slice(2), {
     string: ["outputDir"],
     boolean: ["baseline"],
 });
-
-const isPR = (process.env.IS_PR || "").toUpperCase() === "TRUE";
 
 const outputDir = args.outputDir;
 assert(outputDir, "Expected output path as first argument");
@@ -44,29 +42,39 @@ else {
 await $`git clean -fddx`;
 await $`git reset --hard HEAD`;
 
-let branch;
+let branch: string | undefined;
 
-const ref = process.env.REF;
-assert(ref, "Expected REF environment variable to be set");
+const isPR = parseBoolean(process.env.IS_PR, false);
+const isComparison = parseBoolean(getNonEmptyEnv("TSPERF_IS_COMPARISON"), false);
+const ref = getNonEmptyEnv("REF");
 
-if (isPR) {
-    if (args.baseline) {
-        const prNumber = ref.split("/")[2];
-        const resp = await fetch(`https://api.github.com/repos/microsoft/TypeScript/pulls/${prNumber}`);
-        const pr = await resp.json();
-        branch = (pr as any).base.ref;
+if (isComparison) {
+    const newCommit = getNonEmptyEnv("TSPERF_NEW_COMMIT");
+    const baselineCommit = getNonEmptyEnv("TSPERF_BASELINE_COMMIT");
+
+    if (isPR && newCommit === "HEAD" && baselineCommit === "HEAD^1") {
+        // This is a typical PR run. Pull the branch info from the PR.
+        if (args.baseline) {
+            const prNumber = ref.split("/")[2];
+            const resp = await fetch(`https://api.github.com/repos/microsoft/TypeScript/pulls/${prNumber}`);
+            const pr = await resp.json();
+            branch = (pr as any).base.ref;
+        }
+        else {
+            branch = ref;
+        }
     }
     else {
-        branch = ref;
+        // This is a comparison run via a parameter. Don't bother setting the branch.
     }
 }
 else {
+    // TODO(jakebailey): what about commit=<single commit>?
     assert(ref.startsWith("refs/heads/"), "Expected ref to start with refs/heads/");
     branch = ref.replace(/^refs\/heads\//, "");
 }
 
-/** @type {import("./utils.mjs").RepoInfo} */
-const info = {
+const info: RepoInfo = {
     commit,
     commitShort,
     branch,

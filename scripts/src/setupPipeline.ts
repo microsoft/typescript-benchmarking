@@ -1,10 +1,11 @@
 import assert from "node:assert";
+import { isDeepStrictEqual } from "node:util";
 
 import esMain from "es-main";
 import prettyMilliseconds from "pretty-ms";
 import sortKeys from "sort-keys";
 
-import { setOutputVariable } from "./utils.js";
+import { parseBoolean, setJobVariable, setOutputVariable } from "./utils.js";
 
 // Keep in sync with inventory.yml and benchmark.yml.
 const allAgents = [
@@ -51,8 +52,6 @@ const hosts = {
     bun: "bun@1.0.35",
     vscode: "vscode@1.82.1",
 } as const satisfies Record<string, string>;
-
-type HostName = typeof hosts[keyof typeof hosts];
 
 const allJobKinds = ["tsc", "tsserver", "startup"] as const;
 type JobKind = typeof allJobKinds[number];
@@ -149,7 +148,7 @@ type ScenarioName = typeof allScenarios[number]["name"];
 
 interface Scenario extends BaseScenario {
     readonly name: ScenarioName;
-    readonly host: HostName;
+    readonly host: string;
     readonly iterations: number;
 }
 
@@ -177,7 +176,6 @@ function* generateBaselinePreset(scenarios: readonly BaseScenario[]): Iterable<S
     }
 }
 
-// Note: keep this up to date with TSPERF_PRESET
 const presets = {
     "baseline": () => generateBaselinePreset(baselineScenarios),
     "full": () => generateBaselinePreset(onDemandScenarios),
@@ -265,10 +263,11 @@ assert.deepStrictEqual([...allJobKinds].sort(), [...kindOrder].sort(), "kindOrde
 interface Job {
     TSPERF_JOB_KIND: JobKind;
     TSPERF_JOB_NAME: JobName;
-    TSPERF_JOB_HOST: HostName;
+    TSPERF_JOB_HOST: string;
     TSPERF_JOB_SCENARIO: ScenarioName;
     TSPERF_JOB_ITERATIONS: number;
     TSPERF_JOB_LOCATION: ScenarioLocation;
+    TSPERF_JOB_PREDICTABLE: boolean;
 }
 
 type Matrix = {
@@ -285,11 +284,11 @@ interface Parameters {
     preset: PresetName;
     predictable: boolean | undefined;
     hosts: string[] | undefined;
-}
-
-function parseBoolean(value: string | undefined, defaultValue: boolean): boolean {
-    if (!value) return defaultValue;
-    return value.toUpperCase() === "TRUE";
+    isComparison: boolean;
+    baselineCommit: string;
+    baselineName: string;
+    newCommit: string;
+    newName: string;
 }
 
 function parseInput(input: string, isPr: boolean) {
@@ -297,6 +296,18 @@ function parseInput(input: string, isPr: boolean) {
         preset: isPr ? "regular" : "baseline",
         predictable: undefined,
         hosts: undefined,
+        isComparison: isPr,
+        ...isPr ? {
+            baselineCommit: "HEAD^1",
+            baselineName: "baseline",
+            newCommit: "HEAD",
+            newName: "pr",
+        } : {
+            baselineCommit: "HEAD",
+            baselineName: "baseline",
+            newCommit: "",
+            newName: "",
+        },
     };
 
     let parsedPresetName = false;
@@ -324,10 +335,59 @@ function parseInput(input: string, isPr: boolean) {
                 }
                 (parsed.hosts ??= []).push(...value.split(","));
                 break;
+            case "commits":
+                if (!value) {
+                    throw new Error(`Expected value for ${key}`);
+                }
+                // TODO(jakebailey): resolve via git instead of a regex
+                // TODO(jakebailey): what about a single commit? need to mark that as non-comparison but properly set ref for other scripts
+                const match = value.match(/^(.*)\.\.\.(.*)$/);
+                if (!match) {
+                    throw new Error(`Expected A..B for ${key}`);
+                }
+                parsed.isComparison = true;
+                parsed.baselineCommit = match[1];
+                parsed.baselineName = match[1];
+                parsed.newCommit = match[2];
+                parsed.newName = match[2];
+                break;
         }
     }
 
     return parsed;
+}
+
+function* transformPreset(parameters: Parameters, iter: Iterable<Scenario>): Iterable<Scenario> {
+    const all = [...worker()];
+
+    for (const scenario of all) {
+        let dupe = false;
+        for (const other of all) {
+            if (other === scenario) {
+                continue;
+            }
+            if (isDeepStrictEqual(scenario, other)) {
+                dupe = true;
+                break;
+            }
+        }
+        if (!dupe) {
+            yield scenario;
+        }
+    }
+
+    function* worker(): Iterable<Scenario> {
+        for (const scenario of iter) {
+            const hosts = parameters.hosts ?? [scenario.host];
+
+            for (const host of hosts) {
+                yield {
+                    ...scenario,
+                    host,
+                };
+            }
+        }
+    }
 }
 
 export interface SetupPipelineInput {
@@ -343,7 +403,7 @@ export function setupPipeline({ input, baselining, isPr, shouldLog }: SetupPipel
         console.log("Parameters", parameters);
     }
 
-    // TODO(jakebailey): use parameters
+    // TODO(jakebailey): use parameter.predictable
 
     const preset = presets[parameters.preset];
 
@@ -371,7 +431,7 @@ export function setupPipeline({ input, baselining, isPr, shouldLog }: SetupPipel
     let maxCost = 0;
     const costPerAgent = new Map<Agent, number>();
 
-    for (const scenario of preset()) {
+    for (const scenario of transformPreset(parameters, preset())) {
         const agent = baselining ? scenario.agent : "any";
         const jobName = sanitizeJobName(`${scenario.kind}_${scenario.host}_${scenario.name}`);
         matrix[agent][jobName] = {
@@ -381,6 +441,7 @@ export function setupPipeline({ input, baselining, isPr, shouldLog }: SetupPipel
             TSPERF_JOB_SCENARIO: scenario.name,
             TSPERF_JOB_ITERATIONS: scenario.iterations,
             TSPERF_JOB_LOCATION: scenario.location,
+            TSPERF_JOB_PREDICTABLE: parameters.predictable ?? false,
         };
         processKinds.add(scenario.kind);
         processLocations.add(scenario.location);
@@ -412,6 +473,12 @@ export function setupPipeline({ input, baselining, isPr, shouldLog }: SetupPipel
     outputVariables[`TSPERF_PROCESS_KINDS`] = kindOrder.filter(kind => processKinds.has(kind)).join(" ");
     // Comma separated, parsed by runTsPerf.ts.
     outputVariables[`TSPERF_PROCESS_LOCATIONS`] = [...processLocations].sort().join(",");
+
+    outputVariables["TSPERF_IS_COMPARISON"] = parameters.isComparison ? "true" : "false";
+    outputVariables[`TSPERF_BASELINE_COMMIT`] = parameters.baselineCommit;
+    outputVariables[`TSPERF_BASELINE_NAME`] = parameters.baselineName;
+    outputVariables[`TSPERF_NEW_COMMIT`] = parameters.newCommit;
+    outputVariables[`TSPERF_NEW_NAME`] = parameters.newName;
 
     // If baselining, the cost is determined by the longest job on any given agent.
     // Otherwise, it's either the longest single job, or a rough estimate of the total time
@@ -448,5 +515,7 @@ if (esMain(import.meta)) {
     });
     for (const [key, value] of Object.entries(outputVariables)) {
         setOutputVariable(key, value);
+        // Also set them as environment variables for the job.
+        setJobVariable(key, value);
     }
 }

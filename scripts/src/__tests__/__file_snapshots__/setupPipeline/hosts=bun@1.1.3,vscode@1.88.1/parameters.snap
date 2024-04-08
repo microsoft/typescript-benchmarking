@@ -1,8 +1,13 @@
 {
+  "baselineCommit": "HEAD^1",
+  "baselineName": "baseline",
   "hosts": [
     "bun@1.1.3",
     "vscode@1.88.1",
   ],
+  "isComparison": true,
+  "newCommit": "HEAD",
+  "newName": "pr",
   "predictable": undefined,
   "preset": "regular",
 }

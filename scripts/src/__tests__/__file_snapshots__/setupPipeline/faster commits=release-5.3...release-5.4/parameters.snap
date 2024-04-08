@@ -1,0 +1,10 @@
+{
+  "baselineCommit": "release-5.3",
+  "baselineName": "release-5.3",
+  "hosts": undefined,
+  "isComparison": true,
+  "newCommit": "release-5.4",
+  "newName": "release-5.4",
+  "predictable": undefined,
+  "preset": "faster",
+}

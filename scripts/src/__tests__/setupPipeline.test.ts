@@ -26,6 +26,8 @@ const inputs = [
     "predictable=true",
     "hosts=bun@1.1.3,vscode@1.88.1",
     "this is not a preset",
+    "faster commits=release-5.3...release-5.4",
+    "faster commits=",
 ];
 
 test.each(inputs)("setupPipeline input=%s", input => {
