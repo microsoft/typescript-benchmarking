@@ -137,7 +137,7 @@ jobs:
         retryCountOnTaskFailure: 3
 
       - bash: |
-          set -eo pipefail
+          set -exo pipefail
           git config remote.origin.fetch "+refs/heads/*:refs/remotes/origin/*"
           git config remote.origin.promisor true
           git config remote.origin.partialclonefilter blob:none
@@ -148,20 +148,20 @@ jobs:
         workingDirectory: $(TYPESCRIPT_DIR)
 
       - bash: |
-          set -eo pipefail
+          set -exo pipefail
           node $(BENCH_SCRIPTS)/setupPipeline.js
         displayName: Setup pipeline
         name: setupPipeline
 
       - bash: |
-          set -eo pipefail
+          set -exo pipefail
           git switch --detach $(TSPERF_NEW_COMMIT)
         displayName: Switch to new commit
         condition: and(succeeded(), eq(variables['TSPERF_IS_COMPARISON'], 'true'))
         workingDirectory: $(TYPESCRIPT_DIR)
 
       - bash: |
-          set -eo pipefail
+          set -exo pipefail
           node $(BENCH_SCRIPTS)/buildTypeScript.js --outputDir $(ARTIFACTS_DIR)/new
         displayName: Build new TypeScript
         condition: and(succeeded(), eq(variables['TSPERF_IS_COMPARISON'], 'true'))
@@ -169,14 +169,14 @@ jobs:
         name: buildTypeScriptNew
 
       - bash: |
-          set -eo pipefail
+          set -exo pipefail
           git switch --detach $(TSPERF_BASELINE_COMMIT)
         displayName: Switch to baseline commit
         condition: and(succeeded(), not(eq(variables['TSPERF_BASELINE_COMMIT'], 'HEAD')))
         workingDirectory: $(TYPESCRIPT_DIR)
 
       - bash: |
-          set -eo pipefail
+          set -exo pipefail
           node $(BENCH_SCRIPTS)/buildTypeScript.js --baseline --outputDir $(ARTIFACTS_DIR)/baseline
         displayName: Build baseline TypeScript
         workingDirectory: $(TYPESCRIPT_DIR)
@@ -231,17 +231,17 @@ jobs:
 
           # This is provided by the agent.
           - bash: |
-              set -eo pipefail
+              set -exo pipefail
               sudo pyperf system tune
             displayName: Tune system
 
           - bash: |
-              set -eo pipefail
+              set -exo pipefail
               node $(BENCH_SCRIPTS)/runTsPerf.js install-hosts
             displayName: Install hosts
 
           - bash: |
-              set -eo pipefail
+              set -exo pipefail
               # Special case for self benchmark
               export TYPESCRIPT_COMMIT=$(TYPESCRIPT_COMMIT_NEW)
               SETUP=$(TSPERF_PUBLIC_SCENARIO_CONFIG_DIR)/$(TSPERF_JOB_SCENARIO)/setup.sh
@@ -253,7 +253,7 @@ jobs:
             condition: and(succeeded(), eq(variables['TSPERF_IS_COMPARISON'], 'true'), eq(variables['TSPERF_JOB_LOCATION'], 'public'))
 
           - bash: |
-              set -eo pipefail
+              set -exo pipefail
               node $(BENCH_SCRIPTS)/runTsPerf.js benchmark-$(TSPERF_JOB_KIND) \
                 --builtDir $(BUILT_TYPESCRIPT_DIR)/new \
                 --save $(ARTIFACTS_DIR)/new_$(TSPERF_JOB_NAME).$(TSPERF_JOB_KIND).benchmark
@@ -261,7 +261,7 @@ jobs:
             condition: and(succeeded(), eq(variables['TSPERF_IS_COMPARISON'], 'true'))
 
           - bash: |
-              set -eo pipefail
+              set -exo pipefail
               # Special case for self benchmark
               export TYPESCRIPT_COMMIT=$(TYPESCRIPT_COMMIT_BASELINE)
               SETUP=$(TSPERF_PUBLIC_SCENARIO_CONFIG_DIR)/$(TSPERF_JOB_SCENARIO)/setup.sh
@@ -273,14 +273,14 @@ jobs:
             condition: and(succeeded(), eq(variables['TSPERF_JOB_LOCATION'], 'public'))
 
           - bash: |
-              set -eo pipefail
+              set -exo pipefail
               node $(BENCH_SCRIPTS)/runTsPerf.js benchmark-$(TSPERF_JOB_KIND) \
                 --builtDir $(BUILT_TYPESCRIPT_DIR)/baseline \
                 --save $(ARTIFACTS_DIR)/baseline_$(TSPERF_JOB_NAME).$(TSPERF_JOB_KIND).benchmark
             displayName: Run baseline $(TSPERF_JOB_KIND) benchmark
 
           - bash: |
-              set -eo pipefail
+              set -exo pipefail
               node $(BENCH_SCRIPTS)/runTsPerf.js benchmark-$(TSPERF_JOB_KIND) \
                 --builtDir $(BUILT_TYPESCRIPT_DIR)/baseline \
                 --baseline $(ARTIFACTS_DIR)/baseline_$(TSPERF_JOB_NAME).$(TSPERF_JOB_KIND).benchmark \
@@ -336,7 +336,7 @@ jobs:
       # first and move them somewhere else, before doing any other steps that would download
       # further artifacts.
       - bash: |
-          set -eo pipefail
+          set -exo pipefail
           shopt -s globstar
           mkdir -p $(BENCHMARKS_DIR)
           mv $(Pipeline.Workspace)/**/*.benchmark $(BENCHMARKS_DIR)
@@ -352,12 +352,12 @@ jobs:
       - template: templates/cloneInternalRepo.yml # Sets $(TSPERF_INTERNAL_SCENARIO_CONFIG_DIR), $(TSPERF_INTERNAL_SUITE_DIR)
 
       - bash: |
-          set -eo pipefail
+          set -exo pipefail
           mkdir -p $(MERGED_DIR)
         displayName: Create merged output directory
 
       - bash: |
-          set -eo pipefail
+          set -exo pipefail
 
           for KIND in $(TSPERF_PROCESS_KINDS); do
             echo "Merging ${KIND} benchmarks"
@@ -394,7 +394,7 @@ jobs:
         displayName: Publish benchmark artifacts
 
       - bash: |
-          set -eo pipefail
+          set -exo pipefail
           node $(BENCH_SCRIPTS)/postPerfResult.js --fragment $(Pipeline.Workspace)/comment.html
         displayName: Publish PR comment
         condition: and(succeeded(), eq(variables['IS_PR'], 'true'))
@@ -407,7 +407,7 @@ jobs:
 
       # Sets $(TSPERF_BLOB_LATEST)
       - bash: |
-          set -eo pipefail
+          set -exo pipefail
           node $(BENCH_SCRIPTS)/checkLatestCommitForRef.js --builtDir $(BUILT_TYPESCRIPT_DIR)/baseline
         displayName: Check if commit is latest for ref
         condition: and(succeeded(), eq(variables['SHOULD_UPLOAD'], 'true'))
@@ -415,7 +415,7 @@ jobs:
           GH_TOKEN: $(typescript-bot-github-PAT-for-comments)
 
       - bash: |
-          set -eo pipefail
+          set -exo pipefail
           for KIND in $(TSPERF_PROCESS_KINDS); do
             echo "Uploading ${KIND} benchmarks"
             case ${KIND} in 
@@ -464,7 +464,7 @@ jobs:
       - template: templates/cloneAndBuildBenchmarkRepo.yml # Sets $(BENCH_SCRIPTS), $(TSPERF_EXE)
 
       - bash: |
-          set -eo pipefail
+          set -exo pipefail
           node $(BENCH_SCRIPTS)/postPerfResult.js --failed
         displayName: Publish PR comment
         env:
