@@ -336,7 +336,9 @@ async function parseInput({ input, isPr, gitParseRev }: SetupPipelineInput) {
                 }
                 (parsed.hosts ??= []).push(...value.split(","));
                 break;
+            case "commit":
             case "commits":
+                // If updating this, make sure benchmark.yml still unshallows properly.
                 if (!value) {
                     throw new Error(`Expected value for ${key}`);
                 }
