@@ -2,6 +2,7 @@ import assert from "node:assert";
 import { isDeepStrictEqual } from "node:util";
 
 import esMain from "es-main";
+import { $ } from "execa";
 import prettyMilliseconds from "pretty-ms";
 import sortKeys from "sort-keys";
 
@@ -515,6 +516,14 @@ export async function setupPipeline(input: SetupPipelineInput) {
 if (esMain(import.meta)) {
     async function gitParseRev(query: string): Promise<GitParseRevResult> {
         const cwd = getNonEmptyEnv("TYPESCRIPT_DIR");
+
+        try {
+            await $`git -C ${cwd} rev-parse ${query}`;
+        }
+        catch {
+            // Something went wrong; maybe we need to unshallow.
+            await $`git -C ${cwd} fetch --unshallow`;
+        }
 
         const { stdout: stdoutHash } = await $pipe`git -C ${cwd} rev-parse ${query}`;
         const { stdout: stdoutName } = await $pipe`git -C ${cwd} rev-parse --short --symbolic ${query}`;
