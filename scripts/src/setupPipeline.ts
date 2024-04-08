@@ -338,7 +338,7 @@ async function parseInput({ input, isPr, gitParseRev }: SetupPipelineInput) {
                 break;
             case "commit":
             case "commits":
-                // If updating this, make sure benchmark.yml still unshallows properly.
+                // If updating this, make sure benchmark.yml still fixes the repo properly.
                 if (!value) {
                     throw new Error(`Expected value for ${key}`);
                 }

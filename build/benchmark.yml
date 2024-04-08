@@ -136,16 +136,24 @@ jobs:
         clean: true
         retryCountOnTaskFailure: 3
 
+      # Ideally we'd just do this:
+      #   git config remote.origin.fetch "+refs/heads/*:refs/remotes/origin/*"
+      #   git config remote.origin.promisor true
+      #   git config remote.origin.partialclonefilter blob:none
+      #   git fetch --unshallow
+      # But this seems to cause `git rev-parse` fail (even though it resolves everything).
       - bash: |
           set -exo pipefail
-          git config remote.origin.fetch "+refs/heads/*:refs/remotes/origin/*"
-          git config remote.origin.promisor true
-          git config remote.origin.partialclonefilter blob:none
-          git fetch --unshallow
+          OLD_REF=`git -C $(TYPESCRIPT_DIR) rev-parse HEAD`
+          echo "Old ref: $OLD_REF"
+          rm -rf $(TYPESCRIPT_DIR)
+          git clone --filter=blob:none https://github.com/microsoft/TypeScript $(TYPESCRIPT_DIR)
+          cd $(TYPESCRIPT_DIR)
+          git fetch origin $(OLD_REF)
+          git switch --detach FETCH_HEAD
           for i in `git branch -a | grep remote | grep -v HEAD | grep -v master`; do git branch --track ${i#remotes/origin/} $i; done
-        displayName: Unshallow TypeScript clone
+        displayName: Convert TypeScript clone to blobless clone
         condition: and(succeeded(), contains(variables['TSPERF_INPUT'], 'commit'))
-        workingDirectory: $(TYPESCRIPT_DIR)
 
       - bash: |
           set -exo pipefail
