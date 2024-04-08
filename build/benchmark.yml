@@ -195,6 +195,7 @@ jobs:
           BUILT_TYPESCRIPT_DIR: $(Pipeline.Workspace)/BuiltTypeScript
           ARTIFACTS_DIR: $(Pipeline.Workspace)/artifacts
           TSPERF_IS_COMPARISON: $[ dependencies.Setup.outputs['setupPipeline.TSPERF_IS_COMPARISON'] ]
+          TSPERF_PREDICTABLE: $[ dependencies.Setup.outputs['setupPipeline.TSPERF_PREDICTABLE'] ]
           TYPESCRIPT_COMMIT_NEW: $[ dependencies.Setup.outputs['buildTypeScriptNew.TYPESCRIPT_COMMIT'] ]
           TYPESCRIPT_COMMIT_BASELINE: $[ dependencies.Setup.outputs['buildTypeScriptBaseline.TYPESCRIPT_COMMIT'] ]
 

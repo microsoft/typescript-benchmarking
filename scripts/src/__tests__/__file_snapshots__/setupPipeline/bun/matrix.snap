@@ -6,7 +6,6 @@
       "TSPERF_JOB_KIND": "startup",
       "TSPERF_JOB_LOCATION": "public",
       "TSPERF_JOB_NAME": "startup_bun_1_0_35_tsc_startup",
-      "TSPERF_JOB_PREDICTABLE": false,
       "TSPERF_JOB_SCENARIO": "tsc-startup",
     },
     "startup_bun_1_0_35_tsserverlibrary_startup": {
@@ -15,7 +14,6 @@
       "TSPERF_JOB_KIND": "startup",
       "TSPERF_JOB_LOCATION": "public",
       "TSPERF_JOB_NAME": "startup_bun_1_0_35_tsserverlibrary_startup",
-      "TSPERF_JOB_PREDICTABLE": false,
       "TSPERF_JOB_SCENARIO": "tsserverlibrary-startup",
     },
     "startup_bun_1_0_35_typescript_startup": {
@@ -24,7 +22,6 @@
       "TSPERF_JOB_KIND": "startup",
       "TSPERF_JOB_LOCATION": "public",
       "TSPERF_JOB_NAME": "startup_bun_1_0_35_typescript_startup",
-      "TSPERF_JOB_PREDICTABLE": false,
       "TSPERF_JOB_SCENARIO": "typescript-startup",
     },
     "tsc_bun_1_0_35_Angular": {
@@ -33,7 +30,6 @@
       "TSPERF_JOB_KIND": "tsc",
       "TSPERF_JOB_LOCATION": "internal",
       "TSPERF_JOB_NAME": "tsc_bun_1_0_35_Angular",
-      "TSPERF_JOB_PREDICTABLE": false,
       "TSPERF_JOB_SCENARIO": "Angular",
     },
     "tsc_bun_1_0_35_Compiler_Unions": {
@@ -42,7 +38,6 @@
       "TSPERF_JOB_KIND": "tsc",
       "TSPERF_JOB_LOCATION": "public",
       "TSPERF_JOB_NAME": "tsc_bun_1_0_35_Compiler_Unions",
-      "TSPERF_JOB_PREDICTABLE": false,
       "TSPERF_JOB_SCENARIO": "Compiler-Unions",
     },
     "tsc_bun_1_0_35_Monaco": {
@@ -51,7 +46,6 @@
       "TSPERF_JOB_KIND": "tsc",
       "TSPERF_JOB_LOCATION": "internal",
       "TSPERF_JOB_NAME": "tsc_bun_1_0_35_Monaco",
-      "TSPERF_JOB_PREDICTABLE": false,
       "TSPERF_JOB_SCENARIO": "Monaco",
     },
     "tsc_bun_1_0_35_TFS": {
@@ -60,7 +54,6 @@
       "TSPERF_JOB_KIND": "tsc",
       "TSPERF_JOB_LOCATION": "internal",
       "TSPERF_JOB_NAME": "tsc_bun_1_0_35_TFS",
-      "TSPERF_JOB_PREDICTABLE": false,
       "TSPERF_JOB_SCENARIO": "TFS",
     },
     "tsc_bun_1_0_35_material_ui": {
@@ -69,7 +62,6 @@
       "TSPERF_JOB_KIND": "tsc",
       "TSPERF_JOB_LOCATION": "internal",
       "TSPERF_JOB_NAME": "tsc_bun_1_0_35_material_ui",
-      "TSPERF_JOB_PREDICTABLE": false,
       "TSPERF_JOB_SCENARIO": "material-ui",
     },
     "tsc_bun_1_0_35_mui_docs": {
@@ -78,7 +70,6 @@
       "TSPERF_JOB_KIND": "tsc",
       "TSPERF_JOB_LOCATION": "public",
       "TSPERF_JOB_NAME": "tsc_bun_1_0_35_mui_docs",
-      "TSPERF_JOB_PREDICTABLE": false,
       "TSPERF_JOB_SCENARIO": "mui-docs",
     },
     "tsc_bun_1_0_35_self_build_src": {
@@ -87,7 +78,6 @@
       "TSPERF_JOB_KIND": "tsc",
       "TSPERF_JOB_LOCATION": "public",
       "TSPERF_JOB_NAME": "tsc_bun_1_0_35_self_build_src",
-      "TSPERF_JOB_PREDICTABLE": false,
       "TSPERF_JOB_SCENARIO": "self-build-src",
     },
     "tsc_bun_1_0_35_self_build_src_public_api": {
@@ -96,7 +86,6 @@
       "TSPERF_JOB_KIND": "tsc",
       "TSPERF_JOB_LOCATION": "public",
       "TSPERF_JOB_NAME": "tsc_bun_1_0_35_self_build_src_public_api",
-      "TSPERF_JOB_PREDICTABLE": false,
       "TSPERF_JOB_SCENARIO": "self-build-src-public-api",
     },
     "tsc_bun_1_0_35_self_compiler": {
@@ -105,7 +94,6 @@
       "TSPERF_JOB_KIND": "tsc",
       "TSPERF_JOB_LOCATION": "public",
       "TSPERF_JOB_NAME": "tsc_bun_1_0_35_self_compiler",
-      "TSPERF_JOB_PREDICTABLE": false,
       "TSPERF_JOB_SCENARIO": "self-compiler",
     },
     "tsc_bun_1_0_35_vscode": {
@@ -114,7 +102,6 @@
       "TSPERF_JOB_KIND": "tsc",
       "TSPERF_JOB_LOCATION": "public",
       "TSPERF_JOB_NAME": "tsc_bun_1_0_35_vscode",
-      "TSPERF_JOB_PREDICTABLE": false,
       "TSPERF_JOB_SCENARIO": "vscode",
     },
     "tsc_bun_1_0_35_webpack": {
@@ -123,7 +110,6 @@
       "TSPERF_JOB_KIND": "tsc",
       "TSPERF_JOB_LOCATION": "public",
       "TSPERF_JOB_NAME": "tsc_bun_1_0_35_webpack",
-      "TSPERF_JOB_PREDICTABLE": false,
       "TSPERF_JOB_SCENARIO": "webpack",
     },
     "tsc_bun_1_0_35_xstate": {
@@ -132,7 +118,6 @@
       "TSPERF_JOB_KIND": "tsc",
       "TSPERF_JOB_LOCATION": "internal",
       "TSPERF_JOB_NAME": "tsc_bun_1_0_35_xstate",
-      "TSPERF_JOB_PREDICTABLE": false,
       "TSPERF_JOB_SCENARIO": "xstate",
     },
   },

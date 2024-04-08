@@ -267,7 +267,6 @@ interface Job {
     TSPERF_JOB_SCENARIO: ScenarioName;
     TSPERF_JOB_ITERATIONS: number;
     TSPERF_JOB_LOCATION: ScenarioLocation;
-    TSPERF_JOB_PREDICTABLE: boolean;
 }
 
 type Matrix = {
@@ -403,8 +402,6 @@ export function setupPipeline({ input, baselining, isPr, shouldLog }: SetupPipel
         console.log("Parameters", parameters);
     }
 
-    // TODO(jakebailey): use parameter.predictable
-
     const preset = presets[parameters.preset];
 
     let matrix: Matrix = {
@@ -441,7 +438,6 @@ export function setupPipeline({ input, baselining, isPr, shouldLog }: SetupPipel
             TSPERF_JOB_SCENARIO: scenario.name,
             TSPERF_JOB_ITERATIONS: scenario.iterations,
             TSPERF_JOB_LOCATION: scenario.location,
-            TSPERF_JOB_PREDICTABLE: parameters.predictable ?? false,
         };
         processKinds.add(scenario.kind);
         processLocations.add(scenario.location);
@@ -474,6 +470,7 @@ export function setupPipeline({ input, baselining, isPr, shouldLog }: SetupPipel
     // Comma separated, parsed by runTsPerf.ts.
     outputVariables[`TSPERF_PROCESS_LOCATIONS`] = [...processLocations].sort().join(",");
 
+    outputVariables[`TSPERF_PREDICTABLE`] = parameters.predictable ? "true" : "false";
     outputVariables["TSPERF_IS_COMPARISON"] = parameters.isComparison ? "true" : "false";
     outputVariables[`TSPERF_BASELINE_COMMIT`] = parameters.baselineCommit;
     outputVariables[`TSPERF_BASELINE_NAME`] = parameters.baselineName;
