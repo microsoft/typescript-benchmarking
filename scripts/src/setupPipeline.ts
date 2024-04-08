@@ -2,11 +2,10 @@ import assert from "node:assert";
 import { isDeepStrictEqual } from "node:util";
 
 import esMain from "es-main";
-import { $ } from "execa";
 import prettyMilliseconds from "pretty-ms";
 import sortKeys from "sort-keys";
 
-import { $pipe, getNonEmptyEnv, parseBoolean, setJobVariable, setOutputVariable } from "./utils.js";
+import { $, $pipe, getNonEmptyEnv, parseBoolean, setJobVariable, setOutputVariable } from "./utils.js";
 
 // Keep in sync with inventory.yml and benchmark.yml.
 const allAgents = [
