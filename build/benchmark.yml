@@ -95,7 +95,6 @@ variables:
   azureSubscription: 'TypeScript Public CI'
   KeyVaultName: 'jststeam-passwords'
 
-  TSPERF_INPUT: ${{ parameters.HISTORICAL_RUN }}
   REF: $[ resources.repositories['TypeScript'].ref ]
   PRETTY_REF: $[ replace(replace(replace(replace(variables['REF'], '/merge', ''), 'refs/pull/', 'pr.'), 'refs/heads/', ''), '/', '_') ]
   IS_PR: $[ startsWith(variables['REF'], 'refs/pull/') ]
@@ -140,6 +139,8 @@ jobs:
           node $(BENCH_SCRIPTS)/setupPipeline.js
         displayName: Setup pipeline
         name: setupPipeline
+        env:
+          TSPERF_INPUT: ${{ parameters.TSPERF_INPUT }}
 
       - bash: |
           set -eo pipefail
