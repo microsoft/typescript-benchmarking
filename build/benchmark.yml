@@ -123,6 +123,7 @@ jobs:
     variables:
       ARTIFACTS_DIR: $(Pipeline.Workspace)/artifacts
       TYPESCRIPT_DIR: $(Pipeline.Workspace)/TypeScript
+      TSPERF_INPUT: ${{ parameters.TSPERF_INPUT }}
 
     steps:
       - template: templates/setup.yml
@@ -143,8 +144,6 @@ jobs:
           git fetch --unshallow
           for i in `git branch -a | grep remote | grep -v HEAD | grep -v master`; do git branch --track ${i#remotes/origin/} $i; done
         displayName: Unshallow TypeScript clone
-        env:
-          TSPERF_INPUT: ${{ parameters.TSPERF_INPUT }}
         condition: and(succeeded(), contains(variables['TSPERF_INPUT'], 'commit'))
         workingDirectory: $(TYPESCRIPT_DIR)
 
@@ -153,8 +152,6 @@ jobs:
           node $(BENCH_SCRIPTS)/setupPipeline.js
         displayName: Setup pipeline
         name: setupPipeline
-        env:
-          TSPERF_INPUT: ${{ parameters.TSPERF_INPUT }}
 
       - bash: |
           set -eo pipefail
