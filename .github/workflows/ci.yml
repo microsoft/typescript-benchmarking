@@ -78,6 +78,41 @@ jobs:
 
       - run: pnpm dprint check
 
+  scenarios:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@9bb56186c3b09b4f86b1c65136769dd318469633 # v4.1.2
+      - uses: actions/setup-node@60edb5dd545a775178f52524783378180af0d1f8 # v4.0.2
+        with:
+          node-version: 18
+
+      - uses: pnpm/action-setup@a3252b78c470c02df07e9d59298aecedc3ccdd6d # v3.0.0
+        with:
+          run_install: true
+
+      - run: |
+          set -x
+
+          sudo apt-get update && \
+          sudo apt-get install -y \
+              apt-transport-https \
+              ca-certificates \
+              curl \
+              gnupg
+
+          curl -fsSL https://gvisor.dev/archive.key | sudo gpg --dearmor -o /usr/share/keyrings/gvisor-archive-keyring.gpg
+          echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/gvisor-archive-keyring.gpg] https://storage.googleapis.com/gvisor/releases release main" | sudo tee /etc/apt/sources.list.d/gvisor.list > /dev/null
+
+          sudo apt-get update && sudo apt-get install -y runsc
+        name: Install gVisor
+
+      - run: |
+          for script in cases/scenarios/**/setup.sh; do
+            echo "Running $script"
+            bash $script
+          done
+
   required:
     runs-on: ubuntu-latest
     if: ${{ always() }}
@@ -86,6 +121,7 @@ jobs:
       - test
       - lint
       - format
+      - scenarios
 
     steps:
       - name: Check required jobs
@@ -95,6 +131,7 @@ jobs:
             "${{ needs.test.result }}"
             "${{ needs.lint.result }}"
             "${{ needs.format.result }}"
+            "${{ needs.scenarios.result }}"
           )
 
           for result in "${results[@]}"; do
