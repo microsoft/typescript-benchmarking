@@ -519,35 +519,51 @@ if (esMain(import.meta)) {
         const cwd = getNonEmptyEnv("TYPESCRIPT_DIR");
 
         const { stdout: stdoutHash } = await $pipe`git -C ${cwd} rev-parse ${query}`;
-        // We ignore errors here; --short will exit with error on ranges but still print out nice strings.
-        // If there really was an error, we would have errored in the previous command.
-        const { stdout: stdoutName } = await $pipe({
-            reject: false,
-        })`git -C ${cwd} rev-parse --short --symbolic ${query}`;
+        const lines = stdoutHash.split("\n").map(line => line.trim()).filter(line => line && !line.startsWith("^")) as [
+            first: string,
+            second?: string,
+        ];
+        assert(lines.length === 1 || lines.length === 2, `Expected 1 or 2 lines, got ${lines.length}`);
 
-        const hashLines = process(stdoutHash);
-        const nameLines = process(stdoutName);
-        assert.strictEqual(hashLines.length, nameLines.length);
-
-        if (hashLines.length === 1) {
+        if (lines.length === 1) {
+            const baselineCommit = lines[0];
             return {
-                baselineCommit: hashLines[0],
-                baselineName: nameLines[0],
+                baselineCommit,
+                baselineName: await getName(query, baselineCommit),
             };
         }
 
+        assert(query.includes("..."), "Expected '...' in query");
+        const [baselineRef, newRef] = query.split("...", 2);
+
         // The order swap is intentional; git rev-parse A...B returns [B, A, merge base].
+        const baselineCommit = lines[1]!;
+        const newCommit = lines[0];
+
         return {
-            baselineCommit: hashLines[1]!,
-            baselineName: nameLines[1]!,
-            newCommit: hashLines[0],
-            newName: nameLines[0],
+            baselineCommit,
+            baselineName: await getName(baselineRef, baselineCommit),
+            newCommit,
+            newName: await getName(newRef, newCommit),
         };
 
-        function process(stdout: string): [first: string, second?: string] {
-            const list = stdout.split("\n").map(line => line.trim()).filter(line => line && !line.startsWith("^"));
-            assert(list.length === 1 || list.length === 2, `Expected 1 or 2 lines, got ${list.length}`);
-            return list as [string, string | undefined];
+        async function getName(input: string, commitHash: string): Promise<string> {
+            if (commitHash.startsWith(input)) {
+                return input;
+            }
+
+            const { stdout: decorateStdout } =
+                await $pipe`git -C ${cwd} -1 --pretty=${"format:%(decorate:prefix=,suffix=,separator= ,tag=tag:)"} ${commitHash}`;
+
+            for (const decoration of decorateStdout.split(/\s+/)) {
+                if (!decoration || decoration.startsWith("tag:")) {
+                    continue;
+                }
+                return decoration;
+            }
+
+            const { stdout: refStdout } = await $pipe`git -C ${cwd} rev-parse --short ${commitHash}`;
+            return refStdout;
         }
     }
 

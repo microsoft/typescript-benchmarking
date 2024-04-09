@@ -141,11 +141,10 @@ jobs:
       #   git config remote.origin.promisor true
       #   git config remote.origin.partialclonefilter blob:none
       #   git fetch --unshallow
-      # But this seems to cause `git rev-parse` fail (even though it resolves everything).
+      # But this is slower than recloning the entire repo.
       - bash: |
           set -exo pipefail
           OLD_REF=`git -C $(TYPESCRIPT_DIR) rev-parse HEAD`
-          echo "Old ref: $OLD_REF"
           rm -rf $(TYPESCRIPT_DIR)
           git clone --filter=blob:none https://github.com/microsoft/TypeScript $(TYPESCRIPT_DIR)
           cd $(TYPESCRIPT_DIR)
@@ -153,6 +152,7 @@ jobs:
           git switch --detach FETCH_HEAD
           for i in `git branch -a | grep remote | grep -v HEAD | grep -v main`; do git branch --track ${i#remotes/origin/} $i; done
         displayName: Convert TypeScript clone to blobless clone
+        # Only do this if one of the parameters looks like it's going to change the commit range.
         condition: and(succeeded(), contains(variables['TSPERF_INPUT'], 'commit'))
 
       - bash: |
