@@ -57,11 +57,13 @@
     creates: '/var/lib/systemd/linger/{{ agent_user }}'
   become: yes
   register: linger
+  when: install_agent
 
 - name: Reboot if linger changed
   when: linger.changed
   ansible.builtin.shell: touch /var/run/reboot-required
   become: yes
+  when: install_agent
 
 - name: Create docker daemon config
   ansible.builtin.copy:
@@ -78,6 +80,7 @@
         }
       }
   become: yes
+  when: install_agent
 
 - name: Enable user docker
   ansible.builtin.systemd_service:
@@ -87,3 +90,4 @@
     scope: user
   become: yes
   become_user: '{{ agent_user }}'
+  when: install_agent
