@@ -1,82 +1,99 @@
 import fs from "node:fs";
 
-import { Octokit } from "@octokit/rest";
 import minimist from "minimist";
+import { Octokit } from "octokit";
 
 async function main() {
-    const source = process.env.SOURCE_ISSUE;
-    if (!source) throw new Error("SOURCE_ISSUE environment variable not set.");
+    const SOURCE_ISSUE = process.env.SOURCE_ISSUE;
+    if (!SOURCE_ISSUE) throw new Error("SOURCE_ISSUE environment variable not set.");
 
-    const requester = process.env.REQUESTING_USER;
-    if (!requester) throw new Error("REQUESTING_USER environment variable not set.");
+    const REQUESTING_USER = process.env.REQUESTING_USER;
+    if (!REQUESTING_USER) throw new Error("REQUESTING_USER environment variable not set.");
 
-    const buildId = process.env.BUILD_BUILDID;
-    if (!buildId) throw new Error("BUILD_BUILDID environment variable not set.");
+    const BUILD_BUILDID = process.env.BUILD_BUILDID;
+    if (!BUILD_BUILDID) throw new Error("BUILD_BUILDID environment variable not set.");
 
-    const postedComment = process.env.STATUS_COMMENT;
-    if (!postedComment) throw new Error("STATUS_COMMENT environment variable not set.");
+    const STATUS_COMMENT = process.env.STATUS_COMMENT;
+    if (!STATUS_COMMENT) throw new Error("STATUS_COMMENT environment variable not set.");
 
-    const auth = process.env.GH_TOKEN;
-    if (!auth) throw new Error("GH_TOKEN environment variable not set.");
+    const DISTINCT_ID = process.env.DISTINCT_ID;
+    if (!DISTINCT_ID) throw new Error("DISTINCT_ID environment variable not set.");
+
+    const GH_TOKEN = process.env.GH_TOKEN;
+    if (!GH_TOKEN) throw new Error("GH_TOKEN environment variable not set.");
 
     const args = minimist(process.argv.slice(2), {
         string: ["fragment"],
         boolean: ["failed"],
     });
 
-    const gh = new Octokit({ auth });
-    try {
-        let body;
-        if (args.failed) {
-            body =
-                `@${requester}, the perf run you requested failed. [You can check the log here](https://typescript.visualstudio.com/TypeScript/_build/index?buildId=${buildId}&_a=summary).`;
-        }
-        else {
-            const fragment = args.fragment;
-            if (!fragment) throw new Error("Expected --fragment to be set.");
-
-            console.log(`Loading fragment from ${fragment}...`);
-            const outputTableText = fs.readFileSync(fragment, { encoding: "utf8" });
-            console.log(`Fragment contents:\n${outputTableText}`);
-
-            const artifactLink =
-                `\n<details><summary>Developer Information:</summary><p><a href="https://typescript.visualstudio.com/TypeScript/_build/results?buildId=${buildId}&view=artifacts">Download Benchmarks</a></p></details>\n`;
-            body =
-                `@${requester}\nThe results of the perf run you requested are in!\n<details><summary> Here they are:</summary><p>\n${outputTableText}\n</p>${artifactLink}</details>`;
-        }
-
-        const data = await gh.issues.createComment({
-            issue_number: +source,
-            owner: "Microsoft",
-            repo: "TypeScript",
-            body,
-        });
-
-        console.log(`Results posted!`);
-        const newCommentUrl = data.data.html_url;
-        const comment = await gh.issues.getComment({
-            owner: "Microsoft",
-            repo: "TypeScript",
-            comment_id: +postedComment,
-        });
-        const newBody = `${comment.data.body}\n\nUpdate: [The results are in!](${newCommentUrl})`;
-        await gh.issues.updateComment({
-            owner: "Microsoft",
-            repo: "TypeScript",
-            comment_id: +postedComment,
-            body: newBody,
-        });
+    const gh = new Octokit({ auth: GH_TOKEN });
+    let body;
+    if (args.failed) {
+        body =
+            `@${REQUESTING_USER}, the perf run you requested failed. [You can check the log here](https://typescript.visualstudio.com/TypeScript/_build/index?buildId=${BUILD_BUILDID}&_a=summary).`;
     }
-    catch (e) {
-        console.error(e);
-        const gh = new Octokit({ auth });
-        await gh.issues.createComment({
-            issue_number: +source,
+    else {
+        const fragment = args.fragment;
+        if (!fragment) throw new Error("Expected --fragment to be set.");
+
+        console.log(`Loading fragment from ${fragment}...`);
+        const outputTableText = fs.readFileSync(fragment, { encoding: "utf8" });
+        console.log(`Fragment contents:\n${outputTableText}`);
+
+        const artifactLink =
+            `\n<details><summary>Developer Information:</summary><p><a href="https://typescript.visualstudio.com/TypeScript/_build/results?buildId=${BUILD_BUILDID}&view=artifacts">Download Benchmarks</a></p></details>\n`;
+        body =
+            `@${REQUESTING_USER}\nThe results of the perf run you requested are in!\n<details><summary> Here they are:</summary><p>\n${outputTableText}\n</p>${artifactLink}</details>`;
+    }
+
+    const resultsComment = await gh.rest.issues.createComment({
+        issue_number: +SOURCE_ISSUE,
+        owner: "Microsoft",
+        repo: "TypeScript",
+        body,
+    });
+
+    console.log(`Results posted!`);
+
+    // TODO: ✅/👀 depending on results?
+    const emoji = !args.failed ? "👀" : "❌";
+
+    const toReplace = `<!--result-${DISTINCT_ID}-->`;
+    let posted = false;
+    for (let i = 0; i < 5; i++) {
+        // Get status comment contents
+        const statusComment = await gh.rest.issues.getComment({
+            comment_id: +STATUS_COMMENT,
             owner: "Microsoft",
             repo: "TypeScript",
-            body:
-                `Hey @${requester}, something went wrong when publishing results. ([You can check the log here](https://typescript.visualstudio.com/TypeScript/_build/index?buildId=${buildId}&_a=summary)).`,
         });
+
+        const oldComment = statusComment.data.body;
+        if (!oldComment?.includes(toReplace)) {
+            posted = true;
+            break;
+        }
+
+        const newComment = oldComment.replace(
+            toReplace,
+            `[${emoji} Results](${resultsComment.data.html_url})`,
+        );
+
+        // Update status comment
+        await gh.rest.issues.updateComment({
+            comment_id: +STATUS_COMMENT,
+            owner: "Microsoft",
+            repo: "TypeScript",
+            body: newComment,
+        });
+
+        // Repeat; someone may have edited the comment at the same time.
+        await new Promise(resolve => setTimeout(resolve, 1000));
+    }
+
+    if (!posted) {
+        throw new Error("Failed to update status comment");
     }
 }
 

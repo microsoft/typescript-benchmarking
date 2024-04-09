@@ -35,19 +35,19 @@ async function installHosts() {
     await $`node ${tsperfExe} host install --host ${host}`;
 }
 
-function getLocationBasedArgs(benchmarking: boolean) {
-    const locations = getNonEmptyEnv(benchmarking ? "TSPERF_JOB_LOCATION" : "TSPERF_PROCESS_LOCATIONS").split(",");
+function getLocationBasedArgs() {
+    const locations = checkNonEmpty(
+        process.env.TSPERF_JOB_LOCATION || process.env.TSPERF_PROCESS_LOCATIONS,
+        "Expected TSPERF_JOB_LOCATION or TSPERF_PROCESS_LOCATIONS to be set",
+    ).split(",");
     const tsperfArgs = [];
 
     for (const location of locations) {
         const locationUpper = location.toUpperCase();
         const scenarioConfigDir = getNonEmptyEnv(`TSPERF_${locationUpper}_SCENARIO_CONFIG_DIR`);
         tsperfArgs.push("--scenarioConfigDir", scenarioConfigDir);
-
-        if (benchmarking) {
-            const suiteDir = getNonEmptyEnv(`TSPERF_${locationUpper}_SUITE_DIR`);
-            tsperfArgs.push("--suite", suiteDir);
-        }
+        const suiteDir = getNonEmptyEnv(`TSPERF_${locationUpper}_SUITE_DIR`);
+        tsperfArgs.push("--suite", suiteDir);
     }
 
     return tsperfArgs;
@@ -118,27 +118,25 @@ async function getCommonBenchmarkArgs() {
         }
     }
 
-    tsperfArgs.push(...getLocationBasedArgs(args.save));
+    tsperfArgs.push(...getLocationBasedArgs());
 
     return tsperfArgs;
 }
 
 async function benchmarkTsc() {
     const builtDir = checkNonEmpty(args.builtDir, "Expected non-empty --builtDir");
-    const tscPath = path.join(builtDir, "tsc.js");
 
     const tsperfArgs = await getCommonBenchmarkArgs();
 
-    await $`node ${tsperfExe} benchmark tsc --tsc ${tscPath} ${tsperfArgs}`;
+    await $`node ${tsperfExe} benchmark tsc --builtDir ${builtDir} ${tsperfArgs}`;
 }
 
 async function benchmarkTsserver() {
     const builtDir = checkNonEmpty(args.builtDir, "Expected non-empty --builtDir");
-    const tsserverPath = path.join(builtDir, "tsserver.js");
 
     const tsperfArgs = await getCommonBenchmarkArgs();
 
-    await $`node ${tsperfExe} benchmark tsserver --tsserver ${tsserverPath} ${tsperfArgs}`;
+    await $`node ${tsperfExe} benchmark tsserver --builtDir ${builtDir} ${tsperfArgs}`;
 }
 
 async function benchmarkStartup() {

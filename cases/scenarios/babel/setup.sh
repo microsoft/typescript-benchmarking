@@ -3,6 +3,8 @@
 set -exo pipefail
 cd "${0%/*}"
 
-source ../../cloneScenario.sh https://github.com/babel/babel.git
+source ../../common.sh
 
-COREPACK_ENABLE_STRICT=0 corepack yarn@1.22.21 install --ignore-scripts
+clone_scenario https://github.com/babel/babel.git
+
+run_sandboxed sh -c 'yarn install'
