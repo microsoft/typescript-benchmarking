@@ -88,9 +88,7 @@ jobs:
       - uses: actions/checkout@9bb56186c3b09b4f86b1c65136769dd318469633 # v4.1.2
       - id: matrix
         run: |
-          MATRIX=$(for script in cases/scenarios/*/setup.sh; do
-            echo $(basename $(dirname $script))
-          done | jq -nR '[inputs | select(length>0) | { scenario: . }]')
+          MATRIX=$(for script in cases/scenarios/*/setup.sh; do echo $(basename $(dirname $script)); done | jq -nR '{ include: [inputs | select(length>0) | { scenario: . }] }')
           echo $MATRIX
           echo "matrix=$MATRIX" >> "$GITHUB_OUTPUT"
 
