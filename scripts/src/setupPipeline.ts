@@ -552,11 +552,10 @@ if (esMain(import.meta)) {
                 const { stdout: decorateStdout } =
                     await $pipe`git -C ${cwd} log -1 --pretty=${"format:%(decorate:prefix=,suffix=,separator= ,tag=tag:)"} ${commitHash}`;
 
-                for (const decoration of decorateStdout.split(/\s+/)) {
-                    if (!decoration || decoration.startsWith("tag:")) {
-                        continue;
+                for (const decoration of decorateStdout.split(/\s+/).reverse()) {
+                    if (decoration && !decoration.startsWith("tag:")) {
+                        return decoration;
                     }
-                    return decoration;
                 }
             }
 
