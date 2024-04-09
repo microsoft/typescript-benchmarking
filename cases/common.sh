@@ -54,11 +54,14 @@ function run_sandboxed() {
         echo "Cleaning up..."
         docker rm --force --volumes $PROXY_CONTAINER || true
         docker rm --force --volumes $SANDBOX_CONTAINER || true
-        # docker image rm --force $PROXY_IMAGE || true
-        # docker image rm --force $NODE_IMAGE || true
+        if [[ "$CI" == "true" ]]; then
+            # Save disk space on the runners.
+            docker image rm --force $PROXY_IMAGE || true
+            docker image rm --force $NODE_IMAGE || true
+        fi
         docker network rm --force $INTERNET || true
         docker network rm --force $NO_INTERNET || true
-        docker system prune --force --volumes
+        docker system prune --force --volumes || true
     }
 
     trap cleanup EXIT
