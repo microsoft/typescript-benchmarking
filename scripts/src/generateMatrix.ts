@@ -8,10 +8,33 @@ import sortKeys from "sort-keys";
 import { setOutputVariable } from "./utils.js";
 
 // Keep in sync with inventory.yml and benchmark.yml.
-const allAgents = ["ts-perf1", "ts-perf2", "ts-perf3", "ts-perf4"] as const;
+const allAgents = [
+    "ts-perf1",
+    "ts-perf2",
+    "ts-perf3",
+    "ts-perf4",
+    "ts-perf5",
+    "ts-perf6",
+    "ts-perf7",
+    "ts-perf8",
+    "ts-perf9",
+    "ts-perf10",
+    "ts-perf11",
+    "ts-perf12",
+] as const;
 type AllAgents = typeof allAgents[number];
 // We reserve some agents so that non-baseline jobs can make progress.
-const reserveAgents = ["ts-perf4"] as const;
+const reserveAgents = [
+    "ts-perf4",
+    "ts-perf5",
+    "ts-perf6",
+    "ts-perf7",
+    "ts-perf8",
+    "ts-perf9",
+    "ts-perf10",
+    "ts-perf11",
+    "ts-perf12",
+] as const;
 type ReserveAgents = typeof reserveAgents[number];
 type BaselineAgent = Exclude<AllAgents, ReserveAgents>;
 type Agent = "any" | AllAgents;
@@ -26,7 +49,7 @@ const hosts = {
     node20: "node@20.5.1",
     // This matches a recent VS Code version via Electron.
     node18: "node@18.15.0",
-    bun: "bun@1.0.15",
+    bun: "bun@1.0.35",
     vscode: "vscode@1.82.1",
 } as const satisfies Record<string, string>;
 
@@ -51,68 +74,77 @@ interface BaseScenario {
     /**
      * Rough time cost per iteration in seconds.
      * This is solely used for gauging how expensive a preset is.
+     * Pull this from the logs, i.e from "compiled scenario ... in XYZs".
      */
     readonly cost: number;
 }
 
 // DO NOT change the agents; they must remain the same forever to keep benchmarks comparable.
 const allScenarios: readonly BaseScenario[] = [
-    { kind: "tsc", name: "Angular", agent: "ts-perf1", location: "internal", runIn: RunType.Any, cost: 19 },
-    { kind: "tsc", name: "Monaco", agent: "ts-perf2", location: "internal", runIn: RunType.Any, cost: 15 },
-    { kind: "tsc", name: "TFS", agent: "ts-perf3", location: "internal", runIn: RunType.Any, cost: 13 },
-    { kind: "tsc", name: "material-ui", agent: "ts-perf1", location: "internal", runIn: RunType.Any, cost: 20 },
-    { kind: "tsc", name: "Compiler-Unions", agent: "ts-perf2", location: "internal", runIn: RunType.Any, cost: 14 },
-    { kind: "tsc", name: "xstate", agent: "ts-perf3", location: "internal", runIn: RunType.Any, cost: 8 },
-    { kind: "tsc", name: "vscode", agent: "ts-perf3", location: "public", runIn: RunType.Any, cost: 90 },
-    { kind: "tsc", name: "self-compiler", agent: "ts-perf1", location: "public", runIn: RunType.Any, cost: 20 },
-    { kind: "tsc", name: "self-build-src", agent: "ts-perf2", location: "public", runIn: RunType.Any, cost: 42 },
-    { kind: "tsc", name: "mui-docs", agent: "ts-perf2", location: "public", runIn: RunType.OnDemand, cost: 62 },
-    { kind: "tsc", name: "mui-docs-1", agent: "ts-perf2", location: "public", runIn: RunType.Baseline, cost: 62 },
-    { kind: "tsc", name: "webpack", agent: "ts-perf3", location: "public", runIn: RunType.OnDemand, cost: 18 },
-    { kind: "tsc", name: "webpack-1", agent: "ts-perf3", location: "public", runIn: RunType.Baseline, cost: 18 },
+    { kind: "tsc", name: "Angular", agent: "ts-perf1", location: "internal", runIn: RunType.Any, cost: 22 },
+    { kind: "tsc", name: "Monaco", agent: "ts-perf2", location: "internal", runIn: RunType.Any, cost: 17 },
+    { kind: "tsc", name: "TFS", agent: "ts-perf3", location: "internal", runIn: RunType.Any, cost: 15 },
+    { kind: "tsc", name: "material-ui", agent: "ts-perf1", location: "internal", runIn: RunType.Any, cost: 25 },
+    { kind: "tsc", name: "Compiler-Unions", agent: "ts-perf2", location: "public", runIn: RunType.Any, cost: 17 },
+    { kind: "tsc", name: "xstate", agent: "ts-perf3", location: "internal", runIn: RunType.Any, cost: 9 },
+    { kind: "tsc", name: "vscode", agent: "ts-perf3", location: "public", runIn: RunType.Any, cost: 107 },
+    { kind: "tsc", name: "self-compiler", agent: "ts-perf1", location: "public", runIn: RunType.Any, cost: 25 },
+    { kind: "tsc", name: "self-build-src", agent: "ts-perf2", location: "public", runIn: RunType.Any, cost: 51 },
+    {
+        kind: "tsc",
+        name: "self-build-src-public-api",
+        agent: "ts-perf1",
+        location: "public",
+        runIn: RunType.Any,
+        cost: 51,
+    },
+    { kind: "tsc", name: "mui-docs", agent: "ts-perf2", location: "public", runIn: RunType.OnDemand, cost: 77 },
+    { kind: "tsc", name: "mui-docs-1", agent: "ts-perf2", location: "public", runIn: RunType.Baseline, cost: 77 },
+    { kind: "tsc", name: "webpack", agent: "ts-perf3", location: "public", runIn: RunType.OnDemand, cost: 22 },
+    { kind: "tsc", name: "webpack-1", agent: "ts-perf3", location: "public", runIn: RunType.Baseline, cost: 22 },
     { kind: "tsc", name: "xstate-main", agent: "ts-perf1", location: "public", runIn: RunType.OnDemand, cost: 10 },
     { kind: "tsc", name: "xstate-main-1", agent: "ts-perf1", location: "public", runIn: RunType.Baseline, cost: 110 },
     {
         kind: "tsserver",
         name: "Compiler-UnionsTSServer",
         agent: "ts-perf1",
-        location: "internal",
+        location: "public",
         runIn: RunType.Any,
-        cost: 15,
+        cost: 18,
     },
     {
         kind: "tsserver",
         name: "CompilerTSServer",
         agent: "ts-perf2",
-        location: "internal",
+        location: "public",
         runIn: RunType.Any,
-        cost: 14,
+        cost: 17,
     },
-    { kind: "tsserver", name: "xstateTSServer", agent: "ts-perf3", location: "internal", runIn: RunType.Any, cost: 12 },
-    { kind: "startup", name: "tsc-startup", agent: "ts-perf1", location: "internal", runIn: RunType.Any, cost: 16 },
+    { kind: "tsserver", name: "xstateTSServer", agent: "ts-perf3", location: "internal", runIn: RunType.Any, cost: 14 },
+    { kind: "startup", name: "tsc-startup", agent: "ts-perf1", location: "public", runIn: RunType.Any, cost: 19 },
     {
         kind: "startup",
         name: "tsserver-startup",
         agent: "ts-perf2",
-        location: "internal",
+        location: "public",
         runIn: RunType.Any,
-        cost: 24,
+        cost: 28,
     },
     {
         kind: "startup",
         name: "tsserverlibrary-startup",
         agent: "ts-perf3",
-        location: "internal",
+        location: "public",
         runIn: RunType.Any,
-        cost: 24,
+        cost: 28,
     },
     {
         kind: "startup",
         name: "typescript-startup",
         agent: "ts-perf1",
-        location: "internal",
+        location: "public",
         runIn: RunType.Any,
-        cost: 24,
+        cost: 28,
     },
 ];
 
@@ -265,6 +297,14 @@ export function generateMatrix(presetArg: string, baselining: boolean, log?: boo
         "ts-perf2": {},
         "ts-perf3": {},
         "ts-perf4": {},
+        "ts-perf5": {},
+        "ts-perf6": {},
+        "ts-perf7": {},
+        "ts-perf8": {},
+        "ts-perf9": {},
+        "ts-perf10": {},
+        "ts-perf11": {},
+        "ts-perf12": {},
     };
 
     const processKinds = new Set<JobKind>();
@@ -317,7 +357,11 @@ export function generateMatrix(presetArg: string, baselining: boolean, log?: boo
     // Comma separated, parsed by runTsPerf.ts.
     outputVariables[`TSPERF_PROCESS_LOCATIONS`] = [...processLocations].sort().join(",");
 
-    const costInParallel = baselining ? Math.max(...costPerAgent.values()) : Math.ceil(totalCost / allAgents.length);
+    // If baselining, the cost is determined by the longest job on any given agent.
+    // Otherwise, it's either the longest single job, or a rough estimate of the total time
+    // spread over multiple agents (i.e. when there are more jobs than agents to run them).q
+    const costInParallel = baselining ? Math.max(...costPerAgent.values())
+        : Math.max(maxCost, Math.ceil(totalCost / allAgents.length));
     const perAgent = Object.fromEntries(
         [...costPerAgent.entries()].map(([agent, cost]) => [agent, prettySeconds(cost)]),
     );

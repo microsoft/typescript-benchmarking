@@ -29,5 +29,8 @@
     - name: Set up isolation
       ansible.builtin.import_tasks: tasks/isolation.yml
 
+    - name: Set up docker
+      ansible.builtin.import_tasks: tasks/docker.yml
+
     - name: Check reboot
       ansible.builtin.import_tasks: tasks/check_reboot.yml

@@ -145,7 +145,7 @@ for (let i = 0;; i++) {
             },
         },
         templateParameters: {
-            HISTORICAL_RUN: true,
+            HISTORICAL_RUN: "true",
         },
     });
 

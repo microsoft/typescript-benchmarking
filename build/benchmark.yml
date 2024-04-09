@@ -74,6 +74,10 @@ parameters:
     default: false
 
   # PR trigger params
+  - name: DISTINCT_ID
+    displayName: Distinct ID for this run (PR runs only)
+    type: string
+    default: ''
   - name: REQUESTING_USER
     displayName: User to tag when the results are ready (PR runs only)
     type: string
@@ -91,11 +95,13 @@ parameters:
   - name: AGENTS
     displayName: Exhaustive list of agents
     type: string
-    default: 'any,ts-perf1,ts-perf2,ts-perf3,ts-perf4'
+    default: 'any,ts-perf1,ts-perf2,ts-perf3,ts-perf4,ts-perf5,ts-perf6,ts-perf7,ts-perf8,ts-perf9,ts-perf10,ts-perf11,ts-perf12'
 
 variables:
   Codeql.Enabled: false
   skipComponentGovernanceDetection: true
+
+  CI: true
 
   azureSubscription: 'TypeScript Public CI'
   KeyVaultName: 'jststeam-passwords'
@@ -173,6 +179,7 @@ jobs:
 
   - ${{ each agent in split(parameters.AGENTS, ',') }}:
       - job: Benchmark_${{ replace(agent, '-', '_') }}
+        timeoutInMinutes: 360
         dependsOn: Setup
         condition: and(succeeded(), not(eq(dependencies.Setup.outputs['generateMatrix.MATRIX_${{ replace(agent, '-', '_') }}'], '{}')))
         pool:
@@ -199,6 +206,7 @@ jobs:
               KeyVaultName: $(KeyVaultName)
               SecretsFilter: 'tslab1-mseng-PAT'
             displayName: Get secrets
+            retryCountOnTaskFailure: 3
 
           - template: templates/setup.yml
           - template: templates/cloneAndBuildBenchmarkRepo.yml # Sets $(BENCH_SCRIPTS), $(TSPERF_EXE)
@@ -260,6 +268,15 @@ jobs:
                 --save $(ARTIFACTS_DIR)/baseline_$(TSPERF_JOB_NAME).$(TSPERF_JOB_KIND).benchmark
             displayName: Run baseline $(TSPERF_JOB_KIND) benchmark
 
+          - bash: |
+              set -eo pipefail
+              node $(BENCH_SCRIPTS)/runTsPerf.js benchmark-$(TSPERF_JOB_KIND) \
+                --builtDir $(BUILT_TYPESCRIPT_DIR)/baseline \
+                --baseline $(ARTIFACTS_DIR)/baseline_$(TSPERF_JOB_NAME).$(TSPERF_JOB_KIND).benchmark \
+                --load $(ARTIFACTS_DIR)/pr_$(TSPERF_JOB_NAME).$(TSPERF_JOB_KIND).benchmark
+            displayName: Compare PR to baseline benchmark
+            condition: and(succeeded(), eq(variables['IS_PR'], 'true'))
+
           - publish: $(ARTIFACTS_DIR)
             artifact: PartialBenchmark_$(TSPERF_JOB_NAME)
             displayName: Publish benchmarks
@@ -269,7 +286,10 @@ jobs:
       - Setup
       - ${{ each agent in split(parameters.AGENTS, ',') }}:
           - Benchmark_${{ replace(agent, '-', '_') }}
-    condition: not(failed()) # If any dependency was skipped, then this job would normally also be skipped.
+    # If any dependency was skipped (which will always be the case in the above matrix),
+    # "succeeded()" will be false. Instead, only run when the build has not failed.
+    # "not(failed())" is also true when the build has been canceled, so ignore that too.
+    condition: and(not(failed()), not(canceled()))
     pool:
       vmImage: ubuntu-latest
     workspace:
@@ -289,6 +309,7 @@ jobs:
           KeyVaultName: $(KeyVaultName)
           SecretsFilter: 'tslab1-mseng-PAT, tsperf-azure-storage-connection-string, typescript-bot-github-PAT-for-comments'
         displayName: Get secrets
+        retryCountOnTaskFailure: 3
 
       - template: templates/setup.yml
 
@@ -364,6 +385,7 @@ jobs:
         displayName: Publish PR comment
         condition: and(succeeded(), eq(variables['IS_PR'], 'true'))
         env:
+          DISTINCT_ID: ${{ parameters.DISTINCT_ID }}
           SOURCE_ISSUE: ${{ parameters.SOURCE_ISSUE }}
           REQUESTING_USER: ${{ parameters.REQUESTING_USER }}
           STATUS_COMMENT: ${{ parameters.STATUS_COMMENT }}
@@ -382,10 +404,21 @@ jobs:
           set -eo pipefail
           for KIND in $(TSPERF_PROCESS_KINDS); do
             echo "Uploading ${KIND} benchmarks"
+            case ${KIND} in 
+              tsc)
+                NAME="linux"
+                ;;
+              tsserver)
+                NAME="linux.server"
+                ;;
+              *)
+                NAME="linux.${KIND}"
+                ;;
+            esac
             node $(BENCH_SCRIPTS)/runTsPerf.js benchmark-${KIND} \
               --builtDir $(BUILT_TYPESCRIPT_DIR)/baseline \
               --load $(MERGED_DIR)/baseline.${KIND}.benchmark \
-              --saveBlob linux
+              --saveBlob ${NAME}
           done
         displayName: Upload benchmarks to blob store
         condition: and(succeeded(), eq(variables['SHOULD_UPLOAD'], 'true'))
@@ -411,6 +444,7 @@ jobs:
           KeyVaultName: $(KeyVaultName)
           SecretsFilter: 'typescript-bot-github-PAT-for-comments'
         displayName: Get secrets
+        retryCountOnTaskFailure: 3
 
       - template: templates/setup.yml
       - template: templates/cloneAndBuildBenchmarkRepo.yml # Sets $(BENCH_SCRIPTS), $(TSPERF_EXE)
@@ -420,6 +454,7 @@ jobs:
           node $(BENCH_SCRIPTS)/postPerfResult.js --failed
         displayName: Publish PR comment
         env:
+          DISTINCT_ID: ${{ parameters.DISTINCT_ID }}
           SOURCE_ISSUE: ${{ parameters.SOURCE_ISSUE }}
           REQUESTING_USER: ${{ parameters.REQUESTING_USER }}
           STATUS_COMMENT: ${{ parameters.STATUS_COMMENT }}
