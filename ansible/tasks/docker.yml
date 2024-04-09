@@ -60,10 +60,9 @@
   when: install_agent
 
 - name: Reboot if linger changed
-  when: linger.changed
+  when: install_agent and linger.changed
   ansible.builtin.shell: touch /var/run/reboot-required
   become: yes
-  when: install_agent
 
 - name: Create docker daemon config
   ansible.builtin.copy:
