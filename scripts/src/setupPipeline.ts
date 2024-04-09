@@ -548,18 +548,16 @@ if (esMain(import.meta)) {
         };
 
         async function getName(input: string, commitHash: string): Promise<string> {
-            if (commitHash.startsWith(input)) {
-                return input;
-            }
+            if (!commitHash.startsWith(input)) {
+                const { stdout: decorateStdout } =
+                    await $pipe`git -C ${cwd} log -1 --pretty=${"format:%(decorate:prefix=,suffix=,separator= ,tag=tag:)"} ${commitHash}`;
 
-            const { stdout: decorateStdout } =
-                await $pipe`git -C ${cwd} log -1 --pretty=${"format:%(decorate:prefix=,suffix=,separator= ,tag=tag:)"} ${commitHash}`;
-
-            for (const decoration of decorateStdout.split(/\s+/)) {
-                if (!decoration || decoration.startsWith("tag:")) {
-                    continue;
+                for (const decoration of decorateStdout.split(/\s+/)) {
+                    if (!decoration || decoration.startsWith("tag:")) {
+                        continue;
+                    }
+                    return decoration;
                 }
-                return decoration;
             }
 
             const { stdout: refStdout } = await $pipe`git -C ${cwd} rev-parse --short ${commitHash}`;
