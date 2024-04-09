@@ -78,8 +78,30 @@ jobs:
 
       - run: pnpm dprint check
 
-  scenarios:
+  scenarios-matrix:
     runs-on: ubuntu-latest
+
+    outputs:
+      matrix: ${{ steps.matrix.outputs.matrix }}
+
+    steps:
+      - uses: actions/checkout@9bb56186c3b09b4f86b1c65136769dd318469633 # v4.1.2
+      - id: matrix
+        run: |
+          MATRIX=$(for script in cases/scenarios/*/setup.sh; do
+            echo $(basename $(dirname $script))
+          done | jq -nR '[inputs | select(length>0) | { scenario: . }]')
+          echo $MATRIX
+          echo "matrix=$MATRIX" >> "$GITHUB_OUTPUT"
+
+  scenarios:
+    needs: scenarios-matrix
+
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix: ${{ fromJson(needs.scenarios-matrix.outputs.matrix) }}
+      fail-fast: false
 
     steps:
       - uses: actions/checkout@9bb56186c3b09b4f86b1c65136769dd318469633 # v4.1.2
@@ -107,11 +129,7 @@ jobs:
           sudo apt-get update && sudo apt-get install -y runsc
         name: Install gVisor
 
-      - run: |
-          for script in cases/scenarios/**/setup.sh; do
-            echo "Running $script"
-            bash $script
-          done
+      - run: bash cases/scenarios/${{ matrix.scenario }}/setup.sh
 
   required:
     runs-on: ubuntu-latest
