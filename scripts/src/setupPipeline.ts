@@ -519,7 +519,11 @@ if (esMain(import.meta)) {
         const cwd = getNonEmptyEnv("TYPESCRIPT_DIR");
 
         const { stdout: stdoutHash } = await $pipe`git -C ${cwd} rev-parse ${query}`;
-        const { stdout: stdoutName } = await $pipe`git -C ${cwd} rev-parse --short --symbolic ${query}`;
+        // We ignore errors here; --short will exit with error on ranges but still print out nice strings.
+        // If there really was an error, we would have errored in the previous command.
+        const { stdout: stdoutName } = await $pipe({
+            reject: false,
+        })`git -C ${cwd} rev-parse --short --symbolic ${query}`;
 
         const hashLines = process(stdoutHash);
         const nameLines = process(stdoutName);
