@@ -3,6 +3,8 @@
 set -exo pipefail
 cd "${0%/*}"
 
+source ../../common.sh
+
 clone_scenario https://github.com/microsoft/TypeScript.git $TYPESCRIPT_COMMIT
 
 npm ci
