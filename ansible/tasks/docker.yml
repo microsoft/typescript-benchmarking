@@ -20,12 +20,12 @@
   ansible.builtin.shell: |
     curl -fsSL https://gvisor.dev/archive.key | gpg --dearmor -o /usr/share/keyrings/gvisor-archive-keyring.gpg
   args:
-    creates: '/etc/apt/keyrings/docker.gpg'
+    creates: '/usr/share/keyrings/gvisor-archive-keyring.gpg'
   become: yes
 
 - name: Add gvisor repository to apt
   ansible.builtin.apt_repository:
-    repo: 'deb [arch=amd64 signed-by=usr/share/keyrings/gvisor-archive-keyring.gpg] https://storage.googleapis.com/gvisor/releases release main'
+    repo: 'deb [arch=amd64 signed-by=/usr/share/keyrings/gvisor-archive-keyring.gpg] https://storage.googleapis.com/gvisor/releases release main'
     state: present
   become: yes
 
