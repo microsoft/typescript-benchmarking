@@ -3,8 +3,7 @@
 set -exo pipefail
 cd "${0%/*}"
 
-export SCENARIO_REF=$TYPESCRIPT_COMMIT
-source ../../cloneScenario.sh https://github.com/microsoft/TypeScript.git
+clone_scenario https://github.com/microsoft/TypeScript.git $TYPESCRIPT_COMMIT
 
 npm ci
 if test -f Herebyfile.mjs; then
