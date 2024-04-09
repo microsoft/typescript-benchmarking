@@ -41,6 +41,7 @@ function run_sandboxed() {
         DOCKER_RUNTIME=runsc
     fi
 
+    # This image is mirrored and will not be rate limited.
     NODE_IMAGE=mcr.microsoft.com/mirror/docker/library/node:20
 
     INTERNET=ts-perf-sandbox-internet
@@ -64,6 +65,8 @@ function run_sandboxed() {
 
     cleanup
 
+    # Pull an extra time to ensure the image is up-to-date.
+    # The final cleanup will be able to remove unused images left behind.
     docker pull $NODE_IMAGE
 
     (cd ../../sandbox; docker build -t $PROXY_IMAGE -f proxy.Dockerfile --build-arg="BASE_IMAGE=$NODE_IMAGE" .)
@@ -82,13 +85,18 @@ function run_sandboxed() {
         --network=$INTERNET \
         $PROXY_IMAGE
 
+    # Log the proxy's output to the console.
     docker attach $PROXY_CONTAINER &
 
+    # Docker doesn't let you attach multiple networks up-front.
     docker network connect $NO_INTERNET $PROXY_CONTAINER
 
     PROXY_HOST=$(docker inspect --format "{{(index .NetworkSettings.Networks \"$NO_INTERNET\").IPAddress}}" $PROXY_CONTAINER)
     PROXY_ADDR="http://$PROXY_HOST:$PROXY_PORT"
 
+    # If using rootless docker, the contianer's root user will be mapped to the host's user,
+    # so we can just use it as-is. But if we're not using rootless docker, we need to instead
+    # use a non-root user, and it's easiest to just modify the container's existing non-root user.
     if [[ -z "$DOCKER_IS_ROOTLESS" ]]; then
         CHANGE_USER_ID=$(id -u)
     fi
