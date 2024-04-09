@@ -61,7 +61,11 @@ function run_sandboxed() {
         fi
         docker network rm --force $INTERNET || true
         docker network rm --force $NO_INTERNET || true
-        docker system prune --force --volumes || true
+        if [[ "$CI" == "true" ]]; then
+            docker system prune --force --all --volumes || true
+        else
+            docker system prune --force --volumes || true
+        fi
     }
 
     trap cleanup EXIT
