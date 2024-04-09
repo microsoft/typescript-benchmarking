@@ -47,6 +47,7 @@
     state: stopped
     enabled: false
   with_items:
+    - 'containerd.service'
     - 'docker.service'
     - 'docker.socket'
   become: yes
@@ -63,6 +64,16 @@
   when: install_agent and linger.changed
   ansible.builtin.shell: touch /var/run/reboot-required
   become: yes
+
+- name: Create .config/docker directory
+  ansible.builtin.file:
+    path: '{{ agent_home }}/.config/docker'
+    state: directory
+    mode: '0755'
+    owner: '{{ agent_user }}'
+    group: '{{ agent_user }}'
+  become: yes
+  when: install_agent
 
 - name: Create docker daemon config
   ansible.builtin.copy:
@@ -81,9 +92,20 @@
   become: yes
   when: install_agent
 
+- name: Run the rootless docker installer
+  ansible.builtin.shell: |
+    export XDG_RUNTIME_DIR="/run/user/$(id -u)" && \
+    export DBUS_SESSION_BUS_ADDRESS="unix:path=${XDG_RUNTIME_DIR}/bus" && \
+    dockerd-rootless-setuptool.sh install
+  become: true
+  become_user: '{{ agent_user }}'
+  when: install_agent
+  register: docker_install
+
+# This is not necessary as the above enables the service, but it's good to know when the above failed.
 - name: Enable user docker
   ansible.builtin.systemd:
-    name: 'docker.socket'
+    name: 'docker.service'
     state: started
     enabled: true
     scope: user
