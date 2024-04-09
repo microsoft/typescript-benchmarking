@@ -101,6 +101,8 @@ variables:
   Codeql.Enabled: false
   skipComponentGovernanceDetection: true
 
+  CI: true
+
   azureSubscription: 'TypeScript Public CI'
   KeyVaultName: 'jststeam-passwords'
 

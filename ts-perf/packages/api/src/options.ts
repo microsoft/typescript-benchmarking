@@ -4,13 +4,13 @@ import * as path from "node:path";
 import { CommandLineOption, CommandLineOptionSet, CommandLineOptionSets, CommandLineParseError } from "power-options";
 
 export interface CompilerOptions {
-    tsc: string;
+    builtDir: string;
     suite: string;
     compilerOptions?: string[];
 }
 
 export interface TSServerOptions {
-    tsserver: string;
+    builtDir: string;
     suite: string;
     extended: boolean;
 }
@@ -40,27 +40,29 @@ const suite: CommandLineOption = {
     description: "Use <directory> as the root location for test suites (i.e. './internal/cases/perf/solutions').",
 };
 
+const builtDir: CommandLineOption = {
+    type: "string",
+    validate: validatePath,
+    defaultValue() {
+        const builtDir = findPath(process.cwd(), "./built/local")
+            || (process.env.TYPESCRIPT_REPOSITORY
+                && findPath(process.env.TYPESCRIPT_REPOSITORY, "./built/local"))
+            || findPath(__dirname, "./built/local");
+        if (!builtDir) {
+            throw new CommandLineParseError(
+                `Could not resolve the path to the built directory (i.e. './built/local'). Try specifying '--builtDir'.`,
+            );
+        }
+        return builtDir;
+    },
+    param: "directory",
+    description: "Use <directory> as the built local dir (i.e. './built/local').",
+};
+
 const compiler: CommandLineOptionSet = {
     merge: true,
     options: {
-        tsc: {
-            type: "string",
-            validate: validatePath,
-            defaultValue() {
-                const tsc = findPath(process.cwd(), "./built/local/tsc.js")
-                    || (process.env.TYPESCRIPT_REPOSITORY
-                        && findPath(process.env.TYPESCRIPT_REPOSITORY, "./built/local/tsc.js"))
-                    || findPath(__dirname, "./built/local/tsc.js");
-                if (!tsc) {
-                    throw new CommandLineParseError(
-                        `Could not resolve the path to the built compiler (i.e. './built/local/tsc.js'). Try specifying '--tsc'.`,
-                    );
-                }
-                return tsc;
-            },
-            param: "file",
-            description: "Use <file> as the compiler (i.e. './built/local/tsc.js').",
-        },
+        builtDir,
         suite,
         compilerOptions: {
             type: "string",
@@ -73,24 +75,7 @@ const compiler: CommandLineOptionSet = {
 const tsserver: CommandLineOptionSet = {
     merge: true,
     options: {
-        tsserver: {
-            type: "string",
-            validate: validatePath,
-            defaultValue() {
-                const tsserver = findPath(process.cwd(), "./built/local/tsserver.js")
-                    || (process.env.TYPESCRIPT_REPOSITORY
-                        && findPath(process.env.TYPESCRIPT_REPOSITORY, "./built/local/tsserver.js"))
-                    || findPath(__dirname, "./built/local/tsserver.js");
-                if (!tsserver) {
-                    throw new CommandLineParseError(
-                        `Could not resolve the path to the built tsserver (i.e. './built/local/tsserver.js'). Try specifying '--tsserver'.`,
-                    );
-                }
-                return tsserver;
-            },
-            param: "file",
-            description: "Use <file> as the tsserver (i.e. './built/local/tsserver.js').",
-        },
+        builtDir,
         suite,
         extended: {
             type: "boolean",
@@ -103,24 +88,7 @@ const tsserver: CommandLineOptionSet = {
 const startup: CommandLineOptionSet = {
     merge: true,
     options: {
-        builtDir: {
-            type: "string",
-            validate: validatePath,
-            defaultValue() {
-                const builtDir = findPath(process.cwd(), "./built/local")
-                    || (process.env.TYPESCRIPT_REPOSITORY
-                        && findPath(process.env.TYPESCRIPT_REPOSITORY, "./built/local"))
-                    || findPath(__dirname, "./built/local");
-                if (!builtDir) {
-                    throw new CommandLineParseError(
-                        `Could not resolve the path to the built directory (i.e. './built/local'). Try specifying '--builtDir'.`,
-                    );
-                }
-                return builtDir;
-            },
-            param: "directory",
-            description: "Use <directory> as the built local dir (i.e. './built/local').",
-        },
+        builtDir,
         suite,
     },
 };

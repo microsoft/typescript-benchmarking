@@ -80,6 +80,14 @@
       "TSPERF_JOB_NAME": "tsc_bun_1_0_35_self_build_src",
       "TSPERF_JOB_SCENARIO": "self-build-src",
     },
+    "tsc_bun_1_0_35_self_build_src_public_api": {
+      "TSPERF_JOB_HOST": "bun@1.0.35",
+      "TSPERF_JOB_ITERATIONS": 12,
+      "TSPERF_JOB_KIND": "tsc",
+      "TSPERF_JOB_LOCATION": "public",
+      "TSPERF_JOB_NAME": "tsc_bun_1_0_35_self_build_src_public_api",
+      "TSPERF_JOB_SCENARIO": "self-build-src-public-api",
+    },
     "tsc_bun_1_0_35_self_compiler": {
       "TSPERF_JOB_HOST": "bun@1.0.35",
       "TSPERF_JOB_ITERATIONS": 12,

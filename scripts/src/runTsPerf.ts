@@ -125,20 +125,18 @@ async function getCommonBenchmarkArgs() {
 
 async function benchmarkTsc() {
     const builtDir = checkNonEmpty(args.builtDir, "Expected non-empty --builtDir");
-    const tscPath = path.join(builtDir, "tsc.js");
 
     const tsperfArgs = await getCommonBenchmarkArgs();
 
-    await $`node ${tsperfExe} benchmark tsc --tsc ${tscPath} ${tsperfArgs}`;
+    await $`node ${tsperfExe} benchmark tsc --builtDir ${builtDir} ${tsperfArgs}`;
 }
 
 async function benchmarkTsserver() {
     const builtDir = checkNonEmpty(args.builtDir, "Expected non-empty --builtDir");
-    const tsserverPath = path.join(builtDir, "tsserver.js");
 
     const tsperfArgs = await getCommonBenchmarkArgs();
 
-    await $`node ${tsperfExe} benchmark tsserver --tsserver ${tsserverPath} ${tsperfArgs}`;
+    await $`node ${tsperfExe} benchmark tsserver --builtDir ${builtDir} ${tsperfArgs}`;
 }
 
 async function benchmarkStartup() {

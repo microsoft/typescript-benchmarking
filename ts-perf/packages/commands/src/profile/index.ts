@@ -67,8 +67,9 @@ export async function profile(options: ProfilerOptions, host: HostContext) {
         .addSwitch("--trim", options.trim)
         .addSwitch("--pretty", options.pretty);
 
+    const tsc = path.join(options.builtDir, "tsc.js");
     builder
-        .add("--", path.resolve(options.tsc))
+        .add("--", path.resolve(tsc))
         .addCompilerOptions(options, scenario)
         .add("--diagnostics");
 
