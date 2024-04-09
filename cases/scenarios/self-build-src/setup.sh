@@ -3,12 +3,15 @@
 set -exo pipefail
 cd "${0%/*}"
 
-export SCENARIO_REF=$TYPESCRIPT_COMMIT
-source ../../cloneScenario.sh https://github.com/microsoft/TypeScript.git
+source ../../common.sh
 
-npm ci
-if test -f Herebyfile.mjs; then
-  npx hereby generate-diagnostics
-else
-  npx gulp generate-diagnostics
-fi
+clone_scenario https://github.com/microsoft/TypeScript.git $TYPESCRIPT_COMMIT
+
+run_sandboxed sh -c '
+    npm ci
+    if test -f Herebyfile.mjs; then
+        npx hereby generate-diagnostics
+    else
+        npx gulp generate-diagnostics
+    fi
+'
