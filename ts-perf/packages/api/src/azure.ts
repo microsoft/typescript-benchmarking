@@ -8,7 +8,7 @@ const defaultBlobContainer = "benchmark";
 
 export function getBlobService(options: AzureStorageOptions | undefined) {
     const azureStorageAccount = getAzureStorageAccount(options);
-    const azureStorageUrl = `https://${azureStorageAccount}.blob.core.windows.net",`;
+    const azureStorageUrl = `https://${azureStorageAccount}.blob.core.windows.net`;
     const credential = new DefaultAzureCredential();
     return new BlobServiceClient(azureStorageUrl, credential);
 }
