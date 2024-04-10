@@ -144,4 +144,4 @@ jobs:
           scriptType: 'bash'
           scriptLocation: 'inlineScript'
           inlineScript: 'node $(BENCH_SCRIPTS)/identityTest.js'
-        name: Test identity
+        displayName: Test identity
