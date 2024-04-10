@@ -6,7 +6,7 @@ const storageClient = new BlobServiceClient("https://tsperfstorage2.blob.core.wi
 
 const blob = await storageClient
     .getContainerClient("benchmark")
-    .getBlobClient("main/latest.benchmark")
+    .getBlobClient("main/latest.linux.benchmark")
     .downloadToBuffer();
 
 console.log(blob.toString("utf-8"));
