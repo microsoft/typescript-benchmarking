@@ -82,8 +82,6 @@ async function getCommonBenchmarkArgs() {
         if (args.saveBlob) {
             const info = await getRepoInfo(args.builtDir);
 
-            // ts-perf accepts this as an env var, just check that it exists for an early error.
-            getNonEmptyEnv("TSPERF_AZURE_STORAGE_CONNECTION_STRING");
             tsperfArgs.push(
                 "--save",
                 `blob:${info.branch}/${info.timestampDir}/${info.commitShort}.${args.saveBlob}.benchmark`,

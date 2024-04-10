@@ -104,26 +104,12 @@ const azureStorage: CommandLineOptionSet = {
     merge: true,
     visibility: "advanced",
     options: {
-        azureStorageConnectionString: {
-            type: "string",
-            param: "string",
-            description:
-                "Azure storage connection string (uses TSPERF_AZURE_STORAGE_CONNECTION_STRING environment variable if found).",
-            defaultValue: () => process.env.TSPERF_AZURE_STORAGE_CONNECTION_STRING!,
-        },
         azureStorageAccount: {
             type: "string",
             param: "name",
             description:
                 "Azure storage account when using blob storage (uses TSPERF_AZURE_STORAGE_ACCOUNT environment variable if found).",
             defaultValue: () => process.env.TSPERF_AZURE_STORAGE_ACCOUNT!,
-        },
-        azureStorageAccessKey: {
-            type: "string",
-            param: "key",
-            description:
-                "Azure storage access key when using blob storage (uses TSPERF_AZURE_STORAGE_ACCESS_KEY environment variable if found).",
-            defaultValue: () => process.env.TSPERF_AZURE_STORAGE_ACCESS_KEY!,
         },
         azureStorageContainer: {
             type: "string",

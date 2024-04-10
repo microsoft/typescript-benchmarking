@@ -9,8 +9,6 @@
         "node": ">= 18.0.0"
     },
     "devDependencies": {
-        "@azure/identity": "^4.0.1",
-        "@azure/storage-blob": "^12.17.0",
         "@badrap/valita": "^0.3.8",
         "@types/minimist": "^1.2.5",
         "azure-devops-node-api": "^13.0.0",
