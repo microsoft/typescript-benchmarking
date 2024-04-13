@@ -4,8 +4,9 @@ import path from "node:path";
 
 import { $ as _$ } from "execa";
 import minimist from "minimist";
+import { Octokit } from "octokit";
 
-import { retry, setOutputVariable } from "./utils.js";
+import { getNonEmptyEnv, parseBoolean, RepoInfo, retry, setOutputVariable } from "./utils.js";
 
 const $pipe = _$({ verbose: true });
 const $ = _$({ verbose: true, stdio: "inherit" });
@@ -19,8 +20,6 @@ const args = minimist(process.argv.slice(2), {
     string: ["outputDir"],
     boolean: ["baseline"],
 });
-
-const isPR = (process.env.IS_PR || "").toUpperCase() === "TRUE";
 
 const outputDir = args.outputDir;
 assert(outputDir, "Expected output path as first argument");
@@ -44,29 +43,37 @@ else {
 await $`git clean -fddx`;
 await $`git reset --hard HEAD`;
 
+const isPR = parseBoolean(getNonEmptyEnv("IS_PR"), false);
+const ref = getNonEmptyEnv("REF");
+
 let branch;
 
-const ref = process.env.REF;
-assert(ref, "Expected REF environment variable to be set");
-
 if (isPR) {
+    const prefix = "refs/pull/";
+    assert(ref.startsWith(prefix), `Expected ref to start with ${prefix}`);
+
     if (args.baseline) {
-        const prNumber = ref.split("/")[2];
-        const resp = await fetch(`https://api.github.com/repos/microsoft/TypeScript/pulls/${prNumber}`);
-        const pr = await resp.json();
-        branch = (pr as any).base.ref;
+        const prNumber = ref.slice(prefix.length).split("/")[0];
+
+        const octokit = new Octokit();
+        const pr = await octokit.rest.pulls.get({
+            owner: "microsoft",
+            repo: "TypeScript",
+            pull_number: +prNumber,
+        });
+        branch = pr.data.base.ref;
     }
     else {
         branch = ref;
     }
 }
 else {
-    assert(ref.startsWith("refs/heads/"), "Expected ref to start with refs/heads/");
-    branch = ref.replace(/^refs\/heads\//, "");
+    const prefix = "refs/heads/";
+    assert(ref.startsWith(prefix), `Expected ref to start with ${prefix}`);
+    branch = ref.slice(prefix.length);
 }
 
-/** @type {import("./utils.mjs").RepoInfo} */
-const info = {
+const info: RepoInfo = {
     commit,
     commitShort,
     branch,
