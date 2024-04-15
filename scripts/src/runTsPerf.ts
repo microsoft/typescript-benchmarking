@@ -86,8 +86,6 @@ async function getCommonBenchmarkArgs() {
             const info = await getRepoInfo(args.builtDir);
             assert(info.branch, "Expected branch to be set in repo info");
 
-            // ts-perf accepts this as an env var, just check that it exists for an early error.
-            getNonEmptyEnv("TSPERF_AZURE_STORAGE_CONNECTION_STRING");
             tsperfArgs.push(
                 "--save",
                 `blob:${info.branch}/${info.timestampDir}/${info.commitShort}.${args.saveBlob}.benchmark`,

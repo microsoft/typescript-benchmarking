@@ -3,6 +3,7 @@ import fs from "node:fs";
 import path from "node:path";
 
 import minimist from "minimist";
+import { Octokit } from "octokit";
 
 import { $, $pipe, getNonEmptyEnv, parseBoolean, RepoInfo, retry, setOutputVariable } from "./utils.js";
 
@@ -48,19 +49,28 @@ const isCustomCommitRange = parseBoolean(getNonEmptyEnv("TSPERF_IS_CUSTOM_COMMIT
 if (!isCustomCommitRange) {
     if (isPR) {
         // This is a PR run. Pull the branch info from the PR.
+        const prefix = "refs/pull/";
+        assert(ref.startsWith(prefix), `Expected ref to start with ${prefix}`);
+
         if (args.baseline) {
-            const prNumber = ref.split("/")[2];
-            const resp = await fetch(`https://api.github.com/repos/microsoft/TypeScript/pulls/${prNumber}`);
-            const pr = await resp.json();
-            branch = (pr as any).base.ref;
+            const prNumber = ref.slice(prefix.length).split("/")[0];
+
+            const octokit = new Octokit();
+            const pr = await octokit.rest.pulls.get({
+                owner: "microsoft",
+                repo: "TypeScript",
+                pull_number: +prNumber,
+            });
+            branch = pr.data.base.ref;
         }
         else {
             branch = ref;
         }
     }
     else {
-        assert(ref.startsWith("refs/heads/"), "Expected ref to start with refs/heads/");
-        branch = ref.replace(/^refs\/heads\//, "");
+        const prefix = "refs/heads/";
+        assert(ref.startsWith(prefix), `Expected ref to start with ${prefix}`);
+        branch = ref.slice(prefix.length);
     }
 }
 

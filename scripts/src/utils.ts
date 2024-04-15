@@ -8,7 +8,7 @@ import { $ as _$ } from "execa";
 export const $pipe = _$({ verbose: true });
 export const $ = _$({ verbose: true, stdio: "inherit" });
 
-export const RepoInfo = v.object({
+const RepoInfo = v.object({
     commit: v.string(),
     commitShort: v.string(),
     branch: v.string().optional(),

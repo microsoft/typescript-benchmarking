@@ -23,6 +23,7 @@
         "README.md"
     ],
     "dependencies": {
+        "@azure/identity": "^4.0.1",
         "@azure/storage-blob": "^12.17.0",
         "@esfx/equatable": "^1.0.2",
         "@stdlib/stats-base-dists-normal-cdf": "^0.2.1",

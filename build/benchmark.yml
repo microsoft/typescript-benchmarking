@@ -329,7 +329,7 @@ jobs:
         inputs:
           azureSubscription: $(azureSubscription)
           KeyVaultName: $(KeyVaultName)
-          SecretsFilter: 'tslab1-mseng-PAT, tsperf-azure-storage-connection-string, typescript-bot-github-PAT-for-comments'
+          SecretsFilter: 'tslab1-mseng-PAT, typescript-bot-github-PAT-for-comments'
         displayName: Get secrets
         retryCountOnTaskFailure: 3
 
@@ -422,30 +422,33 @@ jobs:
         env:
           GH_TOKEN: $(typescript-bot-github-PAT-for-comments)
 
-      - bash: |
-          set -exo pipefail
-          for KIND in $(TSPERF_PROCESS_KINDS); do
-            echo "Uploading ${KIND} benchmarks"
-            case ${KIND} in 
-              tsc)
-                NAME="linux"
-                ;;
-              tsserver)
-                NAME="linux.server"
-                ;;
-              *)
-                NAME="linux.${KIND}"
-                ;;
-            esac
-            node $(BENCH_SCRIPTS)/runTsPerf.js benchmark-${KIND} \
-              --builtDir $(BUILT_TYPESCRIPT_DIR)/baseline \
-              --load $(MERGED_DIR)/baseline.${KIND}.benchmark \
-              --saveBlob ${NAME}
-          done
+      - task: AzureCLI@2
+        inputs:
+          azureSubscription: TsPerfStorage
+          scriptType: 'bash'
+          scriptLocation: 'inlineScript'
+          inlineScript: |
+            set -exo pipefail
+            for KIND in $(TSPERF_PROCESS_KINDS); do
+              echo "Uploading ${KIND} benchmarks"
+              case ${KIND} in 
+                tsc)
+                  NAME="linux"
+                  ;;
+                tsserver)
+                  NAME="linux.server"
+                  ;;
+                *)
+                  NAME="linux.${KIND}"
+                  ;;
+              esac
+              node $(BENCH_SCRIPTS)/runTsPerf.js benchmark-${KIND} \
+                --builtDir $(BUILT_TYPESCRIPT_DIR)/baseline \
+                --load $(MERGED_DIR)/baseline.${KIND}.benchmark \
+                --saveBlob ${NAME}
+            done
         displayName: Upload benchmarks to blob store
         condition: and(succeeded(), eq(variables['SHOULD_UPLOAD'], 'true'))
-        env:
-          TSPERF_AZURE_STORAGE_CONNECTION_STRING: $(tsperf-azure-storage-connection-string)
 
   - job: OnFailedPRRun
     dependsOn:
