@@ -23,18 +23,19 @@
         "README.md"
     ],
     "dependencies": {
+        "@azure/identity": "^4.0.1",
         "@azure/storage-blob": "^12.17.0",
         "@esfx/equatable": "^1.0.2",
-        "@stdlib/stats-base-dists-normal-cdf": "^0.1.0",
+        "@stdlib/stats-base-dists-normal-cdf": "^0.2.1",
         "@ts-perf/core": "workspace:^",
         "chalk": "^4.1.2",
         "iterable-query": "1.0.0-pre.16",
         "power-options": "^0.3.4",
-        "semver": "^7.5.4",
+        "semver": "^7.6.0",
         "strip-ansi": "^6.0.1"
     },
     "devDependencies": {
-        "@types/semver": "^7.5.6"
+        "@types/semver": "^7.5.8"
     },
     "scripts": {
         "build": "tsc -b",

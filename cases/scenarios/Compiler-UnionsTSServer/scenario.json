@@ -1,0 +1,46 @@
+{
+    "name": "Compiler-UnionsTSServer",
+    "kind": "tsserver",
+    "args": [],
+    "tsserverConfig": {
+        "solution": "Compiler-Unions",
+        "commands": [
+            {
+                "commandName": "updateOpen",
+                "args": [
+                    {
+                        "file": "checker.ts"
+                    }
+                ]
+            },
+            {
+                "commandName": "geterr",
+                "args": [
+                    "checker.ts"
+                ]
+            },
+            {
+                "commandName": "references",
+                "args": {
+                    "file": "checker.ts",
+                    "line": 10960,
+                    "offset": 48
+                }
+            },
+            {
+                "commandName": "navto",
+                "args": {
+                    "searchValue": "Type"
+                }
+            },
+            {
+                "commandName": "completionInfo",
+                "args": {
+                    "file": "checker.ts",
+                    "line": 25149,
+                    "offset": 6
+                }
+            }
+        ]
+    }
+}

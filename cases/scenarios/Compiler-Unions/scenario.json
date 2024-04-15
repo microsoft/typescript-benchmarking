@@ -1,0 +1,14 @@
+{
+    "name": "Compiler-Unions",
+    "kind": "tsc",
+    "args": [
+        "-p",
+        "${suiteDirectory}/Compiler-Unions/tsconfig.json",
+        "--target",
+        "es5",
+        "--module",
+        "amd",
+        "--outfile",
+        "${outDirectory}/out.js"
+    ]
+}

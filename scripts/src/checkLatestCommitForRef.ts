@@ -1,7 +1,7 @@
 import assert from "node:assert";
 
-import { Octokit } from "@octokit/rest";
 import minimist from "minimist";
+import { Octokit } from "octokit";
 
 import { getNonEmptyEnv, getRepoInfo, setJobVariable } from "./utils.js";
 
@@ -16,7 +16,7 @@ function removeRefPrefix(ref: string) {
 
 async function isLatestCommitForRef(ref: string, commit: string) {
     const gh = new Octokit({ auth });
-    const latest = await gh.git.getRef({ owner: "microsoft", repo: "TypeScript", ref: removeRefPrefix(ref) });
+    const latest = await gh.rest.git.getRef({ owner: "microsoft", repo: "TypeScript", ref: removeRefPrefix(ref) });
     const isLatest = latest.data.object.sha === commit;
     console.log(`Latest commit for ${ref} is: ${latest.data.object.sha}`);
     console.log(`This run was for: ${commit}`);

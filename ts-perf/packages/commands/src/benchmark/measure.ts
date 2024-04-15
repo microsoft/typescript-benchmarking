@@ -35,8 +35,7 @@ export async function measureAndRunScenarios({ kind, options }: TSOptions, host:
     const date = (options.date ? new Date(options.date) : new Date()).toISOString();
     const system = SystemInfo.getCurrent();
     const repository = Repository.tryDiscover(
-        kind === "tsc" ? path.dirname(options.tsc)
-            : kind === "tsserver" ? path.dirname(options.tsserver) : options.builtDir,
+        options.builtDir,
         options.repositoryType,
         options.repositoryUrl,
         options.repositoryBranch,
@@ -138,6 +137,10 @@ async function runCompilerScenario(
     hostSpecifier: HostSpecifier,
     hostIndex: number,
 ): Promise<Measurement> {
+    const tsc = path.join(options.builtDir, "tsc.js");
+    const typescript = path.join(options.builtDir, "typescript.js");
+    const tscPublicWrapper = path.join(__dirname, "tscpublic.js");
+    const usesPublicApi = !!scenario.tscConfig?.usePublicApi;
     const temp = await getTempDirectories();
     const expansion = ExpansionProvider.getProviders({ runner: { kind: "tsc", options }, temp, scenario, host });
     const { cmd, args, hasBuild } = new CommandLineArgumentsBuilder(
@@ -147,11 +150,12 @@ async function runCompilerScenario(
         options.cpus,
         options.predictable,
     )
-        .add(options.tsc)
+        .addIf(!usesPublicApi, tsc)
+        .addIf(usesPublicApi, tscPublicWrapper, typescript)
         .addCompilerOptions(options, scenario)
         .add("--diagnostics");
     const { cmd: clean, args: cleanargs } = new CommandLineArgumentsBuilder(expansion, host)
-        .add(options.tsc)
+        .add(tsc)
         .addCompilerOptions(options, scenario)
         .add("--clean");
     try {
@@ -250,11 +254,12 @@ async function runTSServerScenario(
     hostSpecifier: HostSpecifier,
     hostIndex: number,
 ): Promise<Measurement> {
+    const tsserver = path.join(options.builtDir, "tsserver.js");
     const temp = await getTempDirectories();
     const expansion = ExpansionProvider.getProviders({ runner: { kind: "tsserver", options }, temp, scenario, host });
     const argsBuilder = new CommandLineArgumentsBuilder(expansion, host, /*exposeGc*/ false)
         .add(path.join(__dirname, "measuretsserver.js"))
-        .add("--tsserver", options.tsserver)
+        .add("--tsserver", tsserver)
         .add("--commands", scenario.configFile)
         .add("--suite", options.suite);
     if (options.extended) {

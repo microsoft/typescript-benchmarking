@@ -40,7 +40,7 @@ tsperf:
         agent_pool: ts-perf-ddfun
 ```
 
-Note: ensure that the hostnames are unique, and are added to `benchmark.yml` and `generateMatrix.ts`.
+Note: ensure that the hostnames are unique, and are added to `benchmark.yml` and `setupPipeline.ts`.
 
 You'll also need to create `secrets.yml`, which looks like:
 

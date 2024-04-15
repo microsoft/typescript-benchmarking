@@ -1,0 +1,46 @@
+{
+    "name": "CompilerTSServer",
+    "kind": "tsserver",
+    "args": [],
+    "tsserverConfig": {
+        "solution": "Compiler",
+        "commands": [
+            {
+                "commandName": "updateOpen",
+                "args": [
+                    {
+                        "file": "checker.ts"
+                    }
+                ]
+            },
+            {
+                "commandName": "geterr",
+                "args": [
+                    "checker.ts"
+                ]
+            },
+            {
+                "commandName": "references",
+                "args": {
+                    "file": "checker.ts",
+                    "line": 11696,
+                    "offset": 48
+                }
+            },
+            {
+                "commandName": "navto",
+                "args": {
+                    "searchValue": "Type"
+                }
+            },
+            {
+                "commandName": "completionInfo",
+                "args": {
+                    "file": "checker.ts",
+                    "line": 26636,
+                    "offset": 6
+                }
+            }
+        ]
+    }
+}

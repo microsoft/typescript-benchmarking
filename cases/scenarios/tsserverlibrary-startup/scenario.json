@@ -1,0 +1,7 @@
+{
+    "name": "tsserverlibrary-startup",
+    "kind": "startup",
+    "args": [
+        "tsserverlibrary.js"
+    ]
+}

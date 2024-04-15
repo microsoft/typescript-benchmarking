@@ -53,20 +53,9 @@ resources:
             - release-*
 
 parameters:
-  # TODO(jakebailey): allow custom preset
   - name: TSPERF_PRESET
-    displayName: Preset
-    # Note: keep this up to date with generateMatrix and https://github.com/microsoft/typescript-bot-test-triggerer
-    values:
-      - baseline
-      - regular
-      - full
-      - tsc-only
-      - faster
-      - bun
-      - vscode
-      - public
-    default: baseline # Branch pushes use the defaults, so this is set to the preset we want to baseline.
+    displayName: Input (preset/args)
+    default: 'default'
 
   - name: HISTORICAL_RUN
     displayName: This is a historical run (only check this if you know what you're doing)
@@ -74,6 +63,10 @@ parameters:
     default: false
 
   # PR trigger params
+  - name: DISTINCT_ID
+    displayName: Distinct ID for this run (PR runs only)
+    type: string
+    default: 'unknown'
   - name: REQUESTING_USER
     displayName: User to tag when the results are ready (PR runs only)
     type: string
@@ -87,15 +80,17 @@ parameters:
     type: number
     default: 0
 
-  # Keep in sync with inventory.yml and generateMatrix.ts.
+  # Keep in sync with inventory.yml and setupPipeline.ts.
   - name: AGENTS
     displayName: Exhaustive list of agents
     type: string
-    default: 'any,ts-perf1,ts-perf2,ts-perf3,ts-perf4'
+    default: 'any,ts-perf1,ts-perf2,ts-perf3,ts-perf4,ts-perf5,ts-perf6,ts-perf7,ts-perf8,ts-perf9,ts-perf10,ts-perf11,ts-perf12'
 
 variables:
   Codeql.Enabled: false
   skipComponentGovernanceDetection: true
+
+  CI: true
 
   azureSubscription: 'TypeScript Public CI'
   KeyVaultName: 'jststeam-passwords'
@@ -127,16 +122,12 @@ jobs:
 
     variables:
       ARTIFACTS_DIR: $(Pipeline.Workspace)/artifacts
+      TYPESCRIPT_DIR: $(Pipeline.Workspace)/TypeScript
+      TSPERF_PRESET: ${{ parameters.TSPERF_PRESET }}
 
     steps:
       - template: templates/setup.yml
       - template: templates/cloneAndBuildBenchmarkRepo.yml # Sets $(BENCH_SCRIPTS), $(TSPERF_EXE)
-
-      - bash: |
-          set -eo pipefail
-          node $(BENCH_SCRIPTS)/generateMatrix.js --preset ${{ parameters.TSPERF_PRESET }}
-        displayName: Generate matrix
-        name: generateMatrix
 
       - checkout: TypeScript
         path: TypeScript
@@ -145,26 +136,58 @@ jobs:
         clean: true
         retryCountOnTaskFailure: 3
 
+      # Ideally we'd just do this:
+      #   git config remote.origin.fetch "+refs/heads/*:refs/remotes/origin/*"
+      #   git config remote.origin.promisor true
+      #   git config remote.origin.partialclonefilter blob:none
+      #   git fetch --unshallow
+      # But this is slower than recloning the entire repo.
       - bash: |
-          set -eo pipefail
-          node $(BENCH_SCRIPTS)/buildTypeScript.js --outputDir $(ARTIFACTS_DIR)/pr
-        displayName: Build PR TypeScript
-        condition: and(succeeded(), eq(variables['IS_PR'], 'true'))
-        workingDirectory: $(Pipeline.Workspace)/TypeScript
-        name: buildTypeScriptPR
+          set -exo pipefail
+          OLD_REF=`git -C $(TYPESCRIPT_DIR) rev-parse HEAD`
+          rm -rf $(TYPESCRIPT_DIR)
+          git clone --filter=blob:none https://github.com/microsoft/TypeScript $(TYPESCRIPT_DIR)
+          cd $(TYPESCRIPT_DIR)
+          git fetch origin $(OLD_REF)
+          git switch --detach FETCH_HEAD
+          for i in `git branch -a | grep remote | grep -v HEAD | grep -v main`; do git branch --track ${i#remotes/origin/} $i; done
+        displayName: Convert TypeScript clone to blobless clone
+        # Only do this if one of the parameters looks like it's going to change the commit range.
+        condition: and(succeeded(), contains(variables['TSPERF_PRESET'], 'commit'))
 
       - bash: |
-          set -eo pipefail
-          git switch --detach HEAD^1
-        displayName: Switch to merge base
-        condition: and(succeeded(), eq(variables['IS_PR'], 'true'))
-        workingDirectory: $(Pipeline.Workspace)/TypeScript
+          set -exo pipefail
+          node $(BENCH_SCRIPTS)/setupPipeline.js
+        displayName: Setup pipeline
+        name: setupPipeline
 
       - bash: |
-          set -eo pipefail
+          set -exo pipefail
+          git switch --detach $(TSPERF_NEW_COMMIT)
+        displayName: Switch to new commit
+        condition: and(succeeded(), eq(variables['TSPERF_IS_COMPARISON'], 'true'))
+        workingDirectory: $(TYPESCRIPT_DIR)
+
+      - bash: |
+          set -exo pipefail
+          node $(BENCH_SCRIPTS)/buildTypeScript.js --outputDir $(ARTIFACTS_DIR)/new
+        displayName: Build new TypeScript
+        condition: and(succeeded(), eq(variables['TSPERF_IS_COMPARISON'], 'true'))
+        workingDirectory: $(TYPESCRIPT_DIR)
+        name: buildTypeScriptNew
+
+      - bash: |
+          set -exo pipefail
+          git switch --detach $(TSPERF_BASELINE_COMMIT)
+        displayName: Switch to baseline commit
+        condition: and(succeeded(), not(eq(variables['TSPERF_BASELINE_COMMIT'], 'HEAD')))
+        workingDirectory: $(TYPESCRIPT_DIR)
+
+      - bash: |
+          set -exo pipefail
           node $(BENCH_SCRIPTS)/buildTypeScript.js --baseline --outputDir $(ARTIFACTS_DIR)/baseline
         displayName: Build baseline TypeScript
-        workingDirectory: $(Pipeline.Workspace)/TypeScript
+        workingDirectory: $(TYPESCRIPT_DIR)
         name: buildTypeScriptBaseline
 
       - publish: $(ARTIFACTS_DIR)
@@ -173,8 +196,9 @@ jobs:
 
   - ${{ each agent in split(parameters.AGENTS, ',') }}:
       - job: Benchmark_${{ replace(agent, '-', '_') }}
+        timeoutInMinutes: 360
         dependsOn: Setup
-        condition: and(succeeded(), not(eq(dependencies.Setup.outputs['generateMatrix.MATRIX_${{ replace(agent, '-', '_') }}'], '{}')))
+        condition: and(succeeded(), not(eq(dependencies.Setup.outputs['setupPipeline.MATRIX_${{ replace(agent, '-', '_') }}'], '{}')))
         pool:
           name: ts-perf-ddfun
           ${{ if not(eq(agent, 'any')) }}:
@@ -184,12 +208,14 @@ jobs:
 
         # https://stackoverflow.com/a/69345058
         strategy:
-          matrix: $[ dependencies.Setup.outputs['generateMatrix.MATRIX_${{ replace(agent, '-', '_') }}'] ]
+          matrix: $[ dependencies.Setup.outputs['setupPipeline.MATRIX_${{ replace(agent, '-', '_') }}'] ]
 
         variables:
           BUILT_TYPESCRIPT_DIR: $(Pipeline.Workspace)/BuiltTypeScript
           ARTIFACTS_DIR: $(Pipeline.Workspace)/artifacts
-          TYPESCRIPT_COMMIT_PR: $[ dependencies.Setup.outputs['buildTypeScriptPR.TYPESCRIPT_COMMIT'] ]
+          TSPERF_IS_COMPARISON: $[ dependencies.Setup.outputs['setupPipeline.TSPERF_IS_COMPARISON'] ]
+          TSPERF_PREDICTABLE: $[ dependencies.Setup.outputs['setupPipeline.TSPERF_PREDICTABLE'] ]
+          TYPESCRIPT_COMMIT_NEW: $[ dependencies.Setup.outputs['buildTypeScriptNew.TYPESCRIPT_COMMIT'] ]
           TYPESCRIPT_COMMIT_BASELINE: $[ dependencies.Setup.outputs['buildTypeScriptBaseline.TYPESCRIPT_COMMIT'] ]
 
         steps:
@@ -199,6 +225,7 @@ jobs:
               KeyVaultName: $(KeyVaultName)
               SecretsFilter: 'tslab1-mseng-PAT'
             displayName: Get secrets
+            retryCountOnTaskFailure: 3
 
           - template: templates/setup.yml
           - template: templates/cloneAndBuildBenchmarkRepo.yml # Sets $(BENCH_SCRIPTS), $(TSPERF_EXE)
@@ -212,37 +239,37 @@ jobs:
 
           # This is provided by the agent.
           - bash: |
-              set -eo pipefail
+              set -exo pipefail
               sudo pyperf system tune
             displayName: Tune system
 
           - bash: |
-              set -eo pipefail
+              set -exo pipefail
               node $(BENCH_SCRIPTS)/runTsPerf.js install-hosts
             displayName: Install hosts
 
           - bash: |
-              set -eo pipefail
+              set -exo pipefail
               # Special case for self benchmark
-              export TYPESCRIPT_COMMIT=$(TYPESCRIPT_COMMIT_PR)
+              export TYPESCRIPT_COMMIT=$(TYPESCRIPT_COMMIT_NEW)
               SETUP=$(TSPERF_PUBLIC_SCENARIO_CONFIG_DIR)/$(TSPERF_JOB_SCENARIO)/setup.sh
               if test -f $SETUP; then
                 echo "Running $SETUP"
                 bash $SETUP
               fi
-            displayName: Set up scenario for PR benchmark
-            condition: and(succeeded(), eq(variables['IS_PR'], 'true'), eq(variables['TSPERF_JOB_LOCATION'], 'public'))
+            displayName: Set up scenario for new benchmark
+            condition: and(succeeded(), eq(variables['TSPERF_IS_COMPARISON'], 'true'), eq(variables['TSPERF_JOB_LOCATION'], 'public'))
 
           - bash: |
-              set -eo pipefail
+              set -exo pipefail
               node $(BENCH_SCRIPTS)/runTsPerf.js benchmark-$(TSPERF_JOB_KIND) \
-                --builtDir $(BUILT_TYPESCRIPT_DIR)/pr \
-                --save $(ARTIFACTS_DIR)/pr_$(TSPERF_JOB_NAME).$(TSPERF_JOB_KIND).benchmark
-            displayName: Run PR $(TSPERF_JOB_KIND) benchmark
-            condition: and(succeeded(), eq(variables['IS_PR'], 'true'))
+                --builtDir $(BUILT_TYPESCRIPT_DIR)/new \
+                --save $(ARTIFACTS_DIR)/new_$(TSPERF_JOB_NAME).$(TSPERF_JOB_KIND).benchmark
+            displayName: Run new $(TSPERF_JOB_KIND) benchmark
+            condition: and(succeeded(), eq(variables['TSPERF_IS_COMPARISON'], 'true'))
 
           - bash: |
-              set -eo pipefail
+              set -exo pipefail
               # Special case for self benchmark
               export TYPESCRIPT_COMMIT=$(TYPESCRIPT_COMMIT_BASELINE)
               SETUP=$(TSPERF_PUBLIC_SCENARIO_CONFIG_DIR)/$(TSPERF_JOB_SCENARIO)/setup.sh
@@ -254,11 +281,20 @@ jobs:
             condition: and(succeeded(), eq(variables['TSPERF_JOB_LOCATION'], 'public'))
 
           - bash: |
-              set -eo pipefail
+              set -exo pipefail
               node $(BENCH_SCRIPTS)/runTsPerf.js benchmark-$(TSPERF_JOB_KIND) \
                 --builtDir $(BUILT_TYPESCRIPT_DIR)/baseline \
                 --save $(ARTIFACTS_DIR)/baseline_$(TSPERF_JOB_NAME).$(TSPERF_JOB_KIND).benchmark
             displayName: Run baseline $(TSPERF_JOB_KIND) benchmark
+
+          - bash: |
+              set -exo pipefail
+              node $(BENCH_SCRIPTS)/runTsPerf.js benchmark-$(TSPERF_JOB_KIND) \
+                --builtDir $(BUILT_TYPESCRIPT_DIR)/baseline \
+                --baseline $(ARTIFACTS_DIR)/baseline_$(TSPERF_JOB_NAME).$(TSPERF_JOB_KIND).benchmark \
+                --load $(ARTIFACTS_DIR)/new_$(TSPERF_JOB_NAME).$(TSPERF_JOB_KIND).benchmark
+            displayName: Compare new to baseline benchmark
+            condition: and(succeeded(), eq(variables['TSPERF_IS_COMPARISON'], 'true'))
 
           - publish: $(ARTIFACTS_DIR)
             artifact: PartialBenchmark_$(TSPERF_JOB_NAME)
@@ -269,15 +305,21 @@ jobs:
       - Setup
       - ${{ each agent in split(parameters.AGENTS, ',') }}:
           - Benchmark_${{ replace(agent, '-', '_') }}
-    condition: not(failed()) # If any dependency was skipped, then this job would normally also be skipped.
+    # If any dependency was skipped (which will always be the case in the above matrix),
+    # "succeeded()" will be false. Instead, only run when the build has not failed.
+    # "not(failed())" is also true when the build has been canceled, so ignore that too.
+    condition: and(not(failed()), not(canceled()))
     pool:
       vmImage: ubuntu-latest
     workspace:
       clean: all # Always start with a clean slate.
 
     variables:
-      TSPERF_PROCESS_KINDS: $[ dependencies.Setup.outputs['generateMatrix.TSPERF_PROCESS_KINDS'] ]
-      TSPERF_PROCESS_LOCATIONS: $[ dependencies.Setup.outputs['generateMatrix.TSPERF_PROCESS_LOCATIONS'] ]
+      TSPERF_IS_COMPARISON: $[ dependencies.Setup.outputs['setupPipeline.TSPERF_IS_COMPARISON'] ]
+      TSPERF_PROCESS_KINDS: $[ dependencies.Setup.outputs['setupPipeline.TSPERF_PROCESS_KINDS'] ]
+      TSPERF_PROCESS_LOCATIONS: $[ dependencies.Setup.outputs['setupPipeline.TSPERF_PROCESS_LOCATIONS'] ]
+      TSPERF_NEW_NAME: $[ dependencies.Setup.outputs['setupPipeline.TSPERF_NEW_NAME'] ]
+      TSPERF_BASELINE_NAME: $[ dependencies.Setup.outputs['setupPipeline.TSPERF_BASELINE_NAME'] ]
       BUILT_TYPESCRIPT_DIR: $(Pipeline.Workspace)/BuiltTypeScript
       BENCHMARKS_DIR: $(Pipeline.Workspace)/benchmarks
       MERGED_DIR: $(Pipeline.Workspace)/merged
@@ -287,8 +329,9 @@ jobs:
         inputs:
           azureSubscription: $(azureSubscription)
           KeyVaultName: $(KeyVaultName)
-          SecretsFilter: 'tslab1-mseng-PAT, tsperf-azure-storage-connection-string, typescript-bot-github-PAT-for-comments'
+          SecretsFilter: 'tslab1-mseng-PAT, typescript-bot-github-PAT-for-comments'
         displayName: Get secrets
+        retryCountOnTaskFailure: 3
 
       - template: templates/setup.yml
 
@@ -301,7 +344,7 @@ jobs:
       # first and move them somewhere else, before doing any other steps that would download
       # further artifacts.
       - bash: |
-          set -eo pipefail
+          set -exo pipefail
           shopt -s globstar
           mkdir -p $(BENCHMARKS_DIR)
           mv $(Pipeline.Workspace)/**/*.benchmark $(BENCHMARKS_DIR)
@@ -314,56 +357,61 @@ jobs:
 
       - template: templates/cloneAndBuildBenchmarkRepo.yml # Sets $(BENCH_SCRIPTS), $(TSPERF_EXE)
       # TODO(jakebailey): remove this; see "suite" in ts-perf/packages/api/src/options.ts
-      - template: templates/cloneInternalRepo.yml # Sets $(TSPERF_INTERNAL_SCENARIO_CONFIG_DIR), $(TSPERF_INTERNAL_SUITE_DIR
+      - template: templates/cloneInternalRepo.yml # Sets $(TSPERF_INTERNAL_SCENARIO_CONFIG_DIR), $(TSPERF_INTERNAL_SUITE_DIR)
 
       - bash: |
-          set -eo pipefail
+          set -exo pipefail
           mkdir -p $(MERGED_DIR)
         displayName: Create merged output directory
 
       - bash: |
-          set -eo pipefail
+          set -exo pipefail
 
           for KIND in $(TSPERF_PROCESS_KINDS); do
             echo "Merging ${KIND} benchmarks"
 
             node $(TSPERF_EXE) merge --output $(MERGED_DIR)/baseline.${KIND}.benchmark $(BENCHMARKS_DIR)/baseline_*.${KIND}.benchmark
 
-            if [[ $(REF) == refs/pull/* ]]; then
-              node $(TSPERF_EXE) merge --output $(MERGED_DIR)/pr.${KIND}.benchmark $(BENCHMARKS_DIR)/pr_*.${KIND}.benchmark
+            if [[ $(TSPERF_IS_COMPARISON) == "true" ]]; then
+              node $(TSPERF_EXE) merge --output $(MERGED_DIR)/new.${KIND}.benchmark $(BENCHMARKS_DIR)/new_*.${KIND}.benchmark
 
               # Print summary for logs
               node $(BENCH_SCRIPTS)/runTsPerf.js benchmark-${KIND} \
                 --builtDir $(BUILT_TYPESCRIPT_DIR)/baseline \
                 --baseline $(MERGED_DIR)/baseline.${KIND}.benchmark \
-                --load $(MERGED_DIR)/pr.${KIND}.benchmark
+                --load $(MERGED_DIR)/new.${KIND}.benchmark
 
               echo "<h2>${KIND}</h2>" >> $(Pipeline.Workspace)/comment.html
               node $(BENCH_SCRIPTS)/runTsPerf.js benchmark-${KIND} \
                 --builtDir $(BUILT_TYPESCRIPT_DIR)/baseline \
-                --baseline $(MERGED_DIR)/baseline.${KIND}.benchmark --baselineName baseline \
-                --load $(MERGED_DIR)/pr.${KIND}.benchmark --benchmarkName pr \
+                --baseline $(MERGED_DIR)/baseline.${KIND}.benchmark --baselineName $(TSPERF_BASELINE_NAME) \
+                --load $(MERGED_DIR)/new.${KIND}.benchmark --benchmarkName $(TSPERF_NEW_NAME) \
                 --format html-fragment \
                 --quiet >> $(Pipeline.Workspace)/comment.html
             else
-              # Print summary for logs
               node $(BENCH_SCRIPTS)/runTsPerf.js benchmark-${KIND} \
                 --builtDir $(BUILT_TYPESCRIPT_DIR)/baseline \
                 --load $(MERGED_DIR)/baseline.${KIND}.benchmark
+              node $(BENCH_SCRIPTS)/runTsPerf.js benchmark-${KIND} \
+                --builtDir $(BUILT_TYPESCRIPT_DIR)/baseline \
+                --load $(MERGED_DIR)/baseline.${KIND}.benchmark \
+                --format html-fragment \
+                --quiet >> $(Pipeline.Workspace)/comment.html
             fi
           done
         displayName: Merge benchmarks
 
       - publish: $(MERGED_DIR)
         artifact: Benchmarks
-        displayName: Publish benchmarks
+        displayName: Publish benchmark artifacts
 
       - bash: |
-          set -eo pipefail
+          set -exo pipefail
           node $(BENCH_SCRIPTS)/postPerfResult.js --fragment $(Pipeline.Workspace)/comment.html
         displayName: Publish PR comment
         condition: and(succeeded(), eq(variables['IS_PR'], 'true'))
         env:
+          DISTINCT_ID: ${{ parameters.DISTINCT_ID }}
           SOURCE_ISSUE: ${{ parameters.SOURCE_ISSUE }}
           REQUESTING_USER: ${{ parameters.REQUESTING_USER }}
           STATUS_COMMENT: ${{ parameters.STATUS_COMMENT }}
@@ -371,26 +419,40 @@ jobs:
 
       # Sets $(TSPERF_BLOB_LATEST)
       - bash: |
-          set -eo pipefail
+          set -exo pipefail
           node $(BENCH_SCRIPTS)/checkLatestCommitForRef.js --builtDir $(BUILT_TYPESCRIPT_DIR)/baseline
         displayName: Check if commit is latest for ref
         condition: and(succeeded(), eq(variables['SHOULD_UPLOAD'], 'true'))
         env:
           GH_TOKEN: $(typescript-bot-github-PAT-for-comments)
 
-      - bash: |
-          set -eo pipefail
-          for KIND in $(TSPERF_PROCESS_KINDS); do
-            echo "Uploading ${KIND} benchmarks"
-            node $(BENCH_SCRIPTS)/runTsPerf.js benchmark-${KIND} \
-              --builtDir $(BUILT_TYPESCRIPT_DIR)/baseline \
-              --load $(MERGED_DIR)/baseline.${KIND}.benchmark \
-              --saveBlob linux
-          done
+      - task: AzureCLI@2
+        inputs:
+          azureSubscription: TsPerfStorage
+          scriptType: 'bash'
+          scriptLocation: 'inlineScript'
+          inlineScript: |
+            set -exo pipefail
+            for KIND in $(TSPERF_PROCESS_KINDS); do
+              echo "Uploading ${KIND} benchmarks"
+              case ${KIND} in 
+                tsc)
+                  NAME="linux"
+                  ;;
+                tsserver)
+                  NAME="linux.server"
+                  ;;
+                *)
+                  NAME="linux.${KIND}"
+                  ;;
+              esac
+              node $(BENCH_SCRIPTS)/runTsPerf.js benchmark-${KIND} \
+                --builtDir $(BUILT_TYPESCRIPT_DIR)/baseline \
+                --load $(MERGED_DIR)/baseline.${KIND}.benchmark \
+                --saveBlob ${NAME}
+            done
         displayName: Upload benchmarks to blob store
         condition: and(succeeded(), eq(variables['SHOULD_UPLOAD'], 'true'))
-        env:
-          TSPERF_AZURE_STORAGE_CONNECTION_STRING: $(tsperf-azure-storage-connection-string)
 
   - job: OnFailedPRRun
     dependsOn:
@@ -411,15 +473,17 @@ jobs:
           KeyVaultName: $(KeyVaultName)
           SecretsFilter: 'typescript-bot-github-PAT-for-comments'
         displayName: Get secrets
+        retryCountOnTaskFailure: 3
 
       - template: templates/setup.yml
       - template: templates/cloneAndBuildBenchmarkRepo.yml # Sets $(BENCH_SCRIPTS), $(TSPERF_EXE)
 
       - bash: |
-          set -eo pipefail
+          set -exo pipefail
           node $(BENCH_SCRIPTS)/postPerfResult.js --failed
         displayName: Publish PR comment
         env:
+          DISTINCT_ID: ${{ parameters.DISTINCT_ID }}
           SOURCE_ISSUE: ${{ parameters.SOURCE_ISSUE }}
           REQUESTING_USER: ${{ parameters.REQUESTING_USER }}
           STATUS_COMMENT: ${{ parameters.STATUS_COMMENT }}

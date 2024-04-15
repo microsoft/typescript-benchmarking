@@ -34,7 +34,7 @@ for (const branch of args._) {
             },
         },
         templateParameters: {
-            HISTORICAL_RUN: true,
+            HISTORICAL_RUN: "true",
         },
     });
 }

@@ -44,6 +44,7 @@
         "**/*-lock.json",
         "**/pnpm-lock.yaml",
         "**/dist/**",
+        "cases/solutions/**",
         "SECURITY.md"
     ],
     "plugins": [

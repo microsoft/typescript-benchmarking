@@ -1,2 +1,4 @@
 # Ignore all directories; manually add new dirs as unignored if needed.
 /*/
+!/Compiler
+!/Compiler-Unions
