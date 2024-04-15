@@ -21,6 +21,7 @@ function getSnapshotPath(input: string, kind: typeof allSnapshotKinds[number]) {
 
 const inputs = [
     ...allPresetNames,
+    "default",
     "predictable=true",
     "hosts=bun@1.1.3,vscode@1.88.1",
     "this is not a preset",

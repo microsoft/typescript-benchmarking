@@ -55,7 +55,7 @@ resources:
 parameters:
   - name: TSPERF_PRESET
     displayName: Input (preset/args)
-    default: ''
+    default: 'default'
 
   - name: HISTORICAL_RUN
     displayName: This is a historical run (only check this if you know what you're doing)

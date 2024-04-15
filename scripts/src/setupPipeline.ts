@@ -316,6 +316,10 @@ async function parseInput({ input, isPr, gitParseRev }: SetupPipelineInput) {
     for (const part of input.trim().split(/\s+/)) {
         if (!parsedPresetName) {
             parsedPresetName = true;
+            if (part === "default") {
+                continue;
+            }
+
             if (isPresetName(part)) {
                 parsed.preset = part;
                 continue;
