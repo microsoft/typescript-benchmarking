@@ -128,6 +128,14 @@
       "TSPERF_JOB_NAME": "tsc_node_18_15_0_xstate",
       "TSPERF_JOB_SCENARIO": "xstate",
     },
+    "tsc_node_18_15_0_xstate_main": {
+      "TSPERF_JOB_HOST": "node@18.15.0",
+      "TSPERF_JOB_ITERATIONS": 6,
+      "TSPERF_JOB_KIND": "tsc",
+      "TSPERF_JOB_LOCATION": "public",
+      "TSPERF_JOB_NAME": "tsc_node_18_15_0_xstate_main",
+      "TSPERF_JOB_SCENARIO": "xstate-main",
+    },
     "tsserver_node_18_15_0_CompilerTSServer": {
       "TSPERF_JOB_HOST": "node@18.15.0",
       "TSPERF_JOB_ITERATIONS": 6,
