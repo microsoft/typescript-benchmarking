@@ -389,10 +389,14 @@ jobs:
                 --format html-fragment \
                 --quiet >> $(Pipeline.Workspace)/comment.html
             else
-              # Print summary for logs
               node $(BENCH_SCRIPTS)/runTsPerf.js benchmark-${KIND} \
                 --builtDir $(BUILT_TYPESCRIPT_DIR)/baseline \
                 --load $(MERGED_DIR)/baseline.${KIND}.benchmark
+              node $(BENCH_SCRIPTS)/runTsPerf.js benchmark-${KIND} \
+                --builtDir $(BUILT_TYPESCRIPT_DIR)/baseline \
+                --load $(MERGED_DIR)/baseline.${KIND}.benchmark \
+                --format html-fragment \
+                --quiet >> $(Pipeline.Workspace)/comment.html
             fi
           done
         displayName: Merge benchmarks
