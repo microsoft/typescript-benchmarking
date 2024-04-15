@@ -1,5 +1,3 @@
-import assert from "node:assert";
-
 import vsts from "azure-devops-node-api";
 import type { RunPipelineParameters } from "azure-devops-node-api/interfaces/PipelinesInterfaces.js";
 
