@@ -3,15 +3,19 @@ import fs from "node:fs";
 import path from "node:path";
 
 import * as v from "@badrap/valita";
+import { $ as _$ } from "execa";
 
-export const RepoInfo = v.object({
+export const $pipe = _$({ verbose: true });
+export const $ = _$({ verbose: true, stdio: "inherit" });
+
+const RepoInfo = v.object({
     commit: v.string(),
     commitShort: v.string(),
-    branch: v.string(),
+    branch: v.string().optional(),
     date: v.string(),
     timestampDir: v.string(),
 });
-type RepoInfo = v.Infer<typeof RepoInfo>;
+export type RepoInfo = v.Infer<typeof RepoInfo>;
 
 export async function retry<T>(fn: () => Promise<T>, count = 3, wait = 5) {
     let lastError;
@@ -67,4 +71,9 @@ export function setOutputVariable(name: string, value: string | number | boolean
 export function setJobVariable(name: string, value: string | number | boolean) {
     console.log(`setting variable ${name}=${value}`);
     console.log(`##vso[task.setvariable variable=${name}]${value}`);
+}
+
+export function parseBoolean(value: string | undefined, defaultValue: boolean): boolean {
+    if (!value) return defaultValue;
+    return value.toUpperCase() === "TRUE";
 }

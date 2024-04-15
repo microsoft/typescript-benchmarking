@@ -1,0 +1,11 @@
+{
+  "baselineCommit": "27047e3391323fa2d8987f46a4c42f5361d07926",
+  "baselineName": "release-5.3",
+  "hosts": undefined,
+  "isComparison": true,
+  "isCustomCommitRange": true,
+  "newCommit": "6ea273cdcca99db809074d2b2d38d0e5b59ee81b",
+  "newName": "release-5.4",
+  "predictable": undefined,
+  "preset": "faster",
+}

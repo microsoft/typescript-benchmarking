@@ -10,7 +10,7 @@ steps:
     displayName: 'Install Node ${{ parameters.NODE_VERSION }}'
 
   - bash: |
-      set -eo pipefail
+      set -exo pipefail
       git config --global core.longpaths true
     displayName: Enable git long paths
 

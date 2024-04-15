@@ -7,14 +7,14 @@ steps:
     retryCountOnTaskFailure: 3
 
   - bash: |
-      set -eo pipefail
+      set -exo pipefail
       cd $(Pipeline.Workspace)/typescript-benchmarking
       pnpm install
     displayName: Install typescript-benchmarking
     retryCountOnTaskFailure: 3
 
   - bash: |
-      set -eo pipefail
+      set -exo pipefail
       cd $(Pipeline.Workspace)/typescript-benchmarking
       pnpm build
     displayName: Build typescript-benchmarking

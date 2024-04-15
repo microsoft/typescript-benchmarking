@@ -2,13 +2,10 @@ import assert from "node:assert";
 import fs from "node:fs";
 import path from "node:path";
 
-import { $ as _$ } from "execa";
 import minimist from "minimist";
+import { Octokit } from "octokit";
 
-import { retry, setOutputVariable } from "./utils.js";
-
-const $pipe = _$({ verbose: true });
-const $ = _$({ verbose: true, stdio: "inherit" });
+import { $, $pipe, getNonEmptyEnv, parseBoolean, RepoInfo, retry, setOutputVariable } from "./utils.js";
 
 const { stdout: commit } = await $pipe`git rev-parse HEAD`;
 const { stdout: commitShort } = await $pipe`git rev-parse --short HEAD`;
@@ -19,8 +16,6 @@ const args = minimist(process.argv.slice(2), {
     string: ["outputDir"],
     boolean: ["baseline"],
 });
-
-const isPR = (process.env.IS_PR || "").toUpperCase() === "TRUE";
 
 const outputDir = args.outputDir;
 assert(outputDir, "Expected output path as first argument");
@@ -44,29 +39,42 @@ else {
 await $`git clean -fddx`;
 await $`git reset --hard HEAD`;
 
-let branch;
+let branch: string | undefined;
 
-const ref = process.env.REF;
-assert(ref, "Expected REF environment variable to be set");
+const isPR = parseBoolean(getNonEmptyEnv("IS_PR"), false);
+const ref = getNonEmptyEnv("REF");
+const isCustomCommitRange = parseBoolean(getNonEmptyEnv("TSPERF_IS_CUSTOM_COMMIT_RANGE"), false);
 
-if (isPR) {
-    if (args.baseline) {
-        const prNumber = ref.split("/")[2];
-        const resp = await fetch(`https://api.github.com/repos/microsoft/TypeScript/pulls/${prNumber}`);
-        const pr = await resp.json();
-        branch = (pr as any).base.ref;
+// If this is a custom commit range, don't bother trying to figure out what the branch names are.
+if (!isCustomCommitRange) {
+    if (isPR) {
+        // This is a PR run. Pull the branch info from the PR.
+        const prefix = "refs/pull/";
+        assert(ref.startsWith(prefix), `Expected ref to start with ${prefix}`);
+
+        if (args.baseline) {
+            const prNumber = ref.slice(prefix.length).split("/")[0];
+
+            const octokit = new Octokit();
+            const pr = await octokit.rest.pulls.get({
+                owner: "microsoft",
+                repo: "TypeScript",
+                pull_number: +prNumber,
+            });
+            branch = pr.data.base.ref;
+        }
+        else {
+            branch = ref;
+        }
     }
     else {
-        branch = ref;
+        const prefix = "refs/heads/";
+        assert(ref.startsWith(prefix), `Expected ref to start with ${prefix}`);
+        branch = ref.slice(prefix.length);
     }
 }
-else {
-    assert(ref.startsWith("refs/heads/"), "Expected ref to start with refs/heads/");
-    branch = ref.replace(/^refs\/heads\//, "");
-}
 
-/** @type {import("./utils.mjs").RepoInfo} */
-const info = {
+const info: RepoInfo = {
     commit,
     commitShort,
     branch,
