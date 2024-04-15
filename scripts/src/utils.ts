@@ -3,11 +3,15 @@ import fs from "node:fs";
 import path from "node:path";
 
 import * as v from "@badrap/valita";
+import { $ as _$ } from "execa";
+
+export const $pipe = _$({ verbose: true });
+export const $ = _$({ verbose: true, stdio: "inherit" });
 
 const RepoInfo = v.object({
     commit: v.string(),
     commitShort: v.string(),
-    branch: v.string(),
+    branch: v.string().optional(),
     date: v.string(),
     timestampDir: v.string(),
 });

@@ -1,0 +1,11 @@
+{
+  "baselineCommit": "HEAD^1",
+  "baselineName": "baseline",
+  "hosts": undefined,
+  "isComparison": true,
+  "isCustomCommitRange": false,
+  "newCommit": "HEAD",
+  "newName": "pr",
+  "predictable": undefined,
+  "preset": "public",
+}

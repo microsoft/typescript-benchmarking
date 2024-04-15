@@ -2,14 +2,10 @@ import assert from "node:assert";
 import fs from "node:fs";
 import path from "node:path";
 
-import { $ as _$ } from "execa";
 import minimist from "minimist";
 import { Octokit } from "octokit";
 
-import { getNonEmptyEnv, parseBoolean, RepoInfo, retry, setOutputVariable } from "./utils.js";
-
-const $pipe = _$({ verbose: true });
-const $ = _$({ verbose: true, stdio: "inherit" });
+import { $, $pipe, getNonEmptyEnv, parseBoolean, RepoInfo, retry, setOutputVariable } from "./utils.js";
 
 const { stdout: commit } = await $pipe`git rev-parse HEAD`;
 const { stdout: commitShort } = await $pipe`git rev-parse --short HEAD`;
@@ -43,34 +39,39 @@ else {
 await $`git clean -fddx`;
 await $`git reset --hard HEAD`;
 
+let branch: string | undefined;
+
 const isPR = parseBoolean(getNonEmptyEnv("IS_PR"), false);
 const ref = getNonEmptyEnv("REF");
+const isCustomCommitRange = parseBoolean(getNonEmptyEnv("TSPERF_IS_CUSTOM_COMMIT_RANGE"), false);
 
-let branch;
+// If this is a custom commit range, don't bother trying to figure out what the branch names are.
+if (!isCustomCommitRange) {
+    if (isPR) {
+        // This is a PR run. Pull the branch info from the PR.
+        const prefix = "refs/pull/";
+        assert(ref.startsWith(prefix), `Expected ref to start with ${prefix}`);
 
-if (isPR) {
-    const prefix = "refs/pull/";
-    assert(ref.startsWith(prefix), `Expected ref to start with ${prefix}`);
+        if (args.baseline) {
+            const prNumber = ref.slice(prefix.length).split("/")[0];
 
-    if (args.baseline) {
-        const prNumber = ref.slice(prefix.length).split("/")[0];
-
-        const octokit = new Octokit();
-        const pr = await octokit.rest.pulls.get({
-            owner: "microsoft",
-            repo: "TypeScript",
-            pull_number: +prNumber,
-        });
-        branch = pr.data.base.ref;
+            const octokit = new Octokit();
+            const pr = await octokit.rest.pulls.get({
+                owner: "microsoft",
+                repo: "TypeScript",
+                pull_number: +prNumber,
+            });
+            branch = pr.data.base.ref;
+        }
+        else {
+            branch = ref;
+        }
     }
     else {
-        branch = ref;
+        const prefix = "refs/heads/";
+        assert(ref.startsWith(prefix), `Expected ref to start with ${prefix}`);
+        branch = ref.slice(prefix.length);
     }
-}
-else {
-    const prefix = "refs/heads/";
-    assert(ref.startsWith(prefix), `Expected ref to start with ${prefix}`);
-    branch = ref.slice(prefix.length);
 }
 
 const info: RepoInfo = {

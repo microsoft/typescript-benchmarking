@@ -1,12 +1,9 @@
 import assert from "node:assert";
 import path from "node:path";
 
-import { $ as _$ } from "execa";
 import minimist from "minimist";
 
-import { checkNonEmpty, getNonEmptyEnv, getRepoInfo } from "./utils.js";
-
-const $ = _$({ verbose: true, stdio: "inherit" });
+import { $, checkNonEmpty, getNonEmptyEnv, getRepoInfo, parseBoolean } from "./utils.js";
 
 const [subcommand, ...rawArgs] = process.argv.slice(2);
 
@@ -63,6 +60,7 @@ async function getCommonBenchmarkArgs() {
         const host = getNonEmptyEnv("TSPERF_JOB_HOST");
         const scenario = getNonEmptyEnv("TSPERF_JOB_SCENARIO");
         const iterations = getNonEmptyEnv("TSPERF_JOB_ITERATIONS");
+        const predictable = parseBoolean(getNonEmptyEnv("TSPERF_PREDICTABLE"), false);
         const cpu = getNonEmptyEnv("TSPERF_AGENT_BENCHMARK_CPU");
         const info = await getRepoInfo(args.builtDir);
 
@@ -70,17 +68,23 @@ async function getCommonBenchmarkArgs() {
         tsperfArgs.push("--scenario", scenario);
         tsperfArgs.push("--iterations", iterations);
         tsperfArgs.push("--cpus", cpu);
+        if (predictable) {
+            tsperfArgs.push("--predictable");
+        }
 
         tsperfArgs.push("--date", info.date);
         tsperfArgs.push("--repositoryType", "git");
         tsperfArgs.push("--repositoryUrl", "https://github.com/microsoft/TypeScript");
-        tsperfArgs.push("--repositoryBranch", info.branch);
+        if (info.branch) {
+            tsperfArgs.push("--repositoryBranch", info.branch);
+        }
         tsperfArgs.push("--repositoryCommit", info.commit);
         tsperfArgs.push("--repositoryDate", info.date);
     }
     else {
         if (args.saveBlob) {
             const info = await getRepoInfo(args.builtDir);
+            assert(info.branch, "Expected branch to be set in repo info");
 
             tsperfArgs.push(
                 "--save",
