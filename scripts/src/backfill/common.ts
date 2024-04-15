@@ -1,9 +1,7 @@
-import assert from "node:assert";
-
 import vsts from "azure-devops-node-api";
 import type { RunPipelineParameters } from "azure-devops-node-api/interfaces/PipelinesInterfaces.js";
 
-import { retry } from "../utils.js";
+import { getNonEmptyEnv, retry } from "../utils.js";
 
 const unset = Symbol();
 
@@ -20,8 +18,7 @@ function memoize<T>(fn: () => T): () => T {
 const project = "cf7ac146-d525-443c-b23c-0d58337efebc";
 
 const getWebApi = memoize(() => {
-    const vstsToken = process.env.VSTS_TOKEN;
-    assert(vstsToken, "Must provide VSTS_TOKEN environment variable.");
+    const vstsToken = getNonEmptyEnv("VSTS_TOKEN");
 
     return new vsts.WebApi(
         "https://typescript.visualstudio.com/defaultcollection",
