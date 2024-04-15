@@ -96,6 +96,14 @@
       "TSPERF_JOB_NAME": "tsc_bun_1_1_3_TFS",
       "TSPERF_JOB_SCENARIO": "TFS",
     },
+    "tsc_bun_1_1_3_babel": {
+      "TSPERF_JOB_HOST": "bun@1.1.3",
+      "TSPERF_JOB_ITERATIONS": 6,
+      "TSPERF_JOB_KIND": "tsc",
+      "TSPERF_JOB_LOCATION": "public",
+      "TSPERF_JOB_NAME": "tsc_bun_1_1_3_babel",
+      "TSPERF_JOB_SCENARIO": "babel",
+    },
     "tsc_bun_1_1_3_material_ui": {
       "TSPERF_JOB_HOST": "bun@1.1.3",
       "TSPERF_JOB_ITERATIONS": 6,
@@ -191,6 +199,14 @@
       "TSPERF_JOB_LOCATION": "internal",
       "TSPERF_JOB_NAME": "tsc_vscode_1_88_1_TFS",
       "TSPERF_JOB_SCENARIO": "TFS",
+    },
+    "tsc_vscode_1_88_1_babel": {
+      "TSPERF_JOB_HOST": "vscode@1.88.1",
+      "TSPERF_JOB_ITERATIONS": 6,
+      "TSPERF_JOB_KIND": "tsc",
+      "TSPERF_JOB_LOCATION": "public",
+      "TSPERF_JOB_NAME": "tsc_vscode_1_88_1_babel",
+      "TSPERF_JOB_SCENARIO": "babel",
     },
     "tsc_vscode_1_88_1_material_ui": {
       "TSPERF_JOB_HOST": "vscode@1.88.1",
