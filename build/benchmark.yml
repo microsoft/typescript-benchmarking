@@ -53,7 +53,7 @@ resources:
             - release-*
 
 parameters:
-  - name: TSPERF_INPUT
+  - name: TSPERF_PRESET
     displayName: Input (preset/args)
     default: ''
 
@@ -123,7 +123,7 @@ jobs:
     variables:
       ARTIFACTS_DIR: $(Pipeline.Workspace)/artifacts
       TYPESCRIPT_DIR: $(Pipeline.Workspace)/TypeScript
-      TSPERF_INPUT: ${{ parameters.TSPERF_INPUT }}
+      TSPERF_PRESET: ${{ parameters.TSPERF_PRESET }}
 
     steps:
       - template: templates/setup.yml
@@ -153,7 +153,7 @@ jobs:
           for i in `git branch -a | grep remote | grep -v HEAD | grep -v main`; do git branch --track ${i#remotes/origin/} $i; done
         displayName: Convert TypeScript clone to blobless clone
         # Only do this if one of the parameters looks like it's going to change the commit range.
-        condition: and(succeeded(), contains(variables['TSPERF_INPUT'], 'commit'))
+        condition: and(succeeded(), contains(variables['TSPERF_PRESET'], 'commit'))
 
       - bash: |
           set -exo pipefail

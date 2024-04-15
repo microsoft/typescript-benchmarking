@@ -564,8 +564,8 @@ if (esMain(import.meta)) {
         }
     }
 
-    const input = process.env.TSPERF_INPUT;
-    assert(input, "TSPERF_INPUT must be set");
+    const input = process.env.TSPERF_PRESET;
+    assert(input, "TSPERF_PRESET must be set");
     const baselining = parseBoolean(process.env.USE_BASELINE_MACHINE, false);
     const isPr = parseBoolean(process.env.IS_PR, false);
 
