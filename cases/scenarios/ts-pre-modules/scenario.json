@@ -1,9 +1,9 @@
 {
-    "name": "typescript-pre-modules",
+    "name": "ts-pre-modules",
     "kind": "tsc",
     "args": [
         "-p",
-        "${suiteDirectory}/typescript-pre-modules/src/compiler",
+        "${suiteDirectory}/ts-pre-modules/src/compiler",
         "--outdir",
         "${outDirectory}"
     ],
