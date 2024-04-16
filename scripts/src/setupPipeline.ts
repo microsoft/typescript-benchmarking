@@ -42,6 +42,7 @@ type Agent = "any" | AllAgents;
 type ScenarioLocation = "internal" | "public";
 
 const defaultIterations = 6;
+const defaultWarmups = 1;
 
 // TODO(jakebailey): have unpinned variants; ts-perf mostly supports @latest.
 const hosts = {
@@ -150,6 +151,7 @@ interface Scenario extends BaseScenario {
     readonly name: ScenarioName;
     readonly host: string;
     readonly iterations: number;
+    readonly warmups: number;
 }
 
 const baselineScenarios = allScenarios.filter(scenario => scenario.runIn & RunType.Baseline);
@@ -163,6 +165,7 @@ function* generateBaselinePreset(scenarios: readonly BaseScenario[]): Iterable<S
                     ...scenario,
                     host,
                     iterations: defaultIterations,
+                    warmups: defaultWarmups,
                 };
             }
         }
@@ -171,6 +174,7 @@ function* generateBaselinePreset(scenarios: readonly BaseScenario[]): Iterable<S
                 ...scenario,
                 host: hosts.node18,
                 iterations: defaultIterations,
+                warmups: defaultWarmups,
             };
         }
     }
@@ -186,6 +190,7 @@ const presets = {
                 ...scenario,
                 host: hosts.node18,
                 iterations: defaultIterations,
+                warmups: defaultWarmups,
             };
         }
     },
@@ -196,6 +201,7 @@ const presets = {
                     ...scenario,
                     host: hosts.node18,
                     iterations: defaultIterations,
+                    warmups: defaultWarmups,
                 };
             }
         }
@@ -208,6 +214,7 @@ const presets = {
                     ...scenario,
                     host: hosts.bun,
                     iterations: defaultIterations * 2,
+                    warmups: defaultWarmups,
                 };
             }
             else if (scenario.kind === "startup" && scenario.name !== "tsserver-startup") {
@@ -215,6 +222,7 @@ const presets = {
                     ...scenario,
                     host: hosts.bun,
                     iterations: defaultIterations,
+                    warmups: defaultWarmups,
                 };
             }
         }
@@ -225,6 +233,7 @@ const presets = {
                 ...scenario,
                 host: hosts.vscode,
                 iterations: defaultIterations,
+                warmups: defaultWarmups,
             };
         }
     },
@@ -235,6 +244,7 @@ const presets = {
                     ...scenario,
                     host: hosts.node20,
                     iterations: defaultIterations,
+                    warmups: defaultWarmups,
                 };
             }
         }
@@ -266,6 +276,7 @@ interface Job {
     TSPERF_JOB_HOST: string;
     TSPERF_JOB_SCENARIO: ScenarioName;
     TSPERF_JOB_ITERATIONS: number;
+    TSPERF_JOB_WARMUPS: number;
     TSPERF_JOB_LOCATION: ScenarioLocation;
 }
 
@@ -456,6 +467,7 @@ export async function setupPipeline(input: SetupPipelineInput) {
             TSPERF_JOB_HOST: scenario.host,
             TSPERF_JOB_SCENARIO: scenario.name,
             TSPERF_JOB_ITERATIONS: scenario.iterations,
+            TSPERF_JOB_WARMUPS: scenario.warmups,
             TSPERF_JOB_LOCATION: scenario.location,
         };
         processKinds.add(scenario.kind);

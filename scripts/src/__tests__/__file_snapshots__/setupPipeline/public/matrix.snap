@@ -7,6 +7,7 @@
       "TSPERF_JOB_LOCATION": "public",
       "TSPERF_JOB_NAME": "tsc_node_20_5_1_Compiler_Unions",
       "TSPERF_JOB_SCENARIO": "Compiler-Unions",
+      "TSPERF_JOB_WARMUPS": 1,
     },
     "tsc_node_20_5_1_mui_docs": {
       "TSPERF_JOB_HOST": "node@20.5.1",
@@ -15,6 +16,7 @@
       "TSPERF_JOB_LOCATION": "public",
       "TSPERF_JOB_NAME": "tsc_node_20_5_1_mui_docs",
       "TSPERF_JOB_SCENARIO": "mui-docs",
+      "TSPERF_JOB_WARMUPS": 1,
     },
     "tsc_node_20_5_1_self_build_src": {
       "TSPERF_JOB_HOST": "node@20.5.1",
@@ -23,6 +25,7 @@
       "TSPERF_JOB_LOCATION": "public",
       "TSPERF_JOB_NAME": "tsc_node_20_5_1_self_build_src",
       "TSPERF_JOB_SCENARIO": "self-build-src",
+      "TSPERF_JOB_WARMUPS": 1,
     },
     "tsc_node_20_5_1_self_build_src_public_api": {
       "TSPERF_JOB_HOST": "node@20.5.1",
@@ -31,6 +34,7 @@
       "TSPERF_JOB_LOCATION": "public",
       "TSPERF_JOB_NAME": "tsc_node_20_5_1_self_build_src_public_api",
       "TSPERF_JOB_SCENARIO": "self-build-src-public-api",
+      "TSPERF_JOB_WARMUPS": 1,
     },
     "tsc_node_20_5_1_self_compiler": {
       "TSPERF_JOB_HOST": "node@20.5.1",
@@ -39,6 +43,7 @@
       "TSPERF_JOB_LOCATION": "public",
       "TSPERF_JOB_NAME": "tsc_node_20_5_1_self_compiler",
       "TSPERF_JOB_SCENARIO": "self-compiler",
+      "TSPERF_JOB_WARMUPS": 1,
     },
     "tsc_node_20_5_1_vscode": {
       "TSPERF_JOB_HOST": "node@20.5.1",
@@ -47,6 +52,7 @@
       "TSPERF_JOB_LOCATION": "public",
       "TSPERF_JOB_NAME": "tsc_node_20_5_1_vscode",
       "TSPERF_JOB_SCENARIO": "vscode",
+      "TSPERF_JOB_WARMUPS": 1,
     },
     "tsc_node_20_5_1_webpack": {
       "TSPERF_JOB_HOST": "node@20.5.1",
@@ -55,6 +61,7 @@
       "TSPERF_JOB_LOCATION": "public",
       "TSPERF_JOB_NAME": "tsc_node_20_5_1_webpack",
       "TSPERF_JOB_SCENARIO": "webpack",
+      "TSPERF_JOB_WARMUPS": 1,
     },
   },
   "ts-perf1": {},

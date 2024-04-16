@@ -167,7 +167,10 @@ async function runCompilerScenario(
 
     const samples: CompilerSample[] = [];
     const numIterations = options.iterations || 5;
-    for (let i = 0; i < numIterations; i++) {
+    const numWarmups = options.warmups || 0;
+    const runs = numIterations + numWarmups;
+    for (let i = 0; i < runs; i++) {
+        const isWarmup = i < numWarmups;
         const values: { [key: string]: number; } = Object.create(null);
         if (hasBuild) {
             const cleanProcess = spawn(clean!, cleanargs);
@@ -201,9 +204,9 @@ async function runCompilerScenario(
         }
 
         context.info(
-            `    ${formatProgress(i, numIterations)} Compiled scenario '${name}'${status ? " (with errors)" : ""} in ${
+            `    ${formatProgress(i, runs)} Compiled scenario '${name}'${status ? " (with errors)" : ""} in ${
                 values["Total time"]
-            }s.`,
+            }s.${isWarmup ? " (warmup)" : ""}`,
         );
 
         try {
@@ -211,7 +214,7 @@ async function runCompilerScenario(
         }
         catch {}
 
-        if (values["Total time"]) {
+        if (!isWarmup && values["Total time"]) {
             samples.push({
                 project: name,
                 parseTime: +values["Parse time"],
@@ -279,7 +282,10 @@ async function runTSServerScenario(
     const samples: TSServerSample[] = [];
     const valueKeys = new Set<string>();
     const numIterations = options.iterations || 5;
-    for (let i = 0; i < numIterations; i++) {
+    const numWarmups = options.warmups || 0;
+    const runs = numIterations + numWarmups;
+    for (let i = 0; i < runs; i++) {
+        const isWarmup = i < numWarmups;
         const values: { [key: string]: number; } = Object.create(null);
         const runAndParseOutput = () => {
             const childProcess = spawn(cmd!, args);
@@ -302,7 +308,9 @@ async function runTSServerScenario(
         const status = await runAndParseOutput();
 
         context.info(
-            `    ${formatProgress(i, numIterations)} Ran scenario '${name}'${status ? " (with errors)" : ""}.`,
+            `    ${formatProgress(i, runs)} Ran scenario '${name}'${status ? " (with errors)" : ""}.${
+                isWarmup ? " (warmup)" : ""
+            }`,
         );
 
         try {
@@ -310,7 +318,9 @@ async function runTSServerScenario(
         }
         catch {}
 
-        samples.push(values);
+        if (!isWarmup) {
+            samples.push(values);
+        }
     }
 
     const metrics: { [key: string]: Value | undefined; } = Object.create(null);
@@ -372,7 +382,10 @@ async function runStartupScenario(
 
     const samples: StartupSample[] = [];
     const numIterations = options.iterations || 5;
-    for (let i = 0; i < numIterations; i++) {
+    const numWarmups = options.warmups || 0;
+    const runs = numIterations + numWarmups;
+    for (let i = 0; i < runs; i++) {
+        const isWarmup = i < numWarmups;
         let exitCode: number | undefined;
 
         const beforeAll = performance.now();
@@ -381,16 +394,18 @@ async function runStartupScenario(
             exitCode ??= await execute();
             const after = performance.now();
 
-            samples.push({
-                executionTime: after - before,
-            });
+            if (!isWarmup) {
+                samples.push({
+                    executionTime: after - before,
+                });
+            }
         }
         const afterAll = performance.now();
 
         context.info(
-            `    ${formatProgress(i, numIterations)} Completed ${scale} iterations${
-                exitCode ? " (with errors)" : ""
-            } in ${((afterAll - beforeAll) / 1000).toFixed(2)}s.`,
+            `    ${formatProgress(i, runs)} Completed ${scale} iterations${exitCode ? " (with errors)" : ""} in ${
+                ((afterAll - beforeAll) / 1000).toFixed(2)
+            }s.${isWarmup ? ` (warmup)` : ""}`,
         );
     }
 
