@@ -54,15 +54,6 @@
       "TSPERF_JOB_SCENARIO": "Monaco",
       "TSPERF_JOB_WARMUPS": 1,
     },
-    "tsc_bun_1_0_35_TFS": {
-      "TSPERF_JOB_HOST": "bun@1.0.35",
-      "TSPERF_JOB_ITERATIONS": 12,
-      "TSPERF_JOB_KIND": "tsc",
-      "TSPERF_JOB_LOCATION": "internal",
-      "TSPERF_JOB_NAME": "tsc_bun_1_0_35_TFS",
-      "TSPERF_JOB_SCENARIO": "TFS",
-      "TSPERF_JOB_WARMUPS": 1,
-    },
     "tsc_bun_1_0_35_material_ui": {
       "TSPERF_JOB_HOST": "bun@1.0.35",
       "TSPERF_JOB_ITERATIONS": 12,
@@ -106,6 +97,15 @@
       "TSPERF_JOB_LOCATION": "public",
       "TSPERF_JOB_NAME": "tsc_bun_1_0_35_self_compiler",
       "TSPERF_JOB_SCENARIO": "self-compiler",
+      "TSPERF_JOB_WARMUPS": 1,
+    },
+    "tsc_bun_1_0_35_ts_pre_modules": {
+      "TSPERF_JOB_HOST": "bun@1.0.35",
+      "TSPERF_JOB_ITERATIONS": 12,
+      "TSPERF_JOB_KIND": "tsc",
+      "TSPERF_JOB_LOCATION": "public",
+      "TSPERF_JOB_NAME": "tsc_bun_1_0_35_ts_pre_modules",
+      "TSPERF_JOB_SCENARIO": "ts-pre-modules",
       "TSPERF_JOB_WARMUPS": 1,
     },
     "tsc_bun_1_0_35_vscode": {

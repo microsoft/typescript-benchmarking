@@ -82,11 +82,18 @@ interface BaseScenario {
 const allScenarios: readonly BaseScenario[] = [
     { kind: "tsc", name: "Angular", agent: "ts-perf1", location: "internal", runIn: RunType.Any, cost: 22 },
     { kind: "tsc", name: "Monaco", agent: "ts-perf2", location: "internal", runIn: RunType.Any, cost: 17 },
-    { kind: "tsc", name: "TFS", agent: "ts-perf3", location: "internal", runIn: RunType.Any, cost: 15 },
     { kind: "tsc", name: "material-ui", agent: "ts-perf1", location: "internal", runIn: RunType.Any, cost: 25 },
     { kind: "tsc", name: "Compiler-Unions", agent: "ts-perf2", location: "public", runIn: RunType.Any, cost: 17 },
     { kind: "tsc", name: "xstate", agent: "ts-perf3", location: "internal", runIn: RunType.Any, cost: 9 },
     { kind: "tsc", name: "vscode", agent: "ts-perf3", location: "public", runIn: RunType.Any, cost: 107 },
+    {
+        kind: "tsc",
+        name: "ts-pre-modules",
+        agent: "ts-perf3",
+        location: "public",
+        runIn: RunType.Any,
+        cost: 25,
+    },
     { kind: "tsc", name: "self-compiler", agent: "ts-perf1", location: "public", runIn: RunType.Any, cost: 25 },
     { kind: "tsc", name: "self-build-src", agent: "ts-perf2", location: "public", runIn: RunType.Any, cost: 51 },
     {
