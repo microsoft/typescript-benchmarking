@@ -108,13 +108,13 @@
       "TSPERF_JOB_SCENARIO": "webpack",
       "TSPERF_JOB_WARMUPS": 1,
     },
-    "tsc_bun_1_0_35_xstate": {
+    "tsc_bun_1_0_35_xstate_main": {
       "TSPERF_JOB_HOST": "bun@1.0.35",
       "TSPERF_JOB_ITERATIONS": 12,
       "TSPERF_JOB_KIND": "tsc",
-      "TSPERF_JOB_LOCATION": "internal",
-      "TSPERF_JOB_NAME": "tsc_bun_1_0_35_xstate",
-      "TSPERF_JOB_SCENARIO": "xstate",
+      "TSPERF_JOB_LOCATION": "public",
+      "TSPERF_JOB_NAME": "tsc_bun_1_0_35_xstate_main",
+      "TSPERF_JOB_SCENARIO": "xstate-main",
       "TSPERF_JOB_WARMUPS": 1,
     },
   },

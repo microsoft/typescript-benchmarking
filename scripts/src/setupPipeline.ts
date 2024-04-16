@@ -82,7 +82,6 @@ interface BaseScenario {
 const allScenarios: readonly BaseScenario[] = [
     { kind: "tsc", name: "Angular", agent: "ts-perf1", location: "internal", runIn: RunType.Any, cost: 22 },
     { kind: "tsc", name: "Compiler-Unions", agent: "ts-perf2", location: "public", runIn: RunType.Any, cost: 17 },
-    { kind: "tsc", name: "xstate", agent: "ts-perf3", location: "internal", runIn: RunType.Any, cost: 9 },
     { kind: "tsc", name: "vscode", agent: "ts-perf3", location: "public", runIn: RunType.Any, cost: 107 },
     {
         kind: "tsc",
@@ -106,6 +105,8 @@ const allScenarios: readonly BaseScenario[] = [
     { kind: "tsc", name: "mui-docs-1", agent: "ts-perf2", location: "public", runIn: RunType.Baseline, cost: 77 },
     { kind: "tsc", name: "webpack", agent: "ts-perf3", location: "public", runIn: RunType.OnDemand, cost: 22 },
     { kind: "tsc", name: "webpack-1", agent: "ts-perf3", location: "public", runIn: RunType.Baseline, cost: 22 },
+    { kind: "tsc", name: "xstate-main", agent: "ts-perf3", location: "public", runIn: RunType.OnDemand, cost: 10 },
+    { kind: "tsc", name: "xstate-main-1", agent: "ts-perf3", location: "public", runIn: RunType.Baseline, cost: 10 },
     {
         kind: "tsserver",
         name: "Compiler-UnionsTSServer",

@@ -153,13 +153,13 @@
       "TSPERF_JOB_SCENARIO": "webpack",
       "TSPERF_JOB_WARMUPS": 1,
     },
-    "tsc_bun_1_1_3_xstate": {
+    "tsc_bun_1_1_3_xstate_main": {
       "TSPERF_JOB_HOST": "bun@1.1.3",
       "TSPERF_JOB_ITERATIONS": 6,
       "TSPERF_JOB_KIND": "tsc",
-      "TSPERF_JOB_LOCATION": "internal",
-      "TSPERF_JOB_NAME": "tsc_bun_1_1_3_xstate",
-      "TSPERF_JOB_SCENARIO": "xstate",
+      "TSPERF_JOB_LOCATION": "public",
+      "TSPERF_JOB_NAME": "tsc_bun_1_1_3_xstate_main",
+      "TSPERF_JOB_SCENARIO": "xstate-main",
       "TSPERF_JOB_WARMUPS": 1,
     },
     "tsc_vscode_1_88_1_Angular": {
@@ -243,13 +243,13 @@
       "TSPERF_JOB_SCENARIO": "webpack",
       "TSPERF_JOB_WARMUPS": 1,
     },
-    "tsc_vscode_1_88_1_xstate": {
+    "tsc_vscode_1_88_1_xstate_main": {
       "TSPERF_JOB_HOST": "vscode@1.88.1",
       "TSPERF_JOB_ITERATIONS": 6,
       "TSPERF_JOB_KIND": "tsc",
-      "TSPERF_JOB_LOCATION": "internal",
-      "TSPERF_JOB_NAME": "tsc_vscode_1_88_1_xstate",
-      "TSPERF_JOB_SCENARIO": "xstate",
+      "TSPERF_JOB_LOCATION": "public",
+      "TSPERF_JOB_NAME": "tsc_vscode_1_88_1_xstate_main",
+      "TSPERF_JOB_SCENARIO": "xstate-main",
       "TSPERF_JOB_WARMUPS": 1,
     },
     "tsserver_bun_1_1_3_CompilerTSServer": {
