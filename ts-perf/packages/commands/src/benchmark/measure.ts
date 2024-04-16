@@ -206,7 +206,7 @@ async function runCompilerScenario(
         context.info(
             `    ${formatProgress(i, runs)} Compiled scenario '${name}'${status ? " (with errors)" : ""} in ${
                 values["Total time"]
-            }s.`,
+            }s.${isWarmup ? " (warmup)" : ""}`,
         );
 
         try {
@@ -308,7 +308,9 @@ async function runTSServerScenario(
         const status = await runAndParseOutput();
 
         context.info(
-            `    ${formatProgress(i, runs)} Ran scenario '${name}'${status ? " (with errors)" : ""}.`,
+            `    ${formatProgress(i, runs)} Ran scenario '${name}'${status ? " (with errors)" : ""}.${
+                isWarmup ? " (warmup)" : ""
+            }`,
         );
 
         try {
@@ -403,7 +405,7 @@ async function runStartupScenario(
         context.info(
             `    ${formatProgress(i, runs)} Completed ${scale} iterations${exitCode ? " (with errors)" : ""} in ${
                 ((afterAll - beforeAll) / 1000).toFixed(2)
-            }s.`,
+            }s.${isWarmup ? ` (warmup)` : ""}`,
         );
     }
 
