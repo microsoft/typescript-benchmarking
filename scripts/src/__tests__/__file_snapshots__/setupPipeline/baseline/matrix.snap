@@ -46,6 +46,15 @@
       "TSPERF_JOB_SCENARIO": "self-compiler",
       "TSPERF_JOB_WARMUPS": 1,
     },
+    "tsc_node_18_15_0_ts_pre_modules": {
+      "TSPERF_JOB_HOST": "node@18.15.0",
+      "TSPERF_JOB_ITERATIONS": 6,
+      "TSPERF_JOB_KIND": "tsc",
+      "TSPERF_JOB_LOCATION": "public",
+      "TSPERF_JOB_NAME": "tsc_node_18_15_0_ts_pre_modules",
+      "TSPERF_JOB_SCENARIO": "ts-pre-modules",
+      "TSPERF_JOB_WARMUPS": 1,
+    },
     "tsc_node_20_5_1_Angular": {
       "TSPERF_JOB_HOST": "node@20.5.1",
       "TSPERF_JOB_ITERATIONS": 6,
@@ -71,6 +80,15 @@
       "TSPERF_JOB_LOCATION": "public",
       "TSPERF_JOB_NAME": "tsc_node_20_5_1_self_compiler",
       "TSPERF_JOB_SCENARIO": "self-compiler",
+      "TSPERF_JOB_WARMUPS": 1,
+    },
+    "tsc_node_20_5_1_ts_pre_modules": {
+      "TSPERF_JOB_HOST": "node@20.5.1",
+      "TSPERF_JOB_ITERATIONS": 6,
+      "TSPERF_JOB_KIND": "tsc",
+      "TSPERF_JOB_LOCATION": "public",
+      "TSPERF_JOB_NAME": "tsc_node_20_5_1_ts_pre_modules",
+      "TSPERF_JOB_SCENARIO": "ts-pre-modules",
       "TSPERF_JOB_WARMUPS": 1,
     },
     "tsserver_node_18_15_0_Compiler_UnionsTSServer": {
@@ -170,15 +188,6 @@
       "TSPERF_JOB_SCENARIO": "tsserverlibrary-startup",
       "TSPERF_JOB_WARMUPS": 1,
     },
-    "tsc_node_18_15_0_ts_pre_modules": {
-      "TSPERF_JOB_HOST": "node@18.15.0",
-      "TSPERF_JOB_ITERATIONS": 6,
-      "TSPERF_JOB_KIND": "tsc",
-      "TSPERF_JOB_LOCATION": "public",
-      "TSPERF_JOB_NAME": "tsc_node_18_15_0_ts_pre_modules",
-      "TSPERF_JOB_SCENARIO": "ts-pre-modules",
-      "TSPERF_JOB_WARMUPS": 1,
-    },
     "tsc_node_18_15_0_vscode": {
       "TSPERF_JOB_HOST": "node@18.15.0",
       "TSPERF_JOB_ITERATIONS": 6,
@@ -204,15 +213,6 @@
       "TSPERF_JOB_LOCATION": "internal",
       "TSPERF_JOB_NAME": "tsc_node_18_15_0_xstate",
       "TSPERF_JOB_SCENARIO": "xstate",
-      "TSPERF_JOB_WARMUPS": 1,
-    },
-    "tsc_node_20_5_1_ts_pre_modules": {
-      "TSPERF_JOB_HOST": "node@20.5.1",
-      "TSPERF_JOB_ITERATIONS": 6,
-      "TSPERF_JOB_KIND": "tsc",
-      "TSPERF_JOB_LOCATION": "public",
-      "TSPERF_JOB_NAME": "tsc_node_20_5_1_ts_pre_modules",
-      "TSPERF_JOB_SCENARIO": "ts-pre-modules",
       "TSPERF_JOB_WARMUPS": 1,
     },
     "tsc_node_20_5_1_vscode": {
