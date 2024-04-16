@@ -85,7 +85,6 @@ const allScenarios: readonly BaseScenario[] = [
     { kind: "tsc", name: "TFS", agent: "ts-perf3", location: "internal", runIn: RunType.Any, cost: 15 },
     { kind: "tsc", name: "material-ui", agent: "ts-perf1", location: "internal", runIn: RunType.Any, cost: 25 },
     { kind: "tsc", name: "Compiler-Unions", agent: "ts-perf2", location: "public", runIn: RunType.Any, cost: 17 },
-    { kind: "tsc", name: "xstate", agent: "ts-perf3", location: "internal", runIn: RunType.Any, cost: 9 }, // TODO: remove when xstate-main-1 is enabled
     { kind: "tsc", name: "vscode", agent: "ts-perf3", location: "public", runIn: RunType.Any, cost: 107 },
     { kind: "tsc", name: "self-compiler", agent: "ts-perf1", location: "public", runIn: RunType.Any, cost: 25 },
     { kind: "tsc", name: "self-build-src", agent: "ts-perf2", location: "public", runIn: RunType.Any, cost: 51 },
@@ -101,8 +100,8 @@ const allScenarios: readonly BaseScenario[] = [
     { kind: "tsc", name: "mui-docs-1", agent: "ts-perf2", location: "public", runIn: RunType.Baseline, cost: 77 },
     { kind: "tsc", name: "webpack", agent: "ts-perf3", location: "public", runIn: RunType.OnDemand, cost: 22 },
     { kind: "tsc", name: "webpack-1", agent: "ts-perf3", location: "public", runIn: RunType.Baseline, cost: 22 },
-    { kind: "tsc", name: "xstate-main", agent: "ts-perf1", location: "public", runIn: RunType.OnDemand, cost: 10 },
-    { kind: "tsc", name: "xstate-main-1", agent: "ts-perf1", location: "public", runIn: RunType.None, cost: 110 }, // TODO: runIn=RunType.Baseline, remove old xstate
+    { kind: "tsc", name: "xstate-main", agent: "ts-perf3", location: "public", runIn: RunType.OnDemand, cost: 10 },
+    { kind: "tsc", name: "xstate-main-1", agent: "ts-perf3", location: "public", runIn: RunType.Baseline, cost: 10 },
     {
         kind: "tsserver",
         name: "Compiler-UnionsTSServer",

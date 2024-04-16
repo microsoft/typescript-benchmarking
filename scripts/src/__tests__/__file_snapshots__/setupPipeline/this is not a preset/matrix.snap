@@ -135,15 +135,6 @@
       "TSPERF_JOB_SCENARIO": "webpack",
       "TSPERF_JOB_WARMUPS": 1,
     },
-    "tsc_node_18_15_0_xstate": {
-      "TSPERF_JOB_HOST": "node@18.15.0",
-      "TSPERF_JOB_ITERATIONS": 6,
-      "TSPERF_JOB_KIND": "tsc",
-      "TSPERF_JOB_LOCATION": "internal",
-      "TSPERF_JOB_NAME": "tsc_node_18_15_0_xstate",
-      "TSPERF_JOB_SCENARIO": "xstate",
-      "TSPERF_JOB_WARMUPS": 1,
-    },
     "tsc_node_18_15_0_xstate_main": {
       "TSPERF_JOB_HOST": "node@18.15.0",
       "TSPERF_JOB_ITERATIONS": 6,
