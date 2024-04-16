@@ -1,9 +1,9 @@
 {
-    "name": "xstate-main",
+    "name": "xstate-main-1",
     "kind": "tsc",
     "args": [
         "-p",
-        "${suiteDirectory}/xstate-main",
+        "${suiteDirectory}/xstate-main-1",
         "--outdir",
         "${outDirectory}"
     ],
