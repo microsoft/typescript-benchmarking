@@ -54,15 +54,6 @@
       "TSPERF_JOB_SCENARIO": "Compiler-Unions",
       "TSPERF_JOB_WARMUPS": 1,
     },
-    "tsc_vscode_1_82_1_Monaco": {
-      "TSPERF_JOB_HOST": "vscode@1.82.1",
-      "TSPERF_JOB_ITERATIONS": 6,
-      "TSPERF_JOB_KIND": "tsc",
-      "TSPERF_JOB_LOCATION": "internal",
-      "TSPERF_JOB_NAME": "tsc_vscode_1_82_1_Monaco",
-      "TSPERF_JOB_SCENARIO": "Monaco",
-      "TSPERF_JOB_WARMUPS": 1,
-    },
     "tsc_vscode_1_82_1_TFS": {
       "TSPERF_JOB_HOST": "vscode@1.82.1",
       "TSPERF_JOB_ITERATIONS": 6,
@@ -70,15 +61,6 @@
       "TSPERF_JOB_LOCATION": "internal",
       "TSPERF_JOB_NAME": "tsc_vscode_1_82_1_TFS",
       "TSPERF_JOB_SCENARIO": "TFS",
-      "TSPERF_JOB_WARMUPS": 1,
-    },
-    "tsc_vscode_1_82_1_material_ui": {
-      "TSPERF_JOB_HOST": "vscode@1.82.1",
-      "TSPERF_JOB_ITERATIONS": 6,
-      "TSPERF_JOB_KIND": "tsc",
-      "TSPERF_JOB_LOCATION": "internal",
-      "TSPERF_JOB_NAME": "tsc_vscode_1_82_1_material_ui",
-      "TSPERF_JOB_SCENARIO": "material-ui",
       "TSPERF_JOB_WARMUPS": 1,
     },
     "tsc_vscode_1_82_1_mui_docs": {
