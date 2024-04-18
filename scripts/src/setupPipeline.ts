@@ -123,7 +123,14 @@ const allScenarios: readonly BaseScenario[] = [
         runIn: RunType.Any,
         cost: 17,
     },
-    { kind: "tsserver", name: "xstateTSServer", agent: "ts-perf3", location: "internal", runIn: RunType.Any, cost: 14 },
+    {
+        kind: "tsserver",
+        name: "xstate-main-1-tsserver",
+        agent: "ts-perf3",
+        location: "public",
+        runIn: RunType.Any,
+        cost: 14,
+    },
     { kind: "startup", name: "tsc-startup", agent: "ts-perf1", location: "public", runIn: RunType.Any, cost: 19 },
     {
         kind: "startup",

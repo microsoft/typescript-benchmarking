@@ -270,13 +270,13 @@
       "TSPERF_JOB_SCENARIO": "Compiler-UnionsTSServer",
       "TSPERF_JOB_WARMUPS": 1,
     },
-    "tsserver_bun_1_1_3_xstateTSServer": {
+    "tsserver_bun_1_1_3_xstate_main_1_tsserver": {
       "TSPERF_JOB_HOST": "bun@1.1.3",
       "TSPERF_JOB_ITERATIONS": 6,
       "TSPERF_JOB_KIND": "tsserver",
-      "TSPERF_JOB_LOCATION": "internal",
-      "TSPERF_JOB_NAME": "tsserver_bun_1_1_3_xstateTSServer",
-      "TSPERF_JOB_SCENARIO": "xstateTSServer",
+      "TSPERF_JOB_LOCATION": "public",
+      "TSPERF_JOB_NAME": "tsserver_bun_1_1_3_xstate_main_1_tsserver",
+      "TSPERF_JOB_SCENARIO": "xstate-main-1-tsserver",
       "TSPERF_JOB_WARMUPS": 1,
     },
     "tsserver_vscode_1_88_1_CompilerTSServer": {
@@ -297,13 +297,13 @@
       "TSPERF_JOB_SCENARIO": "Compiler-UnionsTSServer",
       "TSPERF_JOB_WARMUPS": 1,
     },
-    "tsserver_vscode_1_88_1_xstateTSServer": {
+    "tsserver_vscode_1_88_1_xstate_main_1_tsserver": {
       "TSPERF_JOB_HOST": "vscode@1.88.1",
       "TSPERF_JOB_ITERATIONS": 6,
       "TSPERF_JOB_KIND": "tsserver",
-      "TSPERF_JOB_LOCATION": "internal",
-      "TSPERF_JOB_NAME": "tsserver_vscode_1_88_1_xstateTSServer",
-      "TSPERF_JOB_SCENARIO": "xstateTSServer",
+      "TSPERF_JOB_LOCATION": "public",
+      "TSPERF_JOB_NAME": "tsserver_vscode_1_88_1_xstate_main_1_tsserver",
+      "TSPERF_JOB_SCENARIO": "xstate-main-1-tsserver",
       "TSPERF_JOB_WARMUPS": 1,
     },
   },

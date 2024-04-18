@@ -1,0 +1,49 @@
+{
+    "name": "xstate-main-1-tsserver",
+    "kind": "tsserver",
+    "args": [],
+    "tsserverConfig": {
+        "solution": "xstate-main-1-tsserver",
+        "commands": [
+            {
+                "commandName": "updateOpen",
+                "args": [
+                    {
+                        "file": "packages/core/src/index.ts"
+                    },
+                    {
+                        "file": "packages/core/src/StateNode.ts"
+                    }
+                ]
+            },
+            {
+                "commandName": "geterr",
+                "args": [
+                    "packages/core/src/StateNode.ts"
+                ]
+            },
+            {
+                "commandName": "references",
+                "args": {
+                    "file": "packages/core/src/index.ts",
+                    "line": 14,
+                    "offset": 15
+                }
+            },
+            {
+                "commandName": "navto",
+                "args": {
+                    "searchValue": "State"
+                }
+            },
+            {
+                "commandName": "completionInfo",
+                "args": {
+                    "file": "packages/core/src/index.ts",
+                    "line": 47,
+                    "offset": 1
+                }
+            }
+        ]
+    }
+}
