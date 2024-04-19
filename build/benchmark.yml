@@ -259,6 +259,7 @@ jobs:
               fi
             displayName: Set up scenario for new benchmark
             condition: and(succeeded(), eq(variables['TSPERF_IS_COMPARISON'], 'true'), eq(variables['TSPERF_JOB_LOCATION'], 'public'))
+            retryCountOnTaskFailure: 3
 
           - bash: |
               set -exo pipefail
@@ -279,6 +280,7 @@ jobs:
               fi
             displayName: Set up scenario for baseline benchmark
             condition: and(succeeded(), eq(variables['TSPERF_JOB_LOCATION'], 'public'))
+            retryCountOnTaskFailure: 3
 
           - bash: |
               set -exo pipefail
