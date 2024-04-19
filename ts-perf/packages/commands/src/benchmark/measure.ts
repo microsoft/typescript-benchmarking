@@ -286,6 +286,7 @@ async function runTSServerScenario(
     const runs = numIterations + numWarmups;
     for (let i = 0; i < runs; i++) {
         const isWarmup = i < numWarmups;
+        const before = performance.now();
         const values: { [key: string]: number; } = Object.create(null);
         const runAndParseOutput = () => {
             const childProcess = spawn(cmd!, args);
@@ -306,11 +307,12 @@ async function runTSServerScenario(
             return new Promise<number>(resolve => childProcess.once("exit", resolve));
         };
         const status = await runAndParseOutput();
+        const after = performance.now();
 
         context.info(
-            `    ${formatProgress(i, runs)} Ran scenario '${name}'${status ? " (with errors)" : ""}.${
-                isWarmup ? " (warmup)" : ""
-            }`,
+            `    ${formatProgress(i, runs)} Ran scenario '${name}'${status ? " (with errors)" : ""} in ${
+                ((after - before) / 1000).toFixed(2)
+            }s.${isWarmup ? " (warmup)" : ""}`,
         );
 
         try {
