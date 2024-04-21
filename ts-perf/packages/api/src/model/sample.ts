@@ -1,7 +1,6 @@
 // Note: if adding new sample types/properties here, also update isValueKey in measurement.ts.
 
 export interface CompilerSample {
-    project: string;
     parseTime: number;
     bindTime: number;
     checkTime: number;

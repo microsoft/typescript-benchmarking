@@ -228,7 +228,6 @@ async function runCompilerScenario(
 
         if (!isWarmup && values["Total time"]) {
             samples.push({
-                project: name,
                 parseTime: +values["Parse time"],
                 bindTime: +values["Bind time"],
                 checkTime: +values["Check time"],
