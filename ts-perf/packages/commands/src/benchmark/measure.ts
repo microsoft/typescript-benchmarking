@@ -31,6 +31,16 @@ import { BenchmarkOptions, TSOptions } from "./";
 
 const diagnosticPattern = /^([a-z].+):\s+(.+?)[sk]?$/i;
 
+function tryParseDiagnostic(line: string) {
+    const m = diagnosticPattern.exec(line);
+    if (m) {
+        const name = m[1].trim();
+        const value = +m[2].trim();
+        return { name, value };
+    }
+    return undefined;
+}
+
 export async function measureAndRunScenarios({ kind, options }: TSOptions, host: HostContext): Promise<Benchmark> {
     const date = (options.date ? new Date(options.date) : new Date()).toISOString();
     const system = SystemInfo.getCurrent();
@@ -188,8 +198,10 @@ async function runCompilerScenario(
 
             readline.createInterface({ input: childProcess.stdout, terminal: false }).on("line", line => {
                 context.trace(`> ${line}`);
-                const m = diagnosticPattern.exec(line);
-                if (m) values[m[1].trim()] = (values[m[1].trim()] ?? 0) + +m[2].trim();
+                const m = tryParseDiagnostic(line);
+                if (m) {
+                    values[m.name] = (values[m.name] ?? 0) + m.value;
+                }
             });
 
             readline.createInterface({ input: childProcess.stderr, terminal: false }).on("line", line => {
@@ -293,10 +305,9 @@ async function runTSServerScenario(
 
             readline.createInterface({ input: childProcess.stdout, terminal: false }).on("line", line => {
                 context.trace(`> ${line}`);
-                const m = diagnosticPattern.exec(line);
+                const m = tryParseDiagnostic(line);
                 if (m) {
-                    values[m[1].trim()] = (values[m[1].trim()] ?? 0) + +m[2].trim();
-                    valueKeys.add(m[1].trim());
+                    values[m.name] = (values[m.name] ?? 0) + m.value;
                 }
             });
 
