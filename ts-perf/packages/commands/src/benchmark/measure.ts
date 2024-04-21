@@ -9,6 +9,7 @@ import {
     CommandLineArgumentsBuilder,
     CompilerOptions,
     CompilerSample,
+    CompilerSampleKey,
     computeMetrics,
     ExpansionProvider,
     formatProgress,
@@ -256,28 +257,27 @@ async function runCompilerScenario(
     );
 }
 
-const compilerSampleNameToDiagnosticName = {
+const compilerSampleKeyToDiagnosticName = {
     parseTime: "Parse time",
     bindTime: "Bind time",
     checkTime: "Check time",
     emitTime: "Emit time",
     totalTime: "Total time",
     memoryUsed: "Memory used",
-} as const satisfies { [K in keyof CompilerSample]: string; };
-type CompilerSampleName = keyof typeof compilerSampleNameToDiagnosticName;
+} as const satisfies { [K in CompilerSampleKey]: string; };
 
 function reverseMap<const T extends Record<string, string>>(map: T): { [P in keyof T as T[P]]: P; } {
     return Object.fromEntries(Object.entries(map).map(([k, v]) => [v, k])) as any;
 }
 
-const compilerDiagnosticNameToSampleName = reverseMap(compilerSampleNameToDiagnosticName);
+const compilerDiagnosticNameToSampleName = reverseMap(compilerSampleKeyToDiagnosticName);
 type CompilerDiagnosticName = keyof typeof compilerDiagnosticNameToSampleName;
 
 function isCompilerDiagnosticName(name: string): name is CompilerDiagnosticName {
     return name in compilerDiagnosticNameToSampleName;
 }
 
-function getMetricName(sampleName: CompilerSampleName) {
+function getMetricName(sampleName: CompilerSampleKey) {
     // Special case names known by the benchmarking dashboard, even though they differ from what the compiler prints.
     switch (sampleName) {
         case "parseTime":
@@ -291,7 +291,7 @@ function getMetricName(sampleName: CompilerSampleName) {
         case "totalTime":
             return "Total Time";
         default:
-            return compilerSampleNameToDiagnosticName[sampleName];
+            return compilerSampleKeyToDiagnosticName[sampleName];
     }
 }
 
@@ -302,7 +302,7 @@ const compilerSampleNameToUnit = {
     emitTime: "s",
     totalTime: "s",
     memoryUsed: "k",
-} as const satisfies { [K in keyof CompilerSample]: "s" | "k"; };
+} as const satisfies { [K in CompilerSampleKey]: "s" | "k"; };
 
 async function runTSServerScenario(
     name: string,

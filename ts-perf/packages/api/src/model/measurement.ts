@@ -2,22 +2,9 @@ import { HostSpecifier } from "./hostSpecifier";
 import { HostSpecifierComponents } from "./hostSpecifierComponents";
 import { MeasurementComparison } from "./measurementComparison";
 import { MeasurementPivot } from "./measurementPivot";
-import { CompilerSample, StartupSample } from "./sample";
+import { CompilerSampleKey, compilerSampleKeys, StartupSampleKey, startupSampleKeys } from "./sample";
 import { TSServerCommandName } from "./tsserverconfig";
 import { Value, ValueComponents } from "./value";
-
-function satisfies<T>(_x: T) {}
-
-const compilerKeys = [
-    "parseTime",
-    "bindTime",
-    "checkTime",
-    "emitTime",
-    "totalTime",
-    "memoryUsed",
-] as const;
-
-satisfies<readonly (keyof CompilerSample)[]>(compilerKeys);
 
 const serverKeys: TSServerCommandName[] = [
     "updateOpen",
@@ -27,23 +14,17 @@ const serverKeys: TSServerCommandName[] = [
     "completionInfo",
 ];
 
-const startupKeys = [
-    "executionTime",
-] as const;
-
-satisfies<readonly (keyof StartupSample)[]>(startupKeys);
-
 type ValueKey =
-    | typeof compilerKeys[number]
+    | CompilerSampleKey
     | `Req ${number} - ${TSServerCommandName}${" count" | ""}`
-    | typeof startupKeys[number];
+    | StartupSampleKey;
 const serverKeyRegex = /^req\s+\d+\s+-\s+([a-z]+)(\s+count)?$/i;
 
 function isValueKey(key: string): key is ValueKey {
-    if ((compilerKeys as readonly string[]).includes(key)) {
+    if ((compilerSampleKeys as readonly string[]).includes(key)) {
         return true;
     }
-    if ((startupKeys as readonly string[]).includes(key)) {
+    if ((startupSampleKeys as readonly string[]).includes(key)) {
         return true;
     }
     const regexResult = serverKeyRegex.exec(key);

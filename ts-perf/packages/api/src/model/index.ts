@@ -9,7 +9,7 @@ export { MeasurementComparison, MeasurementComparisonComponents } from "./measur
 export { MeasurementComparisonPivot } from "./measurementComparisonPivot";
 export { MeasurementPivot } from "./measurementPivot";
 export { Repository } from "./repository";
-export { CompilerSample, StartupSample, TSServerSample } from "./sample";
+export * from "./sample";
 export { Scenario, ScenarioComponents } from "./scenario";
 export {
     TSServerCommand,
