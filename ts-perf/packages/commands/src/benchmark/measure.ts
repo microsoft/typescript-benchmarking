@@ -35,8 +35,9 @@ function tryParseDiagnostic(line: string) {
     const m = diagnosticPattern.exec(line);
     if (m) {
         const name = m[1].trim();
-        const value = +m[2].trim();
-        return { name, value };
+        const value = m[2].trim();
+        const precision = (value.split(".")[1] || "").length;
+        return { name, value: +value, precision };
     }
     return undefined;
 }
@@ -176,12 +177,14 @@ async function runCompilerScenario(
     context.trace(`> ${cmd} ${args.join(" ")}`);
 
     const samples: CompilerSample[] = [];
+    const valueKeys = new Set<keyof CompilerSample>();
+    const precisions: { [K in keyof CompilerSample]?: number; } = Object.create(null);
     const numIterations = options.iterations || 5;
     const numWarmups = options.warmups || 0;
     const runs = numIterations + numWarmups;
     for (let i = 0; i < runs; i++) {
         const isWarmup = i < numWarmups;
-        const values: { [key: string]: number; } = Object.create(null);
+        const values: CompilerSample = Object.create(null);
         if (hasBuild) {
             const cleanProcess = spawn(clean!, cleanargs);
             let cleanProcessOutput = "";
@@ -199,8 +202,11 @@ async function runCompilerScenario(
             readline.createInterface({ input: childProcess.stdout, terminal: false }).on("line", line => {
                 context.trace(`> ${line}`);
                 const m = tryParseDiagnostic(line);
-                if (m) {
-                    values[m.name] = (values[m.name] ?? 0) + m.value;
+                if (m && isCompilerDiagnosticName(m.name)) {
+                    const sampleName = compilerDiagnosticNameToSampleName[m.name];
+                    valueKeys.add(sampleName);
+                    values[sampleName] = (values[sampleName] ?? 0) + m.value;
+                    precisions[sampleName] = Math.max(precisions[sampleName] ?? 0, m.precision);
                 }
             });
 
@@ -216,9 +222,9 @@ async function runCompilerScenario(
         }
 
         context.info(
-            `    ${formatProgress(i, runs)} Compiled scenario '${name}'${status ? " (with errors)" : ""} in ${
-                values["Total time"]
-            }s.${isWarmup ? " (warmup)" : ""}`,
+            `    ${formatProgress(i, runs)} Compiled scenario '${name}'${
+                status ? " (with errors)" : ""
+            } in ${values.totalTime}s.${isWarmup ? " (warmup)" : ""}`,
         );
 
         try {
@@ -226,25 +232,20 @@ async function runCompilerScenario(
         }
         catch {}
 
-        if (!isWarmup && values["Total time"]) {
-            samples.push({
-                parseTime: +values["Parse time"],
-                bindTime: +values["Bind time"],
-                checkTime: +values["Check time"],
-                emitTime: +values["Emit time"],
-                totalTime: +values["Total time"],
-                memoryUsed: +values["Memory used"],
-            });
+        if (!isWarmup && values.totalTime) {
+            samples.push(values);
         }
     }
 
-    const metrics: Record<string, Value | undefined> = {};
-    addMetric(metrics, "parseTime", samples.map(x => x.parseTime), "Parse Time", "s", 2);
-    addMetric(metrics, "bindTime", samples.map(x => x.bindTime), "Bind Time", "s", 2);
-    addMetric(metrics, "checkTime", samples.map(x => x.checkTime), "Check Time", "s", 2);
-    addMetric(metrics, "emitTime", samples.map(x => x.emitTime), "Emit Time", "s", 2);
-    addMetric(metrics, "totalTime", samples.map(x => x.totalTime), "Total Time", "s", 2);
-    addMetric(metrics, "memoryUsed", samples.map(x => x.memoryUsed), "Memory used", "k", 0);
+    const metrics: Record<string, Value | undefined> = Object.create(null);
+    for (const sampleName of valueKeys) {
+        metrics[sampleName] = computeMetrics(
+            samples.map(x => x[sampleName] ?? 0),
+            getMetricName(sampleName),
+            compilerSampleNameToUnit[sampleName],
+            precisions[sampleName] ?? 0,
+        );
+    }
 
     return new Measurement(
         scenario.name,
@@ -254,6 +255,54 @@ async function runCompilerScenario(
         metrics,
     );
 }
+
+const compilerSampleNameToDiagnosticName = {
+    parseTime: "Parse time",
+    bindTime: "Bind time",
+    checkTime: "Check time",
+    emitTime: "Emit time",
+    totalTime: "Total time",
+    memoryUsed: "Memory used",
+} as const satisfies { [K in keyof CompilerSample]: string; };
+type CompilerSampleName = keyof typeof compilerSampleNameToDiagnosticName;
+
+function reverseMap<const T extends Record<string, string>>(map: T): { [P in keyof T as T[P]]: P; } {
+    return Object.fromEntries(Object.entries(map).map(([k, v]) => [v, k])) as any;
+}
+
+const compilerDiagnosticNameToSampleName = reverseMap(compilerSampleNameToDiagnosticName);
+type CompilerDiagnosticName = keyof typeof compilerDiagnosticNameToSampleName;
+
+function isCompilerDiagnosticName(name: string): name is CompilerDiagnosticName {
+    return name in compilerDiagnosticNameToSampleName;
+}
+
+function getMetricName(sampleName: CompilerSampleName) {
+    // Special case names known by the benchmarking dashboard, even though they differ from what the compiler prints.
+    switch (sampleName) {
+        case "parseTime":
+            return "Parse Time";
+        case "bindTime":
+            return "Bind Time";
+        case "checkTime":
+            return "Check Time";
+        case "emitTime":
+            return "Emit Time";
+        case "totalTime":
+            return "Total Time";
+        default:
+            return compilerSampleNameToDiagnosticName[sampleName];
+    }
+}
+
+const compilerSampleNameToUnit = {
+    parseTime: "s",
+    bindTime: "s",
+    checkTime: "s",
+    emitTime: "s",
+    totalTime: "s",
+    memoryUsed: "k",
+} as const satisfies { [K in keyof CompilerSample]: "s" | "k"; };
 
 async function runTSServerScenario(
     name: string,
@@ -307,6 +356,7 @@ async function runTSServerScenario(
                 const m = tryParseDiagnostic(line);
                 if (m) {
                     values[m.name] = (values[m.name] ?? 0) + m.value;
+                    valueKeys.add(m.name);
                 }
             });
 
@@ -335,11 +385,11 @@ async function runTSServerScenario(
         }
     }
 
-    const metrics: { [key: string]: Value | undefined; } = Object.create(null);
-    valueKeys.forEach(metricName => {
+    const metrics: Record<string, Value | undefined> = Object.create(null);
+    for (const metricName of valueKeys) {
         const isCount = metricName.includes("count");
-        addMetric(metrics, metricName, samples.map(x => x[metricName]), metricName, isCount ? "" : "ms", 0);
-    });
+        metrics[metricName] = computeMetrics(samples.map(x => x[metricName] ?? 0), metricName, isCount ? "" : "ms", 0);
+    }
 
     return new Measurement(
         scenario.name,
@@ -421,8 +471,8 @@ async function runStartupScenario(
         );
     }
 
-    const metrics: Record<string, Value | undefined> = {};
-    addMetric(metrics, "executionTime", samples.map(x => x.executionTime), "Execution time", "ms", 2);
+    const metrics: Record<string, Value | undefined> = Object.create(null);
+    metrics.executionTime = computeMetrics(samples.map(x => x.executionTime ?? 0), "Execution time", "ms", 2);
 
     return new Measurement(
         scenario.name,
@@ -431,18 +481,4 @@ async function runStartupScenario(
         hostIndex,
         metrics,
     );
-}
-
-/**
- * Adds a metric to a metrics bag.
- */
-function addMetric(
-    metrics: Record<string, Value | undefined>,
-    propName: string,
-    samples: number[],
-    metric: string,
-    unit: string,
-    precision: number,
-) {
-    metrics[propName] = computeMetrics(samples, metric, unit, precision);
 }
