@@ -264,7 +264,22 @@ const compilerSampleKeyToDiagnosticName = {
     emitTime: "Emit time",
     totalTime: "Total time",
     memoryUsed: "Memory used",
+    symbols: "Symbols",
+    types: "Types",
+    instantiations: "Instantiations",
 } as const satisfies { [K in CompilerSampleKey]: string; };
+
+const compilerSampleNameToUnit = {
+    parseTime: "s",
+    bindTime: "s",
+    checkTime: "s",
+    emitTime: "s",
+    totalTime: "s",
+    memoryUsed: "k",
+    symbols: "",
+    types: "",
+    instantiations: "",
+} as const satisfies { [K in CompilerSampleKey]: "s" | "k" | ""; };
 
 function reverseMap<const T extends Record<string, string>>(map: T): { [P in keyof T as T[P]]: P; } {
     return Object.fromEntries(Object.entries(map).map(([k, v]) => [v, k])) as any;
@@ -294,15 +309,6 @@ function getMetricName(sampleName: CompilerSampleKey) {
             return compilerSampleKeyToDiagnosticName[sampleName];
     }
 }
-
-const compilerSampleNameToUnit = {
-    parseTime: "s",
-    bindTime: "s",
-    checkTime: "s",
-    emitTime: "s",
-    totalTime: "s",
-    memoryUsed: "k",
-} as const satisfies { [K in CompilerSampleKey]: "s" | "k"; };
 
 async function runTSServerScenario(
     name: string,

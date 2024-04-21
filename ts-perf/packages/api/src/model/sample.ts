@@ -7,6 +7,9 @@ export const compilerSampleKeys = [
     "emitTime",
     "totalTime",
     "memoryUsed",
+    "symbols",
+    "types",
+    "instantiations",
 ] as const;
 
 export type CompilerSampleKey = typeof compilerSampleKeys[number];
