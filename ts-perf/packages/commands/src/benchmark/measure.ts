@@ -9,6 +9,7 @@ import {
     CommandLineArgumentsBuilder,
     CompilerOptions,
     CompilerSample,
+    compilerSampleKeys,
     computeMetrics,
     ExpansionProvider,
     formatProgress,
@@ -186,7 +187,6 @@ async function runCompilerScenario(
     context.trace(`> ${cmd} ${args.join(" ")}`);
 
     const samples: CompilerSample[] = [];
-    const valueKeys = new Set<keyof CompilerSample>();
     const precisions: { [K in keyof CompilerSample]?: number; } = Object.create(null);
     const numIterations = options.iterations || 5;
     const numWarmups = options.warmups || 0;
@@ -213,7 +213,6 @@ async function runCompilerScenario(
                 const m = tryParseDiagnostic(line);
                 if (m && isCompilerDiagnosticName(m.name)) {
                     const sampleName = getCompilerSampleNameFromDiagnosticName(m.name);
-                    valueKeys.add(sampleName);
                     values[sampleName] = (values[sampleName] ?? 0) + m.value;
                     precisions[sampleName] = Math.max(precisions[sampleName] ?? 0, m.precision);
                 }
@@ -247,7 +246,7 @@ async function runCompilerScenario(
     }
 
     const metrics: Record<string, Value | undefined> = Object.create(null);
-    for (const sampleName of valueKeys) {
+    for (const sampleName of compilerSampleKeys) {
         metrics[sampleName] = computeMetrics(
             samples.map(x => x[sampleName] ?? 0),
             getCompilerMetricName(sampleName),
