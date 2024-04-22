@@ -9,14 +9,17 @@ import {
     CommandLineArgumentsBuilder,
     CompilerOptions,
     CompilerSample,
-    CompilerSampleKey,
     computeMetrics,
     ExpansionProvider,
     formatProgress,
     formatScenarioAndTestHost,
     formatTestHost,
+    getCompilerMetricName,
+    getCompilerSampleKeyUnit,
+    getCompilerSampleNameFromDiagnosticName,
     Host,
     HostSpecifier,
+    isCompilerDiagnosticName,
     Measurement,
     Repository,
     Scenario,
@@ -209,7 +212,7 @@ async function runCompilerScenario(
                 context.trace(`> ${line}`);
                 const m = tryParseDiagnostic(line);
                 if (m && isCompilerDiagnosticName(m.name)) {
-                    const sampleName = compilerDiagnosticNameToSampleName[m.name];
+                    const sampleName = getCompilerSampleNameFromDiagnosticName(m.name);
                     valueKeys.add(sampleName);
                     values[sampleName] = (values[sampleName] ?? 0) + m.value;
                     precisions[sampleName] = Math.max(precisions[sampleName] ?? 0, m.precision);
@@ -247,8 +250,8 @@ async function runCompilerScenario(
     for (const sampleName of valueKeys) {
         metrics[sampleName] = computeMetrics(
             samples.map(x => x[sampleName] ?? 0),
-            getMetricName(sampleName),
-            compilerSampleNameToUnit[sampleName],
+            getCompilerMetricName(sampleName),
+            getCompilerSampleKeyUnit(sampleName),
             precisions[sampleName] ?? 0,
         );
     }
@@ -260,61 +263,6 @@ async function runCompilerScenario(
         hostIndex,
         metrics,
     );
-}
-
-const compilerSampleKeyToDiagnosticName = {
-    parseTime: "Parse time",
-    bindTime: "Bind time",
-    checkTime: "Check time",
-    emitTime: "Emit time",
-    totalTime: "Total time",
-    memoryUsed: "Memory used",
-    errors: "Errors",
-    symbols: "Symbols",
-    types: "Types",
-    instantiations: "Instantiations",
-} as const satisfies { [K in CompilerSampleKey]: string; };
-
-const compilerSampleNameToUnit = {
-    parseTime: "s",
-    bindTime: "s",
-    checkTime: "s",
-    emitTime: "s",
-    totalTime: "s",
-    memoryUsed: "k",
-    errors: "",
-    symbols: "",
-    types: "",
-    instantiations: "",
-} as const satisfies { [K in CompilerSampleKey]: "s" | "k" | ""; };
-
-function reverseMap<const T extends Record<string, string>>(map: T): { [P in keyof T as T[P]]: P; } {
-    return Object.fromEntries(Object.entries(map).map(([k, v]) => [v, k])) as any;
-}
-
-const compilerDiagnosticNameToSampleName = reverseMap(compilerSampleKeyToDiagnosticName);
-type CompilerDiagnosticName = keyof typeof compilerDiagnosticNameToSampleName;
-
-function isCompilerDiagnosticName(name: string): name is CompilerDiagnosticName {
-    return name in compilerDiagnosticNameToSampleName;
-}
-
-function getMetricName(sampleName: CompilerSampleKey) {
-    // Special case names known by the benchmarking dashboard, even though they differ from what the compiler prints.
-    switch (sampleName) {
-        case "parseTime":
-            return "Parse Time";
-        case "bindTime":
-            return "Bind Time";
-        case "checkTime":
-            return "Check Time";
-        case "emitTime":
-            return "Emit Time";
-        case "totalTime":
-            return "Total Time";
-        default:
-            return compilerSampleKeyToDiagnosticName[sampleName];
-    }
 }
 
 async function runTSServerScenario(
