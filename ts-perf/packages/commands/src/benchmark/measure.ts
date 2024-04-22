@@ -31,8 +31,13 @@ import { getTempDirectories, HostContext, ProcessExitError, SystemInfo } from "@
 import { BenchmarkOptions, TSOptions } from "./";
 
 const diagnosticPattern = /^([a-z].+):\s+(.+?)[sk]?$/i;
+// Explicitly loose regex so --pretty will work.
+const errorPattern = /error.*TS\d+:/;
 
 function tryParseDiagnostic(line: string) {
+    if (errorPattern.test(line)) {
+        return { name: "Errors", value: 1, precision: 0 };
+    }
     const m = diagnosticPattern.exec(line);
     if (m) {
         const name = m[1].trim();
@@ -264,6 +269,7 @@ const compilerSampleKeyToDiagnosticName = {
     emitTime: "Emit time",
     totalTime: "Total time",
     memoryUsed: "Memory used",
+    errors: "Errors",
     symbols: "Symbols",
     types: "Types",
     instantiations: "Instantiations",
@@ -276,6 +282,7 @@ const compilerSampleNameToUnit = {
     emitTime: "s",
     totalTime: "s",
     memoryUsed: "k",
+    errors: "",
     symbols: "",
     types: "",
     instantiations: "",

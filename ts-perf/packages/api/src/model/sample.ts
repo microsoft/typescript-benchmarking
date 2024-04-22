@@ -7,6 +7,7 @@ export const compilerSampleKeys = [
     "emitTime",
     "totalTime",
     "memoryUsed",
+    "errors",
     "symbols",
     "types",
     "instantiations",
