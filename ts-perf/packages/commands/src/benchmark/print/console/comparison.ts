@@ -89,6 +89,11 @@ export function printComparison(
             { className: "group header", border: { top: "double" }, foregroundColor: "cyan" },
             {
                 className: "body",
+                match: (x: MeasurementComparisonPivot) => x.metric === "Errors",
+                foregroundColor: "dark-gray",
+            },
+            {
+                className: "body",
                 match: (x: MeasurementComparisonPivot) => x.benchmarkRelativeDelta < -0.1,
                 foregroundColor: "green",
             },
