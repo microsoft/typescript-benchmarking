@@ -486,7 +486,7 @@ export async function setupPipeline(input: SetupPipelineInput) {
         processKinds.add(scenario.kind);
         processLocations.add(scenario.location);
 
-        let cost = scenario.cost * scenario.iterations + jobOverhead;
+        let cost = scenario.cost * (scenario.iterations + scenario.warmups) + jobOverhead;
         if (!baselining) {
             cost *= 2;
         }
