@@ -120,7 +120,7 @@ function run_sandboxed() {
             set -ex &&
             echo Verifying network &&
             (curl -sL -o /dev/null https://registry.npmjs.org && echo "could reach registry (expected)" || (echo "could not reach registry (unexpected)"; exit 1)) &&
-            (! curl -sL -o /dev/null https://github.com && echo "could not reach internet (expected)" || (echo "could reach internet (unexpected)"; exit 1)) &&
+            (! curl -sL -o /dev/null https://bing.com && echo "could not reach internet (expected)" || (echo "could reach internet (unexpected)"; exit 1)) &&
             (! curl -sL -o /dev/null https://1.1.1.1 && echo "could not reach internet (expected)" || (echo "could reach internet (unexpected)"; exit 1)) &&
             if [ -n "$CHANGE_USER_ID" ]; then
                 groupmod -g $CHANGE_USER_ID node && usermod -u $CHANGE_USER_ID -g $CHANGE_USER_ID node

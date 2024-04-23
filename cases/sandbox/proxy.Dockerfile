@@ -18,6 +18,8 @@ RUN cat <<EOF > /etc/tinyproxy/filter
 ^registry\.npmjs\.org$
 ^registry\.yarnpkg\.com$
 ^codeload\.github\.com$
+^github\.com$
+^saucelabs\.com$
 EOF
 
 CMD ["/usr/bin/tinyproxy", "-d"]
