@@ -39,8 +39,6 @@ type ReserveAgents = typeof reserveAgents[number];
 type BaselineAgent = Exclude<AllAgents, ReserveAgents>;
 type Agent = "any" | AllAgents;
 
-type ScenarioLocation = "internal" | "public";
-
 const defaultIterations = 6;
 const defaultWarmups = 1;
 
@@ -68,7 +66,6 @@ interface BaseScenario {
     readonly kind: JobKind;
     readonly name: string;
     readonly agent: BaselineAgent;
-    readonly location: ScenarioLocation;
     readonly runIn: RunType;
     /**
      * Rough time cost per iteration in seconds.
@@ -80,38 +77,35 @@ interface BaseScenario {
 
 // DO NOT change the agents; they must remain the same forever to keep benchmarks comparable.
 const allScenarios: readonly BaseScenario[] = [
-    { kind: "tsc", name: "angular-1", agent: "ts-perf1", location: "public", runIn: RunType.Any, cost: 64 },
-    { kind: "tsc", name: "Compiler-Unions", agent: "ts-perf2", location: "public", runIn: RunType.Any, cost: 17 },
-    { kind: "tsc", name: "vscode", agent: "ts-perf3", location: "public", runIn: RunType.Any, cost: 107 },
+    { kind: "tsc", name: "angular-1", agent: "ts-perf1", runIn: RunType.Any, cost: 64 },
+    { kind: "tsc", name: "Compiler-Unions", agent: "ts-perf2", runIn: RunType.Any, cost: 17 },
+    { kind: "tsc", name: "vscode", agent: "ts-perf3", runIn: RunType.Any, cost: 107 },
     {
         kind: "tsc",
         name: "ts-pre-modules",
         agent: "ts-perf1",
-        location: "public",
         runIn: RunType.Any,
         cost: 25,
     },
-    { kind: "tsc", name: "self-compiler", agent: "ts-perf1", location: "public", runIn: RunType.Any, cost: 25 },
-    { kind: "tsc", name: "self-build-src", agent: "ts-perf2", location: "public", runIn: RunType.Any, cost: 51 },
+    { kind: "tsc", name: "self-compiler", agent: "ts-perf1", runIn: RunType.Any, cost: 25 },
+    { kind: "tsc", name: "self-build-src", agent: "ts-perf2", runIn: RunType.Any, cost: 51 },
     {
         kind: "tsc",
         name: "self-build-src-public-api",
         agent: "ts-perf1",
-        location: "public",
         runIn: RunType.Any,
         cost: 51,
     },
-    { kind: "tsc", name: "mui-docs", agent: "ts-perf2", location: "public", runIn: RunType.OnDemand, cost: 77 },
-    { kind: "tsc", name: "mui-docs-1", agent: "ts-perf2", location: "public", runIn: RunType.Baseline, cost: 77 },
-    { kind: "tsc", name: "webpack", agent: "ts-perf3", location: "public", runIn: RunType.OnDemand, cost: 22 },
-    { kind: "tsc", name: "webpack-1", agent: "ts-perf3", location: "public", runIn: RunType.Baseline, cost: 22 },
-    { kind: "tsc", name: "xstate-main", agent: "ts-perf3", location: "public", runIn: RunType.OnDemand, cost: 10 },
-    { kind: "tsc", name: "xstate-main-1", agent: "ts-perf3", location: "public", runIn: RunType.Baseline, cost: 10 },
+    { kind: "tsc", name: "mui-docs", agent: "ts-perf2", runIn: RunType.OnDemand, cost: 77 },
+    { kind: "tsc", name: "mui-docs-1", agent: "ts-perf2", runIn: RunType.Baseline, cost: 77 },
+    { kind: "tsc", name: "webpack", agent: "ts-perf3", runIn: RunType.OnDemand, cost: 22 },
+    { kind: "tsc", name: "webpack-1", agent: "ts-perf3", runIn: RunType.Baseline, cost: 22 },
+    { kind: "tsc", name: "xstate-main", agent: "ts-perf3", runIn: RunType.OnDemand, cost: 10 },
+    { kind: "tsc", name: "xstate-main-1", agent: "ts-perf3", runIn: RunType.Baseline, cost: 10 },
     {
         kind: "tsserver",
         name: "Compiler-UnionsTSServer",
         agent: "ts-perf1",
-        location: "public",
         runIn: RunType.Any,
         cost: 14,
     },
@@ -119,7 +113,6 @@ const allScenarios: readonly BaseScenario[] = [
         kind: "tsserver",
         name: "CompilerTSServer",
         agent: "ts-perf2",
-        location: "public",
         runIn: RunType.Any,
         cost: 16,
     },
@@ -127,16 +120,14 @@ const allScenarios: readonly BaseScenario[] = [
         kind: "tsserver",
         name: "xstate-main-1-tsserver",
         agent: "ts-perf3",
-        location: "public",
         runIn: RunType.Any,
         cost: 17,
     },
-    { kind: "startup", name: "tsc-startup", agent: "ts-perf1", location: "public", runIn: RunType.Any, cost: 19 },
+    { kind: "startup", name: "tsc-startup", agent: "ts-perf1", runIn: RunType.Any, cost: 19 },
     {
         kind: "startup",
         name: "tsserver-startup",
         agent: "ts-perf2",
-        location: "public",
         runIn: RunType.Any,
         cost: 28,
     },
@@ -144,7 +135,6 @@ const allScenarios: readonly BaseScenario[] = [
         kind: "startup",
         name: "tsserverlibrary-startup",
         agent: "ts-perf3",
-        location: "public",
         runIn: RunType.Any,
         cost: 28,
     },
@@ -152,7 +142,6 @@ const allScenarios: readonly BaseScenario[] = [
         kind: "startup",
         name: "typescript-startup",
         agent: "ts-perf1",
-        location: "public",
         runIn: RunType.Any,
         cost: 28,
     },
@@ -250,18 +239,7 @@ const presets = {
             };
         }
     },
-    *"public"() {
-        for (const scenario of onDemandScenarios) {
-            if (scenario.kind === "tsc" && scenario.location === "public") {
-                yield {
-                    ...scenario,
-                    host: hosts.node20,
-                    iterations: defaultIterations,
-                    warmups: defaultWarmups,
-                };
-            }
-        }
-    },
+    "public": (): Iterable<Scenario> => presets["regular"](),
 } satisfies Record<string, () => Iterable<Scenario>>;
 
 type PresetName = keyof typeof presets;
@@ -290,7 +268,6 @@ interface Job {
     TSPERF_JOB_SCENARIO: ScenarioName;
     TSPERF_JOB_ITERATIONS: number;
     TSPERF_JOB_WARMUPS: number;
-    TSPERF_JOB_LOCATION: ScenarioLocation;
 }
 
 type Matrix = {
@@ -464,7 +441,6 @@ export async function setupPipeline(input: SetupPipelineInput) {
     };
 
     const processKinds = new Set<JobKind>();
-    const processLocations = new Set<ScenarioLocation>();
 
     const jobOverhead = 40; // Time taken per benchmark job to clone, build, etc
     let totalCost = 0;
@@ -481,10 +457,8 @@ export async function setupPipeline(input: SetupPipelineInput) {
             TSPERF_JOB_SCENARIO: scenario.name,
             TSPERF_JOB_ITERATIONS: scenario.iterations,
             TSPERF_JOB_WARMUPS: scenario.warmups,
-            TSPERF_JOB_LOCATION: scenario.location,
         };
         processKinds.add(scenario.kind);
-        processLocations.add(scenario.location);
 
         let cost = scenario.cost * (scenario.iterations + scenario.warmups) + jobOverhead;
         if (!baselining) {
@@ -511,8 +485,6 @@ export async function setupPipeline(input: SetupPipelineInput) {
     // produced previously and need to be processed. This is a space separated list,
     // iterated in the pipeline in bash.
     outputVariables[`TSPERF_PROCESS_KINDS`] = kindOrder.filter(kind => processKinds.has(kind)).join(" ");
-    // Comma separated, parsed by runTsPerf.ts.
-    outputVariables[`TSPERF_PROCESS_LOCATIONS`] = [...processLocations].sort().join(",");
 
     outputVariables[`TSPERF_PREDICTABLE`] = parameters.predictable ? "true" : "false";
     outputVariables["TSPERF_IS_CUSTOM_COMMIT_RANGE"] = parameters.isCustomCommitRange ? "true" : "false";

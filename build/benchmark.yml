@@ -219,19 +219,8 @@ jobs:
           TYPESCRIPT_COMMIT_BASELINE: $[ dependencies.Setup.outputs['buildTypeScriptBaseline.TYPESCRIPT_COMMIT'] ]
 
         steps:
-          - task: AzureKeyVault@2
-            inputs:
-              azureSubscription: $(azureSubscription)
-              KeyVaultName: $(KeyVaultName)
-              SecretsFilter: 'tslab1-mseng-PAT'
-            displayName: Get secrets
-            retryCountOnTaskFailure: 3
-
           - template: templates/setup.yml
           - template: templates/cloneAndBuildBenchmarkRepo.yml # Sets $(BENCH_SCRIPTS), $(TSPERF_EXE)
-          - template: templates/cloneInternalRepo.yml # Sets $(TSPERF_INTERNAL_SCENARIO_CONFIG_DIR), $(TSPERF_INTERNAL_SUITE_DIR)
-            parameters:
-              condition: eq(variables['TSPERF_JOB_LOCATION'], 'internal')
 
           - download: current
             artifact: BuiltTypeScript
@@ -252,13 +241,13 @@ jobs:
               set -exo pipefail
               # Special case for self benchmark
               export TYPESCRIPT_COMMIT=$(TYPESCRIPT_COMMIT_NEW)
-              SETUP=$(TSPERF_PUBLIC_SCENARIO_CONFIG_DIR)/$(TSPERF_JOB_SCENARIO)/setup.sh
+              SETUP=$(TSPERF_SCENARIO_CONFIG_DIR)/$(TSPERF_JOB_SCENARIO)/setup.sh
               if test -f $SETUP; then
                 echo "Running $SETUP"
                 bash $SETUP
               fi
             displayName: Set up scenario for new benchmark
-            condition: and(succeeded(), eq(variables['TSPERF_IS_COMPARISON'], 'true'), eq(variables['TSPERF_JOB_LOCATION'], 'public'))
+            condition: and(succeeded(), eq(variables['TSPERF_IS_COMPARISON'], 'true'))
             retryCountOnTaskFailure: 3
 
           - bash: |
@@ -273,13 +262,12 @@ jobs:
               set -exo pipefail
               # Special case for self benchmark
               export TYPESCRIPT_COMMIT=$(TYPESCRIPT_COMMIT_BASELINE)
-              SETUP=$(TSPERF_PUBLIC_SCENARIO_CONFIG_DIR)/$(TSPERF_JOB_SCENARIO)/setup.sh
+              SETUP=$(TSPERF_SCENARIO_CONFIG_DIR)/$(TSPERF_JOB_SCENARIO)/setup.sh
               if test -f $SETUP; then
                 echo "Running $SETUP"
                 bash $SETUP
               fi
             displayName: Set up scenario for baseline benchmark
-            condition: and(succeeded(), eq(variables['TSPERF_JOB_LOCATION'], 'public'))
             retryCountOnTaskFailure: 3
 
           - bash: |
@@ -319,7 +307,6 @@ jobs:
     variables:
       TSPERF_IS_COMPARISON: $[ dependencies.Setup.outputs['setupPipeline.TSPERF_IS_COMPARISON'] ]
       TSPERF_PROCESS_KINDS: $[ dependencies.Setup.outputs['setupPipeline.TSPERF_PROCESS_KINDS'] ]
-      TSPERF_PROCESS_LOCATIONS: $[ dependencies.Setup.outputs['setupPipeline.TSPERF_PROCESS_LOCATIONS'] ]
       TSPERF_NEW_NAME: $[ dependencies.Setup.outputs['setupPipeline.TSPERF_NEW_NAME'] ]
       TSPERF_BASELINE_NAME: $[ dependencies.Setup.outputs['setupPipeline.TSPERF_BASELINE_NAME'] ]
       BUILT_TYPESCRIPT_DIR: $(Pipeline.Workspace)/BuiltTypeScript
@@ -331,7 +318,7 @@ jobs:
         inputs:
           azureSubscription: $(azureSubscription)
           KeyVaultName: $(KeyVaultName)
-          SecretsFilter: 'tslab1-mseng-PAT, typescript-bot-github-PAT-for-comments'
+          SecretsFilter: 'typescript-bot-github-PAT-for-comments'
         displayName: Get secrets
         retryCountOnTaskFailure: 3
 
@@ -358,8 +345,6 @@ jobs:
         displayName: Download built TypeScript
 
       - template: templates/cloneAndBuildBenchmarkRepo.yml # Sets $(BENCH_SCRIPTS), $(TSPERF_EXE)
-      # TODO(jakebailey): remove this; see "suite" in ts-perf/packages/api/src/options.ts
-      - template: templates/cloneInternalRepo.yml # Sets $(TSPERF_INTERNAL_SCENARIO_CONFIG_DIR), $(TSPERF_INTERNAL_SUITE_DIR)
 
       - bash: |
           set -exo pipefail
