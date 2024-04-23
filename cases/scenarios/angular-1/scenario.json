@@ -3,7 +3,7 @@
     "kind": "tsc",
     "args": [
         "-p",
-        "${suiteDirectory}/angular-1/tsconfig-tslint.json",
+        "${suiteDirectory}/angular-1/packages/tsconfig.json",
         "--outdir",
         "${outDirectory}"
     ],
