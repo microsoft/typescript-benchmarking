@@ -20,7 +20,6 @@ RUN cat <<EOF > /etc/tinyproxy/filter
 ^codeload\.github\.com$
 ^github\.com$
 ^saucelabs\.com$
-^nodejs\.org$
 EOF
 
 CMD ["/usr/bin/tinyproxy", "-d"]
