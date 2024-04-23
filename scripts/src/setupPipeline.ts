@@ -80,7 +80,7 @@ interface BaseScenario {
 
 // DO NOT change the agents; they must remain the same forever to keep benchmarks comparable.
 const allScenarios: readonly BaseScenario[] = [
-    { kind: "tsc", name: "angular-1", agent: "ts-perf1", location: "public", runIn: RunType.Any, cost: 50 },
+    { kind: "tsc", name: "angular-1", agent: "ts-perf1", location: "public", runIn: RunType.Any, cost: 64 },
     { kind: "tsc", name: "Compiler-Unions", agent: "ts-perf2", location: "public", runIn: RunType.Any, cost: 17 },
     { kind: "tsc", name: "vscode", agent: "ts-perf3", location: "public", runIn: RunType.Any, cost: 107 },
     {
