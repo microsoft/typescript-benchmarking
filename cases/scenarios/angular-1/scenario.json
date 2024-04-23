@@ -1,0 +1,13 @@
+{
+    "name": "angular-1",
+    "kind": "tsc",
+    "args": [
+        "-p",
+        "${suiteDirectory}/angular-1/tsconfig-tslint.json",
+        "--outdir",
+        "${outDirectory}"
+    ],
+    "platforms": [
+        "linux"
+    ]
+}
