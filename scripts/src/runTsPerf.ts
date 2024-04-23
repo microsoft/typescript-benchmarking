@@ -33,21 +33,15 @@ async function installHosts() {
 }
 
 function getLocationBasedArgs() {
-    const locations = checkNonEmpty(
-        process.env.TSPERF_JOB_LOCATION || process.env.TSPERF_PROCESS_LOCATIONS,
-        "Expected TSPERF_JOB_LOCATION or TSPERF_PROCESS_LOCATIONS to be set",
-    ).split(",");
-    const tsperfArgs = [];
+    const scenarioConfigDir = getNonEmptyEnv(`TSPERF_SCENARIO_CONFIG_DIR`);
+    const suiteDir = getNonEmptyEnv(`TSPERF_SUITE_DIR`);
 
-    for (const location of locations) {
-        const locationUpper = location.toUpperCase();
-        const scenarioConfigDir = getNonEmptyEnv(`TSPERF_${locationUpper}_SCENARIO_CONFIG_DIR`);
-        tsperfArgs.push("--scenarioConfigDir", scenarioConfigDir);
-        const suiteDir = getNonEmptyEnv(`TSPERF_${locationUpper}_SUITE_DIR`);
-        tsperfArgs.push("--suite", suiteDir);
-    }
-
-    return tsperfArgs;
+    return [
+        "--scenarioConfigDir",
+        scenarioConfigDir,
+        "--suite",
+        suiteDir,
+    ];
 }
 
 async function getCommonBenchmarkArgs() {

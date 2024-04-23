@@ -22,16 +22,11 @@ export interface StartupOptions {
 const suite: CommandLineOption = {
     type: "string",
     validate: validatePath,
-    defaultValue(parsed) {
-        const tsc = parsed["tsc"] as string;
-        const suite = findPath(process.cwd(), "./cases/perf/solutions")
-            || (process.env.TYPESCRIPT_INTERNAL_REPOSITORY
-                && findPath(process.env.TYPESCRIPT_INTERNAL_REPOSITORY, "./cases/perf/solutions"))
-            || (tsc && findPath(path.dirname(tsc), "./internal/cases/perf/solutions"))
-            || findPath(__dirname, "./cases/perf/solutions");
+    defaultValue() {
+        const suite = findPath(__dirname, "./cases/solutions");
         if (!suite) {
             throw new CommandLineParseError(
-                `Could not resolve the path to the test suite (i.e. './cases/perf/solutions'). Try specifying '--suite'.`,
+                `Could not resolve the path to the test suite (i.e. './cases/solutions'). Try specifying '--suite'.`,
             );
         }
         return suite;
