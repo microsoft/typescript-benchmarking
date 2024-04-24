@@ -104,13 +104,18 @@ export function printComparison(
             },
             {
                 className: "body",
-                match: (x: MeasurementComparisonPivot) => x.metric === "Memory used",
-                foregroundColor: "dark-gray",
+                match: (x: MeasurementComparisonPivot) => x.metric === "Parse Time",
+                border: { top: "single" },
             },
             {
                 className: "body",
                 match: (x: MeasurementComparisonPivot) => x.metric === "Total Time",
                 border: { top: "single" },
+            },
+            {
+                className: "body",
+                match: (x: MeasurementComparisonPivot) => x.metric === "Errors",
+                foregroundColor: "dark-gray",
             },
         ],
     });

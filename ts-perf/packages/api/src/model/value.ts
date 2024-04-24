@@ -1,3 +1,4 @@
+import { getCompilerMetricIndex } from "./sample";
 import { ValueComparison } from "./valueComparison";
 
 export interface ValueComponents {
@@ -34,7 +35,7 @@ export class Value {
         return this.samples ? this.samples.length : 0;
     }
     public get metricIndex() {
-        return weighMetric(this.metric);
+        return getCompilerMetricIndex(this.metric);
     }
 
     public static create(components: ValueComponents) {
@@ -131,25 +132,6 @@ export class Value {
         }
         const samples = [...this.samples, ...other.samples];
         return computeMetrics(samples, this.metric, this.unit, this.precision)!;
-    }
-}
-
-function weighMetric(metric: string) {
-    switch (metric.toLowerCase()) {
-        default:
-            return -1;
-        case "memory used":
-            return 0;
-        case "parse time":
-            return 1;
-        case "bind time":
-            return 2;
-        case "check time":
-            return 3;
-        case "emit time":
-            return 4;
-        case "total time":
-            return 5;
     }
 }
 
