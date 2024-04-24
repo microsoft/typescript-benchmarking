@@ -38,6 +38,10 @@ export class Value {
         return getCompilerMetricIndex(this.metric);
     }
 
+    public get allSamplesEqual() {
+        return this.samples.every(sample => sample === this.samples[0]);
+    }
+
     public static create(components: ValueComponents) {
         return components instanceof Value ? components : new Value(
             components.metric,

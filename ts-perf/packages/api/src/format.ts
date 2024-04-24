@@ -5,7 +5,7 @@ import { Benchmark, Host, MeasurementComparisonPivot, MeasurementPivot, Scenario
 import { TimeSpan } from "./types";
 
 export function formatMean(measurement: Value | MeasurementPivot) {
-    if (measurement.samples.length > 1) {
+    if (measurement.samples.length > 1 && !measurement.allSamplesEqual) {
         return formatUnit(measurement.mean, measurement) + " (±"
             + formatPercent(measurement.relativeMarginOfError, /*sign*/ false, 6) + ")";
     }
@@ -177,9 +177,11 @@ export function formatComparisonMidlinePValue(comparison: MeasurementComparisonP
 }
 
 export function formatComparisonBest(comparison: MeasurementComparisonPivot) {
+    if (comparison.benchmark.allSamplesEqual) return "~";
     return formatUnit(comparison.benchmark.minimum, comparison.benchmark);
 }
 
 export function formatComparisonWorst(comparison: MeasurementComparisonPivot) {
+    if (comparison.benchmark.allSamplesEqual) return "~";
     return formatUnit(comparison.benchmark.maximum, comparison.benchmark);
 }
