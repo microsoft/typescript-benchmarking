@@ -2,39 +2,10 @@ import { HostSpecifier } from "./hostSpecifier";
 import { HostSpecifierComponents } from "./hostSpecifierComponents";
 import { MeasurementComparison } from "./measurementComparison";
 import { MeasurementPivot } from "./measurementPivot";
-import { CompilerSampleKey, compilerSampleKeys, StartupSampleKey, startupSampleKeys } from "./sample";
-import { TSServerCommandName } from "./tsserverconfig";
+import { isSampleKey, SampleKey } from "./sample";
 import { Value, ValueComponents } from "./value";
 
-const serverKeys: TSServerCommandName[] = [
-    "updateOpen",
-    "geterr",
-    "references",
-    "navto",
-    "completionInfo",
-];
-
-type ValueKey =
-    | CompilerSampleKey
-    | `Req ${number} - ${TSServerCommandName}${" count" | ""}`
-    | StartupSampleKey;
-const serverKeyRegex = /^req\s+\d+\s+-\s+([a-z]+)(\s+count)?$/i;
-
-function isValueKey(key: string): key is ValueKey {
-    if ((compilerSampleKeys as readonly string[]).includes(key)) {
-        return true;
-    }
-    if ((startupSampleKeys as readonly string[]).includes(key)) {
-        return true;
-    }
-    const regexResult = serverKeyRegex.exec(key);
-    if (regexResult && (serverKeys as readonly string[]).includes(regexResult[1])) {
-        return true;
-    }
-    return false;
-}
-
-export interface MeasurementComponents extends Partial<Record<ValueKey, Value | ValueComponents>> {
+export interface MeasurementComponents extends Partial<Record<SampleKey, Value | ValueComponents>> {
     scenarioName?: string;
     scenarioIndex?: number;
     host?: HostSpecifier | HostSpecifierComponents;
@@ -69,7 +40,7 @@ export class Measurement {
         }
         const values: Partial<Record<string, Value>> = {};
         for (const key in components) {
-            if (hasProperty(components, key) && isValueKey(key)) {
+            if (hasProperty(components, key) && isSampleKey(key)) {
                 const value = components[key];
                 values[key] = value && Value.create(value);
             }
@@ -101,7 +72,7 @@ export class Measurement {
         const values: Partial<Record<string, ValueComponents>> = { ...this.values };
         let equalValues = true;
         for (const key in components) {
-            if (hasProperty(components, key) && isValueKey(key)) {
+            if (hasProperty(components, key) && isSampleKey(key)) {
                 const value = components[key];
                 if (value && values[key] !== value) {
                     equalValues = false;

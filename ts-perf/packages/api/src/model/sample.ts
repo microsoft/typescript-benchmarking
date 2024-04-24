@@ -1,5 +1,7 @@
 // Note: if adding new sample types/properties here, also update isValueKey in measurement.ts.
 
+import { TSServerCommandName } from "./tsserverconfig";
+
 export const compilerSampleKeys = [
     "errors",
     "symbols",
@@ -13,6 +15,10 @@ export const compilerSampleKeys = [
 ] as const;
 
 export type CompilerSampleKey = typeof compilerSampleKeys[number];
+
+export function isCompilerSampleKey(key: string): key is CompilerSampleKey {
+    return compilerSampleKeys.includes(key as CompilerSampleKey);
+}
 
 export type CompilerSample = { [K in CompilerSampleKey]?: number; };
 
@@ -89,10 +95,40 @@ export function getCompilerSampleKeyUnit(key: CompilerSampleKey) {
 
 export type TSServerSample = Record<string, number | undefined>;
 
+const serverKeys: TSServerCommandName[] = [
+    "updateOpen",
+    "geterr",
+    "references",
+    "navto",
+    "completionInfo",
+];
+
+export type TSServerSampleKey = `Req ${number} - ${TSServerCommandName}${" count" | ""}`;
+
+const serverKeyRegex = /^req\s+\d+\s+-\s+([a-z]+)(\s+count)?$/i;
+
+export function isTSServerSampleKey(key: string): key is TSServerSampleKey {
+    const regexResult = serverKeyRegex.exec(key);
+    return !!regexResult && serverKeys.includes(regexResult[1] as TSServerCommandName);
+}
+
 export const startupSampleKeys = [
     "executionTime",
 ] as const;
 
 export type StartupSampleKey = typeof startupSampleKeys[number];
 
+export function isStartupSampleKey(key: string): key is StartupSampleKey {
+    return startupSampleKeys.includes(key as StartupSampleKey);
+}
+
 export type StartupSample = { [K in StartupSampleKey]?: number; };
+
+export type SampleKey =
+    | CompilerSampleKey
+    | TSServerSampleKey
+    | StartupSampleKey;
+
+export function isSampleKey(key: string): key is SampleKey {
+    return isCompilerSampleKey(key) || isTSServerSampleKey(key) || isStartupSampleKey(key);
+}
