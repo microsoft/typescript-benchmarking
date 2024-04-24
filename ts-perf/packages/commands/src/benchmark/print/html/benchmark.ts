@@ -237,10 +237,10 @@ function formatReport(benchmark: Benchmark, options: BenchmarkOptions, noStyles:
                             cell(formatMean(measurement))
                         }</td>
                 <td ${noStyles ? "align=right" : `class="current best"`}>${
-                            cell(formatUnit(measurement.minimum, measurement))
+                            measurement.allSamplesEqual ? "~" : cell(formatUnit(measurement.minimum, measurement))
                         }</td>
                 <td ${noStyles ? "align=right" : `class="current worst"`}>${
-                            cell(formatUnit(measurement.maximum, measurement))
+                            measurement.allSamplesEqual ? "~" : cell(formatUnit(measurement.maximum, measurement))
                         }</td>
             </tr>`
                     )

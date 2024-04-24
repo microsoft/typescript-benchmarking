@@ -88,8 +88,8 @@ ${
 <tr>
 <td align="left">${measurement.metric}</td>
 <td align="right">${formatMean(measurement)}</td>
-<td align="right">${formatUnit(measurement.minimum, measurement)}</td>
-<td align="right">${formatUnit(measurement.maximum, measurement)}</td>
+<td align="right">${measurement.allSamplesEqual ? "~" : formatUnit(measurement.minimum, measurement)}</td>
+<td align="right">${measurement.allSamplesEqual ? "~" : formatUnit(measurement.maximum, measurement)}</td>
 </tr>`
                 )
             }
