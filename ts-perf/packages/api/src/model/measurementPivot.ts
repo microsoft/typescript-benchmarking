@@ -62,4 +62,7 @@ export class MeasurementPivot {
     public get precision() {
         return this.value.precision;
     }
+    public get allSamplesEqual() {
+        return this.value.allSamplesEqual;
+    }
 }

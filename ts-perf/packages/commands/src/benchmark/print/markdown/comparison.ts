@@ -165,7 +165,7 @@ function formatComparisonCurrent(comparison: MeasurementComparisonPivot) {
 }
 
 function formatMean(measurement: Value | MeasurementPivot) {
-    if (measurement.samples.length > 1) {
+    if (measurement.samples.length > 1 && !measurement.allSamplesEqual) {
         return markdown`${formatUnit(measurement.mean, measurement)}<br /><sup>±${
             formatPercent(measurement.relativeMarginOfError, /*sign*/ false)
         }</sup>`;
