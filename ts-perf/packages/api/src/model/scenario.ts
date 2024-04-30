@@ -1,7 +1,7 @@
 import * as fs from "node:fs";
 import * as path from "node:path";
 
-import { localScenariosDirectory, StringComparer } from "@ts-perf/core";
+import { containsPath, localScenariosDirectory, StringComparer } from "@ts-perf/core";
 
 import { TSServerConfig } from "./tsserverconfig";
 
@@ -126,7 +126,7 @@ export class Scenario {
         scenarioConfigDir: string,
         options?: { ignoreCache?: boolean; },
     ) {
-        let scenarios = cachedScenarios.get(scenarioConfigDir);
+        const isLocal = containsPath(localScenariosDirectory, scenarioConfigDir);
         if (!scenarios || options?.ignoreCache) {
             scenarios = [];
             if (fs.existsSync(scenarioConfigDir)) {
@@ -134,7 +134,7 @@ export class Scenario {
                     const file = path.join(scenarioConfigDir, container, "scenario.json");
                     try {
                         const scenario = await Scenario.loadAsync(file);
-                        scenario.isLocal = true;
+                        scenario.isLocal = isLocal;
                         scenarios.push(scenario);
                     }
                     catch (e) {
