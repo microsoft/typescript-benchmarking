@@ -1,16 +1,15 @@
 import * as os from "node:os";
 
-import { Command, CommandMap, Scenario } from "@ts-perf/api";
+import { Command, CommandMap, CommonOptions, Scenario } from "@ts-perf/api";
 import { HostContext } from "@ts-perf/core";
 import { Table } from "table-style";
 
-export interface ListScenarioOptions {
-    scenarioConfigDir?: string[];
+export interface ListScenarioOptions extends CommonOptions {
     color?: boolean;
 }
 
 export async function listScenarios(options: ListScenarioOptions, context: HostContext) {
-    const scenarios = await Scenario.getAvailableScenarios(options.scenarioConfigDir);
+    const scenarios = await Scenario.getAvailableScenarios(options.scenarioDirs);
     context.log(
         os.EOL + "Scenarios:" + os.EOL + new Table<Scenario>({
             useColor: options.color,
@@ -44,16 +43,8 @@ const command: Command<ListScenarioOptions> = {
     summary: "List scenarios.",
     description: "List Scenarios.",
     alias: ["ls"],
+    include: ["common"],
     options: {
-        scenarioConfigDirs: {
-            type: "string",
-            longName: "scenarioConfigDir",
-            alias: "scenarioConfigDirs",
-            defaultValue: () => [],
-            param: "directory",
-            multiple: true,
-            description: "Paths to directories containing scenario JSON files.",
-        },
         color: {
             type: "boolean",
             defaultValue: true,

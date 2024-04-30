@@ -4,19 +4,23 @@ import * as path from "node:path";
 
 import { CommandLineOption, CommandLineOptionSet, CommandLineOptionSets, CommandLineParseError } from "power-options";
 
-export interface CompilerOptions {
+export interface CommonOptions {
+    scenarioDirs?: string[];
+}
+
+export interface CompilerOptions extends CommonOptions {
     builtDir: string;
     suiteDir: string;
     compilerOptions?: string[];
 }
 
-export interface TSServerOptions {
+export interface TSServerOptions extends CommonOptions {
     builtDir: string;
     suiteDir: string;
     extended: boolean;
 }
 
-export interface StartupOptions {
+export interface StartupOptions extends CommonOptions {
     builtDir: string;
 }
 
@@ -38,6 +42,22 @@ const suiteDir: CommandLineOption = {
     description: "Use <directory> as the root location for test suites (i.e. './cases/solutions'). If not set, uses TSPERF_SUITE_DIR environment variable, if found. Otherwise, uses '~/.tsperf/solutions', if present.",
 };
 
+const scenarioDirs: CommandLineOption = {
+    type: "string",
+    longName: "scenarioDir",
+    alias: ["scenarioDirs", "scenarioConfigDir", "scenarioConfigDirs"],
+    multiple: true,
+    validate: validatePath,
+    defaultValue() {
+        const dirs = process.env.TSPERF_SCENARIO_DIRS?.split(path.delimiter)
+            .map(dirname => findPath(dirname, /*relative*/ undefined, /*walkUpParents*/ false))
+            .filter((dirname): dirname is string => !!dirname);
+        return dirs;
+    },
+    param: "directory",
+    description: "Use <directory> as a location containing individual test scenario folders each with a 'scenario.json'. If not set, uses TSPERF_SCENARIO_DIRS environment variable, if found. '~/.tsperf/solutions' will always be included, if present.",
+};
+
 const builtDir: CommandLineOption = {
     type: "string",
     validate: validatePath,
@@ -56,8 +76,16 @@ const builtDir: CommandLineOption = {
     description: "Use <directory> as the built local dir (i.e. './built/local'). If not set, uses TSPERF_BUILT_DIR environment variable, if found. Otherwise, walks up from the current directory looking for './built/local'",
 };
 
+const common: CommandLineOptionSet = {
+    merge: true,
+    options: {
+        scenarioDirs,
+    }
+};
+
 const compiler: CommandLineOptionSet = {
     merge: true,
+    include: ["common"],
     options: {
         builtDir,
         suiteDir,
@@ -71,6 +99,7 @@ const compiler: CommandLineOptionSet = {
 
 const tsserver: CommandLineOptionSet = {
     merge: true,
+    include: ["common"],
     options: {
         builtDir,
         suiteDir,
@@ -84,6 +113,7 @@ const tsserver: CommandLineOptionSet = {
 
 const startup: CommandLineOptionSet = {
     merge: true,
+    include: ["common"],
     options: {
         builtDir,
         suiteDir,
@@ -119,15 +149,18 @@ const azureStorage: CommandLineOptionSet = {
 };
 
 export const optionSets: CommandLineOptionSets = {
+    common,
     compiler,
     tsserver,
     startup,
     azureStorage,
 };
 
-function validatePath(value: string, arg: string) {
-    if (!fs.existsSync(value)) {
-        throw new CommandLineParseError(`Option '${arg}' path not found: '${value}'.`);
+function validatePath(values: string | string[], arg: string) {
+    for (const value of Array.isArray(values) ? values : [values]) {
+        if (!fs.existsSync(value)) {
+            throw new CommandLineParseError(`Option '${arg}' path not found: '${value}'.`);
+        }
     }
 }
 

@@ -92,21 +92,21 @@ export class Scenario {
     /**
      * Produces a list of resolved scenario dirs in precedence order.
      */
-    public static getScenarioConfigDirs(scenarioConfigDirs: string[] | undefined) {
-        const dirs = [localScenariosDirectory, ...(scenarioConfigDirs ?? [])];
-        return [...new Set(dirs.map(dir => path.resolve(dir)).reverse())];
+    public static getScenarioDirs(scenarioDirs: string[] | undefined) {
+        const dirs = [...(scenarioDirs ?? []), localScenariosDirectory];
+        return [...new Set(dirs.map(dir => path.resolve(dir)))];
     }
 
     public static async getAvailableScenarios(
-        scenarioConfigDirs: string[] | undefined,
+        scenarioDirs: string[] | undefined,
         options?: { ignoreCache?: boolean; },
     ) {
-        scenarioConfigDirs = this.getScenarioConfigDirs(scenarioConfigDirs);
+        scenarioDirs = this.getScenarioDirs(scenarioDirs);
 
         const scenarios: Scenario[] = [];
-        for (const scenarioConfigDir of scenarioConfigDirs) {
+        for (const scenarioDir of scenarioDirs) {
             scenarioLoop:
-            for (const scenario of await this.getAvailableScenariosForDir(scenarioConfigDir, options)) {
+            for (const scenario of await this.getAvailableScenariosForDir(scenarioDir, options)) {
                 for (const other of scenarios) {
                     if (other.name === scenario.name) {
                         scenario.isOverriding = true;
@@ -123,15 +123,16 @@ export class Scenario {
     }
 
     private static async getAvailableScenariosForDir(
-        scenarioConfigDir: string,
+        scenarioDir: string,
         options?: { ignoreCache?: boolean; },
     ) {
-        const isLocal = containsPath(localScenariosDirectory, scenarioConfigDir);
+        const isLocal = containsPath(localScenariosDirectory, scenarioDir);
+        let scenarios = cachedScenarios.get(scenarioDir);
         if (!scenarios || options?.ignoreCache) {
             scenarios = [];
-            if (fs.existsSync(scenarioConfigDir)) {
-                for (const container of await fs.promises.readdir(scenarioConfigDir)) {
-                    const file = path.join(scenarioConfigDir, container, "scenario.json");
+            if (fs.existsSync(scenarioDir)) {
+                for (const container of await fs.promises.readdir(scenarioDir)) {
+                    const file = path.join(scenarioDir, container, "scenario.json");
                     try {
                         const scenario = await Scenario.loadAsync(file);
                         scenario.isLocal = isLocal;
@@ -141,16 +142,16 @@ export class Scenario {
                     }
                 }
             }
-            cachedScenarios.set(scenarioConfigDir, scenarios);
+            cachedScenarios.set(scenarioDir, scenarios);
         }
         return scenarios.slice();
     }
 
     public static async getDefaultScenarios(
-        scenarioConfigDirs: string[] | undefined,
+        scenarioDirs: string[] | undefined,
         options?: { includeUnsupported?: boolean; },
     ) {
-        const availableScenarios = await this.getAvailableScenarios(scenarioConfigDirs);
+        const availableScenarios = await this.getAvailableScenarios(scenarioDirs);
         return availableScenarios
             .filter(scenario =>
                 !scenario.disabled
@@ -159,12 +160,12 @@ export class Scenario {
     }
 
     public static async findMatchingScenarios(
-        scenarioConfigDirs: string[] | undefined,
+        scenarioDirs: string[] | undefined,
         scenarios: string[],
         kind?: ScenarioKind,
         options?: { includeUnsupported?: boolean; },
     ) {
-        const availableScenarios = await this.getAvailableScenarios(scenarioConfigDirs);
+        const availableScenarios = await this.getAvailableScenarios(scenarioDirs);
         return availableScenarios
             .filter(scenario =>
                 (scenario.supported || (options && options.includeUnsupported))
@@ -174,28 +175,28 @@ export class Scenario {
     }
 
     public static async findScenarios(
-        scenarioConfigDirs: string[] | undefined,
+        scenarioDirs: string[] | undefined,
         scenarios?: string[],
         kind?: ScenarioKind,
         options?: { includeUnsupported?: boolean; },
     ) {
         if (scenarios && scenarios.length) {
-            return await this.findMatchingScenarios(scenarioConfigDirs, scenarios, kind, options);
+            return await this.findMatchingScenarios(scenarioDirs, scenarios, kind, options);
         }
         else {
-            const defaultScenarios = await this.getDefaultScenarios(scenarioConfigDirs, options);
+            const defaultScenarios = await this.getDefaultScenarios(scenarioDirs, options);
             return kind ? defaultScenarios.filter(scenario => scenario.kind === kind) : defaultScenarios;
         }
     }
 
     public static async findScenario(
-        scenarioConfigDirs: string[] | undefined,
+        scenarioDirs: string[] | undefined,
         scenario: string,
         kind?: ScenarioKind,
         options?: { includeUnsupported?: boolean; },
     ) {
         const matchingScenarios = await this.findScenarios(
-            scenarioConfigDirs,
+            scenarioDirs,
             scenario ? [scenario] : undefined,
             kind,
             options,

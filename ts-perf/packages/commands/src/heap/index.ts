@@ -18,7 +18,6 @@ const profiler = require.resolve("@ts-perf/profiler/bin/ts-profiler");
 
 export interface HeapProfilerOptions extends CompilerOptions {
     scenario: string;
-    scenarioConfigDirs?: string[];
     out: string; // The path to the resulting .heapsnapshot file.
     host?: string;
     events?: string[]; // Snapshot event names.
@@ -26,7 +25,7 @@ export interface HeapProfilerOptions extends CompilerOptions {
 
 export async function heap(options: HeapProfilerOptions, host: HostContext) {
     const tempDirs = await getTempDirectories();
-    const scenario = await Scenario.findScenario(options.scenarioConfigDirs, options.scenario, /*kind*/ "tsc");
+    const scenario = await Scenario.findScenario(options.scenarioDirs, options.scenario, /*kind*/ "tsc");
     const testHost = options.host
         ? await Host.findHost(options.host, { onlyHosts: ["node"] })
         : Host.current;
@@ -125,17 +124,8 @@ const command: Command<HeapProfilerOptions> = {
     commandName: "heap",
     summary: "Generate heap snapshots of the compiler.",
     description: "Generate heap snapshots during compiler execution.",
-    include: ["compiler", "heapsnapshot"],
+    include: ["compiler", "heapsnapshot", "common"],
     options: {
-        scenarioConfigDirs: {
-            type: "string",
-            longName: "scenarioConfigDir",
-            alias: "scenarioConfigDirs",
-            defaultValue: () => [],
-            param: "directory",
-            multiple: true,
-            description: "Paths to directories containing scenario JSON files.",
-        },
         scenario: {
             type: "string",
             param: "scenario",

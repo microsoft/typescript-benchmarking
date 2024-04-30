@@ -1,8 +1,7 @@
-import { Command, CommandMap, Scenario } from "@ts-perf/api";
+import { Command, CommandMap, CommonOptions, Scenario } from "@ts-perf/api";
 import { HostContext } from "@ts-perf/core";
 
-export interface ConfigureScenarioOptions {
-    scenarioConfigDir?: string[];
+export interface ConfigureScenarioOptions extends CommonOptions {
     scenarios: string[];
     args?: string[];
     platforms?: string[];
@@ -11,7 +10,7 @@ export interface ConfigureScenarioOptions {
 }
 
 export async function configureScenario(options: ConfigureScenarioOptions, context: HostContext) {
-    const scenarios = await Scenario.findScenarios(options.scenarioConfigDir, options.scenarios);
+    const scenarios = await Scenario.findScenarios(options.scenarioDirs, options.scenarios);
     if (scenarios.length === 0) {
         context.error(`No matching scenarios.`);
         return;
@@ -34,17 +33,8 @@ const command: Command<ConfigureScenarioOptions> = {
     commandName: "configure",
     summary: "Configure a scenario.",
     description: "Configure a scenario.",
-    alias: ["config"],
+    alias: ["config", "common"],
     options: {
-        scenarioConfigDirs: {
-            type: "string",
-            longName: "scenarioConfigDir",
-            alias: "scenarioConfigDirs",
-            defaultValue: () => [],
-            param: "directory",
-            multiple: true,
-            description: "Paths to directories containing scenario JSON files.",
-        },
         scenarios: {
             type: "string",
             longName: "scenario",

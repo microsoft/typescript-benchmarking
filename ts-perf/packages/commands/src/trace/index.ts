@@ -6,6 +6,7 @@ import {
     Command,
     CommandLineArgumentsBuilder,
     CommandMap,
+    CommonOptions,
     CompilerOptions,
     ExpansionProvider,
     ExpansionProviderSet,
@@ -15,9 +16,8 @@ import {
 import { getTempDirectories, HostContext } from "@ts-perf/core";
 import * as semver from "semver";
 
-export interface TraceOptions extends CompilerOptions {
+export interface TraceOptions extends CompilerOptions, CommonOptions {
     scenario: string;
-    scenarioConfigDirs?: string[];
     outDir?: string;
     host?: string;
     deoptExplorer?: boolean;
@@ -25,7 +25,7 @@ export interface TraceOptions extends CompilerOptions {
 }
 
 export async function trace(options: TraceOptions, host: HostContext) {
-    const scenario = await Scenario.findScenario(options.scenarioConfigDirs, options.scenario, /*kind*/ "tsc");
+    const scenario = await Scenario.findScenario(options.scenarioDirs, options.scenario, /*kind*/ "tsc");
 
     if (!scenario) {
         host.error(`abort: Compiler scenario not found.`);
@@ -264,7 +264,7 @@ const command: Command<TraceOptions> = {
     commandName: "trace",
     summary: "Trace deoptimizations in NodeJS (v8).",
     description: "Trace deoptimizations in NodeJS (v8).",
-    include: ["compiler", "remote"],
+    include: ["compiler", "remote", "common"],
     options: {
         outDir: {
             type: "string",
@@ -277,15 +277,6 @@ const command: Command<TraceOptions> = {
             param: "file",
             description: "Saves the trace output to <file>.",
             group: "deoptExplorer",
-        },
-        scenarioConfigDirs: {
-            type: "string",
-            longName: "scenarioConfigDir",
-            alias: "scenarioConfigDirs",
-            defaultValue: () => [],
-            param: "directory",
-            multiple: true,
-            description: "Paths to directories containing scenario JSON files.",
         },
         scenario: {
             type: "string",

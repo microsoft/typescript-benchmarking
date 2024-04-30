@@ -18,7 +18,7 @@ const profiler = require.resolve("@ts-perf/profiler/bin/ts-profiler");
 
 export async function profile(options: ProfilerOptions, host: HostContext) {
     const tempDirs = await getTempDirectories();
-    const scenario = await Scenario.findScenario(options.scenarioConfigDirs, options.scenario, /*kind*/ "tsc");
+    const scenario = await Scenario.findScenario(options.scenarioDirs, options.scenario, /*kind*/ "tsc");
     const testHost = options.host
         ? await Host.findHost(options.host, { onlyHosts: ["node"] })
         : Host.current;
@@ -102,7 +102,6 @@ export async function profile(options: ProfilerOptions, host: HostContext) {
 
 export interface ProfilerOptions extends CompilerOptions {
     scenario: string;
-    scenarioConfigDirs?: string[];
     out: string; // The path to the resulting .cpuprofile file.
     host?: string;
     sourcemap: boolean;
@@ -116,17 +115,8 @@ const command: Command<ProfilerOptions> = {
     commandName: "profile",
     summary: "Profile the compiler.",
     description: "Profile the compiler using CPU sampling and the installed version of NodeJS.",
-    include: ["compiler"],
+    include: ["compiler", "common"],
     options: {
-        scenarioConfigDirs: {
-            type: "string",
-            longName: "scenarioConfigDir",
-            alias: "scenarioConfigDirs",
-            defaultValue: () => [],
-            param: "directory",
-            multiple: true,
-            description: "Paths to directories containing scenario JSON files.",
-        },
         scenario: {
             type: "string",
             param: "scenario",

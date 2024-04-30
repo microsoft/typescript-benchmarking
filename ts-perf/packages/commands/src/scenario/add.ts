@@ -2,10 +2,10 @@ import * as fs from "node:fs";
 import * as path from "node:path";
 
 import { Command, CommandMap, Scenario } from "@ts-perf/api";
-import { HostContext } from "@ts-perf/core";
+import { HostContext, localScenariosDirectory } from "@ts-perf/core";
 
 export interface AddScenarioOptions {
-    scenarioConfigDir?: string[];
+    scenarioDir?: string;
     name: string;
     args?: string[];
     platforms?: string[];
@@ -14,18 +14,13 @@ export interface AddScenarioOptions {
 }
 
 export async function addScenario(options: AddScenarioOptions, context: HostContext) {
-    const scenarioConfigDirs = Scenario.getScenarioConfigDirs(options.scenarioConfigDir);
-    const scenarioConfigDir = scenarioConfigDirs[0];
-    if (scenarioConfigDirs.length > 1) {
-        context.warn(`Multiple scenario config directories found. Using '${scenarioConfigDir}'.`);
+    const scenariosDir = options.scenarioDir ? path.resolve(options.scenarioDir) : localScenariosDirectory;
+    const scenarioDir = path.resolve(scenariosDir, path.basename(options.name));
+    if (!fs.existsSync(scenarioDir)) {
+        await fs.promises.mkdir(scenarioDir, { recursive: true });
     }
 
-    const configDir = path.resolve(scenarioConfigDir, path.basename(options.name));
-    if (!fs.existsSync(configDir)) {
-        await fs.promises.mkdir(configDir, { recursive: true });
-    }
-
-    const configFile = path.resolve(configDir, "scenario.json");
+    const configFile = path.resolve(scenarioDir, "scenario.json");
     const scenario = Scenario.create({ ...options, kind: "tsc", configFile });
     await scenario.saveAsync(configFile);
 
@@ -47,14 +42,11 @@ const command: Command<AddScenarioOptions> = {
             param: "name",
             description: "",
         },
-        scenarioConfigDirs: {
+        scenarioDir: {
             type: "string",
-            longName: "scenarioConfigDir",
-            alias: "scenarioConfigDirs",
-            defaultValue: () => [],
+            alias: "scenarioConfigDir",
             param: "directory",
-            multiple: true,
-            description: "Paths to directories containing scenario JSON files.",
+            description: "Use <directory> as a location containing individual test scenario folders each with a 'scenario.json'. If not set, uses '~/.tsperf/scenarios', if present.",
         },
         args: {
             type: "string",
