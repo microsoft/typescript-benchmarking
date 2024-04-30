@@ -1,5 +1,5 @@
 {
-    "name": "ts-perf",
+    "name": "ts-perf-monorepo",
     "version": "0.8.0",
     "private": true,
     "description": "TypeScript performance testing tool",
