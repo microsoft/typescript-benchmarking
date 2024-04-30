@@ -5,6 +5,7 @@ import { StringComparer } from "./stringComparer";
 export const userDirectory = path.resolve(os.homedir(), ".tsperf");
 export const hostsDirectory = path.resolve(userDirectory, "hosts");
 export const localScenariosDirectory = path.resolve(userDirectory, "scenarios");
+export const localSuiteDirectory = path.resolve(userDirectory, "solutions");
 export const logDirectory = path.resolve(userDirectory, "logs");
 
 export class ProcessExitError extends Error {

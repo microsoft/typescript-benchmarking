@@ -1,3 +1,4 @@
+import { localSuiteDirectory } from "@ts-perf/core";
 import * as fs from "node:fs";
 import * as path from "node:path";
 
@@ -24,7 +25,8 @@ const suiteDir: CommandLineOption = {
     alias: "suite",
     validate: validatePath,
     defaultValue() {
-        const suite = findPath(__dirname, "./cases/solutions");
+        const suite = findPath(process.env.TSPERF_SUITE_DIR, /*relative*/ undefined, /*walkUpParents*/ false)
+            || findPath(localSuiteDirectory, /*relative*/ undefined, /*walkUpParents*/ false);
         if (!suite) {
             throw new CommandLineParseError(
                 `Could not resolve the path to the test suite (i.e. './cases/solutions'). Try specifying '--suiteDir'.`,
@@ -40,10 +42,9 @@ const builtDir: CommandLineOption = {
     type: "string",
     validate: validatePath,
     defaultValue() {
-        const builtDir = findPath(process.cwd(), "./built/local")
-            || (process.env.TYPESCRIPT_REPOSITORY
-                && findPath(process.env.TYPESCRIPT_REPOSITORY, "./built/local"))
-            || findPath(__dirname, "./built/local");
+        const builtDir = findPath(process.env.TSPERF_BUILT_DIR, /*relative*/ undefined, /*walkUpParents*/ false)
+            || findPath(process.cwd(), "./built/local", /*walkUpParents*/ true)
+            || findPath(process.env.TYPESCRIPT_REPOSITORY, "./built/local", /*walkUpParents*/ false);
         if (!builtDir) {
             throw new CommandLineParseError(
                 `Could not resolve the path to the built directory (i.e. './built/local'). Try specifying '--builtDir'.`,
@@ -52,7 +53,7 @@ const builtDir: CommandLineOption = {
         return builtDir;
     },
     param: "directory",
-    description: "Use <directory> as the built local dir (i.e. './built/local').",
+    description: "Use <directory> as the built local dir (i.e. './built/local'). If not set, uses TSPERF_BUILT_DIR environment variable, if found. Otherwise, walks up from the current directory looking for './built/local'",
 };
 
 const compiler: CommandLineOptionSet = {
@@ -104,15 +105,15 @@ const azureStorage: CommandLineOptionSet = {
             type: "string",
             param: "name",
             description:
-                "Azure storage account when using blob storage (uses TSPERF_AZURE_STORAGE_ACCOUNT environment variable if found).",
-            defaultValue: () => process.env.TSPERF_AZURE_STORAGE_ACCOUNT!,
+                "Azure storage account when using blob storage. If not set, uses TSPERF_AZURE_STORAGE_ACCOUNT environment variable, if found.",
+            defaultValue: () => process.env.TSPERF_AZURE_STORAGE_ACCOUNT,
         },
         azureStorageContainer: {
             type: "string",
             param: "container",
             description:
-                "Container to use when using blob storage (uses TSPERF_AZURE_STORAGE_CONTAINER environment variable if found).",
-            defaultValue: () => process.env.TSPERF_AZURE_STORAGE_CONTAINER!,
+                "Container to use when using blob storage. If not set, uses TSPERF_AZURE_STORAGE_CONTAINER environment variable, if found.",
+            defaultValue: () => process.env.TSPERF_AZURE_STORAGE_CONTAINER,
         },
     },
 };
@@ -130,18 +131,30 @@ function validatePath(value: string, arg: string) {
     }
 }
 
-function findPath(root: string, relative: string) {
-    root = path.resolve(root);
-    while (root) {
-        const tscPath = path.resolve(root, relative);
-        if (fs.existsSync(tscPath)) {
-            return tscPath;
+function findPath(dirname: string | undefined, relative: string | undefined, walkUpParents: boolean) {
+    if (dirname) {
+        dirname = path.resolve(dirname);
+        while (dirname) {
+            const candidate = relative ? path.resolve(dirname, relative) : dirname;
+            if (fs.existsSync(candidate)) {
+                return candidate;
+            }
+    
+            if (!walkUpParents) {
+                break;
+            }
+    
+            if (/^(\/|[a-z]:[\\/]?)$/i.test(dirname)) {
+                break;
+            }
+    
+            dirname = path.dirname(dirname);
         }
-
-        if (/^(\/|[a-z]:[\\/]?)$/i.test(root)) {
-            break;
+    }
+    else if (relative && path.isAbsolute(relative)) {
+        relative = path.resolve(relative);
+        if (fs.existsSync(relative)) {
+            return relative;
         }
-
-        root = path.dirname(root);
     }
 }
