@@ -1,9 +1,8 @@
 import * as fs from "node:fs";
 import * as path from "node:path";
 
-import { hostsDirectory } from "@ts-perf/core";
+import { hostsDirectory, StringComparer } from "@ts-perf/core";
 
-import { StringComparer } from "../utils";
 import { HostPattern } from "./hostPattern";
 import { HostSpecifier } from "./hostSpecifier";
 import { HostSpecifierComponents } from "./hostSpecifierComponents";

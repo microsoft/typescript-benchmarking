@@ -1,9 +1,8 @@
 import * as fs from "node:fs";
 import * as path from "node:path";
 
-import { localScenariosDirectory } from "@ts-perf/core";
+import { localScenariosDirectory, StringComparer } from "@ts-perf/core";
 
-import { StringComparer } from "../utils";
 import { TSServerConfig } from "./tsserverconfig";
 
 const cachedScenarios = new Map<string, Scenario[]>();

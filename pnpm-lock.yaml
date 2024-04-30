@@ -202,6 +202,12 @@ importers:
       '@esfx/canceltoken':
         specifier: ^1.0.0
         version: 1.0.0
+      '@esfx/equatable':
+        specifier: ^1.0.2
+        version: 1.0.2
+      '@unicode/unicode-15.1.0':
+        specifier: ^1.5.2
+        version: 1.5.2
 
   ts-perf/packages/events: {}
 
@@ -2454,6 +2460,10 @@ packages:
   /@ungap/structured-clone@1.2.0:
     resolution: {integrity: sha512-zuVdFrMJiuCDQUMCzQaD6KL28MjnqqN8XnAqiEq9PNm/hCPTSGfrXCOfwj1ow4LFb/tNymJPwsNbVePc1xFqrQ==}
     dev: true
+
+  /@unicode/unicode-15.1.0@1.5.2:
+    resolution: {integrity: sha512-7PAgnShDr8ziK6XeHB/TUVFboDFEhaQKKyrw55/Kx9o6AQDy1s7dJ9KRpRerW9nrR5qMGUQvOqTXOAek6ZIXkg==}
+    dev: false
 
   /@vitest/expect@1.5.0:
     resolution: {integrity: sha512-0pzuCI6KYi2SIC3LQezmxujU9RK/vwC1U9R0rLuGlNGcOuDWxqWKu6nUdFsX9tH1WU0SXtAxToOsEjeUn1s3hA==}

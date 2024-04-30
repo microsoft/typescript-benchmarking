@@ -1,6 +1,6 @@
 import * as path from "node:path";
 
-import { StringComparer } from "../utils";
+import { StringComparer } from "@ts-perf/core";
 
 const npmLikeHostRegExp = /^([^@]+)(?:@([^@]+)(?:@([^@]+))?)?$/;
 const hostSegmentSeparatorRegExp = /[,;]/g;
