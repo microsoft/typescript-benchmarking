@@ -1,5 +1,6 @@
 import * as os from "node:os";
-import { Comparer, Equaler, defaultEqualer } from "@esfx/equatable";
+
+import { Comparer, defaultEqualer, Equaler } from "@esfx/equatable";
 // @ts-ignore
 import C from "@unicode/unicode-15.1.0/Case_Folding/C/symbols.js";
 // @ts-ignore
@@ -68,7 +69,8 @@ export class StringComparer implements Comparer<string>, Equaler<string> {
 
     public hash(x: string): number {
         const { sensitivity } = this._equalityCollator.resolvedOptions();
-        return sensitivity === "variant" || x.length === 0 ? defaultEqualer.hash(x) : defaultEqualer.hash(StringComparer._simpleUnicodeCaseFold(x));
+        return sensitivity === "variant" || x.length === 0 ? defaultEqualer.hash(x)
+            : defaultEqualer.hash(StringComparer._simpleUnicodeCaseFold(x));
     }
 
     private static _simpleUnicodeCaseFold(x: string) {

@@ -1,5 +1,6 @@
 import * as os from "node:os";
 import * as path from "node:path";
+
 import { StringComparer } from "./stringComparer";
 
 export const userDirectory = path.resolve(os.homedir(), ".tsperf");
@@ -55,7 +56,9 @@ export function containsPath(parent: string, child: string, comparer = StringCom
     parent = trimTrailingDirectorySeparator(normalizeSlashes(parent));
     child = trimTrailingDirectorySeparator(normalizeSlashes(child));
 
-    if (parent.startsWith(normalizedWindowsLongPathPrefix)) parent = parent.slice(normalizedWindowsLongPathPrefix.length);
+    if (parent.startsWith(normalizedWindowsLongPathPrefix)) {
+        parent = parent.slice(normalizedWindowsLongPathPrefix.length);
+    }
     if (child.startsWith(normalizedWindowsLongPathPrefix)) child = child.slice(normalizedWindowsLongPathPrefix.length);
     if (comparer.equals(parent, child)) return true;
 

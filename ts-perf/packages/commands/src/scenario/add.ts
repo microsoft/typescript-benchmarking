@@ -46,7 +46,8 @@ const command: Command<AddScenarioOptions> = {
             type: "string",
             alias: "scenarioConfigDir",
             param: "directory",
-            description: "Use <directory> as a location containing individual test scenario folders each with a 'scenario.json'. If not set, uses '~/.tsperf/scenarios', if present.",
+            description:
+                "Use <directory> as a location containing individual test scenario folders each with a 'scenario.json'. If not set, uses '~/.tsperf/scenarios', if present.",
         },
         args: {
             type: "string",

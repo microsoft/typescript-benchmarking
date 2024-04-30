@@ -1,7 +1,7 @@
-import { localSuiteDirectory } from "@ts-perf/core";
 import * as fs from "node:fs";
 import * as path from "node:path";
 
+import { localSuiteDirectory } from "@ts-perf/core";
 import { CommandLineOption, CommandLineOptionSet, CommandLineOptionSets, CommandLineParseError } from "power-options";
 
 export interface CommonOptions {
@@ -39,7 +39,8 @@ const suiteDir: CommandLineOption = {
         return suite;
     },
     param: "directory",
-    description: "Use <directory> as the root location for test suites (i.e. './cases/solutions'). If not set, uses TSPERF_SUITE_DIR environment variable, if found. Otherwise, uses '~/.tsperf/solutions', if present.",
+    description:
+        "Use <directory> as the root location for test suites (i.e. './cases/solutions'). If not set, uses TSPERF_SUITE_DIR environment variable, if found. Otherwise, uses '~/.tsperf/solutions', if present.",
 };
 
 const scenarioDirs: CommandLineOption = {
@@ -55,7 +56,8 @@ const scenarioDirs: CommandLineOption = {
         return dirs;
     },
     param: "directory",
-    description: "Use <directory> as a location containing individual test scenario folders each with a 'scenario.json'. If not set, uses TSPERF_SCENARIO_DIRS environment variable, if found. '~/.tsperf/solutions' will always be included, if present.",
+    description:
+        "Use <directory> as a location containing individual test scenario folders each with a 'scenario.json'. If not set, uses TSPERF_SCENARIO_DIRS environment variable, if found. '~/.tsperf/solutions' will always be included, if present.",
 };
 
 const builtDir: CommandLineOption = {
@@ -73,14 +75,15 @@ const builtDir: CommandLineOption = {
         return builtDir;
     },
     param: "directory",
-    description: "Use <directory> as the built local dir (i.e. './built/local'). If not set, uses TSPERF_BUILT_DIR environment variable, if found. Otherwise, walks up from the current directory looking for './built/local'",
+    description:
+        "Use <directory> as the built local dir (i.e. './built/local'). If not set, uses TSPERF_BUILT_DIR environment variable, if found. Otherwise, walks up from the current directory looking for './built/local'",
 };
 
 const common: CommandLineOptionSet = {
     merge: true,
     options: {
         scenarioDirs,
-    }
+    },
 };
 
 const compiler: CommandLineOptionSet = {
@@ -172,15 +175,15 @@ function findPath(dirname: string | undefined, relative: string | undefined, wal
             if (fs.existsSync(candidate)) {
                 return candidate;
             }
-    
+
             if (!walkUpParents) {
                 break;
             }
-    
+
             if (/^(\/|[a-z]:[\\/]?)$/i.test(dirname)) {
                 break;
             }
-    
+
             dirname = path.dirname(dirname);
         }
     }

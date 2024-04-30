@@ -1,4 +1,5 @@
 import { StringComparer } from "@ts-perf/core";
+
 import { VersionComparer } from "../utils";
 import {
     formatHostComponents,

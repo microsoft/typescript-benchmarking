@@ -1,6 +1,7 @@
 import * as path from "node:path";
 
 import { StringComparer } from "@ts-perf/core";
+
 import { VersionComparer } from "../utils";
 import {
     formatHostComponents,
