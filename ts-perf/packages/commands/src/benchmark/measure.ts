@@ -281,7 +281,7 @@ async function runTSServerScenario(
         .add(path.join(__dirname, "measuretsserver.js"))
         .add("--tsserver", tsserver)
         .add("--commands", scenario.configFile)
-        .add("--suite", options.suite);
+        .add("--suite", options.suiteDir);
     if (options.extended) {
         argsBuilder.add("--extended");
     }

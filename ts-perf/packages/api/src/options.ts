@@ -5,13 +5,13 @@ import { CommandLineOption, CommandLineOptionSet, CommandLineOptionSets, Command
 
 export interface CompilerOptions {
     builtDir: string;
-    suite: string;
+    suiteDir: string;
     compilerOptions?: string[];
 }
 
 export interface TSServerOptions {
     builtDir: string;
-    suite: string;
+    suiteDir: string;
     extended: boolean;
 }
 
@@ -19,20 +19,21 @@ export interface StartupOptions {
     builtDir: string;
 }
 
-const suite: CommandLineOption = {
+const suiteDir: CommandLineOption = {
     type: "string",
+    alias: "suite",
     validate: validatePath,
     defaultValue() {
         const suite = findPath(__dirname, "./cases/solutions");
         if (!suite) {
             throw new CommandLineParseError(
-                `Could not resolve the path to the test suite (i.e. './cases/solutions'). Try specifying '--suite'.`,
+                `Could not resolve the path to the test suite (i.e. './cases/solutions'). Try specifying '--suiteDir'.`,
             );
         }
         return suite;
     },
     param: "directory",
-    description: "Use <directory> as the root location for test suites (i.e. './internal/cases/perf/solutions').",
+    description: "Use <directory> as the root location for test suites (i.e. './cases/solutions'). If not set, uses TSPERF_SUITE_DIR environment variable, if found. Otherwise, uses '~/.tsperf/solutions', if present.",
 };
 
 const builtDir: CommandLineOption = {
@@ -58,7 +59,7 @@ const compiler: CommandLineOptionSet = {
     merge: true,
     options: {
         builtDir,
-        suite,
+        suiteDir,
         compilerOptions: {
             type: "string",
             passthru: true,
@@ -71,7 +72,7 @@ const tsserver: CommandLineOptionSet = {
     merge: true,
     options: {
         builtDir,
-        suite,
+        suiteDir,
         extended: {
             type: "boolean",
             description: "If the scenario declares optional (aka extended) requests, run those as well.",
@@ -84,7 +85,7 @@ const startup: CommandLineOptionSet = {
     merge: true,
     options: {
         builtDir,
-        suite,
+        suiteDir,
     },
 };
 
