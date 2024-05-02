@@ -91,6 +91,12 @@ importers:
       '@azure/storage-blob':
         specifier: ^12.17.0
         version: 12.17.0
+      '@esfx/collections-hashmap':
+        specifier: ^1.0.2
+        version: 1.0.2
+      '@esfx/collections-hashset':
+        specifier: ^1.0.2
+        version: 1.0.2
       '@esfx/equatable':
         specifier: ^1.0.2
         version: 1.0.2

@@ -1,11 +1,10 @@
 import * as fs from "node:fs";
 import * as path from "node:path";
 
-import { Command, CommandMap, Scenario } from "@ts-perf/api";
+import { Command, CommandMap, CommonOptions, Scenario } from "@ts-perf/api";
 import { HostContext, localScenariosDirectory } from "@ts-perf/core";
 
-export interface AddScenarioOptions {
-    scenarioDir?: string;
+export interface AddScenarioOptions extends CommonOptions {
     name: string;
     args?: string[];
     platforms?: string[];
@@ -14,8 +13,10 @@ export interface AddScenarioOptions {
 }
 
 export async function addScenario(options: AddScenarioOptions, context: HostContext) {
-    const scenariosDir = options.scenarioDir ? path.resolve(options.scenarioDir) : localScenariosDirectory;
-    const scenarioDir = path.resolve(scenariosDir, path.basename(options.name));
+    const scenarioDir = path.resolve(
+        options.scenarioDir ? options.scenarioDir : localScenariosDirectory,
+        path.basename(options.name),
+    );
     if (!fs.existsSync(scenarioDir)) {
         await fs.promises.mkdir(scenarioDir, { recursive: true });
     }
@@ -31,6 +32,7 @@ const command: Command<AddScenarioOptions> = {
     commandName: "add",
     summary: "Add a local compiler scenario.",
     description: "Add a local compiler scenario.",
+    include: ["common"],
     options: {
         name: {
             type: "string",
@@ -41,13 +43,6 @@ const command: Command<AddScenarioOptions> = {
             defaultValue: () => [],
             param: "name",
             description: "",
-        },
-        scenarioDir: {
-            type: "string",
-            alias: "scenarioConfigDir",
-            param: "directory",
-            description:
-                "Use <directory> as a location containing individual test scenario folders each with a 'scenario.json'. If not set, uses '~/.tsperf/scenarios', if present.",
         },
         args: {
             type: "string",

@@ -25,7 +25,7 @@ export interface TraceOptions extends CompilerOptions, CommonOptions {
 }
 
 export async function trace(options: TraceOptions, host: HostContext) {
-    const scenario = await Scenario.findScenario(options.scenarioDirs, options.scenario, /*kind*/ "tsc");
+    const scenario = await Scenario.findScenario(options.scenario, { scenarioDir: options.scenarioDir, kind: "tsc" });
 
     if (!scenario) {
         host.error(`abort: Compiler scenario not found.`);

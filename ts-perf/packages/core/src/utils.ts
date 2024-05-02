@@ -37,13 +37,19 @@ export class ProcessExitError extends Error {
     }
 }
 
-const normalizedWindowsLongPathPrefix = "//?/"; // actually \\?\, but normalized to /
-
-function normalizeSlashes(x: string) {
+export function normalizeSlashes(x: string) {
     return x.replace(/\\/g, "/");
 }
 
-function trimTrailingDirectorySeparator(x: string) {
+const normalizedWindowsLongPathPrefix = "//?/"; // actually \\?\, but normalized to /
+
+export function removeWindowsLongPathPrefix(x: string) {
+    if (x.includes("\\")) throw new Error("Slashes not normalized");
+    return x.startsWith(normalizedWindowsLongPathPrefix) ? x.slice(normalizedWindowsLongPathPrefix.length) : x;
+}
+
+export function trimTrailingDirectorySeparator(x: string) {
+    if (x.includes("\\")) throw new Error("Slashes not normalized");
     return x.length > 1 && x.endsWith("/") ? x.slice(0, -1) : x;
 }
 
@@ -53,13 +59,14 @@ export function containsPath(parent: string, child: string, comparer = StringCom
 
     // shortcut when identitcal
     if (parent === child) return true;
-    parent = trimTrailingDirectorySeparator(normalizeSlashes(parent));
-    child = trimTrailingDirectorySeparator(normalizeSlashes(child));
+    parent = normalizeSlashes(parent);
+    parent = trimTrailingDirectorySeparator(parent);
+    parent = removeWindowsLongPathPrefix(parent);
 
-    if (parent.startsWith(normalizedWindowsLongPathPrefix)) {
-        parent = parent.slice(normalizedWindowsLongPathPrefix.length);
-    }
-    if (child.startsWith(normalizedWindowsLongPathPrefix)) child = child.slice(normalizedWindowsLongPathPrefix.length);
+    child = normalizeSlashes(child);
+    child = trimTrailingDirectorySeparator(child);
+    child = removeWindowsLongPathPrefix(child);
+
     if (comparer.equals(parent, child)) return true;
 
     const parentParts = parent.split("/");

@@ -9,7 +9,7 @@ export interface ListScenarioOptions extends CommonOptions {
 }
 
 export async function listScenarios(options: ListScenarioOptions, context: HostContext) {
-    const scenarios = await Scenario.getAvailableScenarios(options.scenarioDirs);
+    const scenarios = await Scenario.getAvailableScenarios({ scenarioDir: options.scenarioDir });
     context.log(
         os.EOL + "Scenarios:" + os.EOL + new Table<Scenario>({
             useColor: options.color,

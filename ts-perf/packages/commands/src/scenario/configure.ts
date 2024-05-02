@@ -10,7 +10,7 @@ export interface ConfigureScenarioOptions extends CommonOptions {
 }
 
 export async function configureScenario(options: ConfigureScenarioOptions, context: HostContext) {
-    const scenarios = await Scenario.findScenarios(options.scenarioDirs, options.scenarios);
+    const scenarios = await Scenario.findScenarios(options.scenarios, { scenarioDir: options.scenarioDir });
     if (scenarios.length === 0) {
         context.error(`No matching scenarios.`);
         return;
