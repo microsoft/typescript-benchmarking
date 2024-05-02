@@ -23,7 +23,8 @@
         "README.md"
     ],
     "dependencies": {
-        "@esfx/canceltoken": "^1.0.0"
+        "@esfx/canceltoken": "^1.0.0",
+        "@esfx/equatable": "^1.0.2"
     },
     "scripts": {
         "build": "tsc -b",

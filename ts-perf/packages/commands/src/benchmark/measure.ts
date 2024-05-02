@@ -64,7 +64,7 @@ export async function measureAndRunScenarios({ kind, options }: TSOptions, host:
         options.repositoryDate,
         options.repositoryCommitSubject,
     );
-    const scenarios = await Scenario.findScenarios(options.scenarioConfigDirs, options.scenarios, kind);
+    const scenarios = await Scenario.findScenarios(options.scenarioDirs, options.scenarios, kind);
     if (scenarios.length === 0) {
         host.error(
             `abort: Could not find any scenario of kind '${kind}' ${
@@ -281,7 +281,7 @@ async function runTSServerScenario(
         .add(path.join(__dirname, "measuretsserver.js"))
         .add("--tsserver", tsserver)
         .add("--commands", scenario.configFile)
-        .add("--suite", options.suite);
+        .add("--suite", options.suiteDir);
     if (options.extended) {
         argsBuilder.add("--extended");
     }

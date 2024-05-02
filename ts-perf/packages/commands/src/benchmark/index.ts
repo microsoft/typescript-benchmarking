@@ -5,6 +5,7 @@ import {
     Benchmark,
     Command,
     CommandMap,
+    CommonOptions,
     CompilerOptions,
     formatPercent,
     MeasurementComparison,
@@ -20,9 +21,8 @@ import * as startup from "./startup";
 import * as tsc from "./tsc";
 import * as tsserver from "./tsserver";
 
-export interface BenchmarkOptions extends AzureStorageOptions {
+export interface BenchmarkOptions extends AzureStorageOptions, CommonOptions {
     hosts?: string[];
-    scenarioConfigDirs?: string[];
     scenarios?: string[];
     load?: string;
     save?: string[];
@@ -157,7 +157,7 @@ const command: Command<BenchmarkOptions> = {
     commandName: "benchmark",
     summary: "Load or run a benchmark.",
     description: "Load or run a benchmark and compare it to an optional baseline.",
-    include: ["reporting", "azureStorage"],
+    include: ["reporting", "azureStorage", "common"],
     options: {
         out: {
             type: "string",
@@ -232,15 +232,6 @@ const command: Command<BenchmarkOptions> = {
             param: "host",
             description:
                 "Uses the specified <host>. A host has one of the following forms:\n- A known host, restricted by version and processor architecture:\n  <name>[,version=v<version>][,arch=<arch>]\n- A path to an executable:\n  <file>",
-        },
-        scenarioConfigDirs: {
-            type: "string",
-            longName: "scenarioConfigDir",
-            alias: "scenarioConfigDirs",
-            defaultValue: () => [],
-            param: "directory",
-            multiple: true,
-            description: "Paths to directories containing scenario JSON files.",
         },
         scenarios: {
             type: "string",
