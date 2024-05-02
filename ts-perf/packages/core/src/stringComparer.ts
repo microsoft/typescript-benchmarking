@@ -1,10 +1,6 @@
 import * as os from "node:os";
 
 import { Comparer, defaultEqualer, Equaler } from "@esfx/equatable";
-// @ts-ignore
-import C from "@unicode/unicode-15.1.0/Case_Folding/C/symbols.js";
-// @ts-ignore
-import S from "@unicode/unicode-15.1.0/Case_Folding/S/symbols.js";
 
 const invariantLocale = "en-US"; // not actually an invariant culture, but we must pick one for consistency.
 
@@ -70,11 +66,7 @@ export class StringComparer implements Comparer<string>, Equaler<string> {
     public hash(x: string): number {
         const { sensitivity } = this._equalityCollator.resolvedOptions();
         return sensitivity === "variant" || x.length === 0 ? defaultEqualer.hash(x)
-            : defaultEqualer.hash(StringComparer._simpleUnicodeCaseFold(x));
-    }
-
-    private static _simpleUnicodeCaseFold(x: string) {
-        return x.normalize().replace(/./u, ch => C.get(ch) ?? S.get(ch) ?? ch);
+            : defaultEqualer.hash(x.toUpperCase());
     }
 
     public static compareStrings(x: string | undefined | null, y: string | undefined | null, ignoreCase?: boolean) {
