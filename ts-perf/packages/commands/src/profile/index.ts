@@ -18,7 +18,7 @@ const profiler = require.resolve("@ts-perf/profiler/bin/ts-profiler");
 
 export async function profile(options: ProfilerOptions, host: HostContext) {
     const tempDirs = await getTempDirectories();
-    const scenario = await Scenario.findScenario(options.scenarioDirs, options.scenario, /*kind*/ "tsc");
+    const scenario = await Scenario.findScenario(options.scenario, { scenarioDir: options.scenarioDir, kind: "tsc" });
     const testHost = options.host
         ? await Host.findHost(options.host, { onlyHosts: ["node"] })
         : Host.current;

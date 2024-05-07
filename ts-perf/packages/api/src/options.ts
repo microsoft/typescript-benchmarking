@@ -5,7 +5,7 @@ import { localSuiteDirectory } from "@ts-perf/core";
 import { CommandLineOption, CommandLineOptionSet, CommandLineOptionSets, CommandLineParseError } from "power-options";
 
 export interface CommonOptions {
-    scenarioDirs?: string[];
+    scenarioDir?: string;
 }
 
 export interface CompilerOptions extends CommonOptions {
@@ -43,21 +43,17 @@ const suiteDir: CommandLineOption = {
         "Use <directory> as the root location for test suites (i.e. './cases/solutions'). If not set, uses TSPERF_SUITE_DIR environment variable, if found. Otherwise, uses '~/.tsperf/solutions', if present.",
 };
 
-const scenarioDirs: CommandLineOption = {
+const scenarioDir: CommandLineOption = {
     type: "string",
     longName: "scenarioDir",
     alias: ["scenarioDirs", "scenarioConfigDir", "scenarioConfigDirs"],
-    multiple: true,
     validate: validatePath,
     defaultValue() {
-        const dirs = process.env.TSPERF_SCENARIO_DIRS?.split(path.delimiter)
-            .map(dirname => findPath(dirname, /*relative*/ undefined, /*walkUpParents*/ false))
-            .filter((dirname): dirname is string => !!dirname);
-        return dirs;
+        return findPath(process.env.TSPERF_SCENARIO_DIR, /*relative*/ undefined, /*walkUpParents*/ false);
     },
     param: "directory",
     description:
-        "Use <directory> as a location containing individual test scenario folders each with a 'scenario.json'. If not set, uses TSPERF_SCENARIO_DIRS environment variable, if found. '~/.tsperf/solutions' will always be included, if present.",
+        "Use <directory> as a location containing individual test scenario folders each with a 'scenario.json'. If not set, uses TSPERF_SCENARIO_DIR environment variable, if found. '~/.tsperf/solutions' will always be included, if present.",
 };
 
 const builtDir: CommandLineOption = {
@@ -82,7 +78,7 @@ const builtDir: CommandLineOption = {
 const common: CommandLineOptionSet = {
     merge: true,
     options: {
-        scenarioDirs,
+        scenarioDir,
     },
 };
 

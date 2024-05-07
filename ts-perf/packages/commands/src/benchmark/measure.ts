@@ -64,7 +64,7 @@ export async function measureAndRunScenarios({ kind, options }: TSOptions, host:
         options.repositoryDate,
         options.repositoryCommitSubject,
     );
-    const scenarios = await Scenario.findScenarios(options.scenarioDirs, options.scenarios, kind);
+    const scenarios = await Scenario.findScenarios(options.scenarios, { scenarioDir: options.scenarioDir, kind });
     if (scenarios.length === 0) {
         host.error(
             `abort: Could not find any scenario of kind '${kind}' ${

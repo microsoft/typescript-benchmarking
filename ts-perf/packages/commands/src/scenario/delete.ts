@@ -10,7 +10,8 @@ export interface DeleteScenarioOptions extends CompilerOptions, CommonOptions {
 }
 
 export async function deleteScenario(options: DeleteScenarioOptions, context: HostContext) {
-    const scenarios = await Scenario.findScenarios(options.scenarioDirs, [options.scenario], /*kind*/ undefined, {
+    const scenarios = await Scenario.findScenarios([options.scenario], {
+        scenarioDir: options.scenarioDir,
         includeUnsupported: true,
     });
     if (scenarios.length === 0) {

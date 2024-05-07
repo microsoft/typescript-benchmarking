@@ -25,7 +25,7 @@ export interface HeapProfilerOptions extends CompilerOptions {
 
 export async function heap(options: HeapProfilerOptions, host: HostContext) {
     const tempDirs = await getTempDirectories();
-    const scenario = await Scenario.findScenario(options.scenarioDirs, options.scenario, /*kind*/ "tsc");
+    const scenario = await Scenario.findScenario(options.scenario, { scenarioDir: options.scenarioDir, kind: "tsc" });
     const testHost = options.host
         ? await Host.findHost(options.host, { onlyHosts: ["node"] })
         : Host.current;

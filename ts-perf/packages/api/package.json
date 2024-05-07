@@ -26,6 +26,8 @@
         "@azure/identity": "^4.1.0",
         "@azure/storage-blob": "^12.17.0",
         "@esfx/equatable": "^1.0.2",
+        "@esfx/collections-hashset": "^1.0.2",
+        "@esfx/collections-hashmap": "^1.0.2",
         "@stdlib/stats-base-dists-normal-cdf": "^0.2.1",
         "@ts-perf/core": "workspace:^",
         "chalk": "^4.1.2",
