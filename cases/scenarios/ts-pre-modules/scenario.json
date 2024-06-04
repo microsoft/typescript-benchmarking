@@ -4,8 +4,10 @@
     "args": [
         "-p",
         "${suiteDirectory}/ts-pre-modules/src/compiler",
-        "--outdir",
-        "${outDirectory}"
+        "--outfile",
+        "${outDirectory}/out.js",
+        "--composite",
+        "false"
     ],
     "platforms": [
         "linux"
