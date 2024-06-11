@@ -25,7 +25,6 @@ const allAgents = [
 type AllAgents = typeof allAgents[number];
 // We reserve some agents so that non-baseline jobs can make progress.
 const reserveAgents = [
-    "ts-perf4",
     "ts-perf5",
     "ts-perf6",
     "ts-perf7",
@@ -92,16 +91,16 @@ const allScenarios: readonly BaseScenario[] = [
     {
         kind: "tsc",
         name: "self-build-src-public-api",
-        agent: "ts-perf1",
+        agent: "ts-perf2",
         runIn: RunType.Any,
         cost: 51,
     },
-    { kind: "tsc", name: "mui-docs", agent: "ts-perf2", runIn: RunType.OnDemand, cost: 77 },
-    { kind: "tsc", name: "mui-docs-1", agent: "ts-perf2", runIn: RunType.Baseline, cost: 77 },
+    { kind: "tsc", name: "mui-docs", agent: "ts-perf4", runIn: RunType.OnDemand, cost: 77 },
+    { kind: "tsc", name: "mui-docs-1", agent: "ts-perf4", runIn: RunType.Baseline, cost: 77 },
     { kind: "tsc", name: "webpack", agent: "ts-perf3", runIn: RunType.OnDemand, cost: 22 },
     { kind: "tsc", name: "webpack-1", agent: "ts-perf3", runIn: RunType.Baseline, cost: 22 },
-    { kind: "tsc", name: "xstate-main", agent: "ts-perf3", runIn: RunType.OnDemand, cost: 10 },
-    { kind: "tsc", name: "xstate-main-1", agent: "ts-perf3", runIn: RunType.Baseline, cost: 10 },
+    { kind: "tsc", name: "xstate-main", agent: "ts-perf4", runIn: RunType.OnDemand, cost: 10 },
+    { kind: "tsc", name: "xstate-main-1", agent: "ts-perf4", runIn: RunType.Baseline, cost: 10 },
     {
         kind: "tsserver",
         name: "Compiler-UnionsTSServer",
@@ -112,14 +111,14 @@ const allScenarios: readonly BaseScenario[] = [
     {
         kind: "tsserver",
         name: "CompilerTSServer",
-        agent: "ts-perf2",
+        agent: "ts-perf3",
         runIn: RunType.Any,
         cost: 16,
     },
     {
         kind: "tsserver",
         name: "xstate-main-1-tsserver",
-        agent: "ts-perf3",
+        agent: "ts-perf4",
         runIn: RunType.Any,
         cost: 17,
     },
@@ -134,14 +133,14 @@ const allScenarios: readonly BaseScenario[] = [
     {
         kind: "startup",
         name: "tsserverlibrary-startup",
-        agent: "ts-perf3",
+        agent: "ts-perf4",
         runIn: RunType.Any,
         cost: 28,
     },
     {
         kind: "startup",
         name: "typescript-startup",
-        agent: "ts-perf1",
+        agent: "ts-perf4",
         runIn: RunType.Any,
         cost: 28,
     },
