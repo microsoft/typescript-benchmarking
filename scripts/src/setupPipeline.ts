@@ -25,7 +25,6 @@ const allAgents = [
 type AllAgents = typeof allAgents[number];
 // We reserve some agents so that non-baseline jobs can make progress.
 const reserveAgents = [
-    "ts-perf4",
     "ts-perf5",
     "ts-perf6",
     "ts-perf7",
@@ -102,8 +101,8 @@ const allScenarios: readonly BaseScenario[] = [
     { kind: "tsc", name: "webpack-1", agent: "ts-perf3", runIn: RunType.Baseline, cost: 22 },
     { kind: "tsc", name: "xstate-main", agent: "ts-perf3", runIn: RunType.OnDemand, cost: 10 },
     { kind: "tsc", name: "xstate-main-1", agent: "ts-perf3", runIn: RunType.Baseline, cost: 10 },
-    { kind: "tsc", name: "arktype", agent: "ts-perf3", runIn: RunType.OnDemand, cost: 20 },
-    { kind: "tsc", name: "arktype-1", agent: "ts-perf3", runIn: RunType.Baseline, cost: 20 },
+    { kind: "tsc", name: "arktype", agent: "ts-perf4", runIn: RunType.OnDemand, cost: 20 },
+    { kind: "tsc", name: "arktype-1", agent: "ts-perf4", runIn: RunType.Baseline, cost: 20 },
     {
         kind: "tsserver",
         name: "Compiler-UnionsTSServer",
