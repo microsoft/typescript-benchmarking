@@ -101,8 +101,8 @@ const allScenarios: readonly BaseScenario[] = [
     { kind: "tsc", name: "webpack-1", agent: "ts-perf3", runIn: RunType.Baseline, cost: 22 },
     { kind: "tsc", name: "xstate-main", agent: "ts-perf4", runIn: RunType.OnDemand, cost: 10 },
     { kind: "tsc", name: "xstate-main-1", agent: "ts-perf4", runIn: RunType.Baseline, cost: 10 },
-    { kind: "tsc", name: "arktype", agent: "ts-perf4", runIn: RunType.OnDemand, cost: 20 },
-    { kind: "tsc", name: "arktype-1", agent: "ts-perf4", runIn: RunType.Baseline, cost: 20 },
+    { kind: "tsc", name: "arktype", agent: "ts-perf4", runIn: RunType.OnDemand, cost: 26 },
+    { kind: "tsc", name: "arktype-1", agent: "ts-perf4", runIn: RunType.Baseline, cost: 26 },
     {
         kind: "tsserver",
         name: "Compiler-UnionsTSServer",
