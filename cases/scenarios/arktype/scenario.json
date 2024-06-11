@@ -1,0 +1,13 @@
+{
+    "name": "arktype",
+    "kind": "tsc",
+    "args": [
+        "-p",
+        "${suiteDirectory}/arktype",
+        "--outdir",
+        "${outDirectory}"
+    ],
+    "platforms": [
+        "linux"
+    ]
+}
