@@ -5,8 +5,8 @@ import path from "node:path";
 import * as v from "@badrap/valita";
 import { $ as _$ } from "execa";
 
-export const $pipe = _$({ verbose: true });
-export const $ = _$({ verbose: true, stdio: "inherit" });
+export const $pipe = _$({ verbose: "short" });
+export const $ = _$({ verbose: "short", stdio: "inherit" });
 
 const RepoInfo = v.object({
     commit: v.string(),
