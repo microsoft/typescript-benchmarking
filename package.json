@@ -8,15 +8,15 @@
         "node": ">= 18.0.0"
     },
     "devDependencies": {
-        "@types/node": "^18.19.31",
-        "@typescript-eslint/eslint-plugin": "^7.7.1",
-        "@typescript-eslint/parser": "^7.7.1",
-        "dprint": "^0.45.1",
+        "@types/node": "^18.19.34",
+        "@typescript-eslint/eslint-plugin": "^7.13.0",
+        "@typescript-eslint/parser": "^7.13.0",
+        "dprint": "^0.46.2",
         "eslint": "^8.57.0",
         "eslint-plugin-simple-import-sort": "^12.1.0",
-        "eslint-plugin-unicorn": "^52.0.0",
+        "eslint-plugin-unicorn": "^53.0.0",
         "typescript": "^5.4.5",
-        "vitest": "^1.5.0"
+        "vitest": "^1.6.0"
     },
     "packageManager": "pnpm@8.15.5",
     "scripts": {
