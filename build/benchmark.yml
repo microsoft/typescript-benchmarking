@@ -236,6 +236,7 @@ jobs:
               set -exo pipefail
               node $(BENCH_SCRIPTS)/runTsPerf.js install-hosts
             displayName: Install hosts
+            retryCountOnTaskFailure: 3
 
           - bash: |
               set -exo pipefail
