@@ -80,6 +80,14 @@
       "TSPERF_JOB_SCENARIO": "angular-1",
       "TSPERF_JOB_WARMUPS": 1,
     },
+    "tsc_bun_1_1_3_arktype": {
+      "TSPERF_JOB_HOST": "bun@1.1.3",
+      "TSPERF_JOB_ITERATIONS": 6,
+      "TSPERF_JOB_KIND": "tsc",
+      "TSPERF_JOB_NAME": "tsc_bun_1_1_3_arktype",
+      "TSPERF_JOB_SCENARIO": "arktype",
+      "TSPERF_JOB_WARMUPS": 1,
+    },
     "tsc_bun_1_1_3_mui_docs": {
       "TSPERF_JOB_HOST": "bun@1.1.3",
       "TSPERF_JOB_ITERATIONS": 6,
@@ -158,6 +166,14 @@
       "TSPERF_JOB_KIND": "tsc",
       "TSPERF_JOB_NAME": "tsc_vscode_1_88_1_angular_1",
       "TSPERF_JOB_SCENARIO": "angular-1",
+      "TSPERF_JOB_WARMUPS": 1,
+    },
+    "tsc_vscode_1_88_1_arktype": {
+      "TSPERF_JOB_HOST": "vscode@1.88.1",
+      "TSPERF_JOB_ITERATIONS": 6,
+      "TSPERF_JOB_KIND": "tsc",
+      "TSPERF_JOB_NAME": "tsc_vscode_1_88_1_arktype",
+      "TSPERF_JOB_SCENARIO": "arktype",
       "TSPERF_JOB_WARMUPS": 1,
     },
     "tsc_vscode_1_88_1_mui_docs": {
