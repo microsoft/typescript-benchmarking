@@ -47,7 +47,7 @@ const hosts = {
     node20: "node@20.5.1",
     // This matches a recent VS Code version via Electron.
     node18: "node@18.15.0",
-    bun: "bun@1.1.13",
+    bun: "bun@1.1.20",
     vscode: "vscode@1.82.1",
 } as const satisfies Record<string, string>;
 
