@@ -219,6 +219,18 @@ const presets = {
             }
         }
     },
+    *"startup-only"() {
+        for (const scenario of onDemandScenarios) {
+            if (scenario.kind === "startup") {
+                yield {
+                    ...scenario,
+                    host: hosts.node18,
+                    iterations: defaultIterations,
+                    warmups: defaultWarmups,
+                };
+            }
+        }
+    },
     "faster": (): Iterable<Scenario> => presets["tsc-only"](),
     *"bun"() {
         for (const scenario of onDemandScenarios) {
