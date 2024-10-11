@@ -23,17 +23,17 @@
         "README.md"
     ],
     "dependencies": {
-        "@azure/identity": "^4.2.1",
-        "@azure/storage-blob": "^12.23.0",
+        "@azure/identity": "^4.4.1",
+        "@azure/storage-blob": "^12.25.0",
         "@esfx/collections-hashmap": "^1.0.2",
         "@esfx/collections-hashset": "^1.0.2",
         "@esfx/equatable": "^1.0.2",
-        "@stdlib/stats-base-dists-normal-cdf": "^0.2.1",
+        "@stdlib/stats-base-dists-normal-cdf": "^0.2.2",
         "@ts-perf/core": "workspace:^",
         "chalk": "^4.1.2",
         "iterable-query": "1.0.0-pre.16",
         "power-options": "^0.3.4",
-        "semver": "^7.6.2",
+        "semver": "^7.6.3",
         "strip-ansi": "^6.0.1"
     },
     "devDependencies": {
