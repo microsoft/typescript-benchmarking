@@ -423,7 +423,7 @@ jobs:
             set -exo pipefail
             for KIND in $(TSPERF_PROCESS_KINDS); do
               echo "Uploading ${KIND} benchmarks"
-              case ${KIND} in 
+              case ${KIND} in
                 tsc)
                   NAME="linux"
                   ;;
