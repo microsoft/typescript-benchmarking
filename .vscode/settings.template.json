@@ -2,6 +2,8 @@
     "editor.codeActionsOnSave": {
         "source.fixAll.eslint": true
     },
-    "editor.defaultFormatter": "dprint.dprint",
-    "editor.formatOnSave": true
+    "[typescript][typescriptreact][javascript][javascriptreact][json][jsonc][yaml][github-actions-workflow][markdown]": {
+        "editor.defaultFormatter": "dprint.dprint",
+        "editor.formatOnSave": true
+    }
 }
