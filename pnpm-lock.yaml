@@ -5,7 +5,7 @@ settings:
   excludeLinksFromLockfile: false
 
 overrides:
-  '@types/node': ^18.19.55
+  '@types/node': ^18.19.64
 
 importers:
 
@@ -2789,7 +2789,7 @@ packages:
     engines: {node: ^18.0.0 || >=20.0.0}
     hasBin: true
     peerDependencies:
-      '@types/node': ^18.19.55
+      '@types/node': ^18.19.64
       less: '*'
       lightningcss: ^1.21.0
       sass: '*'
@@ -2821,7 +2821,7 @@ packages:
     hasBin: true
     peerDependencies:
       '@edge-runtime/vm': '*'
-      '@types/node': ^18.19.55
+      '@types/node': ^18.19.64
       '@vitest/browser': 2.1.5
       '@vitest/ui': 2.1.5
       happy-dom: '*'
