@@ -23,7 +23,7 @@
         "README.md"
     ],
     "dependencies": {
-        "@azure/identity": "^4.4.1",
+        "@azure/identity": "^4.5.0",
         "@azure/storage-blob": "^12.25.0",
         "@esfx/collections-hashmap": "^1.0.2",
         "@esfx/collections-hashset": "^1.0.2",
