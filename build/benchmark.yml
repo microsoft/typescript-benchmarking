@@ -319,7 +319,7 @@ jobs:
         inputs:
           azureSubscription: $(azureSubscription)
           KeyVaultName: $(KeyVaultName)
-          SecretsFilter: 'typescript-bot-github-PAT-for-comments'
+          SecretsFilter: 'typescript-bot-github-PAT-typescript-benchmarking'
         displayName: Get secrets
         retryCountOnTaskFailure: 3
 
@@ -403,7 +403,7 @@ jobs:
           SOURCE_ISSUE: ${{ parameters.SOURCE_ISSUE }}
           REQUESTING_USER: ${{ parameters.REQUESTING_USER }}
           STATUS_COMMENT: ${{ parameters.STATUS_COMMENT }}
-          GH_TOKEN: $(typescript-bot-github-PAT-for-comments)
+          GH_TOKEN: $(typescript-bot-github-PAT-typescript-benchmarking)
 
       # Sets $(TSPERF_BLOB_LATEST)
       - bash: |
@@ -412,7 +412,7 @@ jobs:
         displayName: Check if commit is latest for ref
         condition: and(succeeded(), eq(variables['SHOULD_UPLOAD'], 'true'))
         env:
-          GH_TOKEN: $(typescript-bot-github-PAT-for-comments)
+          GH_TOKEN: $(typescript-bot-github-PAT-typescript-benchmarking)
 
       - task: AzureCLI@2
         inputs:
@@ -459,7 +459,7 @@ jobs:
         inputs:
           azureSubscription: $(azureSubscription)
           KeyVaultName: $(KeyVaultName)
-          SecretsFilter: 'typescript-bot-github-PAT-for-comments'
+          SecretsFilter: 'typescript-bot-github-PAT-typescript-benchmarking'
         displayName: Get secrets
         retryCountOnTaskFailure: 3
 
@@ -475,4 +475,4 @@ jobs:
           SOURCE_ISSUE: ${{ parameters.SOURCE_ISSUE }}
           REQUESTING_USER: ${{ parameters.REQUESTING_USER }}
           STATUS_COMMENT: ${{ parameters.STATUS_COMMENT }}
-          GH_TOKEN: $(typescript-bot-github-PAT-for-comments)
+          GH_TOKEN: $(typescript-bot-github-PAT-typescript-benchmarking)
