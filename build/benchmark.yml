@@ -452,7 +452,9 @@ jobs:
       - ProcessResults
     condition: and(failed(), eq(variables['IS_PR'], 'true'))
     pool:
-      vmImage: ubuntu-latest
+      name: TypeScript-1ES-Deploys
+      demands:
+        - ImageOverride -equals mariner-2.0
     workspace:
       clean: all # Always start with a clean slate.
 
