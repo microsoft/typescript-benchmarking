@@ -301,7 +301,9 @@ jobs:
     # "not(failed())" is also true when the build has been canceled, so ignore that too.
     condition: and(not(failed()), not(canceled()))
     pool:
-      vmImage: ubuntu-latest
+      name: TypeScript-1ES-Deploys
+      demands:
+        - ImageOverride -equals mariner-2.0
     workspace:
       clean: all # Always start with a clean slate.
 
