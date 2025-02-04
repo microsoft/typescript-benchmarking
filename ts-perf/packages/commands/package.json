@@ -35,7 +35,7 @@
         "iterable-query": "1.0.0-pre.16",
         "iterable-query-linq": "^0.1.0",
         "power-options": "^0.3.4",
-        "semver": "^7.6.3",
+        "semver": "^7.7.1",
         "strip-ansi": "^6.0.1",
         "table-style": "^0.1.4",
         "tmp": "^0.2.3"
