@@ -41,7 +41,8 @@ function run_sandboxed() {
         DOCKER_RUNTIME=runsc
     fi
 
-    NODE_IMAGE=mcr.microsoft.com/devcontainers/javascript-node:22
+    # This image is mirrored and will not be rate limited.
+    NODE_IMAGE=mcr.microsoft.com/mirror/docker/library/node:20
 
     INTERNET=ts-perf-sandbox-internet
     NO_INTERNET=ts-perf-sandbox-internal

@@ -7,4 +7,4 @@ source ../../common.sh
 
 clone_scenario https://github.com/microsoft/vscode.git
 
-run_sandboxed sh -c 'npm ci --ignore-scripts'
+run_sandboxed sh -c 'yarn install --ignore-scripts'
