@@ -1,5 +1,6 @@
+import { stripVTControlCharacters } from "node:util";
+
 import * as chalk from "chalk";
-import stripColor from "strip-ansi";
 
 import { Benchmark, Host, MeasurementComparisonPivot, MeasurementPivot, Scenario, Value } from "./model";
 import { TimeSpan } from "./types";
@@ -94,8 +95,8 @@ export function formatProgress(index: number, length: number) {
 }
 
 export function padLeft(text: string, size: number, ch = " ") {
-    let length = stripColor(text).length;
-    const charLength = stripColor(ch).length;
+    let length = stripVTControlCharacters(text).length;
+    const charLength = stripVTControlCharacters(ch).length;
     while (length < size) {
         text = ch + text;
         length += charLength;
@@ -104,8 +105,8 @@ export function padLeft(text: string, size: number, ch = " ") {
 }
 
 export function padRight(text: string, size: number, ch = " ") {
-    let length = stripColor(text).length;
-    const charLength = stripColor(ch).length;
+    let length = stripVTControlCharacters(text).length;
+    const charLength = stripVTControlCharacters(ch).length;
     while (length < size) {
         text = text + ch;
         length += charLength;
