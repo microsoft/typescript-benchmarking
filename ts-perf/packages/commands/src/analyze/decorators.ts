@@ -1,9 +1,9 @@
 import { EOL } from "node:os";
+import { stripVTControlCharacters } from "node:util";
 
 import { Range, TimeSpan } from "@ts-perf/api";
 import chalk from "chalk";
 import { from } from "iterable-query";
-import stripColor from "strip-ansi";
 import * as table_style from "table-style";
 import { Size, TableColumnDefinition } from "table-style";
 import {
@@ -164,7 +164,7 @@ export namespace Table {
                     output += `${header.expression(context)}`;
                 }
             }
-            if (!term.useColor) output = stripColor(output);
+            if (!term.useColor) output = stripVTControlCharacters(output);
         }
         if (output) output += EOL;
         let width = table.width;

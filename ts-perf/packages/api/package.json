@@ -33,8 +33,7 @@
         "chalk": "^4.1.2",
         "iterable-query": "1.0.0-pre.16",
         "power-options": "^0.3.4",
-        "semver": "^7.7.1",
-        "strip-ansi": "^6.0.1"
+        "semver": "^7.7.1"
     },
     "devDependencies": {
         "@types/semver": "^7.5.8"

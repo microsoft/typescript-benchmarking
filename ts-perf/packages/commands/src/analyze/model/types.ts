@@ -1,5 +1,6 @@
 import * as fs from "node:fs";
 import { REPLServer } from "node:repl";
+import { stripVTControlCharacters } from "node:util";
 import { Context, createContext } from "node:vm";
 
 import { delay } from "@esfx/async-delay";
@@ -8,7 +9,6 @@ import { Range, TimeSpan } from "@ts-perf/api";
 import chalk from "chalk";
 import { fn, from, Query } from "iterable-query";
 import { parseAndExecuteQuery, startLinqRepl } from "iterable-query-linq";
-import stripColor from "strip-ansi";
 
 import { formatValues } from "../decorators";
 
@@ -107,7 +107,7 @@ export class Analyzer {
 
     getTypeHelp(name = "", useColors = true) {
         const help = getHelp(this.getTypeAndTableNames(), "type", this.types, this._formattedTypes, name, formatType);
-        return useColors ? help : stripColor(help);
+        return useColors ? help : stripVTControlCharacters(help);
     }
 
     getTableHelp(name = "", useColors = true) {
@@ -119,13 +119,13 @@ export class Analyzer {
             name,
             formatTable,
         );
-        return useColors ? help : stripColor(help);
+        return useColors ? help : stripVTControlCharacters(help);
     }
 
     getUsageHelp(useColors = true) {
         const help = this._formattedUsage
             || (this._formattedUsage = formatUsage(this.getTypeAndTableNames(), this.examples));
-        return useColors ? help : stripColor(help);
+        return useColors ? help : stripVTControlCharacters(help);
     }
 
     private getTypeAndTableNames() {
