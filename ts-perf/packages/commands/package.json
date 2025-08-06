@@ -37,7 +37,7 @@
         "power-options": "^0.3.4",
         "semver": "^7.7.1",
         "table-style": "^0.1.4",
-        "tmp": "^0.2.3"
+        "tmp": "^0.2.4"
     },
     "devDependencies": {
         "@types/semver": "^7.5.8",
