@@ -8,18 +8,18 @@
         "node": ">= 18.0.0"
     },
     "devDependencies": {
-        "@eslint/js": "^9.19.0",
-        "@types/node": "^18.19.75",
-        "@typescript-eslint/eslint-plugin": "^8.23.0",
-        "@typescript-eslint/parser": "^8.23.0",
-        "dprint": "^0.49.0",
-        "eslint": "^9.19.0",
+        "@eslint/js": "^9.32.0",
+        "@types/node": "^18.19.122",
+        "@typescript-eslint/eslint-plugin": "^8.39.0",
+        "@typescript-eslint/parser": "^8.39.0",
+        "dprint": "^0.49.1",
+        "eslint": "^9.32.0",
         "eslint-plugin-simple-import-sort": "^12.1.1",
-        "eslint-plugin-unicorn": "^56.0.1",
-        "globals": "^15.14.0",
-        "typescript": "^5.7.3",
-        "typescript-eslint": "^8.23.0",
-        "vitest": "^2.1.9"
+        "eslint-plugin-unicorn": "^59.0.1",
+        "globals": "^16.3.0",
+        "typescript": "^5.9.2",
+        "typescript-eslint": "^8.39.0",
+        "vitest": "^3.2.4"
     },
     "packageManager": "pnpm@9.15.5+sha512.845196026aab1cc3f098a0474b64dfbab2afe7a1b4e91dd86895d8e4aa32a7a6d03049e2d0ad770bbe4de023a7122fb68c1a1d6e0d033c7076085f9d5d4800d4",
     "scripts": {

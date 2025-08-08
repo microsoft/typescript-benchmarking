@@ -939,7 +939,7 @@ export namespace Timeline {
             .map(s => s.trim() as C);
     }
 
-    export function joinCategories<C extends Category>(categories: C[]): Categories<C> {
+    export function joinCategories<C extends Category>(categories: readonly C[]): Categories<C> {
         return categories.join(",") as Categories<C>;
     }
 
@@ -1256,8 +1256,8 @@ function toTimestamp(hrtime: number | [number, number]): Runtime.Timestamp {
 
 function toCategories(categories: Timeline.Categories | readonly Category[]): Timeline.Categories {
     return Array.isArray(categories)
-        ? Timeline.joinCategories(categories)
-        : categories;
+        ? Timeline.joinCategories(categories as readonly Category[]) // https://github.com/microsoft/TypeScript/issues/62238
+        : categories as Timeline.Categories;
 }
 
 interface LegacyProfile {
