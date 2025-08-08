@@ -11,7 +11,7 @@ export interface SessionActions extends inspector.SessionActions {
 }
 
 export class Session extends inspector.Session<SessionEvents> {
-    public readonly id: string = `${Session._nextSessionId++}`;
+    public readonly id: string;
     private static _nextSessionId = 0;
     private _connected = false;
     // private _timelineEvents: string[] | undefined;
@@ -21,6 +21,7 @@ export class Session extends inspector.Session<SessionEvents> {
 
     constructor() {
         super();
+        this.id = `${Session._nextSessionId++}`;
         this.on("profileCaptured", (profile: Profiler.Profile) => {
             this.onProfileCaptured(profile);
         });

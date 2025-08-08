@@ -1,7 +1,7 @@
 parameters:
   - name: NODE_VERSION
     type: string
-    default: '18.x'
+    default: '20.x'
 
 steps:
   - task: NodeTool@0
@@ -18,5 +18,5 @@ steps:
       COREPACK_ENABLE_STRICT=0 npm install -g corepack@latest
       corepack enable
       corepack enable npm
-      corepack prepare pnpm@latest-8 --activate
+      corepack prepare pnpm@latest-10 --activate
     displayName: 'Setup pnpm'
