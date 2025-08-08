@@ -63,11 +63,11 @@ test.each(inputs)("setupPipeline input=%s", async input => {
         error = e;
     }
 
-    expect(result?.matrix).toMatchFileSnapshot(getSnapshotPath(input, "matrix"));
-    expect(result?.outputVariables).toMatchFileSnapshot(getSnapshotPath(input, "outputVariables"));
-    expect(result?.compute).toMatchFileSnapshot(getSnapshotPath(input, "compute"));
-    expect(result?.parameters).toMatchFileSnapshot(getSnapshotPath(input, "parameters"));
-    expect(error).toMatchFileSnapshot(getSnapshotPath(input, "error"));
+    await expect(result?.matrix).toMatchFileSnapshot(getSnapshotPath(input, "matrix"));
+    await expect(result?.outputVariables).toMatchFileSnapshot(getSnapshotPath(input, "outputVariables"));
+    await expect(result?.compute).toMatchFileSnapshot(getSnapshotPath(input, "compute"));
+    await expect(result?.parameters).toMatchFileSnapshot(getSnapshotPath(input, "parameters"));
+    await expect(error).toMatchFileSnapshot(getSnapshotPath(input, "error"));
 });
 
 function getAllExpectedSnapshots() {
