@@ -14,7 +14,7 @@ export class Executable {
 
             let exitCode = 0;
             process.exit = (code = 0) => {
-                exitCode = code;
+                exitCode = +(code ?? 1);
                 throw processExitSentinel;
             };
 
