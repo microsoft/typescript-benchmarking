@@ -23,8 +23,8 @@
         "README.md"
     ],
     "dependencies": {
-        "@azure/identity": "^4.11.1",
-        "@azure/storage-blob": "^12.28.0",
+        "@azure/identity": "^4.13.0",
+        "@azure/storage-blob": "^12.29.1",
         "@esfx/collections-hashmap": "^1.0.2",
         "@esfx/collections-hashset": "^1.0.2",
         "@esfx/equatable": "^1.0.2",
@@ -33,10 +33,10 @@
         "chalk": "^4.1.2",
         "iterable-query": "1.0.0-pre.16",
         "power-options": "^0.3.4",
-        "semver": "^7.7.2"
+        "semver": "^7.7.3"
     },
     "devDependencies": {
-        "@types/semver": "^7.7.0"
+        "@types/semver": "^7.7.1"
     },
     "scripts": {
         "build": "tsc -b",
