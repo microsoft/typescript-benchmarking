@@ -42,11 +42,11 @@ const percentFormat = new Intl.NumberFormat("en-US", {
     minimumFractionDigits: 2,
 });
 
-export function formatPercent(value: number, options?: { sign?: boolean; pad?: number; color?: chalk.ChalkInstance; }): string;
+export function formatPercent(value: number, options?: { sign?: boolean; pad?: number; color?: chalk.Chalk; }): string;
 export function formatPercent(value: number, sign?: boolean, pad?: number): string;
 export function formatPercent(
     value: number,
-    options: { sign?: boolean; pad?: number; color?: chalk.ChalkInstance; } | boolean = {},
+    options: { sign?: boolean; pad?: number; color?: chalk.Chalk; } | boolean = {},
     pad?: number,
 ) {
     if (typeof options !== "object") options = { sign: options, pad };
