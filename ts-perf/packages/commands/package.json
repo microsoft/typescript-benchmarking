@@ -35,12 +35,12 @@
         "iterable-query": "1.0.0-pre.16",
         "iterable-query-linq": "^0.1.0",
         "power-options": "^0.3.4",
-        "semver": "^7.7.2",
+        "semver": "^7.7.3",
         "table-style": "^0.1.4",
-        "tmp": "^0.2.4"
+        "tmp": "^0.2.5"
     },
     "devDependencies": {
-        "@types/semver": "^7.7.0",
+        "@types/semver": "^7.7.1",
         "@types/tmp": "^0.2.6"
     },
     "scripts": {
