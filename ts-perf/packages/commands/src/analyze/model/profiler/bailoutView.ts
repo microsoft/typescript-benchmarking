@@ -1,4 +1,4 @@
-import chalk from "chalk";
+import pc from "picocolors";
 
 import { Table } from "../../decorators";
 import { CpuProfileFunctionView } from "./functionView";
@@ -10,7 +10,7 @@ import { CpuProfile } from "./profile";
     columns: [
         {
             header: "function",
-            expression: x => `${x.functionName || "(anonymous function)"} ${chalk.gray(`(${x.location})`)}`,
+            expression: x => `${x.functionName || "(anonymous function)"} ${pc.gray(`(${x.location})`)}`,
         },
         { header: "count", expression: x => x.count, align: "right" },
         { header: "reason", expression: x => x.reason },

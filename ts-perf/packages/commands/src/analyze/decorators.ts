@@ -2,8 +2,8 @@ import { EOL } from "node:os";
 import { stripVTControlCharacters } from "node:util";
 
 import { Range, TimeSpan } from "@ts-perf/api";
-import chalk from "chalk";
 import { from } from "iterable-query";
+import pc from "picocolors";
 import * as table_style from "table-style";
 import { Size, TableColumnDefinition } from "table-style";
 import {
@@ -206,7 +206,7 @@ export namespace Table {
         }).render(from(values).take(limit));
         if (limit < values.length) {
             let footer = `Only showing ${limit} of ${values.length} values returned.`;
-            if (term.useColor) footer = chalk.gray(footer);
+            if (term.useColor) footer = pc.gray(footer);
             output += footer + EOL;
         }
         return output;

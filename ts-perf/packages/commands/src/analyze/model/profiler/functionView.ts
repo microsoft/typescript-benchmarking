@@ -1,7 +1,7 @@
 import { fmt, Range, TimeSpan } from "@ts-perf/api";
 import { PositionTickInfo } from "@ts-perf/inspector";
-import chalk from "chalk";
 import { fn, from, Lazy } from "iterable-query";
+import pc from "picocolors";
 
 import { Table } from "../../decorators";
 import { BailoutView } from "./bailoutView";
@@ -46,7 +46,7 @@ interface TableContext {
                 `duration (selection): ${
                     fmt.formatMilliseconds(ctx.selectionDuration)
                 }, ${ctx.selectionHitCount} samples ${
-                    chalk.gray(`(${fmt.formatPercent(ctx.selectionHitPercent)} of total)`)
+                    pc.gray(`(${fmt.formatPercent(ctx.selectionHitPercent)} of total)`)
                 }`,
         },
     ],
@@ -54,21 +54,19 @@ interface TableContext {
         {
             header: "function",
             key: "functionName",
-            expression: x => `${x.functionName || `(anonymous function)`} ${chalk.gray(`(${x.location})`)}`,
+            expression: x => `${x.functionName || `(anonymous function)`} ${pc.gray(`(${x.location})`)}`,
         },
         {
             header: "self time",
             expression: x =>
-                `${fmt.formatMilliseconds(x.selfTime)} ${
-                    fmt.formatPercent(x.selfPercent, { pad: 7, color: chalk.gray })
-                }`,
+                `${fmt.formatMilliseconds(x.selfTime)} ${fmt.formatPercent(x.selfPercent, { pad: 7, color: pc.gray })}`,
             align: "right",
         },
         {
             header: "total time",
             expression: x =>
                 `${fmt.formatMilliseconds(x.totalTime)} ${
-                    fmt.formatPercent(x.totalPercent, { pad: 7, color: chalk.gray })
+                    fmt.formatPercent(x.totalPercent, { pad: 7, color: pc.gray })
                 }`,
             align: "right",
         },

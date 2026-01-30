@@ -1,5 +1,5 @@
 import { fmt } from "@ts-perf/api";
-import chalk from "chalk";
+import pc from "picocolors";
 
 import { Table } from "../../decorators";
 import { CpuProfileFunctionView } from "./functionView";
@@ -12,14 +12,12 @@ import { CpuProfile } from "./profile";
     columns: [
         {
             header: "function",
-            expression: x => `${x.functionName || "(anonymous function)"} ${chalk.gray(`(${x.location})`)}`,
+            expression: x => `${x.functionName || "(anonymous function)"} ${pc.gray(`(${x.location})`)}`,
         },
         {
             header: `time (% of function)`,
             expression: x =>
-                `${fmt.formatMilliseconds(x.duration)} ${
-                    fmt.formatPercent(x.tickPercent, { pad: 7, color: chalk.gray })
-                }`,
+                `${fmt.formatMilliseconds(x.duration)} ${fmt.formatPercent(x.tickPercent, { pad: 7, color: pc.gray })}`,
             align: "right",
         },
     ],

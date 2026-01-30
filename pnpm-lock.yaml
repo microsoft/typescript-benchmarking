@@ -118,9 +118,6 @@ importers:
       '@ts-perf/core':
         specifier: workspace:^
         version: link:../core
-      chalk:
-        specifier: ^4.1.2
-        version: 4.1.2
       iterable-query:
         specifier: 1.0.0-pre.16
         version: 1.0.0-pre.16
@@ -180,15 +177,15 @@ importers:
       '@vscode/test-electron':
         specifier: ^2.5.2
         version: 2.5.2
-      chalk:
-        specifier: ^4.1.2
-        version: 4.1.2
       iterable-query:
         specifier: 1.0.0-pre.16
         version: 1.0.0-pre.16
       iterable-query-linq:
         specifier: ^0.1.0
         version: 0.1.0
+      picocolors:
+        specifier: ^1.1.1
+        version: 1.1.1
       power-options:
         specifier: ^0.3.4
         version: 0.3.4
