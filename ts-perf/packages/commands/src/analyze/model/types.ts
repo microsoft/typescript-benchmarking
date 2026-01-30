@@ -148,6 +148,7 @@ export class Analyzer {
                     TimeSpan,
                     Range,
                     pc,
+                    chalk: pc,
                     format: (value: any, limit = 50) =>
                         formatValues(value && Symbol.iterator in value ? value : [value], { useColor: true }, limit),
                 }),
