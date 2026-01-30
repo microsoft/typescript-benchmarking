@@ -6,9 +6,9 @@ import { Context, createContext } from "node:vm";
 import { delay } from "@esfx/async-delay";
 import { CancelSource, CancelToken } from "@esfx/canceltoken";
 import { Range, TimeSpan } from "@ts-perf/api";
-import chalk from "chalk";
 import { fn, from, Query } from "iterable-query";
 import { parseAndExecuteQuery, startLinqRepl } from "iterable-query-linq";
+import pc from "picocolors";
 
 import { formatValues } from "../decorators";
 
@@ -147,7 +147,8 @@ export class Analyzer {
                     fn,
                     TimeSpan,
                     Range,
-                    chalk,
+                    pc,
+                    chalk: pc,
                     format: (value: any, limit = 50) =>
                         formatValues(value && Symbol.iterator in value ? value : [value], { useColor: true }, limit),
                 }),
@@ -354,7 +355,7 @@ function getHelp<T extends Type | Table>(
             if (!entry) {
                 if (helpTopic === "") return formattedEntries[""] = formatEntries(typeAndTableNames, kind, entries);
                 const defaultHelp = getHelp(typeAndTableNames, kind, entries, formattedEntries, "", formatEntry);
-                return `${chalk.red("ERR!")} Help topic '${helpTopic}' not found.\n\n${defaultHelp}`;
+                return `${pc.red("ERR!")} Help topic '${helpTopic}' not found.\n\n${defaultHelp}`;
             }
             else if (isAlias(entry)) {
                 formattedEntries[helpTopic] = entry;
@@ -381,11 +382,11 @@ function formatEntries<T extends Type | Table>(
     let s = `Related help topics (use '.${kind} <name>' for more information):\n`;
     const keys = Object.getOwnPropertyNames(entries);
     const len = keys.reduce((len, key) => Math.max(len, key.length), 0);
-    const color = kind === "type" ? chalk.cyan : chalk.magenta;
+    const color = kind === "type" ? pc.cyan : pc.magenta;
     for (const key of keys) {
         const entry = entries[key];
         if (!isAlias(entry)) {
-            s += `  ${chalk.white(`.${kind}`)} ${
+            s += `  ${pc.white(`.${kind}`)} ${
                 entry.summary ? `${color(key.padEnd(len))}  ${formatOther(typeAndTableNames, entry.summary)}`
                     : color(key)
             }\n`;
@@ -396,7 +397,7 @@ function formatEntries<T extends Type | Table>(
 
 function formatType(typeAndTableNames: TypeAndTableNames, name: string, type: Type) {
     let s = "";
-    s += formatHeader(typeAndTableNames, chalk.cyan(name), type.summary, type.description, type.typeParams);
+    s += formatHeader(typeAndTableNames, pc.cyan(name), type.summary, type.description, type.typeParams);
     s += formatNestedTypes(typeAndTableNames, type.types);
     s += formatConstructors(typeAndTableNames, type.constructors);
     s += formatProperties(typeAndTableNames, "static properties", type.staticProperties);
@@ -412,7 +413,7 @@ function formatType(typeAndTableNames: TypeAndTableNames, name: string, type: Ty
 
 function formatTable(typeAndTableNames: TypeAndTableNames, name: string, table: Table) {
     let s = "";
-    s += formatHeader(typeAndTableNames, chalk.magenta(name), table.summary, table.description);
+    s += formatHeader(typeAndTableNames, pc.magenta(name), table.summary, table.description);
     s += formatTypeAlias(typeAndTableNames, table.type);
     s += formatNotes(typeAndTableNames, table.notes);
     s += formatExamples(typeAndTableNames, table.examples);
@@ -452,7 +453,7 @@ function formatNotes(typeAndTableNames: TypeAndTableNames, notes: string[] | und
     let s = "";
     if (notes && notes.length) {
         for (const note of notes) {
-            s += `${chalk.bold("note:")}\n`;
+            s += `${pc.bold("note:")}\n`;
             s += `${formatOther(typeAndTableNames, note)}\n\n`;
         }
     }
@@ -489,7 +490,7 @@ function formatProperties(
             }\n`;
         }
     }
-    return s && `${chalk.bold(`${header}:`)}\n${s}\n`;
+    return s && `${pc.bold(`${header}:`)}\n${s}\n`;
 }
 
 function getSignature(signature: string | Signature) {
@@ -519,7 +520,7 @@ function formatMethods(
             s += formatSignatures(typeAndTableNames, key, method, !s);
         }
     }
-    return s && `${chalk.bold(`${header}:`)}\n${s}\n`;
+    return s && `${pc.bold(`${header}:`)}\n${s}\n`;
 }
 
 function formatConstructors(
@@ -528,7 +529,7 @@ function formatConstructors(
 ) {
     let s = "";
     if (constructors) s += formatSignatures(typeAndTableNames, "constructor", getSignatures(constructors));
-    return s && `${chalk.bold("constructors:")}\n${s}\n`;
+    return s && `${pc.bold("constructors:")}\n${s}\n`;
 }
 
 function formatSignatures(typeAndTableNames: TypeAndTableNames, key: string, signatures: Signature[], first = true) {
@@ -536,7 +537,7 @@ function formatSignatures(typeAndTableNames: TypeAndTableNames, key: string, sig
     for (const signature of signatures) {
         if (signature.summary) {
             if (!first) s += `\n`;
-            s += `  ${chalk.gray(`// ${formatOther(typeAndTableNames, signature.summary)}`)}\n`;
+            s += `  ${pc.gray(`// ${formatOther(typeAndTableNames, signature.summary)}`)}\n`;
         }
         s += `  ${key}${formatOther(typeAndTableNames, signature.signature)}\n`;
     }
@@ -559,24 +560,24 @@ function formatNestedTypes(
     const types = getTypes(typesRecord);
     if (types && types.length > 0) {
         for (const [key, type] of types) {
-            s += `  ${chalk.cyan(key)}${type.type ? `: ${formatOther(typeAndTableNames, type.type)}` : ``}\n`;
+            s += `  ${pc.cyan(key)}${type.type ? `: ${formatOther(typeAndTableNames, type.type)}` : ``}\n`;
         }
     }
-    return s && `${chalk.bold("nested types:")}\n${s}\n`;
+    return s && `${pc.bold("nested types:")}\n${s}\n`;
 }
 
 function formatTypeAlias(typeAndTableNames: TypeAndTableNames, type: string | undefined) {
-    return type ? `${chalk.bold("type:")}\n  ${formatOther(typeAndTableNames, type)}\n\n` : "";
+    return type ? `${pc.bold("type:")}\n  ${formatOther(typeAndTableNames, type)}\n\n` : "";
 }
 
 function formatExamples(typeAndTableNames: TypeAndTableNames, examples: string[] | undefined) {
     let s = "";
     if (examples && examples.length) {
         for (const example of examples) {
-            s += `\n${chalk.gray(example)}\n`;
+            s += `\n${pc.gray(example)}\n`;
         }
     }
-    return s && `${chalk.bold("examples:")}\n${s}\n`;
+    return s && `${pc.bold("examples:")}\n${s}\n`;
 }
 
 function formatViews(typeAndTableNames: TypeAndTableNames, viewsRecord: Record<string, View> | undefined) {
@@ -586,24 +587,24 @@ function formatViews(typeAndTableNames: TypeAndTableNames, viewsRecord: Record<s
         const len = views.reduce((len, [key]) => Math.max(len, key.length), 0);
         for (const [key, view] of views) {
             s += `  ${
-                view.summary ? `${chalk.yellow(key.padEnd(len))}  ${formatOther(typeAndTableNames, view.summary)}`
-                    : chalk.yellow(key)
+                view.summary ? `${pc.yellow(key.padEnd(len))}  ${formatOther(typeAndTableNames, view.summary)}`
+                    : pc.yellow(key)
             }\n`;
         }
     }
-    return s && `${chalk.bold("views:")}\n${s}\n`;
+    return s && `${pc.bold("views:")}\n${s}\n`;
 }
 
 function formatSeeAlso(typeAndTableNames: TypeAndTableNames, seeAlso: Reference[] | undefined) {
     let s = "";
     if (seeAlso && seeAlso.length) {
         for (const reference of seeAlso) {
-            s += "type" in reference ? `  ${chalk.white(".type")} ${chalk.cyan(reference.type)}\n`
-                : "table" in reference ? `  ${chalk.white(".table")} ${chalk.magenta(reference.table)}\n`
-                : `  ${chalk.cyan(chalk.underline(reference.link))}\n`;
+            s += "type" in reference ? `  ${pc.white(".type")} ${pc.cyan(reference.type)}\n`
+                : "table" in reference ? `  ${pc.white(".table")} ${pc.magenta(reference.table)}\n`
+                : `  ${pc.cyan(pc.underline(reference.link))}\n`;
         }
     }
-    return s && `${chalk.bold("see also:")}\n${s}\n`;
+    return s && `${pc.bold("see also:")}\n${s}\n`;
 }
 
 const keywords = makeNameRegExp([
@@ -620,9 +621,9 @@ const keywords = makeNameRegExp([
 ]);
 
 function formatOther(typeAndTableNames: TypeAndTableNames, text: string) {
-    text = text.replace(typeAndTableNames.typeNames, name => chalk.cyan(name));
-    text = text.replace(typeAndTableNames.tableNames, name => chalk.magenta(name));
-    text = text.replace(keywords, name => chalk.blue(name));
+    text = text.replace(typeAndTableNames.typeNames, name => pc.cyan(name));
+    text = text.replace(typeAndTableNames.tableNames, name => pc.magenta(name));
+    text = text.replace(keywords, name => pc.blue(name));
     return text;
 }
 

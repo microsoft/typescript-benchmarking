@@ -1,6 +1,6 @@
 import { fmt, TimeSpan } from "@ts-perf/api";
-import chalk from "chalk";
 import { from, Lazy } from "iterable-query";
+import pc from "picocolors";
 
 import { Table } from "../../decorators";
 import { CpuProfileEvents } from "./events";
@@ -21,7 +21,7 @@ interface TableContext {
         { header: "event", key: "eventName" },
         {
             header: "total count",
-            expression: x => `${x.hitCount} ${fmt.formatPercent(x.hitPercent, { pad: 7, color: chalk.gray })}`,
+            expression: x => `${x.hitCount} ${fmt.formatPercent(x.hitPercent, { pad: 7, color: pc.gray })}`,
             align: "right",
         },
     ],

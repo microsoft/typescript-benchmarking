@@ -2,7 +2,7 @@ import * as fs from "node:fs";
 
 import { HostContext } from "@ts-perf/core";
 import { Timeline } from "@ts-perf/inspector";
-import chalk from "chalk";
+import pc from "picocolors";
 
 import { Analyzer } from "../types";
 import { createCpuProfileContext } from "./context";
@@ -556,63 +556,63 @@ export async function createProfileAnalyzer(file: string, includeNatives: boolea
                 type: "HierarchyQuery<CpuProfileNodeView>",
                 notes: [
                     `  By default, only commonly relevant fields are rendered in a result\n  returning a CpuProfileNodeView. For all fields use object spread syntax:\n\n${
-                        chalk.gray(`    from f in functions\n    select { ...f }`)
+                        pc.gray(`    from f in functions\n    select { ...f }`)
                     }`,
                 ],
                 views: {
                     user_functions: {
-                        summary: `A view for ${chalk.cyan("functions")} that only contains ${
-                            chalk.magenta("user")
+                        summary: `A view for ${pc.cyan("functions")} that only contains ${
+                            pc.magenta("user")
                         } functions.`,
                     },
                     native_functions: {
-                        summary: `A view for ${chalk.cyan("functions")} that only contains ${
-                            chalk.magenta("native")
+                        summary: `A view for ${pc.cyan("functions")} that only contains ${
+                            pc.magenta("native")
                         } functions.`,
                     },
                     node_functions: {
-                        summary: `A view for ${chalk.cyan("functions")} that only contains ${
-                            chalk.magenta("NodeJS")
+                        summary: `A view for ${pc.cyan("functions")} that only contains ${
+                            pc.magenta("NodeJS")
                         } functions.`,
                     },
                     profiler_functions: {
-                        summary: `A view for ${chalk.cyan("functions")} that only contains ${
-                            chalk.magenta("profiler")
+                        summary: `A view for ${pc.cyan("functions")} that only contains ${
+                            pc.magenta("profiler")
                         } functions.`,
                     },
                     system_functions: {
-                        summary: `A view for ${chalk.cyan("functions")} that only contains ${
-                            chalk.magenta("system")
+                        summary: `A view for ${pc.cyan("functions")} that only contains ${
+                            pc.magenta("system")
                         } functions.`,
                     },
                     compiler_functions: {
-                        summary: `A view for ${chalk.cyan("functions")} that only contains ${
-                            chalk.magenta("compiler")
+                        summary: `A view for ${pc.cyan("functions")} that only contains ${
+                            pc.magenta("compiler")
                         } functions.`,
                     },
                     parser_functions: {
-                        summary: `A view for ${chalk.cyan("functions")} that only contains ${
-                            chalk.magenta("parser")
+                        summary: `A view for ${pc.cyan("functions")} that only contains ${
+                            pc.magenta("parser")
                         } functions.`,
                     },
                     binder_functions: {
-                        summary: `A view for ${chalk.cyan("functions")} that only contains ${
-                            chalk.magenta("binder")
+                        summary: `A view for ${pc.cyan("functions")} that only contains ${
+                            pc.magenta("binder")
                         } functions.`,
                     },
                     checker_functions: {
-                        summary: `A view for ${chalk.cyan("functions")} that only contains ${
-                            chalk.magenta("checker")
+                        summary: `A view for ${pc.cyan("functions")} that only contains ${
+                            pc.magenta("checker")
                         } functions.`,
                     },
                     emitter_functions: {
-                        summary: `A view for ${chalk.cyan("functions")} that only contains ${
-                            chalk.magenta("emitter")
+                        summary: `A view for ${pc.cyan("functions")} that only contains ${
+                            pc.magenta("emitter")
                         } functions.`,
                     },
                     deoptimized_functions: {
-                        summary: `A view for ${chalk.cyan("functions")} that only contains ${
-                            chalk.magenta("deoptimized")
+                        summary: `A view for ${pc.cyan("functions")} that only contains ${
+                            pc.magenta("deoptimized")
                         } functions.`,
                     },
                 },
@@ -626,7 +626,7 @@ export async function createProfileAnalyzer(file: string, includeNatives: boolea
                 type: "HierarchyQuery<CpuProfileNodeView>",
                 notes: [
                     `  By default, only commonly relevant fields are rendered in a result\n  returning a CpuProfileNodeView. For all fields use object spread syntax:\n\n${
-                        chalk.gray(`    from f in files\n    select { ...f }`)
+                        pc.gray(`    from f in files\n    select { ...f }`)
                     }`,
                 ],
                 seeAlso: [
@@ -639,7 +639,7 @@ export async function createProfileAnalyzer(file: string, includeNatives: boolea
                 type: "HierarchyQuery<CpuProfileNodeView>",
                 notes: [
                     `  By default, only commonly relevant fields are rendered in a result\n  returning a CpuProfileNodeView. For all fields use object spread syntax:\n\n${
-                        chalk.gray(`    from f in categories\n    select { ...f }`)
+                        pc.gray(`    from f in categories\n    select { ...f }`)
                     }`,
                 ],
                 seeAlso: [
@@ -653,7 +653,7 @@ export async function createProfileAnalyzer(file: string, includeNatives: boolea
                 type: "Query<CpuProfileEvent>",
                 notes: [
                     `  By default, only commonly relevant fields are rendered in a result\n  returning a CpuProfileEvent. For all fields use object spread syntax:\n\n${
-                        chalk.gray(`    from e in events\n    select { ...e }`)
+                        pc.gray(`    from e in events\n    select { ...e }`)
                     }`,
                 ],
                 seeAlso: [
@@ -666,7 +666,7 @@ export async function createProfileAnalyzer(file: string, includeNatives: boolea
                 type: "HierarchyQuery<CpuProfileNode>",
                 notes: [
                     `  By default, only commonly relevant fields are rendered in a result\n  returning a CpuProfileNode. For all fields use object spread syntax:\n\n${
-                        chalk.gray(`    from n in nodes\n    select { ...n }`)
+                        pc.gray(`    from n in nodes\n    select { ...n }`)
                     }`,
                 ],
                 seeAlso: [

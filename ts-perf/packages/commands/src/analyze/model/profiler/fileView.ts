@@ -1,6 +1,6 @@
 import { fmt, Range, TimeSpan } from "@ts-perf/api";
-import chalk from "chalk";
 import { fn, from, Lazy } from "iterable-query";
+import pc from "picocolors";
 
 import { Table } from "../../decorators";
 import { Category } from "./category";
@@ -41,7 +41,7 @@ interface TableContext {
                 `duration (selection): ${
                     fmt.formatMilliseconds(ctx.selectionDuration)
                 }, ${ctx.selectionHitCount} samples ${
-                    chalk.gray(`(${fmt.formatPercent(ctx.selectionHitPercent)} of total)`)
+                    pc.gray(`(${fmt.formatPercent(ctx.selectionHitPercent)} of total)`)
                 }`,
         },
     ],
@@ -50,9 +50,7 @@ interface TableContext {
         {
             header: "self time",
             expression: x =>
-                `${fmt.formatMilliseconds(x.selfTime)} ${
-                    fmt.formatPercent(x.selfPercent, { pad: 7, color: chalk.gray })
-                }`,
+                `${fmt.formatMilliseconds(x.selfTime)} ${fmt.formatPercent(x.selfPercent, { pad: 7, color: pc.gray })}`,
             align: "right",
         },
         {

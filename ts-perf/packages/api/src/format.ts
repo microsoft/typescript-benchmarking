@@ -1,8 +1,8 @@
 import { stripVTControlCharacters } from "node:util";
 
-import * as chalk from "chalk";
-
 import { Benchmark, Host, MeasurementComparisonPivot, MeasurementPivot, Scenario, Value } from "./model";
+
+export type Color = (input: string | number | null | undefined) => string;
 import { TimeSpan } from "./types";
 
 export function formatMean(measurement: Value | MeasurementPivot) {
@@ -42,11 +42,11 @@ const percentFormat = new Intl.NumberFormat("en-US", {
     minimumFractionDigits: 2,
 });
 
-export function formatPercent(value: number, options?: { sign?: boolean; pad?: number; color?: chalk.Chalk; }): string;
+export function formatPercent(value: number, options?: { sign?: boolean; pad?: number; color?: Color; }): string;
 export function formatPercent(value: number, sign?: boolean, pad?: number): string;
 export function formatPercent(
     value: number,
-    options: { sign?: boolean; pad?: number; color?: chalk.Chalk; } | boolean = {},
+    options: { sign?: boolean; pad?: number; color?: Color; } | boolean = {},
     pad?: number,
 ) {
     if (typeof options !== "object") options = { sign: options, pad };
