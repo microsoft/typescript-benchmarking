@@ -1,3 +1,8 @@
+resolutionMode: highest
+autoInstallPeers: true
+strictPeerDependencies: false
+shellEmulator: true
+
 packages:
   - 'scripts'
   - 'ts-perf'
