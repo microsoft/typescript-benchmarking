@@ -6,20 +6,20 @@
     "license": "MIT",
     "type": "module",
     "engines": {
-        "node": ">= 20.19.0 || >=22.12.0"
+        "node": "^20.19.0 || ^22.13.0 || >=24"
     },
     "devDependencies": {
         "@badrap/valita": "^0.4.6",
         "@types/minimist": "^1.2.5",
         "azure-devops-node-api": "^15.1.2",
-        "dotenv": "^17.2.3",
+        "dotenv": "^17.3.1",
         "es-main": "^1.4.0",
         "execa": "^9.6.1",
         "filenamify": "^7.0.1",
-        "glob": "^13.0.0",
+        "glob": "^13.0.6",
         "minimist": "^1.2.8",
         "octokit": "^5.0.5",
-        "ora": "^9.1.0",
+        "ora": "^9.3.0",
         "pretty-ms": "^9.3.0",
         "sort-keys": "^6.0.0"
     },
