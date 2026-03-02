@@ -29,7 +29,11 @@
             "build"
         ],
         "overrides": {
-            "@types/node": "$@types/node"
+            "@types/node": "$@types/node",
+            "tar@<=7.5.3": ">=7.5.4",
+            "tar@<7.5.7": ">=7.5.7",
+            "tar@<=7.5.2": ">=7.5.3",
+            "tar@<7.5.8": ">=7.5.8"
         },
         "onlyBuiltDependencies": [
             "@esfx/equatable",
