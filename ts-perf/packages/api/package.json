@@ -28,7 +28,7 @@
         "@esfx/collections-hashmap": "^1.0.2",
         "@esfx/collections-hashset": "^1.0.2",
         "@esfx/equatable": "^1.0.2",
-        "@stdlib/stats-base-dists-normal-cdf": "^0.2.2",
+        "@stdlib/stats-base-dists-normal-cdf": "^0.3.1",
         "@ts-perf/core": "workspace:^",
         "iterable-query": "1.0.0-pre.16",
         "power-options": "^0.3.4",

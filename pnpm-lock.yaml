@@ -104,8 +104,8 @@ importers:
         specifier: ^1.0.2
         version: 1.0.2
       '@stdlib/stats-base-dists-normal-cdf':
-        specifier: ^0.2.2
-        version: 0.2.2
+        specifier: ^0.3.1
+        version: 0.3.1
       '@ts-perf/core':
         specifier: workspace:^
         version: link:../core
@@ -1286,6 +1286,11 @@ packages:
     engines: {node: '>=0.10.0', npm: '>2.7.0'}
     os: [aix, darwin, freebsd, linux, macos, openbsd, sunos, win32, windows]
 
+  '@stdlib/math-base-napi-ternary@0.3.2':
+    resolution: {integrity: sha512-DUu7zbd692l86VnUaav4dgIVIkYnxklDMMKpmGT+mi30QH959324tjl3dsthYy5iySnKWg/V0z54opu0FC8jXA==}
+    engines: {node: '>=0.10.0', npm: '>2.7.0'}
+    os: [aix, darwin, freebsd, linux, macos, openbsd, sunos, win32, windows]
+
   '@stdlib/math-base-napi-unary@0.2.7':
     resolution: {integrity: sha512-eEu0nAq8WzCGe15ppGJWtLGhKOoG4OcMJQpsfbjwaa3sZ9h1sREmV1iiAFWyi/mHy8C0y6PiG2szx4D/F0ywmg==}
     engines: {node: '>=0.10.0', npm: '>2.7.0'}
@@ -1476,13 +1481,13 @@ packages:
     engines: {node: '>=0.10.0', npm: '>2.7.0'}
     os: [aix, darwin, freebsd, linux, macos, openbsd, sunos, win32, windows]
 
-  '@stdlib/stats-base-dists-degenerate-cdf@0.2.2':
-    resolution: {integrity: sha512-mjb7ccaRwNPcPe21rhAW4JUTnxGSKs8wbQNF7xPN2vy0qSoQY5t0Tf4zl6C6WvF091skFDZB4bQ1QGOc7brGFw==}
+  '@stdlib/stats-base-dists-degenerate-cdf@0.3.1':
+    resolution: {integrity: sha512-i6qu8JegKFJ/xJcnJH4x+wMTxKbHtMG2bOVjdFswxt5MHGEob0bmpZMCPaUQ99KDXx1ntntbAzqURt8Bwhi12g==}
     engines: {node: '>=0.10.0', npm: '>2.7.0'}
     os: [aix, darwin, freebsd, linux, macos, openbsd, sunos, win32, windows]
 
-  '@stdlib/stats-base-dists-normal-cdf@0.2.2':
-    resolution: {integrity: sha512-Vp9A7ZHWfEK81f568sDrgKo9fM1lIScuHD7wc/DF57TtkGP68nu9QFW7myzh+l/ZW4miJq6qud7lWMAPJ35WlQ==}
+  '@stdlib/stats-base-dists-normal-cdf@0.3.1':
+    resolution: {integrity: sha512-a4xGRE5ZKaB1J9wGEXu7gforIA9mGkR3BqlHPaaUuasDBdYxsI6NH7mZr/zeWaT4c176iiZzJjYMPWUAdV4aFQ==}
     engines: {node: '>=0.10.0', npm: '>2.7.0'}
     os: [aix, darwin, freebsd, linux, macos, openbsd, sunos, win32, windows]
 
@@ -3915,6 +3920,16 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
+  '@stdlib/math-base-napi-ternary@0.3.2':
+    dependencies:
+      '@stdlib/complex-float32-ctor': 0.1.1
+      '@stdlib/complex-float32-reim': 0.1.4
+      '@stdlib/complex-float64-ctor': 0.1.2
+      '@stdlib/complex-float64-reim': 0.1.4
+      '@stdlib/utils-library-manifest': 0.2.4
+    transitivePeerDependencies:
+      - supports-color
+
   '@stdlib/math-base-napi-unary@0.2.7':
     dependencies:
       '@stdlib/complex-float32-ctor': 0.1.1
@@ -4255,22 +4270,26 @@ snapshots:
     dependencies:
       '@stdlib/utils-define-nonenumerable-read-only-property': 0.2.3
 
-  '@stdlib/stats-base-dists-degenerate-cdf@0.2.2':
+  '@stdlib/stats-base-dists-degenerate-cdf@0.3.1':
     dependencies:
       '@stdlib/math-base-assert-is-nan': 0.2.3
+      '@stdlib/math-base-napi-binary': 0.3.3
       '@stdlib/utils-constant-function': 0.2.3
       '@stdlib/utils-define-nonenumerable-read-only-property': 0.2.3
+      '@stdlib/utils-library-manifest': 0.2.4
     transitivePeerDependencies:
       - supports-color
 
-  '@stdlib/stats-base-dists-normal-cdf@0.2.2':
+  '@stdlib/stats-base-dists-normal-cdf@0.3.1':
     dependencies:
       '@stdlib/math-base-assert-is-nan': 0.2.3
+      '@stdlib/math-base-napi-ternary': 0.3.2
       '@stdlib/math-base-special-erfc': 0.2.5
       '@stdlib/math-base-special-sqrt': 0.2.3
-      '@stdlib/stats-base-dists-degenerate-cdf': 0.2.2
+      '@stdlib/stats-base-dists-degenerate-cdf': 0.3.1
       '@stdlib/utils-constant-function': 0.2.3
       '@stdlib/utils-define-nonenumerable-read-only-property': 0.2.3
+      '@stdlib/utils-library-manifest': 0.2.4
     transitivePeerDependencies:
       - supports-color
 
