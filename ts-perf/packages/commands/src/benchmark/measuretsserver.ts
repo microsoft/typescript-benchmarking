@@ -182,6 +182,7 @@ async function runPerf(options: CLIOpts) {
     }
     finally {
         // Tell the server to shut down
+        // eslint-disable-next-line no-useless-assignment
         await server.message({ seq: seq++, command: "exit" });
     }
 

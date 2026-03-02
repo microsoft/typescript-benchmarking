@@ -8,7 +8,7 @@
     "author": "Microsoft Corp.",
     "license": "MIT",
     "engines": {
-        "node": ">= 20.19.0 || >=22.12.0"
+        "node": "^20.19.0 || ^22.13.0 || >=24"
     },
     "bugs": {
         "url": "https://github.com/microsoft/typescript-benchmarking/issues"
@@ -24,15 +24,15 @@
     ],
     "dependencies": {
         "@azure/identity": "^4.13.0",
-        "@azure/storage-blob": "^12.30.0",
+        "@azure/storage-blob": "^12.31.0",
         "@esfx/collections-hashmap": "^1.0.2",
         "@esfx/collections-hashset": "^1.0.2",
         "@esfx/equatable": "^1.0.2",
-        "@stdlib/stats-base-dists-normal-cdf": "^0.2.2",
+        "@stdlib/stats-base-dists-normal-cdf": "^0.3.1",
         "@ts-perf/core": "workspace:^",
         "iterable-query": "1.0.0-pre.16",
         "power-options": "^0.3.4",
-        "semver": "^7.7.3"
+        "semver": "^7.7.4"
     },
     "devDependencies": {
         "@types/semver": "^7.7.1"
