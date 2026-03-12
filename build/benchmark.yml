@@ -106,9 +106,10 @@ variables:
     REPO: 'typescript-go'
     TSGOFLAG: '--tsgo'
   ${{ else }}:
-    REPO:'typescript'
+    REPO: 'TypeScript'
+    TSGOFLAG: ''
 
-  REF: $[ resources.repositories['REPO'].ref ]
+  REF: $[ resources.repositories['${{ if eq(parameters.TS_GO, true) }}typescript-go${{ else }}TypeScript${{ end }}'].ref ]
   PRETTY_REF: $[ replace(replace(replace(replace(variables['REF'], '/merge', ''), 'refs/pull/', 'pr.'), 'refs/heads/', ''), '/', '_') ]
   IS_PR: $[ startsWith(variables['REF'], 'refs/pull/') ]
   # True if this run should demand a baseline machine.
@@ -191,7 +192,7 @@ jobs:
 
       - bash: |
           set -exo pipefail
-          node $(BENCH_SCRIPTS)/buildTypeScript.js --outputDir $(ARTIFACTS_DIR)/new $(TSGO_FLAG)
+          node $(BENCH_SCRIPTS)/buildTypeScript.js --outputDir $(ARTIFACTS_DIR)/new $(TSGOFLAG)
         displayName: Build new TypeScript
         condition: and(succeeded(), eq(variables['TSPERF_IS_COMPARISON'], 'true'))
         workingDirectory: $(TYPESCRIPT_DIR)
@@ -206,7 +207,7 @@ jobs:
 
       - bash: |
           set -exo pipefail
-          node $(BENCH_SCRIPTS)/buildTypeScript.js --baseline --outputDir $(ARTIFACTS_DIR)/baseline $(TSGO_FLAG)
+          node $(BENCH_SCRIPTS)/buildTypeScript.js --baseline --outputDir $(ARTIFACTS_DIR)/baseline $(TSGOFLAG)
         displayName: Build baseline TypeScript
         workingDirectory: $(TYPESCRIPT_DIR)
         name: buildTypeScriptBaseline
