@@ -104,12 +104,13 @@ variables:
 
   ${{ if eq(parameters.TS_GO, true) }}:
     REPO: 'typescript-go'
+    REF: $[ resources.repositories['typescript-go'].ref ]
     TSGOFLAG: '--tsgo'
   ${{ else }}:
     REPO: 'TypeScript'
+    REF: $[ resources.repositories['TypeScript'].ref ]
     TSGOFLAG: ''
 
-  REF: $[ resources.repositories[variables['REPO']]
   PRETTY_REF: $[ replace(replace(replace(replace(variables['REF'], '/merge', ''), 'refs/pull/', 'pr.'), 'refs/heads/', ''), '/', '_') ]
   IS_PR: $[ startsWith(variables['REF'], 'refs/pull/') ]
   # True if this run should demand a baseline machine.
