@@ -142,12 +142,20 @@ jobs:
       - template: templates/setup.yml
       - template: templates/cloneAndBuildBenchmarkRepo.yml # Sets $(BENCH_SCRIPTS), $(TSPERF_EXE)
 
-      - checkout: $(REPO)
-        path: $(REPO)
-        fetchTags: false
-        fetchDepth: 2 # For PRs, we want the merge base to compare against.
-        clean: true
-        retryCountOnTaskFailure: 3
+      - ${{ if eq(parameters.TS_GO, true) }}:
+        - checkout: typescript-go
+          path: typescript-go
+          fetchTags: false
+          fetchDepth: 2 # For PRs, we want the merge base to compare against.
+          clean: true
+          retryCountOnTaskFailure: 3
+      - ${{ else }}:
+        - checkout: TypeScript
+          path: TypeScript
+          fetchTags: false
+          fetchDepth: 2 # For PRs, we want the merge base to compare against.
+          clean: true
+          retryCountOnTaskFailure: 3
 
       # Ideally we'd just do this:
       #   git config remote.origin.fetch "+refs/heads/*:refs/remotes/origin/*"
