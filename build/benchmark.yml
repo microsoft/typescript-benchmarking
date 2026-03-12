@@ -102,7 +102,12 @@ variables:
   azureSubscription: 'TypeScript Public CI'
   KeyVaultName: 'jststeam-passwords'
 
-  REPO: ${{ if eq(parameters.TS_GO, true) }}typescript-go${{ else }}TypeScript${{ end }}
+  ${{ if eq(parameters.TS_GO, true) }}:
+    REPO: 'typescript-go'
+    TSGOFLAG: '--tsgo'
+  ${{ else }}:
+    REPO:'typescript'
+
   REF: $[ resources.repositories['REPO'].ref ]
   PRETTY_REF: $[ replace(replace(replace(replace(variables['REF'], '/merge', ''), 'refs/pull/', 'pr.'), 'refs/heads/', ''), '/', '_') ]
   IS_PR: $[ startsWith(variables['REF'], 'refs/pull/') ]
@@ -178,7 +183,7 @@ jobs:
 
       - bash: |
           set -exo pipefail
-          node $(BENCH_SCRIPTS)/buildTypeScript.js --outputDir $(ARTIFACTS_DIR)/new ${{ if eq(parameters.TS_GO, true) }}--tsgo${{ end }}
+          node $(BENCH_SCRIPTS)/buildTypeScript.js --outputDir $(ARTIFACTS_DIR)/new $(TSGO_FLAG)
         displayName: Build new TypeScript
         condition: and(succeeded(), eq(variables['TSPERF_IS_COMPARISON'], 'true'))
         workingDirectory: $(TYPESCRIPT_DIR)
@@ -193,7 +198,7 @@ jobs:
 
       - bash: |
           set -exo pipefail
-          node $(BENCH_SCRIPTS)/buildTypeScript.js --baseline --outputDir $(ARTIFACTS_DIR)/baseline ${{ if eq(parameters.TS_GO, true) }}--tsgo${{ end }}
+          node $(BENCH_SCRIPTS)/buildTypeScript.js --baseline --outputDir $(ARTIFACTS_DIR)/baseline $(TSGO_FLAG)
         displayName: Build baseline TypeScript
         workingDirectory: $(TYPESCRIPT_DIR)
         name: buildTypeScriptBaseline
