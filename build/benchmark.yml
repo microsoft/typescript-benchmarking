@@ -41,6 +41,10 @@ resources:
       type: github
       endpoint: Microsoft
       name: microsoft/TypeScript
+    - repository: typescript-go
+      type: github
+      endpoint: Microsoft
+      name: microsoft/typescript-go
 
   # https://stackoverflow.com/a/63276774
   pipelines:
@@ -85,7 +89,10 @@ parameters:
     displayName: Exhaustive list of agents
     type: string
     default: 'any,ts-perf1,ts-perf2,ts-perf3,ts-perf4,ts-perf5,ts-perf6,ts-perf7,ts-perf8,ts-perf9,ts-perf10,ts-perf11,ts-perf12'
-
+  - name: TS_GO
+    displayName: boolean to describe if building ts-go
+    default: false
+  
 variables:
   Codeql.Enabled: false
   skipComponentGovernanceDetection: true
@@ -95,7 +102,8 @@ variables:
   azureSubscription: 'TypeScript Public CI'
   KeyVaultName: 'jststeam-passwords'
 
-  REF: $[ resources.repositories['TypeScript'].ref ]
+  REPO: ${{ if eq(parameters.TS_GO, true) }}typescript-go${{ else }}TypeScript${{ end }}
+  REF: $[ resources.repositories['REPO'].ref ]
   PRETTY_REF: $[ replace(replace(replace(replace(variables['REF'], '/merge', ''), 'refs/pull/', 'pr.'), 'refs/heads/', ''), '/', '_') ]
   IS_PR: $[ startsWith(variables['REF'], 'refs/pull/') ]
   # True if this run should demand a baseline machine.
@@ -122,15 +130,15 @@ jobs:
 
     variables:
       ARTIFACTS_DIR: $(Pipeline.Workspace)/artifacts
-      TYPESCRIPT_DIR: $(Pipeline.Workspace)/TypeScript
+      TYPESCRIPT_DIR: $(Pipeline.Workspace)/$(REPO)
       TSPERF_PRESET: ${{ parameters.TSPERF_PRESET }}
 
     steps:
       - template: templates/setup.yml
       - template: templates/cloneAndBuildBenchmarkRepo.yml # Sets $(BENCH_SCRIPTS), $(TSPERF_EXE)
 
-      - checkout: TypeScript
-        path: TypeScript
+      - checkout: $(REPO)
+        path: $(REPO)
         fetchTags: false
         fetchDepth: 2 # For PRs, we want the merge base to compare against.
         clean: true
@@ -146,7 +154,7 @@ jobs:
           set -exo pipefail
           OLD_REF=`git -C $(TYPESCRIPT_DIR) rev-parse HEAD`
           rm -rf $(TYPESCRIPT_DIR)
-          git clone --filter=blob:none https://github.com/microsoft/TypeScript $(TYPESCRIPT_DIR)
+          git clone --filter=blob:none https://github.com/microsoft/$(REPO) $(TYPESCRIPT_DIR)
           cd $(TYPESCRIPT_DIR)
           git fetch origin $(OLD_REF)
           git switch --detach FETCH_HEAD
@@ -170,7 +178,7 @@ jobs:
 
       - bash: |
           set -exo pipefail
-          node $(BENCH_SCRIPTS)/buildTypeScript.js --outputDir $(ARTIFACTS_DIR)/new
+          node $(BENCH_SCRIPTS)/buildTypeScript.js --outputDir $(ARTIFACTS_DIR)/new ${{ if eq(parameters.TS_GO, true) }}--tsgo${{ end }}
         displayName: Build new TypeScript
         condition: and(succeeded(), eq(variables['TSPERF_IS_COMPARISON'], 'true'))
         workingDirectory: $(TYPESCRIPT_DIR)
@@ -185,7 +193,7 @@ jobs:
 
       - bash: |
           set -exo pipefail
-          node $(BENCH_SCRIPTS)/buildTypeScript.js --baseline --outputDir $(ARTIFACTS_DIR)/baseline
+          node $(BENCH_SCRIPTS)/buildTypeScript.js --baseline --outputDir $(ARTIFACTS_DIR)/baseline ${{ if eq(parameters.TS_GO, true) }}--tsgo${{ end }}
         displayName: Build baseline TypeScript
         workingDirectory: $(TYPESCRIPT_DIR)
         name: buildTypeScriptBaseline

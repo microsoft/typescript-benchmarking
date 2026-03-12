@@ -14,22 +14,28 @@ const { stdout: timestampDir } = await $pipe`date -d ${date} -u +%Y/%m/%d`;
 
 const args = minimist(process.argv.slice(2), {
     string: ["outputDir"],
-    boolean: ["baseline"],
+    boolean: ["baseline", "tsgo"],
 });
 
 const outputDir = args.outputDir;
 assert(outputDir, "Expected output path as first argument");
 
 const packageJson = await fs.promises.readFile("package.json", "utf8");
-assert(JSON.parse(packageJson).name === "typescript", "Expected to be run from the TypeScript repo");
+assert(JSON.parse(packageJson).name === "typescript"|| JSON.parse(packageJson).name === "typescript-go", "Expected to be run from the TypeScript repo");
 
 await $`mkdir -p ${path.dirname(outputDir)}`;
 
 await retry(() => $`npm ci`);
 
 if (fs.existsSync("Herebyfile.mjs")) {
-    await $`npx hereby lkg`;
-    await $`mv lib ${outputDir}`;
+    if (JSON.parse(packageJson).name === "typescript-go") {
+        await $`npx hereby build`;
+        await $`mv built/local ${outputDir}`;
+    }
+    else {
+        await $`npx hereby lkg`;
+        await $`mv lib ${outputDir}`;
+    }
 }
 else {
     await $`npm run build:compiler`;
@@ -58,7 +64,7 @@ if (!isCustomCommitRange) {
             const octokit = new Octokit();
             const pr = await octokit.rest.pulls.get({
                 owner: "microsoft",
-                repo: "TypeScript",
+                repo: args.tsgo ? "typescript-go" : "TypeScript",
                 pull_number: +prNumber,
             });
             branch = pr.data.base.ref;
