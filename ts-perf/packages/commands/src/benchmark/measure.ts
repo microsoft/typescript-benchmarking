@@ -57,7 +57,7 @@ function resolveBuiltPath(builtDir: string, name: string): string {
     if (fs.existsSync(jsPath)) {
         return jsPath;
     }
-    return path.join(builtDir, name);
+    return path.join(builtDir, "tsgo.exe");
 }
 
 export async function measureAndRunScenarios({ kind, options }: TSOptions, host: HostContext): Promise<Benchmark> {
