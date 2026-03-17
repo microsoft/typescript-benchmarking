@@ -52,6 +52,14 @@ function tryParseDiagnostic(line: string) {
     return undefined;
 }
 
+function resolveBuiltPath(builtDir: string, name: string): string {
+    const jsPath = path.join(builtDir, `${name}.js`);
+    if (fs.existsSync(jsPath)) {
+        return jsPath;
+    }
+    return path.join(builtDir, name);
+}
+
 export async function measureAndRunScenarios({ kind, options }: TSOptions, host: HostContext): Promise<Benchmark> {
     const date = (options.date ? new Date(options.date) : new Date()).toISOString();
     const system = SystemInfo.getCurrent();
@@ -158,8 +166,8 @@ async function runCompilerScenario(
     hostSpecifier: HostSpecifier,
     hostIndex: number,
 ): Promise<Measurement> {
-    const tsc = path.join(options.builtDir, "tsc.js");
-    const typescript = path.join(options.builtDir, "typescript.js");
+    const tsc = resolveBuiltPath(options.builtDir, "tsc");
+    const typescript = resolveBuiltPath(options.builtDir, "typescript");
     const tscPublicWrapper = path.join(__dirname, "tscpublic.js");
     const usesPublicApi = !!scenario.tscConfig?.usePublicApi;
     const temp = await getTempDirectories();
@@ -274,7 +282,7 @@ async function runTSServerScenario(
     hostSpecifier: HostSpecifier,
     hostIndex: number,
 ): Promise<Measurement> {
-    const tsserver = path.join(options.builtDir, "tsserver.js");
+    const tsserver = resolveBuiltPath(options.builtDir, "tsserver");
     const temp = await getTempDirectories();
     const expansion = ExpansionProvider.getProviders({ runner: { kind: "tsserver", options }, temp, scenario, host });
     const argsBuilder = new CommandLineArgumentsBuilder(expansion, host, /*exposeGc*/ false)
