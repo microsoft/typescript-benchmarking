@@ -186,6 +186,16 @@ jobs:
         name: setupPipeline
 
       - bash: |
+          echo "REF=$(REF)"
+          echo "IS_PR=$(IS_PR)"
+          echo "TSPERF_IS_COMPARISON=$(TSPERF_IS_COMPARISON)"
+          echo "TSPERF_NEW_COMMIT=$(TSPERF_NEW_COMMIT)"
+          echo "TSPERF_BASELINE_COMMIT=$(TSPERF_BASELINE_COMMIT)"
+          echo "REPO=$(REPO)"
+          echo "TSGOFLAG=$(TSGOFLAG)"
+        displayName: Debug variables
+
+      - bash: |
           set -exo pipefail
           git switch --detach $(TSPERF_NEW_COMMIT)
         displayName: Switch to new commit
