@@ -57,7 +57,14 @@ function resolveBuiltPath(builtDir: string, name: string): string {
     if (fs.existsSync(jsPath)) {
         return jsPath;
     }
-    return path.join(builtDir, "tsgo.exe");
+    // typescript-go produces a native binary named tsgo/tsgo.exe instead of .js files.
+    for (const candidate of ["tsgo", "tsgo.exe"]) {
+        const nativePath = path.join(builtDir, candidate);
+        if (fs.existsSync(nativePath)) {
+            return nativePath;
+        }
+    }
+    return ""
 }
 
 export async function measureAndRunScenarios({ kind, options }: TSOptions, host: HostContext): Promise<Benchmark> {
@@ -156,6 +163,10 @@ export async function measureAndRunScenarios({ kind, options }: TSOptions, host:
     );
 }
 
+function isNativeBinary(filePath: string): boolean {
+    return !filePath.endsWith(".js");
+}
+
 async function runCompilerScenario(
     name: string,
     scenario: Scenario,
@@ -170,21 +181,22 @@ async function runCompilerScenario(
     const typescript = resolveBuiltPath(options.builtDir, "typescript");
     const tscPublicWrapper = path.join(__dirname, "tscpublic.js");
     const usesPublicApi = !!scenario.tscConfig?.usePublicApi;
+    const nativeBin = isNativeBinary(tsc);
     const temp = await getTempDirectories();
     const expansion = ExpansionProvider.getProviders({ runner: { kind: "tsc", options }, temp, scenario, host });
     const { cmd, args, hasBuild } = new CommandLineArgumentsBuilder(
         expansion,
-        host,
+        nativeBin ? tsc : host,
         /*exposeGc*/ undefined,
         options.cpus,
         options.predictable,
     )
-        .addIf(!usesPublicApi, tsc)
+        .addIf(!nativeBin && !usesPublicApi, tsc)
         .addIf(usesPublicApi, tscPublicWrapper, typescript)
         .addCompilerOptions(options, scenario)
         .add("--diagnostics");
-    const { cmd: clean, args: cleanargs } = new CommandLineArgumentsBuilder(expansion, host)
-        .add(tsc)
+    const { cmd: clean, args: cleanargs } = new CommandLineArgumentsBuilder(expansion, nativeBin ? tsc : host)
+        .addIf(!nativeBin, tsc)
         .addCompilerOptions(options, scenario)
         .add("--clean");
     try {
