@@ -431,7 +431,7 @@ jobs:
 
       - bash: |
           set -exo pipefail
-          node $(BENCH_SCRIPTS)/postPerfResult.js --fragment $(Pipeline.Workspace)/comment.html
+          node $(BENCH_SCRIPTS)/postPerfResult.js --fragment $(Pipeline.Workspace)/comment.html $(TSGOFLAG)
         displayName: Publish PR comment
         condition: and(succeeded(), eq(variables['IS_PR'], 'true'))
         env:
@@ -514,7 +514,7 @@ jobs:
 
       - bash: |
           set -exo pipefail
-          node $(BENCH_SCRIPTS)/postPerfResult.js --failed
+          node $(BENCH_SCRIPTS)/postPerfResult.js --failed $(TSGOFLAG)
         displayName: Publish PR comment
         env:
           DISTINCT_ID: ${{ parameters.DISTINCT_ID }}
