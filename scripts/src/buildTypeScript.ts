@@ -56,7 +56,7 @@ if (!isCustomCommitRange) {
     if (isPR) {
         // This is a PR run. Pull the branch info from the PR.
         const prefix = "refs/pull/";
-        assert(ref.startsWith(prefix), `Expected ref to start with ${prefix}`);
+        assert(ref.startsWith(prefix), `Expected ref to start with ${prefix}, instead got ${ref}`);
 
         if (args.baseline) {
             const prNumber = ref.slice(prefix.length).split("/")[0];
