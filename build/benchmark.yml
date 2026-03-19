@@ -105,15 +105,15 @@ variables:
 
   ${{ if eq(parameters.TS_GO, true) }}:
     REPO: 'typescript-go'
-    REF: $[ resources.repositories['typescript-go'].ref ]
+    REF: $[ replace(resources.repositories['typescript-go'].ref, 'heads/../', '') ]
     TSGOFLAG: '--tsgo'
   ${{ else }}:
     REPO: 'TypeScript'
-    REF: $[ resources.repositories['TypeScript'].ref ]
+    REF: $[ replace(resources.repositories['TypeScript'].ref, 'heads/../', '') ]
     TSGOFLAG: ''
 
   PRETTY_REF: $[ replace(replace(replace(replace(variables['REF'], '/merge', ''), 'refs/pull/', 'pr.'), 'refs/heads/', ''), '/', '_') ]
-  IS_PR: $[ and(contains(variables['REF'], 'refs/'), contains(variables['REF'], '/pull/')) ]
+  IS_PR: $[ startsWith(variables['REF'], 'refs/pull/') ]
   # True if this run should demand a baseline machine.
   USE_BASELINE_MACHINE: $[ or(eq(variables['Build.Reason'], 'ResourceTrigger'), ${{ parameters.HISTORICAL_RUN }}) ]
   # Only upload if the provided ref is explicitly main/release-* and we've run on the baseline machine.
