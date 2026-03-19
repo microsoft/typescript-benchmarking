@@ -28,6 +28,10 @@ await fn();
 
 async function installHosts() {
     const host = getNonEmptyEnv("TSPERF_JOB_HOST");
+    if (host === "native") {
+        console.log("Skipping host install for native binary");
+        return;
+    }
 
     await $`node ${tsperfExe} host install --host ${host}`;
 }
@@ -59,7 +63,9 @@ async function getCommonBenchmarkArgs() {
         const cpu = getNonEmptyEnv("TSPERF_AGENT_BENCHMARK_CPU");
         const info = await getRepoInfo(args.builtDir);
 
-        tsperfArgs.push("--host", host);
+        if (host !== "native") {
+            tsperfArgs.push("--host", host);
+        }
         tsperfArgs.push("--scenario", scenario);
         tsperfArgs.push("--iterations", iterations);
         tsperfArgs.push("--warmups", warmups);
