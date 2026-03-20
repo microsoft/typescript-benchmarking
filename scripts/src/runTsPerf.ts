@@ -63,9 +63,7 @@ async function getCommonBenchmarkArgs() {
         const cpu = getNonEmptyEnv("TSPERF_AGENT_BENCHMARK_CPU");
         const info = await getRepoInfo(args.builtDir);
 
-        if (host !== "native") {
-            tsperfArgs.push("--host", host);
-        }
+        tsperfArgs.push("--host", host);
         tsperfArgs.push("--scenario", scenario);
         tsperfArgs.push("--iterations", iterations);
         tsperfArgs.push("--warmups", warmups);
