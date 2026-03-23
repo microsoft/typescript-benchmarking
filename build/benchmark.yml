@@ -252,6 +252,12 @@ jobs:
             artifact: BuiltTypeScript
             displayName: Download built TypeScript
 
+          - ${{ if eq(parameters.TS_GO, true) }}:
+            - bash: |
+                set -exo pipefail
+                find $(BUILT_TYPESCRIPT_DIR) -name 'tsgo' -type f -exec chmod +x {} +
+              displayName: Make tsgo executable
+
           # This is provided by the agent.
           - bash: |
               set -exo pipefail
