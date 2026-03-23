@@ -191,12 +191,10 @@ async function runCompilerScenario(
         options.cpus,
         options.predictable,
     )
-        .addIf(!nativeBin && !usesPublicApi, tsc)
         .addIf(usesPublicApi, tscPublicWrapper, typescript)
         .addCompilerOptions(options, scenario)
         .add("--diagnostics");
     const { cmd: clean, args: cleanargs } = new CommandLineArgumentsBuilder(expansion, nativeBin ? tsc : host)
-        .addIf(!nativeBin, tsc)
         .addCompilerOptions(options, scenario)
         .add("--clean");
     try {
