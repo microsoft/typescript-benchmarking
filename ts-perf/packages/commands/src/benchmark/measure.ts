@@ -295,7 +295,9 @@ async function runTSServerScenario(
     const tsserver = resolveBuiltPath(options.builtDir, "tsserver");
     const temp = await getTempDirectories();
     const expansion = ExpansionProvider.getProviders({ runner: { kind: "tsserver", options }, temp, scenario, host });
-    const argsBuilder = new CommandLineArgumentsBuilder(expansion, host, /*exposeGc*/ false)
+    // use node as the tsserver host when using native binary
+    const tsserverHost = host.executableFile ? host : Host.current;
+    const argsBuilder = new CommandLineArgumentsBuilder(expansion, tsserverHost, /*exposeGc*/ false)
         .add(path.join(__dirname, "measuretsserver.js"))
         .add("--tsserver", tsserver)
         .add("--commands", scenario.configFile)
