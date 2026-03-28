@@ -37,7 +37,9 @@
         "power-options": "^0.3.4",
         "semver": "^7.7.4",
         "table-style": "^0.1.4",
-        "tmp": "^0.2.5"
+        "tmp": "^0.2.5",
+        "vscode-jsonrpc": "^8.2.1",
+        "vscode-languageserver-protocol": "^3.17.5"
     },
     "devDependencies": {
         "@types/semver": "^7.7.1",

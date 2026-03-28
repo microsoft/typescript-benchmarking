@@ -10,6 +10,7 @@ export abstract class ExpansionProvider {
         config?: {
             runner?:
                 | { kind: "tsserver"; options: TSServerOptions; }
+                | { kind: "lsp"; options: TSServerOptions; }
                 | { kind: "tsc"; options: CompilerOptions; }
                 | { kind: "startup"; options: StartupOptions; };
             temp?: TempDirectories;
@@ -26,6 +27,9 @@ export abstract class ExpansionProvider {
                         providers.add(new CompilerOptionsExpansionProvider(config.runner.options));
                         break;
                     case "tsserver":
+                        providers.add(new TSServerOptionsExpansionProvider(config.runner.options));
+                        break;
+                    case "lsp":
                         providers.add(new TSServerOptionsExpansionProvider(config.runner.options));
                         break;
                 }

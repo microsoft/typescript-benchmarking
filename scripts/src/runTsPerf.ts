@@ -17,6 +17,7 @@ const tsperfExe = checkNonEmpty(process.env.TSPERF_EXE, "Expected TSPERF_EXE env
 const commands: Record<string, (() => Promise<void>) | undefined> = {
     "install-hosts": installHosts,
     "benchmark-tsc": benchmarkTsc,
+    "benchmark-lsp": benchmarkLsp,
     "benchmark-tsserver": benchmarkTsserver,
     "benchmark-startup": benchmarkStartup,
 };
@@ -139,6 +140,14 @@ async function benchmarkTsserver() {
     const tsperfArgs = await getCommonBenchmarkArgs();
 
     await $`node ${tsperfExe} benchmark tsserver --builtDir ${builtDir} ${tsperfArgs}`;
+}
+
+async function benchmarkLsp() {
+    const builtDir = checkNonEmpty(args.builtDir, "Expected non-empty --builtDir");
+
+    const tsperfArgs = await getCommonBenchmarkArgs();
+
+    await $`node ${tsperfExe} benchmark lsp --builtDir ${builtDir} ${tsperfArgs}`;
 }
 
 async function benchmarkStartup() {

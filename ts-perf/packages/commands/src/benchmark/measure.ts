@@ -143,6 +143,18 @@ export async function measureAndRunScenarios({ kind, options }: TSOptions, host:
                         hostIndex,
                     );
                     break;
+                case "lsp":
+                    measurement = await runLSPScenario(
+                        name,
+                        scenario,
+                        testHost,
+                        options,
+                        host,
+                        scenarioIndex,
+                        hostSpecifier,
+                        hostIndex,
+                    );
+                    break;
                 default:
                     host.error(`Unrecognizable kind '${kind}'.`);
                     throw new ProcessExitError(-1, "Unrecognizable kind.");
@@ -334,6 +346,104 @@ async function runTSServerScenario(
             readline.createInterface({ input: childProcess.stdout, terminal: false }).on("line", line => {
                 context.trace(`> ${line}`);
                 const m = tryParseDiagnostic(line);
+                context.info(line)
+                if (m) {
+                    values[m.name] = (values[m.name] ?? 0) + m.value;
+                    valueKeys.add(m.name);
+                }
+            });
+
+            readline.createInterface({ input: childProcess.stderr, terminal: false }).on("line", line => {
+                context.error(`>> ${line}`);
+            });
+
+            return new Promise<number>(resolve => childProcess.once("exit", resolve));
+        };
+        const status = await runAndParseOutput();
+        const after = performance.now();
+
+        context.info(
+            `    ${formatProgress(i, runs)} Ran scenario '${name}'${status ? " (with errors)" : ""} in ${
+                ((after - before) / 1000).toFixed(2)
+            }s.${isWarmup ? " (warmup)" : ""}`,
+        );
+
+        try {
+            await fs.promises.rm(temp.outDirectory, { recursive: true });
+        }
+        catch {}
+
+        if (!isWarmup) {
+            samples.push(values);
+        }
+    }
+
+    const metrics: Record<string, Value | undefined> = Object.create(null);
+    for (const metricName of valueKeys) {
+        const isCount = metricName.includes("count");
+        metrics[metricName] = computeMetrics(samples.map(x => x[metricName] ?? 0), metricName, isCount ? "" : "ms", 0);
+    }
+
+    return new Measurement(
+        scenario.name,
+        scenarioIndex,
+        hostSpecifier,
+        hostIndex,
+        metrics,
+    );
+}
+
+async function runLSPScenario(
+    name: string,
+    scenario: Scenario,
+    host: Host,
+    options: BenchmarkOptions & TSServerOptions,
+    context: HostContext,
+    scenarioIndex: number,
+    hostSpecifier: HostSpecifier,
+    hostIndex: number,
+): Promise<Measurement> {
+    const lspServer = resolveBuiltPath(options.builtDir, "tsgo");
+    const temp = await getTempDirectories();
+    const expansion = ExpansionProvider.getProviders({ runner: { kind: "lsp", options }, temp, scenario, host });
+    const nativeBin = isNativeBinary(lspServer);
+    // Use the host as the runner for JS-based servers; for native binaries, run directly
+    const lspHost = nativeBin ? Host.current : (host.executableFile ? host : Host.current);
+    const argsBuilder = new CommandLineArgumentsBuilder(expansion, lspHost, /*exposeGc*/ false)
+            .add(path.join(__dirname, "measurelsp.js"))
+            .add("--lsp", lspServer)
+            .add("--commands", scenario.configFile)
+            .add("--suite", options.suiteDir)
+    if (options.extended) {
+        argsBuilder.add("--extended");
+    }
+    if (options.cpus) {
+        argsBuilder.add("--cpus", options.cpus);
+    }
+    const { cmd, args } = argsBuilder;
+    try {
+        await fs.promises.mkdir(temp.suiteTempDirectory);
+    }
+    catch {}
+
+    context.trace(`> ${cmd} ${args.join(" ")}`);
+
+    const samples: TSServerSample[] = [];
+    const valueKeys = new Set<string>();
+    const numIterations = options.iterations || 5;
+    const numWarmups = options.warmups || 0;
+    const runs = numIterations + numWarmups;
+    for (let i = 0; i < runs; i++) {
+        const isWarmup = i < numWarmups;
+        const before = performance.now();
+        const values: { [key: string]: number; } = Object.create(null);
+        const runAndParseOutput = () => {
+            const childProcess = spawn(cmd!, args);
+
+            readline.createInterface({ input: childProcess.stdout, terminal: false }).on("line", line => {
+                context.trace(`> ${line}`);
+                const m = tryParseDiagnostic(line);
+                context.info(line);
                 if (m) {
                     values[m.name] = (values[m.name] ?? 0) + m.value;
                     valueKeys.add(m.name);

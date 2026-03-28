@@ -52,7 +52,7 @@ const hosts = {
     native: "native", // Native Go binary; no host runtime needed.
 } as const satisfies Record<string, string>;
 
-const allJobKinds = ["tsc", "tsserver", "startup"] as const;
+const allJobKinds = ["tsc", "tsserver", "lsp", "startup"] as const;
 type JobKind = typeof allJobKinds[number];
 
 const enum RunType {
@@ -411,6 +411,12 @@ function* transformPreset(parameters: Parameters, iter: Iterable<Scenario>, tsgo
 
     function* worker(): Iterable<Scenario> {
         for (const scenario of iter) {
+            if (tsgo && scenario.kind === "tsserver") {
+                continue;
+            }
+            if (!tsgo && scenario.kind === "lsp") {
+                continue;
+            }
             const scenarioHosts = tsgo ? [hosts.native] : (parameters.hosts ?? [scenario.host]);
 
             for (const host of scenarioHosts) {
