@@ -123,6 +123,27 @@ const allScenarios: readonly BaseScenario[] = [
         runIn: RunType.Any,
         cost: 17,
     },
+    {
+        kind: "lsp",
+        name: "Compiler-UnionsLSP",
+        agent: "ts-perf1",
+        runIn: RunType.Any,
+        cost: 14,
+    },
+    {
+        kind: "lsp",
+        name: "CompilerLSP",
+        agent: "ts-perf3",
+        runIn: RunType.Any,
+        cost: 16,
+    },
+    {
+        kind: "lsp",
+        name: "xstate-main-1-LSP",
+        agent: "ts-perf4",
+        runIn: RunType.Any,
+        cost: 17,
+    },
     { kind: "startup", name: "tsc-startup", agent: "ts-perf1", runIn: RunType.Any, cost: 19 },
     {
         kind: "startup",
@@ -171,6 +192,14 @@ function* generateBaselinePreset(scenarios: readonly BaseScenario[]): Iterable<S
                 };
             }
         }
+        else if (scenario.kind === "lsp") {
+            yield {
+                ...scenario,
+                host: hosts.native,
+                iterations: defaultIterations,
+                warmups: defaultWarmups,
+            };
+        }
         else {
             yield {
                 ...scenario,
@@ -190,7 +219,7 @@ const presets = {
         for (const scenario of onDemandScenarios) {
             yield {
                 ...scenario,
-                host: hosts.node18,
+                host: scenario.kind === "lsp" ? hosts.native : hosts.node18,
                 iterations: defaultIterations,
                 warmups: defaultWarmups,
             };
@@ -281,7 +310,7 @@ function sanitizeJobName(name: string): JobName {
 }
 
 // This defines the sort order, which is seen in PR replies; tsc is the most important and should be first.
-const kindOrder: readonly JobKind[] = ["tsc", "tsserver", "startup"];
+const kindOrder: readonly JobKind[] = ["tsc", "tsserver", "lsp", "startup"];
 
 assert.deepStrictEqual([...allJobKinds].sort(), [...kindOrder].sort(), "kindOrder must contain all job kinds");
 
