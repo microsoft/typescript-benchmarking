@@ -110,17 +110,11 @@ async function runPerf(options: CLIOpts) {
     const config: TSServerConfig =
         JSON.parse(await fs.promises.readFile(options.commands, { encoding: "utf-8" })).tsserverConfig;
     const solution = path.resolve(path.join(options.suite, config.solution));
-    let lspServerPath = path.resolve(options.lsp);
+    const lspServerPath = path.resolve(options.lsp);
     // Needed for excludedDirectories
     process.chdir(solution);
 
     const serverArgs: string[] = ["--lsp", "--stdio"];
-
-    // If the server is a JS file, run it under Node.js
-    if (path.extname(lspServerPath).toLowerCase() === ".js") {
-        serverArgs.unshift(lspServerPath);
-        lspServerPath = process.execPath;
-    }
 
     const serverProc = cp.spawn(lspServerPath, serverArgs, {
         stdio: ["pipe", "pipe", "ignore"],
@@ -152,7 +146,7 @@ async function runPerf(options: CLIOpts) {
                 throw new Error("--cpus only works on Linux");
             }
 
-            // Set CPU affinity after the server starts (same approach as measuretsserver.ts)
+            // Set CPU affinity after the server starts (same as measuretsserver.ts)
             execFileSync("taskset", ["--all-tasks", "--cpu-list", "--pid", options.cpus, `${serverProc.pid}`]);
         }
 
@@ -219,7 +213,7 @@ async function runPerf(options: CLIOpts) {
             const command = config.commands[i];
             if (command) {
                 if (options.cpus) {
-                    // Sleeping between commands prevents high variance when constraining to a single core
+                    // Sleeping between commands prevents high variance when constrained to a single core
                     await sleep(1000);
                 }
                 await runCommand(command, seq++);
@@ -308,13 +302,12 @@ async function runPerf(options: CLIOpts) {
     async function references(command: TSServerReferencesCommand, _seq: number): Promise<number> {
         const file = path.join(solution, command.args.file);
         const fileUri = filePathToUri(file);
-        // tsserver uses 1-based line/offset; LSP uses 0-based line/character
         const start = performance.now();
         await connection.sendRequest(protocol.ReferencesRequest.method, {
             textDocument: { uri: fileUri },
             position: {
-                line: command.args.line - 1,
-                character: command.args.offset - 1,
+                line: command.args.line,
+                character: command.args.offset,
             },
             context: { includeDeclaration: true },
         } as protocol.ReferenceParams);
@@ -340,8 +333,8 @@ async function runPerf(options: CLIOpts) {
             {
                 textDocument: { uri: fileUri },
                 position: {
-                    line: command.args.line - 1,
-                    character: command.args.offset - 1,
+                    line: command.args.line,
+                    character: command.args.offset,
                 },
             } as protocol.CompletionParams,
         );
