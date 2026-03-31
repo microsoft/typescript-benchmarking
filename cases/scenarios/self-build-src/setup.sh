@@ -6,7 +6,7 @@ cd "${0%/*}"
 source ../../common.sh
 
 if [ -n "$TSGOFLAG" ]; then
-    clone_scenario https://github.com/microsoft/TypeScript.git
+    clone_scenario https://github.com/microsoft/TypeScript.git tsgo-port
 else
     clone_scenario https://github.com/microsoft/TypeScript.git $TYPESCRIPT_COMMIT
 fi
