@@ -71,10 +71,37 @@ test.each(inputs)("setupPipeline input=%s", async input => {
     await expect(error).toMatchFileSnapshot(getSnapshotPath(input, "error"));
 });
 
+test.each(inputs)("setupPipeline tsgo input=%s", async input => {
+    const baselining = input === "baseline";
+
+    let result, error;
+    try {
+        result = await setupPipeline({
+            input,
+            baselining,
+            isPr: !baselining,
+            shouldLog: false,
+            gitParseRev: fakeGitRevParse,
+            tsgo: true,
+        });
+    }
+    catch (e) {
+        error = e;
+    }
+
+    await expect(result?.matrix).toMatchFileSnapshot(getSnapshotPath(input+"_tsgo", "matrix"));
+    await expect(result?.outputVariables).toMatchFileSnapshot(getSnapshotPath(input+"_tsgo", "outputVariables"));
+    await expect(result?.compute).toMatchFileSnapshot(getSnapshotPath(input+"_tsgo", "compute"));
+    await expect(result?.parameters).toMatchFileSnapshot(getSnapshotPath(input+"_tsgo", "parameters"));
+    await expect(error).toMatchFileSnapshot(getSnapshotPath(input+"_tsgo", "error"));
+});
+
+
 function getAllExpectedSnapshots() {
-    return new Set(
-        allSnapshotKinds.flatMap(kind => inputs.map(input => getSnapshotPath(input, kind))),
-    );
+    return new Set([
+        ...allSnapshotKinds.flatMap(kind => inputs.map(input => getSnapshotPath(input, kind))),
+        ...allSnapshotKinds.flatMap(kind => inputs.map(input => getSnapshotPath(input+"_tsgo", kind))),
+    ]);
 }
 
 function getAllActualSnapshots() {
@@ -100,6 +127,6 @@ test("abandoned snapshots", () => {
     }
 
     if (abandonedSnapshots.length) {
-        throw new Error("Abandoned snapshots found; please update snapshots to remove them.");
+        throw new Error("Abandoned snapshots found; please update snapshots to remove them:\n" + abandonedSnapshots.join("\n"));
     }
 });
