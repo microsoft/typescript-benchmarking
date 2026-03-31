@@ -194,11 +194,11 @@ importers:
         specifier: ^0.2.5
         version: 0.2.5
       vscode-jsonrpc:
-        specifier: ^8.2.1
-        version: 8.2.1
+        specifier: ^9.0.0-next.11
+        version: 9.0.0-next.11
       vscode-languageserver-protocol:
-        specifier: ^3.17.5
-        version: 3.17.5
+        specifier: ^3.17.6-next.17
+        version: 3.17.6-next.17
     devDependencies:
       '@types/semver':
         specifier: ^7.7.1
@@ -2941,19 +2941,15 @@ packages:
       jsdom:
         optional: true
 
-  vscode-jsonrpc@8.2.0:
-    resolution: {integrity: sha512-C+r0eKJUIfiDIfwJhria30+TYWPtuHJXHtI7J0YlOmKAo7ogxP20T0zxB7HZQIFhIyvoBPwWskjxrvAtfjyZfA==}
+  vscode-jsonrpc@9.0.0-next.11:
+    resolution: {integrity: sha512-u6LElQNbSiE9OugEEmrUKwH6+8BpPz2S5MDHvQUqHL//I4Q8GPikKLOUf856UnbLkZdhxaPrExac1lA3XwpIPA==}
     engines: {node: '>=14.0.0'}
 
-  vscode-jsonrpc@8.2.1:
-    resolution: {integrity: sha512-kdjOSJ2lLIn7r1rtrMbbNCHjyMPfRnowdKjBQ+mGq6NAW5QY2bEZC/khaC5OR8svbbjvLEaIXkOq45e2X9BIbQ==}
-    engines: {node: '>=14.0.0'}
+  vscode-languageserver-protocol@3.17.6-next.17:
+    resolution: {integrity: sha512-HW72YcFsuckfK6oPVuysRXhKiIFJoUvXgspPHvCMWpwe2x9aq2oGZDUSvKx4m/qUGB27+iu8ijAxsFlljYl2IQ==}
 
-  vscode-languageserver-protocol@3.17.5:
-    resolution: {integrity: sha512-mb1bvRJN8SVznADSGWM9u/b07H7Ecg0I3OgXDuLdn307rl/J3A9YD6/eYOssqhecL27hK1IPZAsaqh00i/Jljg==}
-
-  vscode-languageserver-types@3.17.5:
-    resolution: {integrity: sha512-Ld1VelNuX9pdF39h2Hgaeb5hEZM2Z3jUrrMgWQAu82jMtZp7p3vJT3BzToKtZI7NgQssZje5o0zryOrhQvzQAg==}
+  vscode-languageserver-types@3.17.6-next.6:
+    resolution: {integrity: sha512-aiJY5/yW+xzw7KPNlwi3gQtddq/3EIn5z8X8nCgJfaiAij2R1APKePngv+MUdLdYJBVTLu+Qa0ODsT+pHgYguQ==}
 
   webidl-conversions@3.0.1:
     resolution: {integrity: sha512-2JAn3z8AR6rjK8Sm8orRC0h/bcl/DqL7tRPdGZ4I1CjdF+EaMLmYxBHyXuKL849eucPFhvBoxMsflfOb8kxaeQ==}
@@ -5780,16 +5776,14 @@ snapshots:
       - tsx
       - yaml
 
-  vscode-jsonrpc@8.2.0: {}
+  vscode-jsonrpc@9.0.0-next.11: {}
 
-  vscode-jsonrpc@8.2.1: {}
-
-  vscode-languageserver-protocol@3.17.5:
+  vscode-languageserver-protocol@3.17.6-next.17:
     dependencies:
-      vscode-jsonrpc: 8.2.0
-      vscode-languageserver-types: 3.17.5
+      vscode-jsonrpc: 9.0.0-next.11
+      vscode-languageserver-types: 3.17.6-next.6
 
-  vscode-languageserver-types@3.17.5: {}
+  vscode-languageserver-types@3.17.6-next.6: {}
 
   webidl-conversions@3.0.1: {}
 

@@ -28,7 +28,7 @@ await $`mkdir -p ${path.dirname(outputDir)}`;
 await retry(() => $`npm ci`);
 
 if (fs.existsSync("Herebyfile.mjs")) {
-    if (JSON.parse(packageJson).name === "typescript-go") {
+    if (args.tsgo) {
         await $`npx hereby build`;
         await $`mv built/local ${outputDir}`;
     }
