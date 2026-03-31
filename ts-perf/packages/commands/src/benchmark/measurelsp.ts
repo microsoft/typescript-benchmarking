@@ -29,7 +29,6 @@ interface CLIOpts {
     commands: string;
     suite: string;
     extended?: boolean;
-    cpus?: string;
 }
 
 async function main() {
@@ -65,10 +64,6 @@ async function main() {
             extended: {
                 type: "boolean",
                 description: "If the scenario declares optional (aka extended) requests, run those as well",
-            },
-            cpus: {
-                type: "string",
-                description: "CPUs to run benchmarked processes on; see the --cpu-list in 'man taskset'",
             },
         },
         exec: ({ options }) => runPerf(options),
@@ -138,18 +133,6 @@ async function runPerf(options: CLIOpts) {
     let seq = 1;
 
     try {
-        if (options.cpus) {
-            if (!serverProc.pid) {
-                throw new Error("--cpus specified, but server did not report PID");
-            }
-            if (process.platform !== "linux") {
-                throw new Error("--cpus only works on Linux");
-            }
-
-            // Set CPU affinity after the server starts (same as measuretsserver.ts)
-            execFileSync("taskset", ["--all-tasks", "--cpu-list", "--pid", options.cpus, `${serverProc.pid}`]);
-        }
-
         // Initialize the LSP server (analogous to the configure message in tsserver)
         const solutionUri = filePathToUri(solution);
         await connection.sendRequest(protocol.InitializeRequest.method, {
@@ -212,10 +195,6 @@ async function runPerf(options: CLIOpts) {
         for (let i = 0; i < maxCommands; i++) {
             const command = config.commands[i];
             if (command) {
-                if (options.cpus) {
-                    // Sleeping between commands prevents high variance when constrained to a single core
-                    await sleep(1000);
-                }
                 await runCommand(command, seq++);
             }
         }

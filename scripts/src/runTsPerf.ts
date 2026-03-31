@@ -68,7 +68,10 @@ async function getCommonBenchmarkArgs() {
         tsperfArgs.push("--scenario", scenario);
         tsperfArgs.push("--iterations", iterations);
         tsperfArgs.push("--warmups", warmups);
-        tsperfArgs.push("--cpus", cpu);
+        if (!process.env.TSGOFLAG) {
+            // Don't set cpus/cores for tsgo
+            tsperfArgs.push("--cpus", cpu);
+        }
         if (predictable) {
             tsperfArgs.push("--predictable");
         }
