@@ -57,7 +57,7 @@ test.each(inputs)("setupPipeline input=%s", async input => {
             isPr: !baselining,
             shouldLog: false,
             gitParseRev: fakeGitRevParse,
-            tsgo: false
+            tsgo: false,
         });
     }
     catch (e) {

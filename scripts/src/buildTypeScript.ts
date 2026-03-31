@@ -21,7 +21,10 @@ const outputDir = args.outputDir;
 assert(outputDir, "Expected output path as first argument");
 
 const packageJson = await fs.promises.readFile("package.json", "utf8");
-assert(JSON.parse(packageJson).name === "typescript"|| JSON.parse(packageJson).name === "typescript-go", "Expected to be run from the TypeScript repo");
+assert(
+    JSON.parse(packageJson).name === "typescript" || JSON.parse(packageJson).name === "typescript-go",
+    "Expected to be run from the TypeScript repo",
+);
 
 await $`mkdir -p ${path.dirname(outputDir)}`;
 

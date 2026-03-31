@@ -93,7 +93,7 @@ parameters:
     displayName: boolean to describe if building ts-go
     type: boolean
     default: false
-  
+
 variables:
   Codeql.Enabled: false
   skipComponentGovernanceDetection: true
@@ -146,19 +146,19 @@ jobs:
       - template: templates/cloneAndBuildBenchmarkRepo.yml # Sets $(BENCH_SCRIPTS), $(TSPERF_EXE)
 
       - ${{ if eq(parameters.TS_GO, true) }}:
-        - checkout: typescript-go
-          path: typescript-go
-          fetchTags: false
-          fetchDepth: 2 # For PRs, we want the merge base to compare against.
-          clean: true
-          retryCountOnTaskFailure: 3
+          - checkout: typescript-go
+            path: typescript-go
+            fetchTags: false
+            fetchDepth: 2 # For PRs, we want the merge base to compare against.
+            clean: true
+            retryCountOnTaskFailure: 3
       - ${{ else }}:
-        - checkout: TypeScript
-          path: TypeScript
-          fetchTags: false
-          fetchDepth: 2 # For PRs, we want the merge base to compare against.
-          clean: true
-          retryCountOnTaskFailure: 3
+          - checkout: TypeScript
+            path: TypeScript
+            fetchTags: false
+            fetchDepth: 2 # For PRs, we want the merge base to compare against.
+            clean: true
+            retryCountOnTaskFailure: 3
 
       # Ideally we'd just do this:
       #   git config remote.origin.fetch "+refs/heads/*:refs/remotes/origin/*"
@@ -186,8 +186,6 @@ jobs:
         name: setupPipeline
         env:
           TSGOFLAG: $(TSGOFLAG)
-
-
 
       - bash: |
           set -exo pipefail
@@ -255,10 +253,10 @@ jobs:
             displayName: Download built TypeScript
 
           - ${{ if eq(parameters.TS_GO, true) }}:
-            - bash: |
-                set -exo pipefail
-                find $(BUILT_TYPESCRIPT_DIR) -name 'tsgo' -type f -exec chmod +x {} +
-              displayName: Make tsgo executable
+              - bash: |
+                  set -exo pipefail
+                  find $(BUILT_TYPESCRIPT_DIR) -name 'tsgo' -type f -exec chmod +x {} +
+                displayName: Make tsgo executable
 
           # This is provided by the agent.
           - bash: |

@@ -64,7 +64,7 @@ function resolveBuiltPath(builtDir: string, name: string): string {
             return nativePath;
         }
     }
-    return ""
+    return "";
 }
 
 export async function measureAndRunScenarios({ kind, options }: TSOptions, host: HostContext): Promise<Benchmark> {
@@ -346,7 +346,7 @@ async function runTSServerScenario(
             readline.createInterface({ input: childProcess.stdout, terminal: false }).on("line", line => {
                 context.trace(`> ${line}`);
                 const m = tryParseDiagnostic(line);
-                context.info(line)
+                context.info(line);
                 if (m) {
                     values[m.name] = (values[m.name] ?? 0) + m.value;
                     valueKeys.add(m.name);
@@ -410,10 +410,10 @@ async function runLSPScenario(
     // Use the host as the runner for JS-based servers; for native binaries, run directly
     const lspHost = nativeBin ? Host.current : (host.executableFile ? host : Host.current);
     const argsBuilder = new CommandLineArgumentsBuilder(expansion, lspHost, /*exposeGc*/ false)
-            .add(path.join(__dirname, "measurelsp.js"))
-            .add("--lsp", lspServer)
-            .add("--commands", scenario.configFile)
-            .add("--suite", options.suiteDir)
+        .add(path.join(__dirname, "measurelsp.js"))
+        .add("--lsp", lspServer)
+        .add("--commands", scenario.configFile)
+        .add("--suite", options.suiteDir);
     if (options.extended) {
         argsBuilder.add("--extended");
     }
