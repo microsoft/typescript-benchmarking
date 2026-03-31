@@ -1,4 +1,3 @@
-import { execFileSync } from "node:child_process";
 import * as cp from "node:child_process";
 import fs from "node:fs";
 import path from "node:path";
@@ -209,10 +208,6 @@ async function runPerf(options: CLIOpts) {
             // Server may have already exited
         }
         connection.dispose();
-    }
-
-    function sleep(ms: number): Promise<void> {
-        return new Promise(resolve => setTimeout(resolve, ms));
     }
 
     async function runCommand(command: TSServerCommand, seq: number): Promise<void> {

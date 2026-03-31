@@ -89,18 +89,17 @@ test.each(inputs)("setupPipeline tsgo input=%s", async input => {
         error = e;
     }
 
-    await expect(result?.matrix).toMatchFileSnapshot(getSnapshotPath(input+"_tsgo", "matrix"));
-    await expect(result?.outputVariables).toMatchFileSnapshot(getSnapshotPath(input+"_tsgo", "outputVariables"));
-    await expect(result?.compute).toMatchFileSnapshot(getSnapshotPath(input+"_tsgo", "compute"));
-    await expect(result?.parameters).toMatchFileSnapshot(getSnapshotPath(input+"_tsgo", "parameters"));
-    await expect(error).toMatchFileSnapshot(getSnapshotPath(input+"_tsgo", "error"));
+    await expect(result?.matrix).toMatchFileSnapshot(getSnapshotPath(input + "_tsgo", "matrix"));
+    await expect(result?.outputVariables).toMatchFileSnapshot(getSnapshotPath(input + "_tsgo", "outputVariables"));
+    await expect(result?.compute).toMatchFileSnapshot(getSnapshotPath(input + "_tsgo", "compute"));
+    await expect(result?.parameters).toMatchFileSnapshot(getSnapshotPath(input + "_tsgo", "parameters"));
+    await expect(error).toMatchFileSnapshot(getSnapshotPath(input + "_tsgo", "error"));
 });
-
 
 function getAllExpectedSnapshots() {
     return new Set([
         ...allSnapshotKinds.flatMap(kind => inputs.map(input => getSnapshotPath(input, kind))),
-        ...allSnapshotKinds.flatMap(kind => inputs.map(input => getSnapshotPath(input+"_tsgo", kind))),
+        ...allSnapshotKinds.flatMap(kind => inputs.map(input => getSnapshotPath(input + "_tsgo", kind))),
     ]);
 }
 
@@ -127,6 +126,8 @@ test("abandoned snapshots", () => {
     }
 
     if (abandonedSnapshots.length) {
-        throw new Error("Abandoned snapshots found; please update snapshots to remove them:\n" + abandonedSnapshots.join("\n"));
+        throw new Error(
+            "Abandoned snapshots found; please update snapshots to remove them:\n" + abandonedSnapshots.join("\n"),
+        );
     }
 });
