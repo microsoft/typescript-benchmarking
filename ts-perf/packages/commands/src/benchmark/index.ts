@@ -15,6 +15,7 @@ import {
 import { HostContext, LogEventType, ProcessExitError } from "@ts-perf/core";
 import { CommandLineParseError } from "power-options";
 
+import * as lsp from "./lsp";
 import { measureAndRunScenarios } from "./measure";
 import { printBenchmark, printComparison } from "./print";
 import * as startup from "./startup";
@@ -57,6 +58,7 @@ export interface BenchmarkOptions extends AzureStorageOptions, CommonOptions {
 
 export type TSOptions =
     | { kind: "tsserver"; options: BenchmarkOptions & TSServerOptions; }
+    | { kind: "lsp"; options: BenchmarkOptions & TSServerOptions; }
     | { kind: "tsc"; options: BenchmarkOptions & CompilerOptions; }
     | { kind: "startup"; options: BenchmarkOptions & StartupOptions; };
 
@@ -391,6 +393,7 @@ const command: Command<BenchmarkOptions> = {
 
 tsc.registerCommands(command.commands);
 tsserver.registerCommands(command.commands);
+lsp.registerCommands(command.commands);
 startup.registerCommands(command.commands);
 
 export function registerCommands(commands: CommandMap) {

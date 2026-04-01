@@ -7,6 +7,8 @@ export const compilerSampleKeys = [
     "symbols",
     "types",
     "memoryUsed",
+    "memoryAllocs",
+    "configTime",
     "parseTime",
     "bindTime",
     "checkTime",
@@ -29,6 +31,8 @@ const compilerSampleKeyToDiagnosticName = {
     symbols: "Symbols",
     types: "Types",
     memoryUsed: "Memory used",
+    memoryAllocs: "Memory allocs",
+    configTime: "Config time",
     parseTime: "Parse time",
     bindTime: "Bind time",
     checkTime: "Check time",
@@ -62,6 +66,12 @@ export function isCompilerDiagnosticName(name: string): name is CompilerDiagnost
 export function getCompilerMetricName(sampleName: CompilerSampleKey) {
     // Special case names known by the benchmarking dashboard, even though they differ from what the compiler prints.
     switch (sampleName) {
+        case "memoryUsed":
+            return "Memory Used";
+        case "memoryAllocs":
+            return "Memory Allocs";
+        case "configTime":
+            return "Config Time";
         case "parseTime":
             return "Parse Time";
         case "bindTime":
@@ -82,6 +92,8 @@ const compilerSampleKeyToUnit = {
     symbols: "",
     types: "",
     memoryUsed: "k",
+    memoryAllocs: "",
+    configTime: "s",
     parseTime: "s",
     bindTime: "s",
     checkTime: "s",

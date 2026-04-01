@@ -24,9 +24,10 @@ async function main() {
 
     const args = minimist(process.argv.slice(2), {
         string: ["fragment"],
-        boolean: ["failed"],
+        boolean: ["failed", "tsgo"],
     });
 
+    const repo = args.tsgo ? "typescript-go" : "TypeScript";
     const gh = new Octokit({ auth: GH_TOKEN });
     let body;
     if (args.failed) {
@@ -50,7 +51,7 @@ async function main() {
     const resultsComment = await gh.rest.issues.createComment({
         issue_number: +SOURCE_ISSUE,
         owner: "Microsoft",
-        repo: "TypeScript",
+        repo,
         body,
     });
 
@@ -66,7 +67,7 @@ async function main() {
         const statusComment = await gh.rest.issues.getComment({
             comment_id: +STATUS_COMMENT,
             owner: "Microsoft",
-            repo: "TypeScript",
+            repo,
         });
 
         const oldComment = statusComment.data.body;
@@ -84,7 +85,7 @@ async function main() {
         await gh.rest.issues.updateComment({
             comment_id: +STATUS_COMMENT,
             owner: "Microsoft",
-            repo: "TypeScript",
+            repo,
             body: newComment,
         });
 

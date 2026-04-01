@@ -26,7 +26,7 @@ export function printBenchmark(benchmark: Benchmark, options: BenchmarkOptions, 
         rowStyles: [
             "*",
             { className: "group header", border: Border.single.updateFrom({ top: "double" }) },
-            { className: "body", match: (x: MeasurementPivot) => x.metric === "Parse Time", border: { top: "single" } },
+            { className: "body", match: (x: MeasurementPivot) => x.metric === "Config Time", border: { top: "single" } },
             { className: "body", match: (x: MeasurementPivot) => x.metric === "Total Time", border: { top: "single" } },
             {
                 className: "body",

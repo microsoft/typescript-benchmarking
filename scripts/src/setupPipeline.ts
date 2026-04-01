@@ -49,9 +49,10 @@ const hosts = {
     node18: "node@18.15.0",
     bun: "bun@1.1.24",
     vscode: "vscode@1.82.1",
+    native: "native", // Native Go binary; no host runtime needed.
 } as const satisfies Record<string, string>;
 
-const allJobKinds = ["tsc", "tsserver", "startup"] as const;
+const allJobKinds = ["tsc", "tsserver", "lsp", "startup"] as const;
 type JobKind = typeof allJobKinds[number];
 
 const enum RunType {
@@ -122,6 +123,27 @@ const allScenarios: readonly BaseScenario[] = [
         runIn: RunType.Any,
         cost: 17,
     },
+    {
+        kind: "lsp",
+        name: "Compiler-UnionsLSP",
+        agent: "ts-perf1",
+        runIn: RunType.Any,
+        cost: 14,
+    },
+    {
+        kind: "lsp",
+        name: "CompilerLSP",
+        agent: "ts-perf3",
+        runIn: RunType.Any,
+        cost: 16,
+    },
+    {
+        kind: "lsp",
+        name: "xstate-main-1-LSP",
+        agent: "ts-perf4",
+        runIn: RunType.Any,
+        cost: 17,
+    },
     { kind: "startup", name: "tsc-startup", agent: "ts-perf1", runIn: RunType.Any, cost: 19 },
     {
         kind: "startup",
@@ -170,6 +192,14 @@ function* generateBaselinePreset(scenarios: readonly BaseScenario[]): Iterable<S
                 };
             }
         }
+        else if (scenario.kind === "lsp") {
+            yield {
+                ...scenario,
+                host: hosts.native,
+                iterations: defaultIterations,
+                warmups: defaultWarmups,
+            };
+        }
         else {
             yield {
                 ...scenario,
@@ -189,7 +219,7 @@ const presets = {
         for (const scenario of onDemandScenarios) {
             yield {
                 ...scenario,
-                host: hosts.node18,
+                host: scenario.kind === "lsp" ? hosts.native : hosts.node18,
                 iterations: defaultIterations,
                 warmups: defaultWarmups,
             };
@@ -280,7 +310,7 @@ function sanitizeJobName(name: string): JobName {
 }
 
 // This defines the sort order, which is seen in PR replies; tsc is the most important and should be first.
-const kindOrder: readonly JobKind[] = ["tsc", "tsserver", "startup"];
+const kindOrder: readonly JobKind[] = ["tsc", "tsserver", "lsp", "startup"];
 
 assert.deepStrictEqual([...allJobKinds].sort(), [...kindOrder].sort(), "kindOrder must contain all job kinds");
 
@@ -389,7 +419,7 @@ async function parseInput({ input, isPr, gitParseRev }: SetupPipelineInput) {
     return parsed;
 }
 
-function* transformPreset(parameters: Parameters, iter: Iterable<Scenario>): Iterable<Scenario> {
+function* transformPreset(parameters: Parameters, iter: Iterable<Scenario>, tsgo: boolean): Iterable<Scenario> {
     const all = [...worker()];
 
     for (const scenario of all) {
@@ -410,9 +440,15 @@ function* transformPreset(parameters: Parameters, iter: Iterable<Scenario>): Ite
 
     function* worker(): Iterable<Scenario> {
         for (const scenario of iter) {
-            const hosts = parameters.hosts ?? [scenario.host];
+            if (tsgo && scenario.kind === "tsserver") {
+                continue;
+            }
+            if (!tsgo && scenario.kind === "lsp") {
+                continue;
+            }
+            const scenarioHosts = tsgo ? [hosts.native] : (parameters.hosts ?? [scenario.host]);
 
-            for (const host of hosts) {
+            for (const host of scenarioHosts) {
                 yield {
                     ...scenario,
                     host,
@@ -433,12 +469,13 @@ export interface SetupPipelineInput {
     input: string;
     baselining: boolean;
     isPr: boolean;
+    tsgo: boolean;
     shouldLog: boolean;
     gitParseRev: (query: string) => Promise<GitParseRevResult>;
 }
 
 export async function setupPipeline(input: SetupPipelineInput) {
-    const { baselining, shouldLog } = input;
+    const { baselining, shouldLog, tsgo } = input;
 
     const parameters = await parseInput(input);
     if (shouldLog) {
@@ -470,7 +507,7 @@ export async function setupPipeline(input: SetupPipelineInput) {
     let maxCost = 0;
     const costPerAgent = new Map<Agent, number>();
 
-    for (const scenario of transformPreset(parameters, preset())) {
+    for (const scenario of transformPreset(parameters, preset(), tsgo)) {
         const agent = baselining ? scenario.agent : "any";
         const jobName = sanitizeJobName(`${scenario.kind}_${scenario.host}_${scenario.name}`);
         matrix[agent][jobName] = {
@@ -591,11 +628,13 @@ if (esMain(import.meta)) {
     const input = getNonEmptyEnv("TSPERF_PRESET");
     const baselining = parseBoolean(process.env.USE_BASELINE_MACHINE, false);
     const isPr = parseBoolean(process.env.IS_PR, false);
+    const tsgo = !!process.env.TSGOFLAG;
 
     const { outputVariables } = await setupPipeline({
         input,
         baselining,
         isPr,
+        tsgo,
         shouldLog: true,
         gitParseRev,
     });

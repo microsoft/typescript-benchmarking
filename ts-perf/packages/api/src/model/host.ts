@@ -183,6 +183,10 @@ export class Host {
         const availableHosts = await this.getAvailableHosts();
         const results = new Set<Host>();
         for (const host of hosts) {
+            if (host === "native") {
+                results.add(new Host("native"));
+                continue;
+            }
             const pattern = typeof host === "string" ? HostPattern.parse(host) : HostPattern.create(host);
             if (pattern.executable && !(pattern.arch || pattern.version)) {
                 if (!installed) {
