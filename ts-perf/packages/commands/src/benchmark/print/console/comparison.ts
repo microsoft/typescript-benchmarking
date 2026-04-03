@@ -104,7 +104,7 @@ export function printComparison(
             },
             {
                 className: "body",
-                match: (x: MeasurementComparisonPivot) => x.metric === "Config Time",
+                match: (x: MeasurementComparisonPivot) => x.metric === "Config Time"||x.metric === "Parse Time",
                 border: { top: "single" },
             },
             {
