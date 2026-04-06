@@ -1,35 +1,19 @@
 {
   "any": {
-    "startup_native_tsc_startup": {
+    "startup_native_lsp_startup": {
       "TSPERF_JOB_HOST": "native",
       "TSPERF_JOB_ITERATIONS": 6,
       "TSPERF_JOB_KIND": "startup",
-      "TSPERF_JOB_NAME": "startup_native_tsc_startup",
-      "TSPERF_JOB_SCENARIO": "tsc-startup",
+      "TSPERF_JOB_NAME": "startup_native_lsp_startup",
+      "TSPERF_JOB_SCENARIO": "lsp-startup",
       "TSPERF_JOB_WARMUPS": 1,
     },
-    "startup_native_tsserver_startup": {
+    "startup_native_tsgo_startup": {
       "TSPERF_JOB_HOST": "native",
       "TSPERF_JOB_ITERATIONS": 6,
       "TSPERF_JOB_KIND": "startup",
-      "TSPERF_JOB_NAME": "startup_native_tsserver_startup",
-      "TSPERF_JOB_SCENARIO": "tsserver-startup",
-      "TSPERF_JOB_WARMUPS": 1,
-    },
-    "startup_native_tsserverlibrary_startup": {
-      "TSPERF_JOB_HOST": "native",
-      "TSPERF_JOB_ITERATIONS": 6,
-      "TSPERF_JOB_KIND": "startup",
-      "TSPERF_JOB_NAME": "startup_native_tsserverlibrary_startup",
-      "TSPERF_JOB_SCENARIO": "tsserverlibrary-startup",
-      "TSPERF_JOB_WARMUPS": 1,
-    },
-    "startup_native_typescript_startup": {
-      "TSPERF_JOB_HOST": "native",
-      "TSPERF_JOB_ITERATIONS": 6,
-      "TSPERF_JOB_KIND": "startup",
-      "TSPERF_JOB_NAME": "startup_native_typescript_startup",
-      "TSPERF_JOB_SCENARIO": "typescript-startup",
+      "TSPERF_JOB_NAME": "startup_native_tsgo_startup",
+      "TSPERF_JOB_SCENARIO": "tsgo-startup",
       "TSPERF_JOB_WARMUPS": 1,
     },
   },
