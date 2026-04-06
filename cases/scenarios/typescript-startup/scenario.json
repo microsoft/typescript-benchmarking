@@ -2,6 +2,6 @@
     "name": "typescript-startup",
     "kind": "startup",
     "args": [
-        "typescript.js"
+        "typescript"
     ]
 }

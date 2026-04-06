@@ -1,0 +1,10 @@
+{
+    "name": "lsp-startup",
+    "kind": "startup",
+    "args": [
+        "tsgo",
+        "--lsp",
+        "--stdio",
+        "--disableAutomaticTypingAcquisition"
+    ]
+}

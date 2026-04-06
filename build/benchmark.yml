@@ -41,6 +41,10 @@ resources:
       type: github
       endpoint: Microsoft
       name: microsoft/TypeScript
+    - repository: typescript-go
+      type: github
+      endpoint: Microsoft
+      name: microsoft/typescript-go
 
   # https://stackoverflow.com/a/63276774
   pipelines:
@@ -85,6 +89,10 @@ parameters:
     displayName: Exhaustive list of agents
     type: string
     default: 'any,ts-perf1,ts-perf2,ts-perf3,ts-perf4,ts-perf5,ts-perf6,ts-perf7,ts-perf8,ts-perf9,ts-perf10,ts-perf11,ts-perf12'
+  - name: TS_GO
+    displayName: boolean to describe if building ts-go
+    type: boolean
+    default: false
 
 variables:
   Codeql.Enabled: false
@@ -95,7 +103,15 @@ variables:
   azureSubscription: 'TypeScript Public CI'
   KeyVaultName: 'jststeam-passwords'
 
-  REF: $[ resources.repositories['TypeScript'].ref ]
+  ${{ if eq(parameters.TS_GO, true) }}:
+    REPO: 'typescript-go'
+    REF: $[ replace(resources.repositories['typescript-go'].ref, 'heads/../', '') ]
+    TSGOFLAG: '--tsgo'
+  ${{ else }}:
+    REPO: 'TypeScript'
+    REF: $[ replace(resources.repositories['TypeScript'].ref, 'heads/../', '') ]
+    TSGOFLAG: ''
+
   PRETTY_REF: $[ replace(replace(replace(replace(variables['REF'], '/merge', ''), 'refs/pull/', 'pr.'), 'refs/heads/', ''), '/', '_') ]
   IS_PR: $[ startsWith(variables['REF'], 'refs/pull/') ]
   # True if this run should demand a baseline machine.
@@ -122,19 +138,27 @@ jobs:
 
     variables:
       ARTIFACTS_DIR: $(Pipeline.Workspace)/artifacts
-      TYPESCRIPT_DIR: $(Pipeline.Workspace)/TypeScript
+      TYPESCRIPT_DIR: $(Pipeline.Workspace)/$(REPO)
       TSPERF_PRESET: ${{ parameters.TSPERF_PRESET }}
 
     steps:
       - template: templates/setup.yml
       - template: templates/cloneAndBuildBenchmarkRepo.yml # Sets $(BENCH_SCRIPTS), $(TSPERF_EXE)
 
-      - checkout: TypeScript
-        path: TypeScript
-        fetchTags: false
-        fetchDepth: 2 # For PRs, we want the merge base to compare against.
-        clean: true
-        retryCountOnTaskFailure: 3
+      - ${{ if eq(parameters.TS_GO, true) }}:
+          - checkout: typescript-go
+            path: typescript-go
+            fetchTags: false
+            fetchDepth: 2 # For PRs, we want the merge base to compare against.
+            clean: true
+            retryCountOnTaskFailure: 3
+      - ${{ else }}:
+          - checkout: TypeScript
+            path: TypeScript
+            fetchTags: false
+            fetchDepth: 2 # For PRs, we want the merge base to compare against.
+            clean: true
+            retryCountOnTaskFailure: 3
 
       # Ideally we'd just do this:
       #   git config remote.origin.fetch "+refs/heads/*:refs/remotes/origin/*"
@@ -146,7 +170,7 @@ jobs:
           set -exo pipefail
           OLD_REF=`git -C $(TYPESCRIPT_DIR) rev-parse HEAD`
           rm -rf $(TYPESCRIPT_DIR)
-          git clone --filter=blob:none https://github.com/microsoft/TypeScript $(TYPESCRIPT_DIR)
+          git clone --filter=blob:none https://github.com/microsoft/$(REPO) $(TYPESCRIPT_DIR)
           cd $(TYPESCRIPT_DIR)
           git fetch origin $(OLD_REF)
           git switch --detach FETCH_HEAD
@@ -160,6 +184,8 @@ jobs:
           node $(BENCH_SCRIPTS)/setupPipeline.js
         displayName: Setup pipeline
         name: setupPipeline
+        env:
+          TSGOFLAG: $(TSGOFLAG)
 
       - bash: |
           set -exo pipefail
@@ -170,7 +196,7 @@ jobs:
 
       - bash: |
           set -exo pipefail
-          node $(BENCH_SCRIPTS)/buildTypeScript.js --outputDir $(ARTIFACTS_DIR)/new
+          node $(BENCH_SCRIPTS)/buildTypeScript.js --outputDir $(ARTIFACTS_DIR)/new $(TSGOFLAG)
         displayName: Build new TypeScript
         condition: and(succeeded(), eq(variables['TSPERF_IS_COMPARISON'], 'true'))
         workingDirectory: $(TYPESCRIPT_DIR)
@@ -185,7 +211,7 @@ jobs:
 
       - bash: |
           set -exo pipefail
-          node $(BENCH_SCRIPTS)/buildTypeScript.js --baseline --outputDir $(ARTIFACTS_DIR)/baseline
+          node $(BENCH_SCRIPTS)/buildTypeScript.js --baseline --outputDir $(ARTIFACTS_DIR)/baseline $(TSGOFLAG)
         displayName: Build baseline TypeScript
         workingDirectory: $(TYPESCRIPT_DIR)
         name: buildTypeScriptBaseline
@@ -226,6 +252,12 @@ jobs:
             artifact: BuiltTypeScript
             displayName: Download built TypeScript
 
+          - ${{ if eq(parameters.TS_GO, true) }}:
+              - bash: |
+                  set -exo pipefail
+                  find $(BUILT_TYPESCRIPT_DIR) -name 'tsgo' -type f -exec chmod +x {} +
+                displayName: Make tsgo executable
+
           # This is provided by the agent.
           - bash: |
               set -exo pipefail
@@ -237,7 +269,6 @@ jobs:
               node $(BENCH_SCRIPTS)/runTsPerf.js install-hosts
             displayName: Install hosts
             retryCountOnTaskFailure: 3
-
           - bash: |
               set -exo pipefail
               # Special case for self benchmark
@@ -397,7 +428,7 @@ jobs:
 
       - bash: |
           set -exo pipefail
-          node $(BENCH_SCRIPTS)/postPerfResult.js --fragment $(Pipeline.Workspace)/comment.html
+          node $(BENCH_SCRIPTS)/postPerfResult.js --fragment $(Pipeline.Workspace)/comment.html $(TSGOFLAG)
         displayName: Publish PR comment
         condition: and(succeeded(), eq(variables['IS_PR'], 'true'))
         env:
@@ -480,7 +511,7 @@ jobs:
 
       - bash: |
           set -exo pipefail
-          node $(BENCH_SCRIPTS)/postPerfResult.js --failed
+          node $(BENCH_SCRIPTS)/postPerfResult.js --failed $(TSGOFLAG)
         displayName: Publish PR comment
         env:
           DISTINCT_ID: ${{ parameters.DISTINCT_ID }}

@@ -9,7 +9,7 @@ import { TSServerConfig } from "./tsserverconfig";
 
 const cachedScenarios = new HashMap<string, Scenario[]>(PathComparer.fileSystem);
 
-export type ScenarioKind = "tsserver" | "tsc" | "startup";
+export type ScenarioKind = "tsserver" | "tsc" | "startup" | "lsp";
 
 export interface TscConfig {
     usePublicApi?: boolean;
@@ -56,6 +56,9 @@ export class Scenario {
     ) {
         if (kind === "tsserver" && !options?.tsserverConfig) {
             throw new Error(`Creating scenario '${name}': expected a tsserver config for tsserver scenario.`);
+        }
+        if (kind === "lsp" && !options?.tsserverConfig) {
+            throw new Error(`Creating scenario '${name}': expected a tsserver config for lsp scenario.`);
         }
         this.name = name;
         this.kind = kind;

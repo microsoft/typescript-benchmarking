@@ -2,7 +2,7 @@
     "name": "tsserver-startup",
     "kind": "startup",
     "args": [
-        "tsserver.js",
+        "tsserver",
         "--disableAutomaticTypingAcquisition"
     ]
 }

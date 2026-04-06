@@ -17,6 +17,7 @@ const tsperfExe = checkNonEmpty(process.env.TSPERF_EXE, "Expected TSPERF_EXE env
 const commands: Record<string, (() => Promise<void>) | undefined> = {
     "install-hosts": installHosts,
     "benchmark-tsc": benchmarkTsc,
+    "benchmark-lsp": benchmarkLsp,
     "benchmark-tsserver": benchmarkTsserver,
     "benchmark-startup": benchmarkStartup,
 };
@@ -28,6 +29,10 @@ await fn();
 
 async function installHosts() {
     const host = getNonEmptyEnv("TSPERF_JOB_HOST");
+    if (host === "native") {
+        console.log("Skipping host install for native binary");
+        return;
+    }
 
     await $`node ${tsperfExe} host install --host ${host}`;
 }
@@ -63,7 +68,10 @@ async function getCommonBenchmarkArgs() {
         tsperfArgs.push("--scenario", scenario);
         tsperfArgs.push("--iterations", iterations);
         tsperfArgs.push("--warmups", warmups);
-        tsperfArgs.push("--cpus", cpu);
+        if (!process.env.TSGOFLAG) {
+            // Don't set cpus/cores for tsgo
+            tsperfArgs.push("--cpus", cpu);
+        }
         if (predictable) {
             tsperfArgs.push("--predictable");
         }
@@ -135,6 +143,14 @@ async function benchmarkTsserver() {
     const tsperfArgs = await getCommonBenchmarkArgs();
 
     await $`node ${tsperfExe} benchmark tsserver --builtDir ${builtDir} ${tsperfArgs}`;
+}
+
+async function benchmarkLsp() {
+    const builtDir = checkNonEmpty(args.builtDir, "Expected non-empty --builtDir");
+
+    const tsperfArgs = await getCommonBenchmarkArgs();
+
+    await $`node ${tsperfExe} benchmark lsp --builtDir ${builtDir} ${tsperfArgs}`;
 }
 
 async function benchmarkStartup() {

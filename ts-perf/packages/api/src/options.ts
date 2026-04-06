@@ -110,6 +110,20 @@ const tsserver: CommandLineOptionSet = {
     },
 };
 
+const lsp: CommandLineOptionSet = {
+    merge: true,
+    include: ["common"],
+    options: {
+        builtDir,
+        suiteDir,
+        extended: {
+            type: "boolean",
+            description: "If the scenario declares optional (aka extended) requests, run those as well.",
+            defaultValue: false,
+        },
+    },
+};
+
 const startup: CommandLineOptionSet = {
     merge: true,
     include: ["common"],
@@ -151,6 +165,7 @@ export const optionSets: CommandLineOptionSets = {
     common,
     compiler,
     tsserver,
+    lsp,
     startup,
     azureStorage,
 };

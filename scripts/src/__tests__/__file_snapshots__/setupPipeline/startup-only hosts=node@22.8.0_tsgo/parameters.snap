@@ -1,0 +1,13 @@
+{
+  "baselineCommit": "HEAD^1",
+  "baselineName": "baseline",
+  "hosts": [
+    "node@22.8.0",
+  ],
+  "isComparison": true,
+  "isCustomCommitRange": false,
+  "newCommit": "HEAD",
+  "newName": "pr",
+  "predictable": undefined,
+  "preset": "startup-only",
+}
