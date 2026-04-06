@@ -448,10 +448,10 @@ function* transformPreset(parameters: Parameters, iter: Iterable<Scenario>, tsgo
 
     function* worker(): Iterable<Scenario> {
         for (const scenario of iter) {
-            if (tsgo && scenario.kind === "tsserver") {
-                continue;
-            }
-            if (!tsgo && scenario.kind === "lsp") {
+            if (
+                (tsgo && (scenario.kind === "tsserver" || scenario.name === "self-build-src-public-api"))
+                || (!tsgo && scenario.kind === "lsp")
+            ) {
                 continue;
             }
             if (scenario.kind === "startup") {
