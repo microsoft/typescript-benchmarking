@@ -1,7 +1,8 @@
 {
-    "name": "tsc-startup",
+    "name": "tsgo-startup",
     "kind": "startup",
     "args": [
+        "tsgo",
         "tsc",
         "--version"
     ]

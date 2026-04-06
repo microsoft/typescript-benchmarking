@@ -145,9 +145,17 @@ const allScenarios: readonly BaseScenario[] = [
         cost: 17,
     },
     { kind: "startup", name: "tsc-startup", agent: "ts-perf1", runIn: RunType.Any, cost: 19 },
+    { kind: "startup", name: "tsgo-startup", agent: "ts-perf1", runIn: RunType.Any, cost: 19 },
     {
         kind: "startup",
         name: "tsserver-startup",
+        agent: "ts-perf2",
+        runIn: RunType.Any,
+        cost: 28,
+    },
+    {
+        kind: "startup",
+        name: "lsp-startup",
         agent: "ts-perf2",
         runIn: RunType.Any,
         cost: 28,
@@ -445,6 +453,23 @@ function* transformPreset(parameters: Parameters, iter: Iterable<Scenario>, tsgo
             }
             if (!tsgo && scenario.kind === "lsp") {
                 continue;
+            }
+            if (scenario.kind === "startup") {
+                switch (scenario.name) {
+                    case "tsc-startup":
+                    case "lsp-startup":
+                        if (tsgo) {
+                            continue;
+                        }
+                        break;
+                    case "tsgo-startup":
+                    case "tsserver-startup":
+                    case "tsserverlibrary-startup":
+                    case "typescript-startup":
+                        if (!tsgo) {
+                            continue;
+                        }
+                }
             }
             const scenarioHosts = tsgo ? [hosts.native] : (parameters.hosts ?? [scenario.host]);
 

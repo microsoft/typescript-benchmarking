@@ -1,8 +1,10 @@
 {
-    "name": "tsserver-startup",
+    "name": "lsp-startup",
     "kind": "startup",
     "args": [
-        "tsserver",
+        "tsgo",
+        "--lsp",
+        "--stdio",
         "--disableAutomaticTypingAcquisition"
     ]
 }

@@ -506,15 +506,20 @@ async function runStartupScenario(
     const temp = await getTempDirectories();
     const expansion = ExpansionProvider.getProviders({ runner: { kind: "startup", options }, temp, scenario, host });
 
-    const entrypoint = scenario.args[0]; // A name of a JS file in the built/local directory.
+    const entrypoint = resolveBuiltPath(
+        options.builtDir,
+        scenario.args[0], // name of JS file or executable in the built/local directory.
+    );
+
+    console.log(entrypoint);
     const argsBuilder = new CommandLineArgumentsBuilder(
         expansion,
-        host,
+        isNativeBinary(entrypoint) ? Host.current : (host.executableFile ? host : Host.current),
         /*exposeGc*/ false,
         options.cpus,
         options.predictable,
     )
-        .add(path.join(options.builtDir, entrypoint))
+        .add(entrypoint)
         .addRange(scenario.args.slice(1));
 
     const { cmd, args } = argsBuilder;
