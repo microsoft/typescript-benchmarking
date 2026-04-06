@@ -458,7 +458,7 @@ function* transformPreset(parameters: Parameters, iter: Iterable<Scenario>, tsgo
                 switch (scenario.name) {
                     case "tsc-startup":
                     case "lsp-startup":
-                        if (tsgo) {
+                        if (!tsgo) {
                             continue;
                         }
                         break;
@@ -466,7 +466,7 @@ function* transformPreset(parameters: Parameters, iter: Iterable<Scenario>, tsgo
                     case "tsserver-startup":
                     case "tsserverlibrary-startup":
                     case "typescript-startup":
-                        if (!tsgo) {
+                        if (tsgo) {
                             continue;
                         }
                 }
