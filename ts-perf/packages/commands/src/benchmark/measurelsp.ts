@@ -280,8 +280,8 @@ async function runPerf(options: CLIOpts) {
         await connection.sendRequest(protocol.ReferencesRequest.method, {
             textDocument: { uri: fileUri },
             position: {
-                line: command.args.line,
-                character: command.args.offset,
+                line: command.args.line - 1,
+                character: command.args.offset - 1,
             },
             context: { includeDeclaration: true },
         } as protocol.ReferenceParams);
@@ -307,8 +307,8 @@ async function runPerf(options: CLIOpts) {
             {
                 textDocument: { uri: fileUri },
                 position: {
-                    line: command.args.line,
-                    character: command.args.offset,
+                    line: command.args.line - 1,
+                    character: command.args.offset - 1,
                 },
             } as protocol.CompletionParams,
         );
