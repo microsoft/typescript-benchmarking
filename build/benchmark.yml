@@ -348,13 +348,21 @@ jobs:
       MERGED_DIR: $(Pipeline.Workspace)/merged
 
     steps:
-      - task: AzureKeyVault@2
+      - task: AzureCLI@2
         inputs:
           azureSubscription: $(azureSubscription)
-          KeyVaultName: $(KeyVaultName)
-          SecretsFilter: 'typescript-bot-github-PAT-typescript-benchmarking'
-        displayName: Get secrets
-        retryCountOnTaskFailure: 3
+          scriptType: bash
+          scriptLocation: inlineScript
+          inlineScript: node scripts/create-github-app-token-from-keyvault.cjs
+        displayName: Create GitHub App token
+        env:
+          APP_CLIENT_ID: $(TYPESCRIPT_AUTOMATION_GITHUB_APP_CLIENT_ID)
+          KEY_ID: $(TYPESCRIPT_AUTOMATION_GITHUB_APP_KEY_ID)
+          OWNER: microsoft
+          REPOSITORIES: $(REPO)
+          PERMISSIONS: contents:read,issues:write
+          OUTPUT: azure-pipelines
+          AZURE_TOKEN_VARIABLE: GH_TOKEN
 
       - template: templates/setup.yml
 
@@ -436,7 +444,7 @@ jobs:
           SOURCE_ISSUE: ${{ parameters.SOURCE_ISSUE }}
           REQUESTING_USER: ${{ parameters.REQUESTING_USER }}
           STATUS_COMMENT: ${{ parameters.STATUS_COMMENT }}
-          GH_TOKEN: $(typescript-bot-github-PAT-typescript-benchmarking)
+          GH_TOKEN: $(GH_TOKEN)
 
       # Sets $(TSPERF_BLOB_LATEST)
       - bash: |
@@ -445,7 +453,7 @@ jobs:
         displayName: Check if commit is latest for ref
         condition: and(succeeded(), eq(variables['SHOULD_UPLOAD'], 'true'))
         env:
-          GH_TOKEN: $(typescript-bot-github-PAT-typescript-benchmarking)
+          GH_TOKEN: $(GH_TOKEN)
 
       - task: AzureCLI@2
         inputs:
@@ -483,6 +491,12 @@ jobs:
         displayName: Upload benchmarks to blob store
         condition: and(succeeded(), eq(variables['SHOULD_UPLOAD'], 'true'))
 
+      - script: node scripts/create-github-app-token-from-keyvault.cjs
+        displayName: Revoke GitHub App token
+        condition: always()
+        env:
+          REVOKE_TOKEN: $(GH_TOKEN)
+
   - job: OnFailedPRRun
     dependsOn:
       - Setup
@@ -498,13 +512,21 @@ jobs:
       clean: all # Always start with a clean slate.
 
     steps:
-      - task: AzureKeyVault@2
+      - task: AzureCLI@2
         inputs:
           azureSubscription: $(azureSubscription)
-          KeyVaultName: $(KeyVaultName)
-          SecretsFilter: 'typescript-bot-github-PAT-typescript-benchmarking'
-        displayName: Get secrets
-        retryCountOnTaskFailure: 3
+          scriptType: bash
+          scriptLocation: inlineScript
+          inlineScript: node scripts/create-github-app-token-from-keyvault.cjs
+        displayName: Create GitHub App token
+        env:
+          APP_CLIENT_ID: $(TYPESCRIPT_AUTOMATION_GITHUB_APP_CLIENT_ID)
+          KEY_ID: $(TYPESCRIPT_AUTOMATION_GITHUB_APP_KEY_ID)
+          OWNER: microsoft
+          REPOSITORIES: $(REPO)
+          PERMISSIONS: contents:read,issues:write
+          OUTPUT: azure-pipelines
+          AZURE_TOKEN_VARIABLE: GH_TOKEN
 
       - template: templates/setup.yml
       - template: templates/cloneAndBuildBenchmarkRepo.yml # Sets $(BENCH_SCRIPTS), $(TSPERF_EXE)
@@ -518,4 +540,10 @@ jobs:
           SOURCE_ISSUE: ${{ parameters.SOURCE_ISSUE }}
           REQUESTING_USER: ${{ parameters.REQUESTING_USER }}
           STATUS_COMMENT: ${{ parameters.STATUS_COMMENT }}
-          GH_TOKEN: $(typescript-bot-github-PAT-typescript-benchmarking)
+          GH_TOKEN: $(GH_TOKEN)
+
+      - script: node scripts/create-github-app-token-from-keyvault.cjs
+        displayName: Revoke GitHub App token
+        condition: always()
+        env:
+          REVOKE_TOKEN: $(GH_TOKEN)

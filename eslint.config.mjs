@@ -15,6 +15,7 @@ export default tseslint.config(
             "**/dist/**",
             "vitest.workspace.mjs",
             "cases/**",
+            "scripts/create-github-app-token-from-keyvault.cjs",
         ],
     },
     eslint.configs.recommended,
