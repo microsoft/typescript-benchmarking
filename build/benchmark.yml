@@ -103,6 +103,9 @@ variables:
   azureSubscription: 'TypeScript Public CI'
   KeyVaultName: 'jststeam-passwords'
 
+  TYPESCRIPT_AUTOMATION_GITHUB_APP_CLIENT_ID: 'Iv23li4GolzJSEp1mzHI'
+  TYPESCRIPT_AUTOMATION_GITHUB_APP_KEY_ID: 'https://jststeam-passwords.vault.azure.net/keys/typescript-automation'
+
   ${{ if eq(parameters.TS_GO, true) }}:
     REPO: 'typescript-go'
     REF: $[ replace(resources.repositories['typescript-go'].ref, 'heads/../', '') ]
