@@ -351,6 +351,8 @@ jobs:
       MERGED_DIR: $(Pipeline.Workspace)/merged
 
     steps:
+      - template: templates/setup.yml
+
       - task: AzureCLI@2
         inputs:
           azureSubscription: $(azureSubscription)
@@ -366,8 +368,6 @@ jobs:
           PERMISSIONS: contents:read,issues:write
           OUTPUT: azure-pipelines
           AZURE_TOKEN_VARIABLE: GH_TOKEN
-
-      - template: templates/setup.yml
 
       - download: current
         patterns: '**/*.benchmark'
@@ -515,6 +515,9 @@ jobs:
       clean: all # Always start with a clean slate.
 
     steps:
+      - template: templates/setup.yml
+      - template: templates/cloneAndBuildBenchmarkRepo.yml # Sets $(BENCH_SCRIPTS), $(TSPERF_EXE)
+
       - task: AzureCLI@2
         inputs:
           azureSubscription: $(azureSubscription)
@@ -530,9 +533,6 @@ jobs:
           PERMISSIONS: contents:read,issues:write
           OUTPUT: azure-pipelines
           AZURE_TOKEN_VARIABLE: GH_TOKEN
-
-      - template: templates/setup.yml
-      - template: templates/cloneAndBuildBenchmarkRepo.yml # Sets $(BENCH_SCRIPTS), $(TSPERF_EXE)
 
       - bash: |
           set -exo pipefail
