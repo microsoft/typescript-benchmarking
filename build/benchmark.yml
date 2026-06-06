@@ -353,22 +353,6 @@ jobs:
     steps:
       - template: templates/setup.yml
 
-      - task: AzureCLI@2
-        inputs:
-          azureSubscription: $(azureSubscription)
-          scriptType: bash
-          scriptLocation: inlineScript
-          inlineScript: node scripts/create-github-app-token-from-keyvault.cjs
-        displayName: Create GitHub App token
-        env:
-          APP_CLIENT_ID: $(TYPESCRIPT_AUTOMATION_GITHUB_APP_CLIENT_ID)
-          KEY_ID: $(TYPESCRIPT_AUTOMATION_GITHUB_APP_KEY_ID)
-          OWNER: microsoft
-          REPOSITORIES: $(REPO)
-          PERMISSIONS: contents:read,issues:write
-          OUTPUT: azure-pipelines
-          AZURE_TOKEN_VARIABLE: GH_TOKEN
-
       - download: current
         patterns: '**/*.benchmark'
         displayName: Download benchmarks
@@ -390,6 +374,22 @@ jobs:
         displayName: Download built TypeScript
 
       - template: templates/cloneAndBuildBenchmarkRepo.yml # Sets $(BENCH_SCRIPTS), $(TSPERF_EXE)
+
+      - task: AzureCLI@2
+        inputs:
+          azureSubscription: $(azureSubscription)
+          scriptType: bash
+          scriptLocation: inlineScript
+          inlineScript: node $(CREATE_TOKEN_SCRIPT)
+        displayName: Create GitHub App token
+        env:
+          APP_CLIENT_ID: $(TYPESCRIPT_AUTOMATION_GITHUB_APP_CLIENT_ID)
+          KEY_ID: $(TYPESCRIPT_AUTOMATION_GITHUB_APP_KEY_ID)
+          OWNER: microsoft
+          REPOSITORIES: $(REPO)
+          PERMISSIONS: contents:read,issues:write,pull_requests:write
+          OUTPUT: azure-pipelines
+          AZURE_TOKEN_VARIABLE: GH_TOKEN
 
       - bash: |
           set -exo pipefail
@@ -494,7 +494,7 @@ jobs:
         displayName: Upload benchmarks to blob store
         condition: and(succeeded(), eq(variables['SHOULD_UPLOAD'], 'true'))
 
-      - script: node scripts/create-github-app-token-from-keyvault.cjs
+      - script: node $(CREATE_TOKEN_SCRIPT)
         displayName: Revoke GitHub App token
         condition: always()
         env:
@@ -523,14 +523,14 @@ jobs:
           azureSubscription: $(azureSubscription)
           scriptType: bash
           scriptLocation: inlineScript
-          inlineScript: node scripts/create-github-app-token-from-keyvault.cjs
+          inlineScript: node $(CREATE_TOKEN_SCRIPT)
         displayName: Create GitHub App token
         env:
           APP_CLIENT_ID: $(TYPESCRIPT_AUTOMATION_GITHUB_APP_CLIENT_ID)
           KEY_ID: $(TYPESCRIPT_AUTOMATION_GITHUB_APP_KEY_ID)
           OWNER: microsoft
           REPOSITORIES: $(REPO)
-          PERMISSIONS: contents:read,issues:write
+          PERMISSIONS: contents:read,issues:write,pull_requests:write
           OUTPUT: azure-pipelines
           AZURE_TOKEN_VARIABLE: GH_TOKEN
 
@@ -545,7 +545,7 @@ jobs:
           STATUS_COMMENT: ${{ parameters.STATUS_COMMENT }}
           GH_TOKEN: $(GH_TOKEN)
 
-      - script: node scripts/create-github-app-token-from-keyvault.cjs
+      - script: node $(CREATE_TOKEN_SCRIPT)
         displayName: Revoke GitHub App token
         condition: always()
         env:
