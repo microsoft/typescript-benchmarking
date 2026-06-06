@@ -387,7 +387,7 @@ jobs:
           KEY_ID: $(TYPESCRIPT_AUTOMATION_GITHUB_APP_KEY_ID)
           OWNER: microsoft
           REPOSITORIES: $(REPO)
-          PERMISSIONS: contents:read,issues:write
+          PERMISSIONS: contents:read,issues:write,pull_requests:write
           OUTPUT: azure-pipelines
           AZURE_TOKEN_VARIABLE: GH_TOKEN
 
@@ -530,7 +530,7 @@ jobs:
           KEY_ID: $(TYPESCRIPT_AUTOMATION_GITHUB_APP_KEY_ID)
           OWNER: microsoft
           REPOSITORIES: $(REPO)
-          PERMISSIONS: contents:read,issues:write
+          PERMISSIONS: contents:read,issues:write,pull_requests:write
           OUTPUT: azure-pipelines
           AZURE_TOKEN_VARIABLE: GH_TOKEN
 
