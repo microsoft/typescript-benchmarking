@@ -6,7 +6,7 @@
     "license": "MIT",
     "type": "module",
     "engines": {
-        "node": "^20.19.0 || ^22.13.0 || >=24"
+        "node": "^22.13.0 || >=24"
     },
     "devDependencies": {
         "@badrap/valita": "^0.5.4",
