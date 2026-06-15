@@ -22,5 +22,5 @@ steps:
       COREPACK_ENABLE_STRICT=0 npm install -g corepack@latest
       corepack enable
       corepack enable npm
-      corepack prepare pnpm@latest-10 --activate
+      corepack prepare pnpm@latest-11 --activate
     displayName: 'Setup pnpm'

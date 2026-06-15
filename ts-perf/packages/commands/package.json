@@ -8,7 +8,7 @@
     "author": "Microsoft Corp.",
     "license": "MIT",
     "engines": {
-        "node": "^20.19.0 || ^22.13.0 || >=24"
+        "node": "^22.13.0 || >=24"
     },
     "bugs": {
         "url": "https://github.com/microsoft/typescript-benchmarking/issues"
@@ -35,11 +35,11 @@
         "iterable-query-linq": "^0.1.0",
         "picocolors": "^1.1.1",
         "power-options": "^0.3.4",
-        "semver": "^7.7.4",
+        "semver": "^7.8.4",
         "table-style": "^0.1.4",
-        "tmp": "^0.2.5",
-        "vscode-jsonrpc": "^9.0.0-next.11",
-        "vscode-languageserver-protocol": "^3.17.6-next.17"
+        "tmp": "^0.2.7",
+        "vscode-jsonrpc": "^9.0.0",
+        "vscode-languageserver-protocol": "^3.18.0"
     },
     "devDependencies": {
         "@types/semver": "^7.7.1",

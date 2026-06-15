@@ -5,40 +5,23 @@
     "author": "Microsoft Corp.",
     "license": "MIT",
     "engines": {
-        "node": "^20.19.0 || ^22.13.0 || >=24"
+        "node": "^22.13.0 || >=24"
     },
     "devDependencies": {
         "@eslint/js": "^10.0.1",
-        "@types/node": "^22.19.13",
-        "dprint": "^0.52.0",
-        "eslint": "^10.0.2",
-        "eslint-plugin-simple-import-sort": "^12.1.1",
-        "eslint-plugin-unicorn": "^63.0.0",
-        "globals": "^17.4.0",
-        "typescript": "^5.9.3",
-        "typescript-eslint": "^8.56.1",
-        "vitest": "^4.0.18"
+        "@types/node": "^22.19.21",
+        "dprint": "^0.54.0",
+        "eslint": "^10.5.0",
+        "eslint-plugin-simple-import-sort": "^13.0.0",
+        "eslint-plugin-unicorn": "^66.0.0",
+        "globals": "^17.6.0",
+        "typescript": "^6.0.3",
+        "typescript-eslint": "^8.61.1",
+        "vitest": "^4.1.9"
     },
-    "packageManager": "pnpm@10.30.3+sha512.c961d1e0a2d8e354ecaa5166b822516668b7f44cb5bd95122d590dd81922f606f5473b6d23ec4a5be05e7fcd18e8488d47d978bbe981872f1145d06e9a740017",
+    "packageManager": "pnpm@11.7.0+sha512.19cc852c120c7125760f2443ee6be0ca5b40f9f50598de1a09a1f177503e010e57c23c77646e01e761de59bf874fb22a3398c33ab9691fc13eb946b6f0f4d620",
     "scripts": {
         "build": "pnpm run --filter './scripts' --filter './ts-perf' build",
         "test": "vitest"
-    },
-    "pnpm": {
-        "requiredScripts": [
-            "build"
-        ],
-        "overrides": {
-            "@types/node": "$@types/node",
-            "tar@<=7.5.3": ">=7.5.4",
-            "tar@<7.5.7": ">=7.5.7",
-            "tar@<=7.5.2": ">=7.5.3",
-            "tar@<7.5.8": ">=7.5.8"
-        },
-        "onlyBuiltDependencies": [
-            "@esfx/equatable",
-            "dprint",
-            "esbuild"
-        ]
     }
 }
