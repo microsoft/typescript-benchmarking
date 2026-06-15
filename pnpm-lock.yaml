@@ -42,8 +42,8 @@ importers:
   scripts:
     devDependencies:
       '@badrap/valita':
-        specifier: ^0.4.6
-        version: 0.4.6
+        specifier: ^0.5.4
+        version: 0.5.4
       '@types/minimist':
         specifier: ^1.2.5
         version: 1.2.5
@@ -323,9 +323,9 @@ packages:
     resolution: {integrity: sha512-qehxGkRj55h/ff8EMaJ+cYhyaKlHIxqYDn682wQD7RNp9UujOQsHog2uS0r2vzr4pW+sXf90NeeayjcNaX3fFg==}
     engines: {node: '>=6.9.0'}
 
-  '@badrap/valita@0.4.6':
-    resolution: {integrity: sha512-4kdqcjyxo/8RQ8ayjms47HCWZIF5981oE5nIenbfThKDxWXtEHKipAOWlflpPJzZx9y/JWYQkp18Awr7VuepFg==}
-    engines: {node: '>= 18'}
+  '@badrap/valita@0.5.4':
+    resolution: {integrity: sha512-7mSmRiAYh9d4TgsAlJF/BWn0SfyT/T6BcX1KFAu2vw0xBolr84IlLQSu7fQEnhv3Ze9Vz9Qul5GrZ76my5B0gg==}
+    engines: {node: '>= 22'}
 
   '@dprint/darwin-arm64@0.54.0':
     resolution: {integrity: sha512-yqRI4enH+BDp+4+ZsPVdZM5h873JK1lN7li9l9A5u4C4cvh1oEsiBWAzEPccRkJ2ctF8LgaizBSxO38sqEVYbw==}
@@ -3059,7 +3059,7 @@ snapshots:
 
   '@babel/helper-validator-identifier@7.29.7': {}
 
-  '@badrap/valita@0.4.6': {}
+  '@badrap/valita@0.5.4': {}
 
   '@dprint/darwin-arm64@0.54.0':
     optional: true
