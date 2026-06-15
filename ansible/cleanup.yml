@@ -1,0 +1,15 @@
+- name: Cleanup
+  hosts: tsperf
+
+  vars:
+    agent_user: azdo
+    agent_home: '/home/{{ agent_user }}'
+    agent_root: '{{ agent_home }}/agent'
+
+    azdo_task_cache_retention_days: 30
+    azdo_task_cache_keep_versions: 2
+    azdo_task_cache_dry_run: false
+
+  tasks:
+    - name: Clean up Azure Pipelines task cache
+      ansible.builtin.import_tasks: tasks/azdo_cleanup.yml
