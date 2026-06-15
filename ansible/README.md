@@ -68,4 +68,10 @@ $ ansible-playbook -i /path/to/inventory.yml -e @/path/to/secrets.yml reboot.yml
 
 # Update all of the machines
 $ ansible-playbook -i /path/to/inventory.yml -e @/path/to/secrets.yml update.yml
+
+# Clean old Azure Pipelines task cache versions
+$ ansible-playbook -i /path/to/inventory.yml -e @/path/to/secrets.yml cleanup.yml
+
+# Preview the cleanup without deleting anything
+$ ansible-playbook -i /path/to/inventory.yml -e @/path/to/secrets.yml cleanup.yml -e '{"azdo_task_cache_dry_run": true}'
 ```

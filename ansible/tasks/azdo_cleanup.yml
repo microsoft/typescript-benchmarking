@@ -1,0 +1,102 @@
+---
+- name: Prune old Azure Pipelines task cache versions
+  ansible.builtin.shell: |
+    set -euo pipefail
+    python3 <<'PY'
+    import os
+    import shutil
+    import time
+
+    tasks_dir = os.environ["AZDO_TASKS_DIR"]
+    retention_days = int(os.environ["AZDO_TASK_CACHE_RETENTION_DAYS"])
+    keep_versions = int(os.environ["AZDO_TASK_CACHE_KEEP_VERSIONS"])
+    dry_run = os.environ["AZDO_TASK_CACHE_DRY_RUN"] == "1"
+
+    real_tasks_dir = os.path.realpath(tasks_dir)
+    if not real_tasks_dir.endswith("/_work/_tasks"):
+        raise SystemExit(f"Refusing to clean unexpected task cache path: {real_tasks_dir}")
+
+    if not os.path.isdir(real_tasks_dir):
+        print(f"Task cache does not exist: {real_tasks_dir}")
+        print("deleted_versions=0")
+        print("deleted_temp_dirs=0")
+        raise SystemExit(0)
+
+    cutoff = time.time() - retention_days * 24 * 60 * 60
+    deleted_versions = 0
+    deleted_temp_dirs = 0
+    deleted_bytes = 0
+    deleted_inodes = 0
+
+    def dir_stats(path):
+        inodes = 1
+        bytes_ = 0
+        for root, dirs, files in os.walk(path):
+            inodes += len(dirs) + len(files)
+            for name in files:
+                try:
+                    bytes_ += os.lstat(os.path.join(root, name)).st_size
+                except FileNotFoundError:
+                    pass
+        return inodes, bytes_
+
+    def remove_tree(path):
+        global deleted_bytes, deleted_inodes
+        inodes, bytes_ = dir_stats(path)
+        if not dry_run:
+            shutil.rmtree(path)
+        deleted_inodes += inodes
+        deleted_bytes += bytes_
+
+    for name in sorted(os.listdir(real_tasks_dir)):
+        task_dir = os.path.join(real_tasks_dir, name)
+        if not os.path.isdir(task_dir):
+            continue
+
+        if name.startswith("_temp_"):
+            if os.path.getmtime(task_dir) < cutoff:
+                remove_tree(task_dir)
+                deleted_temp_dirs += 1
+            continue
+
+        versions = []
+        for version_name in os.listdir(task_dir):
+            version_dir = os.path.join(task_dir, version_name)
+            if os.path.isdir(version_dir):
+                versions.append((os.path.getmtime(version_dir), version_dir))
+
+        versions.sort(reverse=True)
+        keep = {version_dir for _, version_dir in versions[:keep_versions]}
+
+        for mtime, version_dir in versions[keep_versions:]:
+            if mtime < cutoff and version_dir not in keep:
+                remove_tree(version_dir)
+                deleted_versions += 1
+
+    mode = "would_delete" if dry_run else "deleted"
+    print(f"{mode}_versions={deleted_versions}")
+    print(f"{mode}_temp_dirs={deleted_temp_dirs}")
+    print(f"{mode}_inodes={deleted_inodes}")
+    print(f"{mode}_bytes={deleted_bytes}")
+    print(f"retention_days={retention_days}")
+    print(f"keep_versions={keep_versions}")
+    PY
+  args:
+    executable: /bin/bash
+  environment:
+    AZDO_TASKS_DIR: '{{ agent_root }}/_work/_tasks'
+    AZDO_TASK_CACHE_RETENTION_DAYS: '{{ azdo_task_cache_retention_days }}'
+    AZDO_TASK_CACHE_KEEP_VERSIONS: '{{ azdo_task_cache_keep_versions }}'
+    AZDO_TASK_CACHE_DRY_RUN: "{{ '1' if azdo_task_cache_dry_run else '0' }}"
+  register: azdo_task_cache_cleanup
+  changed_when: >
+    not azdo_task_cache_dry_run and
+    (
+      'deleted_versions=0' not in azdo_task_cache_cleanup.stdout or
+      'deleted_temp_dirs=0' not in azdo_task_cache_cleanup.stdout
+    )
+  become: true
+
+- name: Print Azure Pipelines task cache cleanup summary
+  ansible.builtin.debug:
+    var: azdo_task_cache_cleanup.stdout_lines
