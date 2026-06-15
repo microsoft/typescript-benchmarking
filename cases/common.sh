@@ -64,9 +64,11 @@ function run_sandboxed() {
 
     cleanup
 
-    # Pull an extra time to ensure the image is up-to-date.
-    # The final cleanup will be able to remove unused images left behind.
-    docker pull $NODE_IMAGE
+    if docker image inspect $NODE_IMAGE >/dev/null 2>&1; then
+        docker pull $NODE_IMAGE || echo "Failed to update $NODE_IMAGE; continuing with cached image"
+    else
+        docker pull $NODE_IMAGE
+    fi
 
     (cd ../../sandbox; docker build -t $PROXY_IMAGE -f proxy.Dockerfile --build-arg="BASE_IMAGE=$NODE_IMAGE" .)
 
