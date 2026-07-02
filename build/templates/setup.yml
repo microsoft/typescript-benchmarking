@@ -4,9 +4,9 @@ parameters:
     default: '22.x'
 
 steps:
-  - task: NodeTool@0
+  - task: UseNode@1
     inputs:
-      versionSpec: ${{ parameters.NODE_VERSION }}
+      version: ${{ parameters.NODE_VERSION }}
     displayName: 'Install Node ${{ parameters.NODE_VERSION }}'
   - task: GoTool@0
     inputs:
