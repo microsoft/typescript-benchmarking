@@ -15,8 +15,7 @@ LogLevel Notice
 EOF
 
 RUN cat <<EOF > /etc/tinyproxy/filter
-^registry\.npmjs\.org$
-^registry\.yarnpkg\.com$
+^packagefeedproxy\.microsoft\.io$
 ^codeload\.github\.com$
 ^github\.com$
 ^saucelabs\.com$

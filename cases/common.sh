@@ -77,6 +77,7 @@ function run_sandboxed() {
     docker network create --driver bridge --internal $NO_INTERNET
 
     PROXY_PORT=8888
+    REGISTRY_URL=https://packagefeedproxy.microsoft.io/npm/
 
     echo "Creating proxy server"
     docker run \
@@ -114,13 +115,20 @@ function run_sandboxed() {
         --env HTTPS_PROXY=$PROXY_ADDR \
         --env YARN_HTTP_PROXY=$PROXY_ADDR \
         --env YARN_HTTPS_PROXY=$PROXY_ADDR \
+        --env NPM_CONFIG_REGISTRY=$REGISTRY_URL \
+        --env npm_config_registry=$REGISTRY_URL \
+        --env PNPM_CONFIG_REGISTRY=$REGISTRY_URL \
+        --env pnpm_config_registry=$REGISTRY_URL \
+        --env COREPACK_NPM_REGISTRY=$REGISTRY_URL \
+        --env YARN_NPM_REGISTRY_SERVER=$REGISTRY_URL \
+        --env BUN_CONFIG_REGISTRY=$REGISTRY_URL \
         --env COREPACK_ENABLE_DOWNLOAD_PROMPT=0 \
         --env CHANGE_USER_ID=$CHANGE_USER_ID \
         $NODE_IMAGE \
         sh -c '
             set -ex &&
             echo Verifying network &&
-            (curl -sL -o /dev/null https://registry.npmjs.org && echo "could reach registry (expected)" || (echo "could not reach registry (unexpected)"; exit 1)) &&
+            (curl -sL -o /dev/null "$NPM_CONFIG_REGISTRY" && echo "could reach registry (expected)" || (echo "could not reach registry (unexpected)"; exit 1)) &&
             (! curl -sL -o /dev/null https://bing.com && echo "could not reach internet (expected)" || (echo "could reach internet (unexpected)"; exit 1)) &&
             (! curl -sL -o /dev/null https://1.1.1.1 && echo "could not reach internet (expected)" || (echo "could reach internet (unexpected)"; exit 1)) &&
             if [ -n "$CHANGE_USER_ID" ]; then
