@@ -4,7 +4,7 @@ import { StrictEventArgTypes } from "@ts-perf/events";
 import * as inspector from "./inspector";
 
 // https://github.com/DefinitelyTyped/DefinitelyTyped/pull/66681#issuecomment-1724642846
-export * from "inspector";
+export * from "node:inspector";
 
 declare module "inspector" {
     interface SessionEvents {
