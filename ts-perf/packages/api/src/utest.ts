@@ -1,12 +1,18 @@
 import { standardNormalCdf } from "./normalDistribution";
+import { uDistributionCdf } from "./uDistribution";
 
-// This function returns the p-value determined by the two-sided Mann-Whitney U-Test,
-// via the normal approximation.
-// Emperically, its behavior matches scipy's scipy.stats.mannwhitneyu function (though
-// implemented differently).
+const exactLimit = 50;
+const tiesExactLimit = 25;
+
+// This function returns the p-value determined by the two-sided Mann-Whitney U-test.
+// It uses the exact distribution for small samples and a corrected normal approximation
+// for larger samples, matching Go benchstat's implementation.
 // https://en.wikipedia.org/wiki/Mann%E2%80%93Whitney_U_test
-// https://sphweb.bumc.bu.edu/otlt/mph-modules/bs/bs704_nonparametric/bs704_nonparametric4.html
 export function utest(x1: readonly number[], x2: readonly number[]): number {
+    if (x1.length === 0 || x2.length === 0) {
+        throw new Error("Mann-Whitney U-test samples must not be empty.");
+    }
+
     function toLabeled(x: readonly number[], label: "x1" | "x2") {
         return x.map(x => ({ x, label }));
     }
@@ -14,8 +20,8 @@ export function utest(x1: readonly number[], x2: readonly number[]): number {
     const all = toLabeled(x1, "x1").concat(toLabeled(x2, "x2")).sort((a, b) => a.x - b.x);
 
     const rankSums = { x1: 0, x2: 0 };
-    // This is Σ_j (t_j³ - t_j) in https://en.wikipedia.org/wiki/Mann%E2%80%93Whitney_U_test#Normal_approximation_and_tie_correction
-    let tieCorrection = 0;
+    const ties: number[] = [];
+    let hasTies = false;
 
     for (let i = 0; i < all.length;) {
         const curr = all[i];
@@ -42,9 +48,8 @@ export function utest(x1: readonly number[], x2: readonly number[]): number {
         rankSums.x2 += rankCounts.x2 * rank;
 
         const t = lastRank - firstRank + 1;
-        if (t > 1) {
-            tieCorrection += t * t * t - t;
-        }
+        ties.push(t);
+        hasTies ||= t > 1;
     }
 
     const n1 = x1.length;
@@ -52,18 +57,32 @@ export function utest(x1: readonly number[], x2: readonly number[]): number {
     const n = n1 + n2;
 
     const R1 = rankSums.x1;
-    const U1 = n1 * n2 + (n1 * (n1 + 1)) / 2 - R1;
+    const U1 = R1 - (n1 * (n1 + 1)) / 2;
     const U2 = n1 * n2 - U1; // Simplified, as n1*n2 = U1 + U2.
-    const U = Math.max(U1, U2);
+    const smallerU = Math.min(U1, U2);
 
-    const m_U = n1 * n2 / 2;
-    const sigma_U = Math.sqrt(((n1 * n2) / 12) * ((n + 1) - tieCorrection / (n * (n - 1))));
+    const useExactDistribution = (!hasTies && n1 <= exactLimit && n2 <= exactLimit)
+        || (hasTies && n1 <= tiesExactLimit && n2 <= tiesExactLimit);
+    if (useExactDistribution) {
+        if (ties.length === 1) {
+            return 1;
+        }
 
-    // 0.5 is the "continuity correction" (see the docs on https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.mannwhitneyu.html)
-    const z = (U - m_U - 0.5) / sigma_U;
+        if (U1 === U2) {
+            return 1;
+        }
+        return Math.min(1, 2 * uDistributionCdf(n1, n2, ties, smallerU));
+    }
 
-    let pValue = 2 * (1 - standardNormalCdf(z)); // Multiply by 2; two-sided test.
-    pValue = Math.max(0, pValue);
-    pValue = Math.min(1, pValue);
-    return pValue;
+    // This is Σ_j (t_j³ - t_j) in the normal approximation's tie correction.
+    const tieCorrection = ties.reduce((total, tie) => total + tie * tie * tie - tie, 0);
+    const meanU = n1 * n2 / 2;
+    const sigmaU = Math.sqrt(((n1 * n2) / 12) * ((n + 1) - tieCorrection / (n * (n - 1))));
+    if (sigmaU === 0) {
+        return 1;
+    }
+
+    const numerator = U1 - meanU - Math.sign(U1 - meanU) * 0.5;
+    const z = numerator / sigmaU;
+    return Math.min(1, 2 * Math.min(standardNormalCdf(z), 1 - standardNormalCdf(z)));
 }

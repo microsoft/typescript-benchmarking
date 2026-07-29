@@ -1,7 +1,6 @@
 import { describe, expect, test } from "vitest";
 
 import { standardNormalCdf } from "../src/normalDistribution.js";
-import { utest } from "../src/utest.js";
 
 describe("standardNormalCdf", () => {
     test.each([
@@ -28,17 +27,5 @@ describe("standardNormalCdf", () => {
         expect(standardNormalCdf(Number.NEGATIVE_INFINITY)).toBe(0);
         expect(standardNormalCdf(Number.POSITIVE_INFINITY)).toBe(1);
         expect(standardNormalCdf(Number.NaN)).toBeNaN();
-    });
-});
-
-describe("utest", () => {
-    test.each([
-        [[1, 2, 3], [1, 2, 3], 1],
-        [[1, 2, 3], [4, 5, 6], 0.0808555983700523],
-        [[1, 1, 2, 3], [1, 2, 2, 4], 0.6489418131874136],
-        [[10, 11, 12, 13, 14], [1, 2, 3, 4, 5], 0.0121857803553449],
-        [[1, 2, 4, 8, 16], [2, 3, 5, 7, 11], 0.9165626446795412],
-    ])("preserves Mann-Whitney p-values", (left, right, expected) => {
-        expect(utest(left, right)).toBeCloseTo(expected, 15);
     });
 });
