@@ -24,7 +24,7 @@
     ],
     "dependencies": {
         "@azure/identity": "^4.13.1",
-        "@azure/storage-blob": "^12.32.0",
+        "@azure/storage-blob": "^12.33.0",
         "@esfx/collections-hashmap": "^1.0.2",
         "@esfx/collections-hashset": "^1.0.2",
         "@esfx/equatable": "^1.0.2",
@@ -32,7 +32,7 @@
         "@ts-perf/core": "workspace:^",
         "iterable-query": "1.0.0-pre.16",
         "power-options": "^0.3.4",
-        "semver": "^7.8.4"
+        "semver": "^7.8.5"
     },
     "devDependencies": {
         "@types/semver": "^7.7.1"

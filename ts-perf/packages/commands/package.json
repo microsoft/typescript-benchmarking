@@ -29,17 +29,17 @@
         "@ts-perf/core": "workspace:^",
         "@ts-perf/inspector": "workspace:^",
         "@ts-perf/profiler": "workspace:^",
-        "@typescript/server-harness": "^0.3.5",
+        "@typescript/server-harness": "^0.3.6",
         "@vscode/test-electron": "^2.5.2",
         "iterable-query": "1.0.0-pre.16",
         "iterable-query-linq": "^0.1.0",
         "picocolors": "^1.1.1",
         "power-options": "^0.3.4",
-        "semver": "^7.8.4",
+        "semver": "^7.8.5",
         "table-style": "^0.1.4",
         "tmp": "^0.2.7",
-        "vscode-jsonrpc": "^9.0.0",
-        "vscode-languageserver-protocol": "^3.18.0"
+        "vscode-jsonrpc": "^9.0.1",
+        "vscode-languageserver-protocol": "^3.18.2"
     },
     "devDependencies": {
         "@types/semver": "^7.7.1",
