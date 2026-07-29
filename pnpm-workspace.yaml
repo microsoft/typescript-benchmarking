@@ -14,3 +14,9 @@ requiredScripts:
 allowBuilds:
   '@esfx/equatable': true
   dprint: true
+
+overrides:
+  '@esfx/equatable@1.0.2>@mapbox/node-pre-gyp': '-'
+
+patchedDependencies:
+  '@esfx/equatable@1.0.2': patches/@esfx__equatable@1.0.2.patch
