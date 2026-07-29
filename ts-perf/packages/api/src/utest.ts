@@ -1,4 +1,4 @@
-import cdf from "@stdlib/stats-base-dists-normal-cdf";
+import { standardNormalCdf } from "./normalDistribution";
 
 // This function returns the p-value determined by the two-sided Mann-Whitney U-Test,
 // via the normal approximation.
@@ -62,7 +62,7 @@ export function utest(x1: readonly number[], x2: readonly number[]): number {
     // 0.5 is the "continuity correction" (see the docs on https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.mannwhitneyu.html)
     const z = (U - m_U - 0.5) / sigma_U;
 
-    let pValue = 2 * (1 - cdf(z, 0, 1)); // Multiply by 2; two-sided test.
+    let pValue = 2 * (1 - standardNormalCdf(z)); // Multiply by 2; two-sided test.
     pValue = Math.max(0, pValue);
     pValue = Math.min(1, pValue);
     return pValue;
