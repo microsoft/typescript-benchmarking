@@ -4,11 +4,7 @@
     "args": [
         "-p",
         "${suiteDirectory}/Compiler",
-        "--target",
-        "es5",
-        "--module",
-        "amd",
-        "--outfile",
-        "${outDirectory}/out.js"
+        "--outdir",
+        "${outDirectory}"
     ]
 }

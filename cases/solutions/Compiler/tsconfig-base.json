@@ -1,6 +1,8 @@
 {
     "compilerOptions": {
-        "lib": ["es5"],
+        "strictNullChecks": false,
+        "strictFunctionTypes": false,
+        "lib": ["es2015"],
         "noEmitOnError": false,
         "noImplicitAny": true,
         "noImplicitThis": true,
@@ -11,8 +13,9 @@
         "preserveConstEnums": true,
         "stripInternal": true,
         "sourceMap": true,
-        "target": "es5",
+        "target": "es2015",
         "newLine": "lf",
+        "skipLibCheck": true,
         "types": []
     }
 }
