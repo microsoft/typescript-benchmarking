@@ -118,7 +118,7 @@ function twoUMax(
 
 function tiedCumulativeCount(twoU: number, n1: number, ties: readonly number[]): number {
     const rankCount = ties.length;
-    const coefficients = new Array<number>(rankCount + 1).fill(0);
+    const coefficients = Array.from<number>({ length: rankCount + 1 }).fill(0);
     coefficients[1] = ties[0];
     for (let k = 2; k <= rankCount; k++) {
         coefficients[k] = coefficients[k - 1] + ties[k - 2] + ties[k - 1];
