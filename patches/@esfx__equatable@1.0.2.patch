@@ -1,0 +1,129 @@
+diff --git a/lib/hashCodeNative.js b/lib/hashCodeNative.js
+index dfd05055198b9acaa512005287443033f8c71a5e..e47b4ae0dadeebd3b2bf1ee3d7f040f7e9fd71dd 100644
+--- a/lib/hashCodeNative.js
++++ b/lib/hashCodeNative.js
+@@ -17,12 +17,7 @@
+ "use strict";
+ Object.defineProperty(exports, "__esModule", { value: true });
+ 
+-const binary = require("@mapbox/node-pre-gyp");
+-const path = require("path");
+-
+-let hashCode;
+-try { hashCode = require(binary.find(path.resolve(path.join(__dirname, "../package.json")))); }
+-catch { hashCode = require("#hash/script"); }
++const hashCode = require("../dist/cjs/internal/hashCode.js");
+ 
+ exports.hashBigInt = hashCode.hashBigInt;
+ exports.hashNumber = hashCode.hashNumber;
+diff --git a/lib/hashCodeNative.mjs b/lib/hashCodeNative.mjs
+index 229b6d099149cf25ed968da110b1155f49261d83..427b6902daf572e3d98f57a0ba705465581aa8f1 100644
+--- a/lib/hashCodeNative.mjs
++++ b/lib/hashCodeNative.mjs
+@@ -14,13 +14,7 @@
+    limitations under the License.
+ */
+ 
+-import { createRequire } from "node:module";
+-import { fileURLToPath, URL } from "node:url";
+-import binary from "@mapbox/node-pre-gyp";
+-
+-let hashCode;
+-try { hashCode = createRequire(import.meta.url)(binary.find(fileURLToPath(new URL("../package.json", import.meta.url)))); }
+-catch { hashCode = await import("#hash/script"); }
++import * as hashCode from "../dist/esm/internal/hashCode.mjs";
+ 
+ export const {
+     hashBigInt,
+diff --git a/package.json b/package.json
+index 9939355cd460a96f1b5dc2582fb59ca2bb93d2bd..fde583eac7f0d1d1407439263f49e212583afa86 100644
+--- a/package.json
++++ b/package.json
+@@ -14,10 +14,8 @@
+     },
+     "imports": {
+         "#hash/native": {
+-            "node": {
+-                "require": "./lib/hashCodeNative.js",
+-                "import": "./lib/hashCodeNative.mjs"
+-            }
++            "require": "./dist/cjs/internal/hashCode.js",
++            "import": "./dist/esm/internal/hashCode.mjs"
+         },
+         "#hash/script": {
+             "require": "./dist/cjs/internal/hashCode.js",
+@@ -28,34 +26,18 @@
+             "import": "./dist/esm/internal/hashCode.mjs"
+         },
+         "#hash/bigint": {
+-            "node": {
+-                "require": "./lib/hashCodeNative.js",
+-                "import": "./lib/hashCodeNative.mjs"
+-            },
+             "require": "./dist/cjs/internal/hashCode.js",
+             "import": "./dist/esm/internal/hashCode.mjs"
+         },
+         "#hash/string": {
+-            "node": {
+-                "require": "./lib/hashCodeNative.js",
+-                "import": "./lib/hashCodeNative.mjs"
+-            },
+             "require": "./dist/cjs/internal/hashCode.js",
+             "import": "./dist/esm/internal/hashCode.mjs"
+         },
+         "#hash/symbol": {
+-            "node": {
+-                "require": "./lib/hashCodeNative.js",
+-                "import": "./lib/hashCodeNative.mjs"
+-            },
+             "require": "./dist/cjs/internal/hashCode.js",
+             "import": "./dist/esm/internal/hashCode.mjs"
+         },
+         "#hash/object": {
+-            "node": {
+-                "require": "./lib/hashCodeNative.js",
+-                "import": "./lib/hashCodeNative.mjs"
+-            },
+             "require": "./dist/cjs/internal/hashCode.js",
+             "import": "./dist/esm/internal/hashCode.mjs"
+         }
+@@ -64,16 +46,8 @@
+     "license": "Apache-2.0",
+     "scripts": {
+         "prepack": "node ../../scripts/verifyPackage.js",
+-        "install": "node-pre-gyp install --fallback-to-build",
+-        "build-native": "node-pre-gyp configure build --runtime=node --target_arch=x64",
+-        "build-wasm": "node ./scripts/build-wasm.js -i src/internal/hashers/xxhash64.wast --mjs src/internal/hashers/xxhash64.generated.ts",
+-        "prebuild": "yarn run build-native && yarn run build-wasm",
+-        "build-node-win32-x64": "node-pre-gyp configure rebuild --runtime=node --target_arch=x64 --target_platform=win32",
+-        "build-node-linux-x64": "node-pre-gyp configure rebuild --runtime=node --target_arch=x64 --target_platform=linux",
+-        "build-node-darwin-x64": "node-pre-gyp configure rebuild --runtime=node --target_arch=x64 --target_platform=darwin",
+-        "package-node-win32-x64": "node-pre-gyp configure rebuild package --runtime=node --target_arch=x64 --target_platform=win32",
+-        "package-node-linux-x64": "node-pre-gyp configure rebuild package --runtime=node --target_arch=x64 --target_platform=linux",
+-        "package-node-darwin-x64": "node-pre-gyp configure rebuild package --runtime=node --target_arch=x64 --target_platform=darwin"
++        "install": "node -e \"process.exit(0)\"",
++        "build-wasm": "node ./scripts/build-wasm.js -i src/internal/hashers/xxhash64.wast --mjs src/internal/hashers/xxhash64.generated.ts"
+     },
+     "repository": {
+         "type": "git",
+@@ -82,20 +55,10 @@
+     "bugs": {
+         "url": "https://github.com/esfx/esfx/issues"
+     },
+-    "dependencies": {
+-        "@mapbox/node-pre-gyp": "^1.0.9"
+-    },
+     "devDependencies": {
+         "@esfx/internal-guards": "^1.0.0",
+         "node-pre-gyp-github": "^1.4.4"
+     },
+-    "binary": {
+-        "module_name": "hashCodeNative",
+-        "module_path": "./dist/node/{configuration}/{node_abi}-{platform}-{arch}/",
+-        "package_name": "{module_name}-v{version}-{node_abi}-{platform}-{arch}.tar.gz",
+-        "host": "https://github.com/esfx/esfx/releases/download/",
+-        "remote_path": "v{version}"
+-    },
+     "publishConfig": {
+         "access": "public"
+     },
