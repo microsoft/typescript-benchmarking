@@ -11,21 +11,19 @@
         "@dprint/json": "^0.23.0",
         "@dprint/markdown": "^0.22.1",
         "@dprint/typescript": "^0.96.1",
-        "@eslint/js": "^10.0.1",
         "@types/node": "^22.20.1",
         "dprint": "^0.55.2",
         "dprint-plugin-yaml": "^0.6.0",
-        "eslint": "^10.8.0",
-        "eslint-plugin-simple-import-sort": "^14.0.0",
-        "eslint-plugin-unicorn": "^72.0.0",
-        "globals": "^17.8.0",
-        "typescript": "^6.0.3",
-        "typescript-eslint": "^8.65.0",
+        "oxlint": "^1.76.0",
+        "oxlint-tsgolint": "^7.0.2001",
+        "typescript": "^7.0.2",
         "vitest": "^4.1.10"
     },
     "packageManager": "pnpm@11.18.0+sha512.33d83c77da82f49fba836925c6f1b841181ec3132b670639bd012f7075f5c7cf634c5f870147c19aae7478fac01df09d8892e880454896edd23ee9b33757563c",
     "scripts": {
         "build": "pnpm run --filter './scripts' --filter './ts-perf' build",
+        "lint": "oxlint .",
+        "lint:fix": "oxlint . --fix",
         "test": "vitest"
     }
 }

@@ -15,6 +15,7 @@ export class Executable {
             let exitCode = 0;
             process.exit = (code = 0) => {
                 exitCode = +(code ?? 1);
+                // oxlint-disable-next-line no-throw-literal
                 throw processExitSentinel;
             };
 

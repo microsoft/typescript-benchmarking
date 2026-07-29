@@ -96,7 +96,7 @@ export class Logger {
             message = message ? "Assertion failed: " + message : "Assertion failed.";
             this.error(message);
             if (this.shouldWriteEvent(LogEventType.Error)) {
-                // eslint-disable-next-line no-debugger
+                // oxlint-disable-next-line no-debugger
                 debugger;
                 throw new Error(message);
             }

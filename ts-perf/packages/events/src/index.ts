@@ -42,6 +42,5 @@ export interface StrictEventEmitter<TEvents extends StrictEventsBase<TEvents>> e
     listenerCount(event: never): number;
 }
 
-// eslint-disable-next-line @typescript-eslint/no-unsafe-declaration-merging
 export class StrictEventEmitter<TEvents extends StrictEventsBase<TEvents>> extends EventEmitter {
 }

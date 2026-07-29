@@ -63,7 +63,6 @@ export interface TableColumn<T, C> {
 }
 
 export function Table<T, C>(definition: Table<T, C>) {
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-function-type
     function decorator(constructor: Function) {
         weakTable.set(constructor.prototype, definition);
     }

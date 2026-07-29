@@ -245,7 +245,7 @@ async function configureReplHistory(repl: REPLServer, replHistoryPath: string) {
         await readReplHistory(repl, replHistoryPath);
 
         const onLine = () => {
-            flushHistory(/*debounce*/ false);
+            void flushHistory(/*debounce*/ false);
         };
 
         const onExit = () => {
@@ -291,7 +291,7 @@ async function configureReplHistory(repl: REPLServer, replHistoryPath: string) {
             while (writeRequested && debounce);
 
             if (writeRequested) {
-                flushHistory(/*debounce*/ true);
+                void flushHistory(/*debounce*/ true);
             }
             else {
                 if (!source) {

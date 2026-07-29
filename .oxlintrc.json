@@ -1,0 +1,67 @@
+{
+    "$schema": "./node_modules/oxlint/configuration_schema.json",
+    "categories": {
+        "correctness": "error"
+    },
+    "env": {
+        "node": true
+    },
+    "ignorePatterns": [
+        "**/node_modules/**",
+        "**/dist/**",
+        "vitest.workspace.mjs",
+        "cases/**",
+        "scripts/create-github-app-token-from-keyvault.cjs"
+    ],
+    "options": {
+        "denyWarnings": true,
+        "reportUnusedDisableDirectives": "error",
+        "typeAware": true
+    },
+    "rules": {
+        "eqeqeq": "error",
+        "no-caller": "error",
+        "no-case-declarations": "off",
+        "no-cond-assign": "off",
+        "no-constant-condition": ["error", {
+            "checkLoops": false
+        }],
+        "no-control-regex": "off",
+        "no-empty": "off",
+        "no-eval": "error",
+        "no-extra-bind": "error",
+        "no-extra-boolean-cast": "off",
+        "no-inner-declarations": "off",
+        "no-new-func": "error",
+        "no-new-wrappers": "error",
+        "no-throw-literal": "error",
+        "no-unused-expressions": "off",
+        "no-unused-vars": "off",
+        "no-var": "error",
+        "object-shorthand": "error",
+        "prefer-const": "error",
+        "prefer-object-spread": "error",
+        "sort-imports": ["error", {
+            "ignoreCase": true,
+            "ignoreDeclarationSort": true
+        }],
+        "typescript/no-duplicate-enum-values": "off",
+        "typescript/no-floating-promises": "error",
+        "typescript/no-misused-promises": "error",
+        "typescript/no-redundant-type-constituents": "off",
+        "typescript/no-unsafe-declaration-merging": "off",
+        "typescript/no-useless-default-assignment": "off",
+        "typescript/restrict-template-expressions": "off",
+        "typescript/unbound-method": "off",
+        "unicode-bom": ["error", "never"],
+        "unicorn/no-empty-file": "off",
+        "unicorn/prefer-node-protocol": "error",
+        "unicorn/prefer-string-starts-ends-with": "off"
+    },
+    "overrides": [{
+        "files": ["**/*.mjs", "**/*.mts"],
+        "rules": {
+            "no-restricted-globals": ["error", "__filename", "__dirname", "require", "module", "exports"]
+        }
+    }]
+}

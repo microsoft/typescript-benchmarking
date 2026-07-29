@@ -107,7 +107,7 @@ function getAllActualSnapshots() {
     return new Set(globSync("**/*.snap", { cwd: snapshotDir, absolute: true }));
 }
 
-// Inspired by https://github.com/microsoft/DefinitelyTyped-tools/blob/7ff7d6b212946a77e0048002297964f5b51c8714/packages/eslint-plugin/test/eslint.test.ts#L114
+// Inspired by the abandoned snapshot test in microsoft/DefinitelyTyped-tools.
 test("abandoned snapshots", () => {
     const expectedSnapshots = getAllExpectedSnapshots();
     const actualSnapshots = getAllActualSnapshots();

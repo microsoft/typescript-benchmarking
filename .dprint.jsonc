@@ -21,7 +21,7 @@
         // "importDeclaration.forceMultiLine": true,
         "constructorType.spaceAfterNewKeyword": true,
         "constructSignature.spaceAfterNewKeyword": true,
-        // Let eslint-plugin-simple-import-sort handle this.
+        // Let oxlint handle named import ordering.
         "module.sortImportDeclarations": "maintain",
         "module.sortExportDeclarations": "maintain",
         "exportDeclaration.sortNamedExports": "maintain",
