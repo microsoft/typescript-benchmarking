@@ -14,14 +14,14 @@
         "azure-devops-node-api": "^15.1.2",
         "dotenv": "^17.4.2",
         "es-main": "^1.4.0",
-        "execa": "^9.6.1",
-        "filenamify": "^7.0.1",
+        "execa": "^10.0.0",
+        "filenamify": "^7.0.2",
         "glob": "^13.0.6",
         "minimist": "^1.2.8",
         "octokit": "^5.0.5",
-        "ora": "^9.4.0",
+        "ora": "^9.4.1",
         "pretty-ms": "^9.3.0",
-        "sort-keys": "^6.0.0"
+        "sort-keys": "^6.0.1"
     },
     "scripts": {
         "build": "tsc",

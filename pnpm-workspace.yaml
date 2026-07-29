@@ -11,27 +11,6 @@ packages:
 requiredScripts:
   - build
 
-minimumReleaseAgeExclude:
-  - '@typescript-eslint/eslint-plugin@8.61.1'
-  - '@typescript-eslint/parser@8.61.1'
-  - '@typescript-eslint/project-service@8.61.1'
-  - '@typescript-eslint/scope-manager@8.61.1'
-  - '@typescript-eslint/tsconfig-utils@8.61.1'
-  - '@typescript-eslint/type-utils@8.61.1'
-  - '@typescript-eslint/types@8.61.1'
-  - '@typescript-eslint/typescript-estree@8.61.1'
-  - '@typescript-eslint/utils@8.61.1'
-  - '@typescript-eslint/visitor-keys@8.61.1'
-  - '@vitest/expect@4.1.9'
-  - '@vitest/mocker@4.1.9'
-  - '@vitest/pretty-format@4.1.9'
-  - '@vitest/runner@4.1.9'
-  - '@vitest/snapshot@4.1.9'
-  - '@vitest/spy@4.1.9'
-  - '@vitest/utils@4.1.9'
-  - typescript-eslint@8.61.1
-  - vitest@4.1.9
-
 allowBuilds:
   '@esfx/equatable': true
   dprint: true
