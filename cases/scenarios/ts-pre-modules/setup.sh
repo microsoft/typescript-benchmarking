@@ -15,3 +15,11 @@ run_sandboxed sh -c '
         npx gulp generate-diagnostics
     fi
 '
+
+sed -i \
+    -e 's/"compilerOptions": {/"compilerOptions": {\n        "strictFunctionTypes": false,/' \
+    -e 's/"lib": \["es2015.iterable", "es2015.generator", "es5"\]/"lib": ["es2015"]/' \
+    -e 's/"target": "es5"/"target": "es2015"/' \
+    -e 's/"moduleResolution": "node"/"moduleResolution": "bundler"/' \
+    src/tsconfig-base.json
+sed -i 's#"outFile": "../../built/local/compiler.js"#"outDir": "dist"#' src/compiler/tsconfig.json

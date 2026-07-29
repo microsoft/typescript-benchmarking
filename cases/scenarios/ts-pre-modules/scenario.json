@@ -4,8 +4,8 @@
     "args": [
         "-p",
         "${suiteDirectory}/ts-pre-modules/src/compiler",
-        "--outfile",
-        "${outDirectory}/out.js",
+        "--outdir",
+        "${outDirectory}",
         "--composite",
         "false"
     ],
