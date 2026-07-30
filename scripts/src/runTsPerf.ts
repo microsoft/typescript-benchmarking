@@ -61,17 +61,14 @@ async function getCommonBenchmarkArgs() {
         const iterations = getNonEmptyEnv("TSPERF_JOB_ITERATIONS");
         const warmups = getNonEmptyEnv("TSPERF_JOB_WARMUPS");
         const predictable = parseBoolean(getNonEmptyEnv("TSPERF_PREDICTABLE"), false);
-        const cpu = getNonEmptyEnv("TSPERF_AGENT_BENCHMARK_CPU");
+        const cpus = getNonEmptyEnv("TSPERF_AGENT_BENCHMARK_CPUS");
         const info = await getRepoInfo(args.builtDir);
 
         tsperfArgs.push("--host", host);
         tsperfArgs.push("--scenario", scenario);
         tsperfArgs.push("--iterations", iterations);
         tsperfArgs.push("--warmups", warmups);
-        if (!process.env.TSGOFLAG) {
-            // Don't set cpus/cores for tsgo
-            tsperfArgs.push("--cpus", cpu);
-        }
+        tsperfArgs.push("--cpus", cpus);
         if (predictable) {
             tsperfArgs.push("--predictable");
         }

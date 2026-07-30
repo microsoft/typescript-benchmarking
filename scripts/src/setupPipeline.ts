@@ -39,6 +39,7 @@ type BaselineAgent = Exclude<AllAgents, ReserveAgents>;
 type Agent = "any" | AllAgents;
 
 const defaultIterations = 6;
+const tsgoIterations = 12;
 const defaultWarmups = 1;
 
 // TODO(jakebailey): have unpinned variants; ts-perf mostly supports @latest.
@@ -477,6 +478,7 @@ function* transformPreset(parameters: Parameters, iter: Iterable<Scenario>, tsgo
                 yield {
                     ...scenario,
                     host,
+                    iterations: tsgo ? tsgoIterations : scenario.iterations,
                 };
             }
         }
