@@ -14,11 +14,11 @@
   ansible.builtin.shell: update-grub && touch /var/run/reboot-required
   become: yes
 
-- name: Remove legacy TSPERF_AGENT_BENCHMARK_CPU from .env
+- name: Add legacy TSPERF_AGENT_BENCHMARK_CPU to .env
   ansible.builtin.lineinfile:
     path: '{{ agent_root }}/.env'
     regexp: '^TSPERF_AGENT_BENCHMARK_CPU='
-    state: absent
+    line: 'TSPERF_AGENT_BENCHMARK_CPU={{ benchmark_cpus }}'
   become: yes
   become_user: '{{ agent_user }}'
   register: legacy_env_line
