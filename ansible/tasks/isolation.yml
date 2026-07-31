@@ -4,9 +4,11 @@
     dest: /etc/default/grub.d/ts-perf.cfg
     owner: root
     group: root
-    # domain isolation prevents Go's threads from balancing across the benchmark CPU set.
+    # pyperf cannot parse flagged isolcpus values, and domain isolation prevents Go's
+    # threads from balancing across the benchmark CPU set. Systemd affinity keeps
+    # services on housekeeping CPUs while pyperf tunes the benchmark CPUs explicitly.
     content: >
-      GRUB_CMDLINE_LINUX_DEFAULT="$GRUB_CMDLINE_LINUX_DEFAULT isolcpus=managed_irq,{{ isolated_cpus }} rcu_nocbs={{ isolated_cpus }}"
+      GRUB_CMDLINE_LINUX_DEFAULT="$GRUB_CMDLINE_LINUX_DEFAULT rcu_nocbs={{ isolated_cpus }}"
   become: yes
   register: grub_cfg
 
