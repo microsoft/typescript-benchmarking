@@ -264,7 +264,7 @@ jobs:
           # This is provided by the agent.
           - bash: |
               set -exo pipefail
-              sudo pyperf system tune
+              sudo pyperf system tune --affinity "${TSPERF_AGENT_ISOLATED_CPUS:-$TSPERF_AGENT_BENCHMARK_CPUS}"
             displayName: Tune system
 
           - bash: |

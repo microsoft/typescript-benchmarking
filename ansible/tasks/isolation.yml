@@ -4,15 +4,60 @@
     dest: /etc/default/grub.d/ts-perf.cfg
     owner: root
     group: root
+    # domain isolation prevents Go's threads from balancing across the benchmark CPU set.
     content: >
-      GRUB_CMDLINE_LINUX_DEFAULT="$GRUB_CMDLINE_LINUX_DEFAULT isolcpus=domain,managed_irq,{{ isolated_cpus }} rcu_nocbs={{ isolated_cpus }}"
+      GRUB_CMDLINE_LINUX_DEFAULT="$GRUB_CMDLINE_LINUX_DEFAULT isolcpus=managed_irq,{{ isolated_cpus }} rcu_nocbs={{ isolated_cpus }}"
   become: yes
   register: grub_cfg
+
+- name: Create systemd manager configuration directory
+  ansible.builtin.file:
+    path: /etc/systemd/system.conf.d
+    state: directory
+    owner: root
+    group: root
+    mode: '0755'
+  become: yes
+
+- name: Read possible logical CPUs
+  ansible.builtin.slurp:
+    src: /sys/devices/system/cpu/possible
+  register: possible_cpus
+
+- name: Keep system services on housekeeping CPUs
+  ansible.builtin.copy:
+    dest: /etc/systemd/system.conf.d/ts-perf-cpu-affinity.conf
+    owner: root
+    group: root
+    mode: '0644'
+    content: |
+      [Manager]
+      CPUAffinity=0 1 16-{{ (possible_cpus.content | b64decode | trim).split('-')[-1] }}
+  become: yes
+  register: systemd_cpu_affinity
 
 - name: Update grub
   when: grub_cfg.changed
   ansible.builtin.shell: update-grub && touch /var/run/reboot-required
   become: yes
+
+- name: Mark systemd CPU affinity change for reboot
+  when: systemd_cpu_affinity.changed
+  ansible.builtin.file:
+    path: /var/run/reboot-required
+    state: touch
+    mode: '0644'
+  become: yes
+
+- name: Add TSPERF_AGENT_ISOLATED_CPUS to .env
+  ansible.builtin.lineinfile:
+    path: '{{ agent_root }}/.env'
+    regexp: '^TSPERF_AGENT_ISOLATED_CPUS='
+    line: 'TSPERF_AGENT_ISOLATED_CPUS={{ isolated_cpus }}'
+  become: yes
+  become_user: '{{ agent_user }}'
+  register: isolated_cpus_env_line
+  when: install_agent
 
 - name: Add legacy TSPERF_AGENT_BENCHMARK_CPU to .env
   ansible.builtin.lineinfile:
@@ -39,4 +84,4 @@
   args:
     chdir: '{{ agent_root }}'
   become: yes
-  when: svc_status_running and (legacy_env_line.changed or env_cpus_line.changed)
+  when: svc_status_running and (isolated_cpus_env_line.changed or legacy_env_line.changed or env_cpus_line.changed)
