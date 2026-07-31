@@ -2,7 +2,7 @@
   "any": {
     "startup_native_lsp_startup": {
       "TSPERF_JOB_HOST": "native",
-      "TSPERF_JOB_ITERATIONS": 6,
+      "TSPERF_JOB_ITERATIONS": 12,
       "TSPERF_JOB_KIND": "startup",
       "TSPERF_JOB_NAME": "startup_native_lsp_startup",
       "TSPERF_JOB_SCENARIO": "lsp-startup",
@@ -10,7 +10,7 @@
     },
     "startup_native_tsgo_startup": {
       "TSPERF_JOB_HOST": "native",
-      "TSPERF_JOB_ITERATIONS": 6,
+      "TSPERF_JOB_ITERATIONS": 12,
       "TSPERF_JOB_KIND": "startup",
       "TSPERF_JOB_NAME": "startup_native_tsgo_startup",
       "TSPERF_JOB_SCENARIO": "tsgo-startup",

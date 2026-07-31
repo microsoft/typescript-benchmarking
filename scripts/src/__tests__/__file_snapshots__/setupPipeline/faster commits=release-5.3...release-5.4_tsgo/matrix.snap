@@ -2,7 +2,7 @@
   "any": {
     "tsc_native_Compiler_Unions": {
       "TSPERF_JOB_HOST": "native",
-      "TSPERF_JOB_ITERATIONS": 6,
+      "TSPERF_JOB_ITERATIONS": 12,
       "TSPERF_JOB_KIND": "tsc",
       "TSPERF_JOB_NAME": "tsc_native_Compiler_Unions",
       "TSPERF_JOB_SCENARIO": "Compiler-Unions",
@@ -10,7 +10,7 @@
     },
     "tsc_native_angular_1": {
       "TSPERF_JOB_HOST": "native",
-      "TSPERF_JOB_ITERATIONS": 6,
+      "TSPERF_JOB_ITERATIONS": 12,
       "TSPERF_JOB_KIND": "tsc",
       "TSPERF_JOB_NAME": "tsc_native_angular_1",
       "TSPERF_JOB_SCENARIO": "angular-1",
@@ -18,7 +18,7 @@
     },
     "tsc_native_mui_docs": {
       "TSPERF_JOB_HOST": "native",
-      "TSPERF_JOB_ITERATIONS": 6,
+      "TSPERF_JOB_ITERATIONS": 12,
       "TSPERF_JOB_KIND": "tsc",
       "TSPERF_JOB_NAME": "tsc_native_mui_docs",
       "TSPERF_JOB_SCENARIO": "mui-docs",
@@ -26,7 +26,7 @@
     },
     "tsc_native_self_build_src": {
       "TSPERF_JOB_HOST": "native",
-      "TSPERF_JOB_ITERATIONS": 6,
+      "TSPERF_JOB_ITERATIONS": 12,
       "TSPERF_JOB_KIND": "tsc",
       "TSPERF_JOB_NAME": "tsc_native_self_build_src",
       "TSPERF_JOB_SCENARIO": "self-build-src",
@@ -34,7 +34,7 @@
     },
     "tsc_native_self_compiler": {
       "TSPERF_JOB_HOST": "native",
-      "TSPERF_JOB_ITERATIONS": 6,
+      "TSPERF_JOB_ITERATIONS": 12,
       "TSPERF_JOB_KIND": "tsc",
       "TSPERF_JOB_NAME": "tsc_native_self_compiler",
       "TSPERF_JOB_SCENARIO": "self-compiler",
@@ -42,7 +42,7 @@
     },
     "tsc_native_ts_pre_modules": {
       "TSPERF_JOB_HOST": "native",
-      "TSPERF_JOB_ITERATIONS": 6,
+      "TSPERF_JOB_ITERATIONS": 12,
       "TSPERF_JOB_KIND": "tsc",
       "TSPERF_JOB_NAME": "tsc_native_ts_pre_modules",
       "TSPERF_JOB_SCENARIO": "ts-pre-modules",
@@ -50,7 +50,7 @@
     },
     "tsc_native_vscode": {
       "TSPERF_JOB_HOST": "native",
-      "TSPERF_JOB_ITERATIONS": 6,
+      "TSPERF_JOB_ITERATIONS": 12,
       "TSPERF_JOB_KIND": "tsc",
       "TSPERF_JOB_NAME": "tsc_native_vscode",
       "TSPERF_JOB_SCENARIO": "vscode",
@@ -58,7 +58,7 @@
     },
     "tsc_native_webpack": {
       "TSPERF_JOB_HOST": "native",
-      "TSPERF_JOB_ITERATIONS": 6,
+      "TSPERF_JOB_ITERATIONS": 12,
       "TSPERF_JOB_KIND": "tsc",
       "TSPERF_JOB_NAME": "tsc_native_webpack",
       "TSPERF_JOB_SCENARIO": "webpack",
@@ -66,7 +66,7 @@
     },
     "tsc_native_xstate_main": {
       "TSPERF_JOB_HOST": "native",
-      "TSPERF_JOB_ITERATIONS": 6,
+      "TSPERF_JOB_ITERATIONS": 12,
       "TSPERF_JOB_KIND": "tsc",
       "TSPERF_JOB_NAME": "tsc_native_xstate_main",
       "TSPERF_JOB_SCENARIO": "xstate-main",

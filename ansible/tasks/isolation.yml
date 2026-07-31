@@ -5,7 +5,7 @@
     owner: root
     group: root
     content: >
-      GRUB_CMDLINE_LINUX_DEFAULT="$GRUB_CMDLINE_LINUX_DEFAULT isolcpus={{ isolated_cpus }} rcu_nocbs={{ isolated_cpus }}"
+      GRUB_CMDLINE_LINUX_DEFAULT="$GRUB_CMDLINE_LINUX_DEFAULT isolcpus=domain,managed_irq,{{ isolated_cpus }} rcu_nocbs={{ isolated_cpus }}"
   become: yes
   register: grub_cfg
 
@@ -14,14 +14,24 @@
   ansible.builtin.shell: update-grub && touch /var/run/reboot-required
   become: yes
 
-- name: Add TSPERF_AGENT_BENCHMARK_CPU to .env
+- name: Add legacy TSPERF_AGENT_BENCHMARK_CPU to .env
   ansible.builtin.lineinfile:
     path: '{{ agent_root }}/.env'
     regexp: '^TSPERF_AGENT_BENCHMARK_CPU='
-    line: 'TSPERF_AGENT_BENCHMARK_CPU={{ benchmark_cpu }}'
+    line: 'TSPERF_AGENT_BENCHMARK_CPU={{ benchmark_cpus }}'
   become: yes
   become_user: '{{ agent_user }}'
-  register: env_line
+  register: legacy_env_line
+  when: install_agent
+
+- name: Add TSPERF_AGENT_BENCHMARK_CPUS to .env
+  ansible.builtin.lineinfile:
+    path: '{{ agent_root }}/.env'
+    regexp: '^TSPERF_AGENT_BENCHMARK_CPUS='
+    line: 'TSPERF_AGENT_BENCHMARK_CPUS={{ benchmark_cpus }}'
+  become: yes
+  become_user: '{{ agent_user }}'
+  register: env_cpus_line
   when: install_agent
 
 - name: Restart agent if .env edited
@@ -29,4 +39,4 @@
   args:
     chdir: '{{ agent_root }}'
   become: yes
-  when: svc_status_running and env_line.changed
+  when: svc_status_running and (legacy_env_line.changed or env_cpus_line.changed)
