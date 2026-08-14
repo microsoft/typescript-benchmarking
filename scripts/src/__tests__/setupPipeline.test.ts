@@ -96,24 +96,6 @@ test.each(inputs)("setupPipeline Corsa input=%s", async input => {
     await expect(error).toMatchFileSnapshot(getSnapshotPath(input + "_tsgo", "error"));
 });
 
-test("Corsa excludes Strada self benchmarks", async () => {
-    const result = await setupPipeline({
-        input: "default",
-        baselining: false,
-        isPr: true,
-        shouldLog: false,
-        gitParseRev: fakeGitRevParse,
-        implementation: "corsa",
-    });
-
-    const scenarioNames = Object.values(result.matrix)
-        .flatMap(jobs => Object.values(jobs))
-        .map(job => job.TSPERF_JOB_SCENARIO);
-    expect(scenarioNames).not.toContain("self-build-src");
-    expect(scenarioNames).not.toContain("self-build-src-public-api");
-    expect(scenarioNames).not.toContain("self-compiler");
-});
-
 function getAllExpectedSnapshots() {
     return new Set([
         ...allSnapshotKinds.flatMap(kind => inputs.map(input => getSnapshotPath(input, kind))),

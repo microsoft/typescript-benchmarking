@@ -27,6 +27,11 @@ function clone_scenario() {
     fi
 }
 
+function is_corsa() {
+    test -f "${BUILT_TYPESCRIPT_DIR:-}/baseline/tsc" \
+        || test -f "${BUILT_TYPESCRIPT_DIR:-}/baseline/tsgo"
+}
+
 function run_sandboxed() {
     USER_DOCKER_SOCK=/run/user/$(id -u)/docker.sock
 

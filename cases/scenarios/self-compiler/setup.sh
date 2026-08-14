@@ -5,7 +5,11 @@ cd "${0%/*}"
 
 source ../../common.sh
 
-clone_scenario https://github.com/microsoft/TypeScript.git $TYPESCRIPT_COMMIT
+if is_corsa; then
+    clone_scenario https://github.com/microsoft/TypeScript.git strada
+else
+    clone_scenario https://github.com/microsoft/TypeScript.git $TYPESCRIPT_COMMIT
+fi
 
 run_sandboxed sh -c '
     npm ci
