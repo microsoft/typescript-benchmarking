@@ -5,6 +5,7 @@ export default defineConfig({
         projects: [
             "scripts",
             "ts-perf/packages/api",
+            "ts-perf/packages/commands",
             // "ts-perf",
             // "ts-perf/packages/*",
         ],

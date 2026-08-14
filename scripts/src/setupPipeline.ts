@@ -5,6 +5,7 @@ import esMain from "es-main";
 import prettyMilliseconds from "pretty-ms";
 import sortKeys from "sort-keys";
 
+import { detectTypeScriptImplementation } from "./typeScriptRepo.js";
 import { $pipe, getNonEmptyEnv, parseBoolean, setJobVariable, setOutputVariable } from "./utils.js";
 
 // Keep in sync with inventory.yml and benchmark.yml.
@@ -655,7 +656,11 @@ if (esMain(import.meta)) {
     const input = getNonEmptyEnv("TSPERF_PRESET");
     const baselining = parseBoolean(process.env.USE_BASELINE_MACHINE, false);
     const isPr = parseBoolean(process.env.IS_PR, false);
-    const tsgo = !!process.env.TSGOFLAG;
+    const typescriptDir = getNonEmptyEnv("TYPESCRIPT_DIR");
+    const implementation = detectTypeScriptImplementation(typescriptDir);
+    assert(implementation, `Expected ${typescriptDir} to contain a TypeScript repository`);
+    const tsgo = !!process.env.TSGOFLAG || implementation === "tsgo";
+    setJobVariable("TSGOFLAG", tsgo ? "--tsgo" : "");
 
     const { outputVariables } = await setupPipeline({
         input,

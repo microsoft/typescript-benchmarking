@@ -52,17 +52,21 @@ function tryParseDiagnostic(line: string) {
     return undefined;
 }
 
-function resolveBuiltPath(builtDir: string, name: string): string {
+export function resolveBuiltPath(builtDir: string, name: string): string {
     const jsPath = path.join(builtDir, `${name}.js`);
     if (fs.existsSync(jsPath)) {
         return jsPath;
     }
-    // typescript-go produces a native binary named tsgo/tsgo.exe instead of .js files.
-    for (const candidate of ["tsgo", "tsgo.exe"]) {
-        const nativePath = path.join(builtDir, candidate);
-        if (fs.existsSync(nativePath)) {
-            return nativePath;
+
+    const nativeNames = name === "tsc" ? ["tsc", "tsgo"] : name === "tsgo" ? ["tsgo", "tsc"] : [name];
+    for (const nativeName of nativeNames) {
+        const candidates = [nativeName, `${nativeName}.exe`];
+        const candidate = candidates.find(candidate => fs.existsSync(path.join(builtDir, candidate)));
+        if (!candidate) {
+            continue;
         }
+        const nativePath = path.join(builtDir, candidate);
+        return nativePath;
     }
     return "";
 }

@@ -27,7 +27,7 @@ async function main() {
         boolean: ["failed", "tsgo"],
     });
 
-    const repo = args.tsgo ? "typescript-go" : "TypeScript";
+    const repo = process.env.REPO ?? (args.tsgo ? "typescript-go" : "TypeScript");
     const gh = new Octokit({ auth: GH_TOKEN });
     let body;
     if (args.failed) {

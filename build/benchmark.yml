@@ -90,7 +90,7 @@ parameters:
     type: string
     default: 'any,ts-perf1,ts-perf2,ts-perf3,ts-perf4,ts-perf5,ts-perf6,ts-perf7,ts-perf8,ts-perf9,ts-perf10,ts-perf11,ts-perf12'
   - name: TS_GO
-    displayName: building ts-go
+    displayName: Use the legacy typescript-go repository
     type: boolean
     default: false
 
@@ -255,11 +255,10 @@ jobs:
             artifact: BuiltTypeScript
             displayName: Download built TypeScript
 
-          - ${{ if eq(parameters.TS_GO, true) }}:
-              - bash: |
-                  set -exo pipefail
-                  find $(BUILT_TYPESCRIPT_DIR) -name 'tsgo' -type f -exec chmod +x {} +
-                displayName: Make tsgo executable
+          - bash: |
+              set -exo pipefail
+              find $(BUILT_TYPESCRIPT_DIR) -type f \( -name 'tsgo' -o -name 'tsc' \) -exec chmod +x {} +
+            displayName: Make native TypeScript executable
 
           # This is provided by the agent.
           - bash: |
