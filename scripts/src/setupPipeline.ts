@@ -456,7 +456,15 @@ function* transformPreset(
     function* worker(): Iterable<Scenario> {
         for (const scenario of iter) {
             if (
-                (isCorsa && (scenario.kind === "tsserver" || scenario.name === "self-build-src-public-api"))
+                (
+                    isCorsa
+                    && (
+                        scenario.kind === "tsserver"
+                        || scenario.name === "self-build-src"
+                        || scenario.name === "self-build-src-public-api"
+                        || scenario.name === "self-compiler"
+                    )
+                )
                 || (!isCorsa && scenario.kind === "lsp")
             ) {
                 continue;
