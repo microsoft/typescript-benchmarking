@@ -4,7 +4,7 @@ import path from "node:path";
 
 import { afterEach, expect, test } from "vitest";
 
-import { resolveBuiltPath } from "../src/benchmark/measure.js";
+import { resolveBuiltPath } from "../src/benchmark/resolveBuiltPath.js";
 
 const tempDirs: string[] = [];
 

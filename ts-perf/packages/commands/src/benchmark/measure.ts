@@ -33,6 +33,7 @@ import {
 import { getTempDirectories, HostContext, ProcessExitError, SystemInfo } from "@ts-perf/core";
 
 import { BenchmarkOptions, TSOptions } from "./";
+import { resolveBuiltPath } from "./resolveBuiltPath";
 
 const diagnosticPattern = /^([a-z].+):\s+(.+?)[sk]?$/i;
 // Explicitly loose regex so --pretty will work.
@@ -50,25 +51,6 @@ function tryParseDiagnostic(line: string) {
         return { name, value: +value, precision };
     }
     return undefined;
-}
-
-export function resolveBuiltPath(builtDir: string, name: string): string {
-    const jsPath = path.join(builtDir, `${name}.js`);
-    if (fs.existsSync(jsPath)) {
-        return jsPath;
-    }
-
-    const nativeNames = name === "tsc" ? ["tsc", "tsgo"] : name === "tsgo" ? ["tsgo", "tsc"] : [name];
-    for (const nativeName of nativeNames) {
-        const candidates = [nativeName, `${nativeName}.exe`];
-        const candidate = candidates.find(candidate => fs.existsSync(path.join(builtDir, candidate)));
-        if (!candidate) {
-            continue;
-        }
-        const nativePath = path.join(builtDir, candidate);
-        return nativePath;
-    }
-    return "";
 }
 
 export async function measureAndRunScenarios({ kind, options }: TSOptions, host: HostContext): Promise<Benchmark> {
