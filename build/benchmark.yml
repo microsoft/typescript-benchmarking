@@ -90,7 +90,7 @@ parameters:
     type: string
     default: 'any,ts-perf1,ts-perf2,ts-perf3,ts-perf4,ts-perf5,ts-perf6,ts-perf7,ts-perf8,ts-perf9,ts-perf10,ts-perf11,ts-perf12'
   - name: TS_GO
-    displayName: building ts-go
+    displayName: Use the legacy typescript-go repository
     type: boolean
     default: false
 
@@ -109,11 +109,9 @@ variables:
   ${{ if eq(parameters.TS_GO, true) }}:
     REPO: 'typescript-go'
     REF: $[ replace(resources.repositories['typescript-go'].ref, 'heads/../', '') ]
-    TSGOFLAG: '--tsgo'
   ${{ else }}:
     REPO: 'TypeScript'
     REF: $[ replace(resources.repositories['TypeScript'].ref, 'heads/../', '') ]
-    TSGOFLAG: ''
 
   PRETTY_REF: $[ replace(replace(replace(replace(variables['REF'], '/merge', ''), 'refs/pull/', 'pr.'), 'refs/heads/', ''), '/', '_') ]
   IS_PR: $[ startsWith(variables['REF'], 'refs/pull/') ]
@@ -187,8 +185,6 @@ jobs:
           node $(BENCH_SCRIPTS)/setupPipeline.js
         displayName: Setup pipeline
         name: setupPipeline
-        env:
-          TSGOFLAG: $(TSGOFLAG)
 
       - bash: |
           set -exo pipefail
@@ -199,7 +195,7 @@ jobs:
 
       - bash: |
           set -exo pipefail
-          node $(BENCH_SCRIPTS)/buildTypeScript.js --outputDir $(ARTIFACTS_DIR)/new $(TSGOFLAG)
+          node $(BENCH_SCRIPTS)/buildTypeScript.js --outputDir $(ARTIFACTS_DIR)/new
         displayName: Build new TypeScript
         condition: and(succeeded(), eq(variables['TSPERF_IS_COMPARISON'], 'true'))
         workingDirectory: $(TYPESCRIPT_DIR)
@@ -214,7 +210,7 @@ jobs:
 
       - bash: |
           set -exo pipefail
-          node $(BENCH_SCRIPTS)/buildTypeScript.js --baseline --outputDir $(ARTIFACTS_DIR)/baseline $(TSGOFLAG)
+          node $(BENCH_SCRIPTS)/buildTypeScript.js --baseline --outputDir $(ARTIFACTS_DIR)/baseline
         displayName: Build baseline TypeScript
         workingDirectory: $(TYPESCRIPT_DIR)
         name: buildTypeScriptBaseline
@@ -255,11 +251,10 @@ jobs:
             artifact: BuiltTypeScript
             displayName: Download built TypeScript
 
-          - ${{ if eq(parameters.TS_GO, true) }}:
-              - bash: |
-                  set -exo pipefail
-                  find $(BUILT_TYPESCRIPT_DIR) -name 'tsgo' -type f -exec chmod +x {} +
-                displayName: Make tsgo executable
+          - bash: |
+              set -exo pipefail
+              find $(BUILT_TYPESCRIPT_DIR) -type f \( -name 'tsgo' -o -name 'tsc' \) -exec chmod +x {} +
+            displayName: Make native TypeScript executable
 
           # This is provided by the agent.
           - bash: |
@@ -439,7 +434,7 @@ jobs:
 
       - bash: |
           set -exo pipefail
-          node $(BENCH_SCRIPTS)/postPerfResult.js --fragment $(Pipeline.Workspace)/comment.html $(TSGOFLAG)
+          node $(BENCH_SCRIPTS)/postPerfResult.js --fragment $(Pipeline.Workspace)/comment.html
         displayName: Publish PR comment
         condition: and(succeeded(), eq(variables['IS_PR'], 'true'))
         env:
@@ -536,7 +531,7 @@ jobs:
 
       - bash: |
           set -exo pipefail
-          node $(BENCH_SCRIPTS)/postPerfResult.js --failed $(TSGOFLAG)
+          node $(BENCH_SCRIPTS)/postPerfResult.js --failed
         displayName: Publish PR comment
         env:
           DISTINCT_ID: ${{ parameters.DISTINCT_ID }}

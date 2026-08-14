@@ -33,6 +33,7 @@ import {
 import { getTempDirectories, HostContext, ProcessExitError, SystemInfo } from "@ts-perf/core";
 
 import { BenchmarkOptions, TSOptions } from "./";
+import { resolveBuiltPath } from "./resolveBuiltPath";
 
 const diagnosticPattern = /^([a-z].+):\s+(.+?)[sk]?$/i;
 // Explicitly loose regex so --pretty will work.
@@ -50,21 +51,6 @@ function tryParseDiagnostic(line: string) {
         return { name, value: +value, precision };
     }
     return undefined;
-}
-
-function resolveBuiltPath(builtDir: string, name: string): string {
-    const jsPath = path.join(builtDir, `${name}.js`);
-    if (fs.existsSync(jsPath)) {
-        return jsPath;
-    }
-    // typescript-go produces a native binary named tsgo/tsgo.exe instead of .js files.
-    for (const candidate of ["tsgo", "tsgo.exe"]) {
-        const nativePath = path.join(builtDir, candidate);
-        if (fs.existsSync(nativePath)) {
-            return nativePath;
-        }
-    }
-    return "";
 }
 
 export async function measureAndRunScenarios({ kind, options }: TSOptions, host: HostContext): Promise<Benchmark> {
@@ -319,7 +305,7 @@ async function runTSServerScenario(
     if (options.extended) {
         argsBuilder.add("--extended");
     }
-    if (options.cpus && !process.env.TSGOFLAG) {
+    if (options.cpus) {
         argsBuilder.add("--cpus", options.cpus);
     }
     if (options.predictable) {
@@ -419,7 +405,7 @@ async function runLSPScenario(
     if (options.extended) {
         argsBuilder.add("--extended");
     }
-    if (options.cpus && !process.env.TSGOFLAG) {
+    if (options.cpus) {
         argsBuilder.add("--cpus", options.cpus);
     }
     const { cmd, args } = argsBuilder;

@@ -24,10 +24,11 @@ async function main() {
 
     const args = minimist(process.argv.slice(2), {
         string: ["fragment"],
-        boolean: ["failed", "tsgo"],
+        boolean: ["failed"],
     });
 
-    const repo = args.tsgo ? "typescript-go" : "TypeScript";
+    const repo = process.env.REPO;
+    if (!repo) throw new Error("REPO environment variable not set.");
     const gh = new Octokit({ auth: GH_TOKEN });
     let body;
     if (args.failed) {

@@ -18,6 +18,8 @@ import { CommandLine, CommandLineParseError } from "power-options";
 import * as rpc from "vscode-jsonrpc/node";
 import * as protocol from "vscode-languageserver-protocol";
 
+import { getLspServerCommand } from "./lspServerCommand.js";
+
 main().catch(e => {
     console.error(e);
     process.exit(2);
@@ -28,6 +30,7 @@ interface CLIOpts {
     commands: string;
     suite: string;
     extended?: boolean;
+    cpus?: string;
 }
 
 async function main() {
@@ -63,6 +66,10 @@ async function main() {
             extended: {
                 type: "boolean",
                 description: "If the scenario declares optional (aka extended) requests, run those as well",
+            },
+            cpus: {
+                type: "string",
+                description: "CPUs to run benchmarked processes on; see the --cpu-list in 'man taskset'",
             },
         },
         exec: ({ options }) => runPerf(options),
@@ -109,8 +116,9 @@ async function runPerf(options: CLIOpts) {
     process.chdir(solution);
 
     const serverArgs: string[] = ["--lsp", "--stdio"];
+    const { command, args } = getLspServerCommand(lspServerPath, serverArgs, options.cpus);
 
-    const serverProc = cp.spawn(lspServerPath, serverArgs, {
+    const serverProc = cp.spawn(command, args, {
         stdio: ["pipe", "pipe", "ignore"],
     });
 
