@@ -15,7 +15,7 @@ const { stdout: timestampDir } = await $pipe`date -d ${date} -u +%Y/%m/%d`;
 
 const args = minimist(process.argv.slice(2), {
     string: ["outputDir"],
-    boolean: ["baseline", "tsgo"],
+    boolean: ["baseline"],
 });
 
 const outputDir = args.outputDir;
@@ -23,14 +23,14 @@ assert(outputDir, "Expected output path as first argument");
 
 const implementation = detectTypeScriptImplementation(".");
 assert(implementation, "Expected to be run from the TypeScript repo");
-const tsgo = args.tsgo || implementation === "tsgo";
+const isCorsa = implementation === "corsa";
 
 await $`mkdir -p ${path.dirname(outputDir)}`;
 
 await retry(() => $`npm ci`);
 
 if (fs.existsSync("Herebyfile.mjs")) {
-    if (tsgo) {
+    if (isCorsa) {
         await $`npx hereby build`;
         await $`mv built/local ${outputDir}`;
     }
@@ -66,7 +66,7 @@ if (!isCustomCommitRange) {
             const octokit = new Octokit();
             const pr = await octokit.rest.pulls.get({
                 owner: "microsoft",
-                repo: process.env.REPO ?? (args.tsgo ? "typescript-go" : "TypeScript"),
+                repo: getNonEmptyEnv("REPO"),
                 pull_number: +prNumber,
             });
             branch = pr.data.base.ref;

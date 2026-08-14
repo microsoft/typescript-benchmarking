@@ -5,7 +5,7 @@ import esMain from "es-main";
 import prettyMilliseconds from "pretty-ms";
 import sortKeys from "sort-keys";
 
-import { detectTypeScriptImplementation } from "./typeScriptRepo.js";
+import { detectTypeScriptImplementation, TypeScriptImplementation } from "./typeScriptRepo.js";
 import { $pipe, getNonEmptyEnv, parseBoolean, setJobVariable, setOutputVariable } from "./utils.js";
 
 // Keep in sync with inventory.yml and benchmark.yml.
@@ -40,7 +40,7 @@ type BaselineAgent = Exclude<AllAgents, ReserveAgents>;
 type Agent = "any" | AllAgents;
 
 const defaultIterations = 6;
-const tsgoIterations = 12;
+const corsaIterations = 12;
 const defaultWarmups = 1;
 
 // TODO(jakebailey): have unpinned variants; ts-perf mostly supports @latest.
@@ -429,7 +429,12 @@ async function parseInput({ input, isPr, gitParseRev }: SetupPipelineInput) {
     return parsed;
 }
 
-function* transformPreset(parameters: Parameters, iter: Iterable<Scenario>, tsgo: boolean): Iterable<Scenario> {
+function* transformPreset(
+    parameters: Parameters,
+    iter: Iterable<Scenario>,
+    implementation: TypeScriptImplementation,
+): Iterable<Scenario> {
+    const isCorsa = implementation === "corsa";
     const all = [...worker()];
 
     for (const scenario of all) {
@@ -451,8 +456,8 @@ function* transformPreset(parameters: Parameters, iter: Iterable<Scenario>, tsgo
     function* worker(): Iterable<Scenario> {
         for (const scenario of iter) {
             if (
-                (tsgo && (scenario.kind === "tsserver" || scenario.name === "self-build-src-public-api"))
-                || (!tsgo && scenario.kind === "lsp")
+                (isCorsa && (scenario.kind === "tsserver" || scenario.name === "self-build-src-public-api"))
+                || (!isCorsa && scenario.kind === "lsp")
             ) {
                 continue;
             }
@@ -460,7 +465,7 @@ function* transformPreset(parameters: Parameters, iter: Iterable<Scenario>, tsgo
                 switch (scenario.name) {
                     case "tsgo-startup":
                     case "lsp-startup":
-                        if (!tsgo) {
+                        if (!isCorsa) {
                             continue;
                         }
                         break;
@@ -468,18 +473,18 @@ function* transformPreset(parameters: Parameters, iter: Iterable<Scenario>, tsgo
                     case "tsserver-startup":
                     case "tsserverlibrary-startup":
                     case "typescript-startup":
-                        if (tsgo) {
+                        if (isCorsa) {
                             continue;
                         }
                 }
             }
-            const scenarioHosts = tsgo ? [hosts.native] : (parameters.hosts ?? [scenario.host]);
+            const scenarioHosts = isCorsa ? [hosts.native] : (parameters.hosts ?? [scenario.host]);
 
             for (const host of scenarioHosts) {
                 yield {
                     ...scenario,
                     host,
-                    iterations: tsgo ? tsgoIterations : scenario.iterations,
+                    iterations: isCorsa ? corsaIterations : scenario.iterations,
                 };
             }
         }
@@ -497,13 +502,13 @@ export interface SetupPipelineInput {
     input: string;
     baselining: boolean;
     isPr: boolean;
-    tsgo: boolean;
+    implementation: TypeScriptImplementation;
     shouldLog: boolean;
     gitParseRev: (query: string) => Promise<GitParseRevResult>;
 }
 
 export async function setupPipeline(input: SetupPipelineInput) {
-    const { baselining, shouldLog, tsgo } = input;
+    const { baselining, implementation, shouldLog } = input;
 
     const parameters = await parseInput(input);
     if (shouldLog) {
@@ -535,7 +540,7 @@ export async function setupPipeline(input: SetupPipelineInput) {
     let maxCost = 0;
     const costPerAgent = new Map<Agent, number>();
 
-    for (const scenario of transformPreset(parameters, preset(), tsgo)) {
+    for (const scenario of transformPreset(parameters, preset(), implementation)) {
         const agent = baselining ? scenario.agent : "any";
         const jobName = sanitizeJobName(`${scenario.kind}_${scenario.host}_${scenario.name}`);
         matrix[agent][jobName] = {
@@ -657,16 +662,27 @@ if (esMain(import.meta)) {
     const baselining = parseBoolean(process.env.USE_BASELINE_MACHINE, false);
     const isPr = parseBoolean(process.env.IS_PR, false);
     const typescriptDir = getNonEmptyEnv("TYPESCRIPT_DIR");
-    const implementation = detectTypeScriptImplementation(typescriptDir);
-    assert(implementation, `Expected ${typescriptDir} to contain a TypeScript repository`);
-    const tsgo = !!process.env.TSGOFLAG || implementation === "tsgo";
-    setJobVariable("TSGOFLAG", tsgo ? "--tsgo" : "");
+    const detectedImplementation = detectTypeScriptImplementation(typescriptDir);
+    assert(detectedImplementation, `Expected ${typescriptDir} to contain a TypeScript repository`);
+    const requestedImplementation = process.env.TSPERF_IMPLEMENTATION;
+    let implementation = detectedImplementation;
+    if (requestedImplementation) {
+        switch (requestedImplementation) {
+            case "strada":
+            case "corsa":
+                implementation = requestedImplementation;
+                break;
+            default:
+                assert.fail(`Unexpected TSPERF_IMPLEMENTATION: ${requestedImplementation}`);
+        }
+    }
+    setJobVariable("TSPERF_IMPLEMENTATION", implementation);
 
     const { outputVariables } = await setupPipeline({
         input,
         baselining,
         isPr,
-        tsgo,
+        implementation,
         shouldLog: true,
         gitParseRev,
     });

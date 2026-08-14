@@ -57,7 +57,7 @@ test.each(inputs)("setupPipeline input=%s", async input => {
             isPr: !baselining,
             shouldLog: false,
             gitParseRev: fakeGitRevParse,
-            tsgo: false,
+            implementation: "strada",
         });
     }
     catch (e) {
@@ -71,7 +71,7 @@ test.each(inputs)("setupPipeline input=%s", async input => {
     await expect(error).toMatchFileSnapshot(getSnapshotPath(input, "error"));
 });
 
-test.each(inputs)("setupPipeline tsgo input=%s", async input => {
+test.each(inputs)("setupPipeline Corsa input=%s", async input => {
     const baselining = input === "baseline";
 
     let result, error;
@@ -82,7 +82,7 @@ test.each(inputs)("setupPipeline tsgo input=%s", async input => {
             isPr: !baselining,
             shouldLog: false,
             gitParseRev: fakeGitRevParse,
-            tsgo: true,
+            implementation: "corsa",
         });
     }
     catch (e) {

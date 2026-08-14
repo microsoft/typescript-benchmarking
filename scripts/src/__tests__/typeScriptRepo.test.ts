@@ -26,14 +26,14 @@ function createRepo(packageName: string, files: string[] = []) {
     return repoDir;
 }
 
-test("detects the JavaScript TypeScript repository", () => {
-    expect(detectTypeScriptImplementation(createRepo("typescript"))).toBe("typescript");
+test("detects the Strada implementation", () => {
+    expect(detectTypeScriptImplementation(createRepo("typescript"))).toBe("strada");
 });
 
-test("detects the legacy typescript-go repository", () => {
-    expect(detectTypeScriptImplementation(createRepo("typescript-go"))).toBe("tsgo");
+test("detects the legacy typescript-go repository as Corsa", () => {
+    expect(detectTypeScriptImplementation(createRepo("typescript-go"))).toBe("corsa");
 });
 
-test("detects the migrated Go implementation from its root package name", () => {
-    expect(detectTypeScriptImplementation(createRepo("@typescript/repo"))).toBe("tsgo");
+test("detects the migrated Corsa implementation from its root package name", () => {
+    expect(detectTypeScriptImplementation(createRepo("@typescript/repo"))).toBe("corsa");
 });
