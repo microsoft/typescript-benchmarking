@@ -1,9 +1,9 @@
 {
-    "name": "self-compiler",
+    "name": "strada-compiler",
     "kind": "tsc",
     "args": [
         "-p",
-        "${suiteDirectory}/self-compiler/src/compiler",
+        "${suiteDirectory}/strada-compiler/src/compiler",
         "--outdir",
         "${outDirectory}"
     ],

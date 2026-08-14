@@ -56,14 +56,6 @@
       "TSPERF_JOB_SCENARIO": "mui-docs",
       "TSPERF_JOB_WARMUPS": 1,
     },
-    "tsc_vscode_1_82_1_self_build_src": {
-      "TSPERF_JOB_HOST": "vscode@1.82.1",
-      "TSPERF_JOB_ITERATIONS": 6,
-      "TSPERF_JOB_KIND": "tsc",
-      "TSPERF_JOB_NAME": "tsc_vscode_1_82_1_self_build_src",
-      "TSPERF_JOB_SCENARIO": "self-build-src",
-      "TSPERF_JOB_WARMUPS": 1,
-    },
     "tsc_vscode_1_82_1_self_build_src_public_api": {
       "TSPERF_JOB_HOST": "vscode@1.82.1",
       "TSPERF_JOB_ITERATIONS": 6,
@@ -72,12 +64,20 @@
       "TSPERF_JOB_SCENARIO": "self-build-src-public-api",
       "TSPERF_JOB_WARMUPS": 1,
     },
-    "tsc_vscode_1_82_1_self_compiler": {
+    "tsc_vscode_1_82_1_strada_build_src": {
       "TSPERF_JOB_HOST": "vscode@1.82.1",
       "TSPERF_JOB_ITERATIONS": 6,
       "TSPERF_JOB_KIND": "tsc",
-      "TSPERF_JOB_NAME": "tsc_vscode_1_82_1_self_compiler",
-      "TSPERF_JOB_SCENARIO": "self-compiler",
+      "TSPERF_JOB_NAME": "tsc_vscode_1_82_1_strada_build_src",
+      "TSPERF_JOB_SCENARIO": "strada-build-src",
+      "TSPERF_JOB_WARMUPS": 1,
+    },
+    "tsc_vscode_1_82_1_strada_compiler": {
+      "TSPERF_JOB_HOST": "vscode@1.82.1",
+      "TSPERF_JOB_ITERATIONS": 6,
+      "TSPERF_JOB_KIND": "tsc",
+      "TSPERF_JOB_NAME": "tsc_vscode_1_82_1_strada_compiler",
+      "TSPERF_JOB_SCENARIO": "strada-compiler",
       "TSPERF_JOB_WARMUPS": 1,
     },
     "tsc_vscode_1_82_1_ts_pre_modules": {

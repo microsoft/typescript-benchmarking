@@ -5,8 +5,8 @@ cd "${0%/*}"
 
 source ../../common.sh
 
-if [ -n "$TSGOFLAG" ]; then
-    clone_scenario https://github.com/microsoft/TypeScript.git tsgo-port
+if is_corsa; then
+    clone_scenario https://github.com/microsoft/TypeScript.git strada
 else
     clone_scenario https://github.com/microsoft/TypeScript.git $TYPESCRIPT_COMMIT
 fi

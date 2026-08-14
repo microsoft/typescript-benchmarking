@@ -40,20 +40,20 @@
       "TSPERF_JOB_SCENARIO": "mui-docs",
       "TSPERF_JOB_WARMUPS": 1,
     },
-    "tsc_native_self_build_src": {
+    "tsc_native_strada_build_src": {
       "TSPERF_JOB_HOST": "native",
       "TSPERF_JOB_ITERATIONS": 12,
       "TSPERF_JOB_KIND": "tsc",
-      "TSPERF_JOB_NAME": "tsc_native_self_build_src",
-      "TSPERF_JOB_SCENARIO": "self-build-src",
+      "TSPERF_JOB_NAME": "tsc_native_strada_build_src",
+      "TSPERF_JOB_SCENARIO": "strada-build-src",
       "TSPERF_JOB_WARMUPS": 1,
     },
-    "tsc_native_self_compiler": {
+    "tsc_native_strada_compiler": {
       "TSPERF_JOB_HOST": "native",
       "TSPERF_JOB_ITERATIONS": 12,
       "TSPERF_JOB_KIND": "tsc",
-      "TSPERF_JOB_NAME": "tsc_native_self_compiler",
-      "TSPERF_JOB_SCENARIO": "self-compiler",
+      "TSPERF_JOB_NAME": "tsc_native_strada_compiler",
+      "TSPERF_JOB_SCENARIO": "strada-compiler",
       "TSPERF_JOB_WARMUPS": 1,
     },
     "tsc_native_ts_pre_modules": {
