@@ -305,7 +305,7 @@ async function runTSServerScenario(
     if (options.extended) {
         argsBuilder.add("--extended");
     }
-    if (options.cpus && !process.env.TSGOFLAG) {
+    if (options.cpus) {
         argsBuilder.add("--cpus", options.cpus);
     }
     if (options.predictable) {
@@ -405,7 +405,7 @@ async function runLSPScenario(
     if (options.extended) {
         argsBuilder.add("--extended");
     }
-    if (options.cpus && !process.env.TSGOFLAG) {
+    if (options.cpus) {
         argsBuilder.add("--cpus", options.cpus);
     }
     const { cmd, args } = argsBuilder;
