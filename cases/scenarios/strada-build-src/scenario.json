@@ -1,9 +1,9 @@
 {
-    "name": "self-build-src",
+    "name": "strada-build-src",
     "kind": "tsc",
     "args": [
         "-b",
-        "${suiteDirectory}/self-build-src/src"
+        "${suiteDirectory}/strada-build-src/src"
     ],
     "platforms": [
         "linux"

@@ -89,8 +89,8 @@ const allScenarios: readonly BaseScenario[] = [
         runIn: RunType.Any,
         cost: 25,
     },
-    { kind: "tsc", name: "self-compiler", agent: "ts-perf1", runIn: RunType.Any, cost: 25 },
-    { kind: "tsc", name: "self-build-src", agent: "ts-perf2", runIn: RunType.Any, cost: 51 },
+    { kind: "tsc", name: "strada-compiler", agent: "ts-perf1", runIn: RunType.Any, cost: 25 },
+    { kind: "tsc", name: "strada-build-src", agent: "ts-perf2", runIn: RunType.Any, cost: 51 },
     {
         kind: "tsc",
         name: "self-build-src-public-api",
