@@ -662,21 +662,8 @@ if (esMain(import.meta)) {
     const baselining = parseBoolean(process.env.USE_BASELINE_MACHINE, false);
     const isPr = parseBoolean(process.env.IS_PR, false);
     const typescriptDir = getNonEmptyEnv("TYPESCRIPT_DIR");
-    const detectedImplementation = detectTypeScriptImplementation(typescriptDir);
-    assert(detectedImplementation, `Expected ${typescriptDir} to contain a TypeScript repository`);
-    const requestedImplementation = process.env.TSPERF_IMPLEMENTATION;
-    let implementation = detectedImplementation;
-    if (requestedImplementation) {
-        switch (requestedImplementation) {
-            case "strada":
-            case "corsa":
-                implementation = requestedImplementation;
-                break;
-            default:
-                assert.fail(`Unexpected TSPERF_IMPLEMENTATION: ${requestedImplementation}`);
-        }
-    }
-    setJobVariable("TSPERF_IMPLEMENTATION", implementation);
+    const implementation = detectTypeScriptImplementation(typescriptDir);
+    assert(implementation, `Expected ${typescriptDir} to contain a TypeScript repository`);
 
     const { outputVariables } = await setupPipeline({
         input,
