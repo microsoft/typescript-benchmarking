@@ -5,7 +5,7 @@ cd "${0%/*}"
 
 source ../../common.sh
 
-clone_scenario https://github.com/microsoft/TypeScript.git $TYPESCRIPT_COMMIT
+clone_strada_scenario
 
 run_sandboxed sh -c '
     npm ci
