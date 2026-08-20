@@ -32,6 +32,14 @@ function is_corsa() {
         || test -f "${BUILT_TYPESCRIPT_DIR:-}/baseline/tsgo"
 }
 
+function clone_strada_scenario() {
+    if is_corsa || test -z "${TYPESCRIPT_COMMIT:-}"; then
+        clone_scenario https://github.com/microsoft/TypeScript.git strada
+    else
+        clone_scenario https://github.com/microsoft/TypeScript.git "$TYPESCRIPT_COMMIT"
+    fi
+}
+
 function run_sandboxed() {
     USER_DOCKER_SOCK=/run/user/$(id -u)/docker.sock
 
