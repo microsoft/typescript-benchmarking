@@ -83,6 +83,18 @@ parameters:
     displayName: typescript-bot comment ID indicating that the run started (PR runs only)
     type: number
     default: 0
+  - name: EXPECTED_HEAD_SHA
+    displayName: Expected PR head commit (PR runs only)
+    type: string
+    default: ''
+  - name: EXPECTED_BASE_SHA
+    displayName: Expected PR base commit (PR runs only)
+    type: string
+    default: ''
+  - name: EXPECTED_MERGE_SHA
+    displayName: Expected PR merge commit (PR runs only)
+    type: string
+    default: ''
 
   # Keep in sync with inventory.yml and setupPipeline.ts.
   - name: AGENTS
@@ -160,6 +172,40 @@ jobs:
             fetchDepth: 2 # For PRs, we want the merge base to compare against.
             clean: true
             retryCountOnTaskFailure: 3
+
+      - bash: |
+          set -euo pipefail
+          if [[ -z "$EXPECTED_HEAD_SHA" && -z "$EXPECTED_BASE_SHA" && -z "$EXPECTED_MERGE_SHA" ]]; then
+            exit 0
+          fi
+          if [[ -z "$EXPECTED_HEAD_SHA" || -z "$EXPECTED_BASE_SHA" || -z "$EXPECTED_MERGE_SHA" ]]; then
+            echo "Expected PR snapshot must include head, base, and merge SHAs" >&2
+            exit 1
+          fi
+
+          actualMergeSha=$(git rev-parse HEAD)
+          actualBaseSha=$(git rev-parse HEAD^1)
+          actualHeadSha=$(git rev-parse HEAD^2)
+
+          verifySha() {
+            local label=$1
+            local actual=$2
+            local expected=$3
+            if [[ "$actual" != "$expected" ]]; then
+              echo "$label SHA mismatch: expected $expected, got $actual" >&2
+              exit 1
+            fi
+          }
+
+          verifySha merge "$actualMergeSha" "$EXPECTED_MERGE_SHA"
+          verifySha base "$actualBaseSha" "$EXPECTED_BASE_SHA"
+          verifySha head "$actualHeadSha" "$EXPECTED_HEAD_SHA"
+        displayName: Verify TypeScript PR snapshot
+        workingDirectory: $(TYPESCRIPT_DIR)
+        env:
+          EXPECTED_HEAD_SHA: ${{ parameters.EXPECTED_HEAD_SHA }}
+          EXPECTED_BASE_SHA: ${{ parameters.EXPECTED_BASE_SHA }}
+          EXPECTED_MERGE_SHA: ${{ parameters.EXPECTED_MERGE_SHA }}
 
       # Ideally we'd just do this:
       #   git config remote.origin.fetch "+refs/heads/*:refs/remotes/origin/*"
