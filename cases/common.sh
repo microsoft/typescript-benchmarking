@@ -54,7 +54,7 @@ function run_sandboxed() {
         DOCKER_RUNTIME=runsc
     fi
 
-    NODE_IMAGE=mcr.microsoft.com/devcontainers/javascript-node:22
+    NODE_IMAGE=${NODE_IMAGE:-mcr.microsoft.com/devcontainers/javascript-node:22}
 
     INTERNET=ts-perf-sandbox-internet
     NO_INTERNET=ts-perf-sandbox-internal
