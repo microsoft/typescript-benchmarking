@@ -1,7 +1,7 @@
 parameters:
   - name: NODE_VERSION
     type: string
-    default: '22.x'
+    default: '24.x'
 
 steps:
   - task: UseNode@1
