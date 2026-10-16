@@ -136,11 +136,37 @@ export function isStartupSampleKey(key: string): key is StartupSampleKey {
 
 export type StartupSample = { [K in StartupSampleKey]?: number; };
 
+export const apiTimingMetrics = {
+    apiClientInstances: { metric: "API client instances", unit: " clients", precision: 0 },
+    apiRequests: { metric: "API client requests", unit: " requests", precision: 0 },
+    apiRoundTripTime: { metric: "API client round trip (sum)", unit: "ms", precision: 3 },
+    apiBytesSent: { metric: "API client bytes sent", unit: "B", precision: 0 },
+    apiBytesReceived: { metric: "API client bytes received", unit: "B", precision: 0 },
+    apiNodesMaterialized: { metric: "API client nodes materialized", unit: " nodes", precision: 0 },
+    apiSourceFilesFetched: { metric: "API client source files fetched", unit: " files", precision: 0 },
+    apiNodesFetched: { metric: "API client nodes fetched", unit: " nodes", precision: 0 },
+    apiServerRequests: { metric: "API server-counter requests", unit: " requests", precision: 0 },
+    apiServerProcessingTime: { metric: "API server-counter processing (sum)", unit: "ms", precision: 3 },
+    apiTransportResidualTime: {
+        metric: "API client round trip minus server processing (not pure IPC)",
+        unit: "ms",
+        precision: 3,
+    },
+} as const;
+
+export type ApiTimingSampleKey = keyof typeof apiTimingMetrics;
+export const apiTimingSampleKeys = Object.keys(apiTimingMetrics) as ApiTimingSampleKey[];
+
+export function isApiTimingSampleKey(key: string): key is ApiTimingSampleKey {
+    return Object.hasOwn(apiTimingMetrics, key);
+}
+
 export type SampleKey =
     | CompilerSampleKey
     | TSServerSampleKey
-    | StartupSampleKey;
+    | StartupSampleKey
+    | ApiTimingSampleKey;
 
 export function isSampleKey(key: string): key is SampleKey {
-    return isCompilerSampleKey(key) || isTSServerSampleKey(key) || isStartupSampleKey(key);
+    return isCompilerSampleKey(key) || isTSServerSampleKey(key) || isStartupSampleKey(key) || isApiTimingSampleKey(key);
 }

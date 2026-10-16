@@ -15,6 +15,7 @@ import {
 import { HostContext, LogEventType, ProcessExitError } from "@ts-perf/core";
 import { CommandLineParseError } from "power-options";
 
+import * as api from "./api";
 import * as lsp from "./lsp";
 import { measureAndRunScenarios } from "./measure";
 import { printBenchmark, printComparison } from "./print";
@@ -60,6 +61,7 @@ export type TSOptions =
     | { kind: "tsserver"; options: BenchmarkOptions & TSServerOptions; }
     | { kind: "lsp"; options: BenchmarkOptions & TSServerOptions; }
     | { kind: "tsc"; options: BenchmarkOptions & CompilerOptions; }
+    | { kind: "api"; options: BenchmarkOptions & CompilerOptions; }
     | { kind: "startup"; options: BenchmarkOptions & StartupOptions; };
 
 export async function benchmark(tsoptions: TSOptions, host: HostContext) {
@@ -395,6 +397,7 @@ tsc.registerCommands(command.commands);
 tsserver.registerCommands(command.commands);
 lsp.registerCommands(command.commands);
 startup.registerCommands(command.commands);
+api.registerCommands(command.commands);
 
 export function registerCommands(commands: CommandMap) {
     commands.benchmark = command;
