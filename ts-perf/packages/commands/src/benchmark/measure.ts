@@ -34,6 +34,7 @@ import { getTempDirectories, HostContext, ProcessExitError, SystemInfo } from "@
 
 import { BenchmarkOptions, TSOptions } from "./";
 import { resolveBuiltPath } from "./resolveBuiltPath";
+import { runApiScenario } from "./runApiScenario";
 
 const diagnosticPattern = /^([a-z].+):\s+(.+?)[sk]?$/i;
 // Explicitly loose regex so --pretty will work.
@@ -75,6 +76,9 @@ export async function measureAndRunScenarios({ kind, options }: TSOptions, host:
         throw new ProcessExitError(-1, "Scenario not found.");
     }
     const hosts = await Host.findHosts(options.hosts);
+    if (kind === "api" && hosts.length === 0) {
+        throw new Error("No matching Node host found for API benchmarks. Install the requested host before running.");
+    }
     host.info(`Scenarios: ${scenarios.map(x => x.name).join(", ")}`);
     host.info(`Hosts: ${hosts.map(x => formatTestHost(x)).join("; ")}`);
     const numHosts = hosts.length;
@@ -93,6 +97,17 @@ export async function measureAndRunScenarios({ kind, options }: TSOptions, host:
             );
             let measurement;
             switch (kind) {
+                case "api":
+                    measurement = await runApiScenario(
+                        scenario,
+                        testHost,
+                        options,
+                        host,
+                        scenarioIndex,
+                        hostSpecifier,
+                        hostIndex,
+                    );
+                    break;
                 case "tsserver":
                     measurement = await runTSServerScenario(
                         name,
@@ -158,6 +173,7 @@ export async function measureAndRunScenarios({ kind, options }: TSOptions, host:
         measurements,
         options.cpus,
         options.predictable,
+        options.warmups,
     );
 }
 
