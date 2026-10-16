@@ -32,6 +32,49 @@ const inputs = [
     "startup-only hosts=node@22.8.0",
 ];
 
+test("API preset is opt-in, uses pinned Node rather than native, and processes API reports", async () => {
+    const result = await setupPipeline({
+        input: "api",
+        baselining: false,
+        isPr: true,
+        shouldLog: false,
+        gitParseRev: fakeGitRevParse,
+        implementation: "corsa",
+    });
+    const jobs = Object.values(result.matrix.any);
+    expect(jobs.map(job => job.TSPERF_JOB_SCENARIO).sort()).toEqual([
+        "typescript-eslint-api-floating",
+        "typescript-eslint-api-recommended",
+        "vscode-languageserver-api-metamodel",
+    ]);
+    expect(jobs.every(job => job.TSPERF_JOB_KIND === "api" && job.TSPERF_JOB_HOST === "node@24.21.0")).toBe(true);
+    expect(result.outputVariables.TSPERF_PROCESS_KINDS).toBe("api");
+    expect(result.parameters.baselineCommit).toBe("HEAD^1");
+    expect(result.parameters.newCommit).toBe("HEAD");
+});
+
+test("API preset rejects an unpinned host", async () => {
+    await expect(setupPipeline({
+        input: "api host=native",
+        baselining: false,
+        isPr: true,
+        shouldLog: false,
+        gitParseRev: fakeGitRevParse,
+        implementation: "corsa",
+    })).rejects.toThrow("pinned host");
+});
+
+test("API preset rejects predictable mode", async () => {
+    await expect(setupPipeline({
+        input: "api predictable",
+        baselining: false,
+        isPr: true,
+        shouldLog: false,
+        gitParseRev: fakeGitRevParse,
+        implementation: "corsa",
+    })).rejects.toThrow("does not support predictable mode");
+});
+
 async function fakeGitRevParse(query: string): Promise<GitParseRevResult> {
     switch (query) {
         case "release-5.3...release-5.4":
