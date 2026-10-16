@@ -280,7 +280,9 @@ export class Benchmark {
             }
         }
 
-        if ((filteredScenarios || filteredHosts) && scenarioMap && hostMap) {
+        if (filteredScenarios || filteredHosts) {
+            scenarioMap ??= new Map(this.scenarios.map((_, index) => [index, index]));
+            hostMap ??= new Map(this.hosts.map((_, index) => [index, index]));
             filteredMeasurements = [];
             for (const measurement of this.measurements) {
                 if (
@@ -292,7 +294,7 @@ export class Benchmark {
 
                 filteredMeasurements.push(measurement.with({
                     scenarioIndex: scenarioMap.get(measurement.scenarioIndex!),
-                    hostIndex: scenarioMap.get(measurement.hostIndex!),
+                    hostIndex: hostMap.get(measurement.hostIndex!),
                 }));
             }
 

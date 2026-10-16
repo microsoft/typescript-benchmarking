@@ -22,6 +22,16 @@ After these files are created, they must be added to `scenarioConfig` in `script
 > [!NOTE]
 > Benchmark capacity is limited; we may not accept all benchmarks or run them automatically in CI.
 
+### Adding an API benchmark
+
+API benchmarks time an external program that uses the TypeScript 7 JS API. `cases/scenarios/vscode-languageserver-api-metamodel` is a good template.
+
+In `scenario.json`, set `"kind": "api"` and set `args` to a Node script (relative to the scenario directory) followed by its arguments. `${typescriptDirectory}` expands to the built compiler. The script runs in `cases/solutions/<name>` and is timed from start to finish. It should point the program at the built `typescript` package, run it, and exit nonzero if the output is wrong.
+
+`ts-perf` sets `TS_API_TIMING_DIR`, and each API client writes timing data there when it is closed. A run that produces no timing data fails, so both compared compiler commits must include timing support (microsoft/TypeScript#64846).
+
+To run the benchmark in CI, add it to `allScenarios` in `scripts/src/setupPipeline.ts` with `kind: "api"` and `runIn: RunType.None`, then request the `api` preset.
+
 ## Contributing
 
 This project welcomes contributions and suggestions. Most contributions require you to agree to a

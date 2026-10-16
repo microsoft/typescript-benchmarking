@@ -1,0 +1,5 @@
+{
+    "name": "typescript-eslint-api-floating",
+    "kind": "api",
+    "args": ["../../api/eslint.mjs", "${typescriptDirectory}"]
+}

@@ -9,7 +9,7 @@ import { TSServerConfig } from "./tsserverconfig";
 
 const cachedScenarios = new HashMap<string, Scenario[]>(PathComparer.fileSystem);
 
-export type ScenarioKind = "tsserver" | "tsc" | "startup" | "lsp";
+export type ScenarioKind = "tsserver" | "tsc" | "startup" | "lsp" | "api";
 
 export interface TscConfig {
     usePublicApi?: boolean;
