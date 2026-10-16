@@ -20,6 +20,7 @@ const commands: Record<string, (() => Promise<void>) | undefined> = {
     "benchmark-lsp": benchmarkLsp,
     "benchmark-tsserver": benchmarkTsserver,
     "benchmark-startup": benchmarkStartup,
+    "benchmark-api": benchmarkApi,
 };
 
 const fn = commands[subcommand];
@@ -156,4 +157,10 @@ async function benchmarkStartup() {
     const tsperfArgs = await getCommonBenchmarkArgs();
 
     await $`node ${tsperfExe} benchmark startup --builtDir ${builtDir} ${tsperfArgs}`;
+}
+
+async function benchmarkApi() {
+    const builtDir = checkNonEmpty(args.builtDir, "Expected non-empty --builtDir");
+    const tsperfArgs = await getCommonBenchmarkArgs();
+    await $`node ${tsperfExe} benchmark api --builtDir ${builtDir} ${tsperfArgs}`;
 }

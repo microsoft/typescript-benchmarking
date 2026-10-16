@@ -1,0 +1,5 @@
+{
+    "name": "typescript-eslint-api-recommended",
+    "kind": "api",
+    "args": ["../../api/eslint.mjs", "${typescriptDirectory}"]
+}
