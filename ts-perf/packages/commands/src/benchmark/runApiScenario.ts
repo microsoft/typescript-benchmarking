@@ -64,6 +64,11 @@ export async function runApiScenario(
     if (host.name !== "node" || !host.executableFile) {
         throw new Error("API benchmarks require an installed Node host, not the native host.");
     }
+    if (!host.npm || !host.configDirectory) {
+        throw new Error(
+            "API benchmarks require a Node host with bundled npm. Install the requested host before running.",
+        );
+    }
     if (!scenario.args?.length) throw new Error(`API scenario ${scenario.name} has no runner.`);
     const workDir = path.resolve(options.suiteDir, scenario.name);
     await fs.access(workDir).catch(error => {
@@ -102,6 +107,7 @@ export async function runApiScenario(
                 {
                     ...process.env,
                     PATH: `${path.dirname(executable)}${path.delimiter}${process.env.PATH}`,
+                    TSPERF_NPM_CLI: expansion.expand(path.resolve(host.configDirectory, host.npm)),
                     TS_API_TIMING_DIR: dumpDir,
                 },
                 workDir,

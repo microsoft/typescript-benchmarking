@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { existsSync } from "node:fs";
 import fs from "node:fs/promises";
 import path from "node:path";
 
@@ -34,7 +35,7 @@ try {
     assert.fail("Expected one lint finding");
 }
 catch (error) {
-    if (error.status !== 1) throw error;
+    if (error.status !== 1 || !existsSync(output)) throw error;
 }
 const results = JSON.parse(await fs.readFile(output, "utf8"));
 assert.equal(results.length, 1024, "ESLint skipped fixture files");

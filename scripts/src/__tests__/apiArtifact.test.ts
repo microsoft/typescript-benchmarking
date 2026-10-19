@@ -1,6 +1,8 @@
+import { execFileSync } from "node:child_process";
 import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
+import { fileURLToPath } from "node:url";
 
 import { afterEach, expect, test } from "vitest";
 
@@ -132,3 +134,66 @@ test("rejects a different native package identity after packaging", async () => 
     );
     await expect(f.verify()).rejects.toThrow("Wrong native compiler commit");
 });
+
+test.each(["finding", "invocation failure", "parser failure", "unexpected status", "unexpected success"])(
+    "ESLint distinguishes expected diagnostics from %s",
+    async outcome => {
+        const f = await fixture();
+        await f.preserve();
+        const { packageDir } = await f.verify();
+        const checkout = path.join(f.source, "eslint");
+        const consumer = path.join(checkout, "packages/typescript-estree");
+        const workDir = path.join(checkout, "fixture");
+        await fs.mkdir(path.join(consumer, "node_modules/@typescript"), { recursive: true });
+        await fs.mkdir(workDir);
+        await fs.symlink(packageDir, path.join(consumer, "node_modules/@typescript/native"), "junction");
+        const npm = path.join(checkout, "npm-cli.cjs");
+        const results = Array.from({ length: 1024 }, (_, i) => ({
+            fatalErrorCount: outcome === "parser failure" ? 1 : 0,
+            messages: i === 0 ? [{ ruleId: "@typescript-eslint/no-floating-promises" }] : [],
+        }));
+        await fs.writeFile(
+            npm,
+            `
+            const assert = require("node:assert/strict");
+            assert.deepEqual(process.argv.slice(2), ["run", "lint", "--", "--format", "json", "--output-file", "results.json"]);
+            if (${JSON.stringify(outcome)} === "invocation failure") {
+                console.error("npm-invocation-failed");
+                process.exit(1);
+            }
+            require("node:fs").writeFileSync("results.json", ${JSON.stringify(JSON.stringify(results))});
+            process.exit(${outcome === "unexpected status" ? 2 : outcome === "unexpected success" ? 0 : 1});
+        `,
+        );
+        const run = () =>
+            execFileSync(process.execPath, [
+                fileURLToPath(new URL("../../../cases/api/eslint.mjs", import.meta.url)),
+                f.output,
+            ], {
+                cwd: checkout,
+                env: { ...process.env, TSPERF_NPM_CLI: npm },
+                stdio: "pipe",
+            });
+        if (outcome === "finding") {
+            expect(run).not.toThrow();
+            await expect(fs.access(path.join(workDir, "results.json"))).rejects.toMatchObject({ code: "ENOENT" });
+        }
+        else {
+            let failure: unknown;
+            try {
+                run();
+            }
+            catch (error) {
+                failure = error;
+            }
+            expect(failure).toBeInstanceOf(Error);
+            const message = String(failure);
+            if (outcome === "invocation failure") {
+                expect(message).toContain("npm-invocation-failed");
+                expect(message).not.toContain("ENOENT");
+            }
+            if (outcome === "parser failure") expect(message).toContain("ESLint parser failure");
+            if (outcome === "unexpected success") expect(message).toContain("Expected one lint finding");
+        }
+    },
+);
