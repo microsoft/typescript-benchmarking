@@ -1,0 +1,13 @@
+{
+    "name": "t3code-server",
+    "kind": "tsc",
+    "args": [
+        "-p",
+        "${suiteDirectory}/t3code-server/apps/server/tsconfig.json",
+        "--incremental",
+        "false"
+    ],
+    "platforms": [
+        "linux"
+    ]
+}
