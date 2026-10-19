@@ -20,4 +20,4 @@ git -C performance switch --detach FETCH_HEAD
 # Leave disposable sources so clone_scenario's normal cleanup removes them on reruns.
 rm -rf performance/.git
 cp ../../api/eslint-setup.mjs api-setup.mjs
-run_sandboxed node api-setup.mjs "$1"
+run_sandboxed sh -c 'node api-setup.mjs "$1"' -- "$1"
