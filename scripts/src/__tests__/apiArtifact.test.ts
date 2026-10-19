@@ -120,6 +120,15 @@ test.each(["typescript", platformName])("rejects logging-command filenames in th
     await expect(fs.access(f.output)).rejects.toMatchObject({ code: "ENOENT" });
 });
 
+test("rejects a symlinked parent of the packaged API outputs", async () => {
+    const f = await fixture();
+    const packages = path.join(f.source, "built/npm");
+    await fs.rename(packages, `${packages}-original`);
+    await fs.symlink("npm-original", packages);
+    await expect(f.preserve()).rejects.toThrow("Expected a regular build output parent directory");
+    await expect(fs.access(f.output)).rejects.toMatchObject({ code: "ENOENT" });
+});
+
 test("rejects a missing packaged native binary", async () => {
     const f = await fixture();
     await f.preserve();

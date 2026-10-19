@@ -14,8 +14,8 @@ export async function preserveApiArtifact(
     const modules = path.join(apiDir, "node_modules");
     const packageDir = path.join(modules, "typescript");
     const platformName = `typescript-${platform}`;
-    await validateBuildOutput(path.join(sourceDir, "built/npm/typescript"));
-    await validateBuildOutput(path.join(sourceDir, `built/npm/${platformName}`));
+    await validateBuildOutput(path.join(sourceDir, "built/npm/typescript"), sourceDir);
+    await validateBuildOutput(path.join(sourceDir, `built/npm/${platformName}`), sourceDir);
     await fs.cp(path.join(sourceDir, "built/npm/typescript"), packageDir, { recursive: true });
     await fs.cp(path.join(sourceDir, `built/npm/${platformName}`), path.join(modules, "@typescript", platformName), {
         recursive: true,

@@ -8,6 +8,7 @@ import { afterEach, expect, test } from "vitest";
 
 const commonScript = fileURLToPath(new URL("../../../cases/common.sh", import.meta.url));
 const setupScript = fileURLToPath(new URL("../../setupScenario.sh", import.meta.url));
+const benchmarkScript = fileURLToPath(new URL("../../runBenchmarkSandbox.sh", import.meta.url));
 const tempDirs: string[] = [];
 
 afterEach(() => {
@@ -242,4 +243,79 @@ test("preserves the ref output for callers without the pipeline metadata wrapper
     });
     expect(result.status).toBe(0);
     expect(result.stdout).toContain(`##vso[task.setvariable variable=SCENARIO_REF]${scenario.commit}`);
+});
+
+test.each([0, 37])("allowlists benchmark environment and preserves exit code %i", exitCode => {
+    const scenario = createScenario();
+    const binDir = path.join(scenario.tempDir, "bin");
+    const capture = path.join(scenario.tempDir, "bwrap-args");
+    fs.mkdirSync(binDir);
+    fs.writeFileSync(
+        path.join(binDir, "bwrap"),
+        `#!/usr/bin/env bash
+printf '%s\\0' "$@" > "$BWRAP_CAPTURE"
+echo 'prefix ##vso[task.debug]compiler'
+echo '##[warning]compiler stderr' >&2
+exit "$PROBE_EXIT"
+`,
+        { mode: 0o755 },
+    );
+    const allowed = {
+        HOME: scenario.tempDir,
+        PATH: `${binDir}:${process.env.PATH}`,
+        CI: "true",
+        TSPERF_EXE: "/trusted/ts-perf",
+        TSPERF_SCENARIO_CONFIG_DIR: "/trusted/scenario configs",
+        TSPERF_SUITE_DIR: "/trusted/solutions",
+        TSPERF_JOB_HOST: "node@24",
+        TSPERF_JOB_SCENARIO: "probe",
+        TSPERF_JOB_ITERATIONS: "2",
+        TSPERF_JOB_WARMUPS: "0",
+        TSPERF_PREDICTABLE: "false",
+        TSPERF_AGENT_BENCHMARK_CPUS: "2,3",
+        LANG: "C.UTF-8",
+        LC_ALL: "C",
+        LC_CTYPE: "",
+        TZ: "UTC",
+    };
+    const secrets = {
+        GH_TOKEN: "synthetic-github-token",
+        SYSTEM_ACCESSTOKEN: "synthetic-job-token",
+        AZURE_CLIENT_SECRET: "synthetic-azure-secret",
+        ENDPOINT_AUTH_PARAMETER_TEST_ACCESSTOKEN: "synthetic-endpoint-token",
+        NODE_OPTIONS: "--title=synthetic-node-option",
+        TSPERF_UNEXPECTED_SECRET: "synthetic-prefixed-secret",
+    };
+    const command = ["--unshare-net", "node", "/trusted/runner with spaces.js"];
+    const result = spawnSync("bash", [benchmarkScript, ...command], {
+        env: { ...process.env, ...allowed, ...secrets, BWRAP_CAPTURE: capture, PROBE_EXIT: String(exitCode) },
+        encoding: "utf8",
+        timeout: 10_000,
+    });
+    expect(result.status).toBe(exitCode);
+    expect(result.stdout).toContain("prefix ##vso[task.debug]compiler");
+    expect(result.stderr).toContain("##[warning]compiler stderr");
+    const args = fs.readFileSync(capture, "utf8").split("\0").slice(0, -1);
+    expect(args[0]).toBe("--clearenv");
+    const environment: Record<string, string> = {};
+    for (let index = 1; index < args.length - command.length; index += 3) {
+        expect(args[index]).toBe("--setenv");
+        environment[args[index + 1]] = args[index + 2];
+    }
+    expect(environment).toEqual(allowed);
+    expect(args.slice(-command.length)).toEqual(command);
+    for (const [name, value] of Object.entries(secrets)) {
+        expect(args).not.toContain(name);
+        expect(args).not.toContain(value);
+    }
+});
+
+test("requires benchmark configuration before starting the sandbox", () => {
+    const result = spawnSync("bash", [benchmarkScript, "true"], {
+        env: { ...process.env, TSPERF_EXE: "" },
+        encoding: "utf8",
+        timeout: 10_000,
+    });
+    expect(result.status).toBe(1);
+    expect(result.stderr).toContain("Expected TSPERF_EXE");
 });

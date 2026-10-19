@@ -1,6 +1,8 @@
 import assert from "node:assert";
 import fs from "node:fs";
+import os from "node:os";
 import path from "node:path";
+import { fileURLToPath } from "node:url";
 
 import esMain from "es-main";
 import minimist from "minimist";
@@ -8,19 +10,17 @@ import { Octokit } from "octokit";
 
 import { preserveApiArtifact } from "./apiArtifact.js";
 import { detectTypeScriptImplementation } from "./typeScriptRepo.js";
-import {
-    $,
-    $pipe,
-    getNonEmptyEnv,
-    parseBoolean,
-    RepoInfo,
-    retry,
-    validateBuildOutput,
-} from "./utils.js";
+import { $, $pipe, getNonEmptyEnv, parseBoolean, RepoInfo, retry, validateBuildOutput } from "./utils.js";
 
-export async function moveBuildOutput(source: string, output: string) {
-    await validateBuildOutput(source);
+export async function moveBuildOutput(source: string, output: string, root = path.dirname(path.resolve(source))) {
+    await validateBuildOutput(source, root);
     await $`mv -- ${source} ${output}`;
+}
+
+// Go's module cache is read-only, so make the tree writable before removing it.
+export async function removeScratch(scratch: string) {
+    await $`chmod -R u+w -- ${scratch}`;
+    await fs.promises.rm(scratch, { recursive: true });
 }
 
 async function main() {
@@ -44,28 +44,40 @@ async function main() {
     const buildApi = process.env.TSPERF_PROCESS_KINDS?.split(/\s+/).includes("api") ?? false;
     assert(!buildApi || isCorsa, "The api preset requires native TypeScript 7");
 
-    await $`mkdir -p ${path.dirname(outputDir)}`;
+    const sourceDir = process.cwd();
+    const sandboxScript = fileURLToPath(new URL("../buildTypeScriptSandbox.sh", import.meta.url));
+    const scratch = await fs.promises.mkdtemp(path.join(os.tmpdir(), "tsperf-build-"));
+    const buildHome = path.join(scratch, "home");
+    const buildTmp = path.join(scratch, "tmp");
 
-    await retry(() => $`npm ci`);
+    try {
+        await fs.promises.mkdir(path.dirname(outputDir), { recursive: true });
+        await fs.promises.mkdir(buildHome);
+        await fs.promises.mkdir(buildTmp);
+        await retry(() => $`bash ${sandboxScript} ${sourceDir} ${buildHome} ${buildTmp} npm ci`);
 
-    if (fs.existsSync("Herebyfile.mjs")) {
-        if (isCorsa) {
-            await $`npx hereby build`;
-            if (buildApi) {
-                await $`npx hereby typescript:build-main`;
-                await $`npx hereby typescript:build-platform --platform ${`${process.platform}-${process.arch}`}`;
+        if (fs.existsSync("Herebyfile.mjs")) {
+            if (isCorsa) {
+                await $`bash ${sandboxScript} ${sourceDir} ${buildHome} ${buildTmp} npx hereby build`;
+                if (buildApi) {
+                    await $`bash ${sandboxScript} ${sourceDir} ${buildHome} ${buildTmp} npx hereby typescript:build-main`;
+                    await $`bash ${sandboxScript} ${sourceDir} ${buildHome} ${buildTmp} npx hereby typescript:build-platform --platform ${`${process.platform}-${process.arch}`}`;
+                }
+                await moveBuildOutput("built/local", outputDir, sourceDir);
+                if (buildApi) await preserveApiArtifact(outputDir, commit);
             }
-            await moveBuildOutput("built/local", outputDir);
-            if (buildApi) await preserveApiArtifact(outputDir, commit);
+            else {
+                await $`bash ${sandboxScript} ${sourceDir} ${buildHome} ${buildTmp} npx hereby lkg`;
+                await moveBuildOutput("lib", outputDir, sourceDir);
+            }
         }
         else {
-            await $`npx hereby lkg`;
-            await moveBuildOutput("lib", outputDir);
+            await $`bash ${sandboxScript} ${sourceDir} ${buildHome} ${buildTmp} npm run build:compiler`;
+            await moveBuildOutput("built/local", outputDir, sourceDir);
         }
     }
-    else {
-        await $`npm run build:compiler`;
-        await moveBuildOutput("built/local", outputDir);
+    finally {
+        await removeScratch(scratch);
     }
 
     await $`git -c core.hooksPath=/dev/null -c core.fsmonitor=false clean -fddx`;

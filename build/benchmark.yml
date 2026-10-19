@@ -158,6 +158,30 @@ jobs:
       - template: templates/setup.yml
       - template: templates/cloneAndBuildBenchmarkRepo.yml # Sets $(BENCH_SCRIPTS), $(TSPERF_EXE)
 
+      - bash: |
+          set -exo pipefail
+          sudo apt-get update
+          sudo apt-get install -y bubblewrap
+
+          # Ubuntu 24.04 blocks unprivileged user namespaces unless an AppArmor profile
+          # allows them. Allow them for bubblewrap only, like Ubuntu's browser profiles.
+          if [ "$(cat /proc/sys/kernel/apparmor_restrict_unprivileged_userns 2>/dev/null)" = "1" ]; then
+            sudo tee /etc/apparmor.d/bwrap > /dev/null << 'EOF'
+          abi <abi/4.0>,
+          include <tunables/global>
+
+          profile bwrap /usr/bin/bwrap flags=(unconfined) {
+            userns,
+          }
+          EOF
+            sudo apparmor_parser -r /etc/apparmor.d/bwrap
+          fi
+          bwrap --ro-bind / / --unshare-user --cap-drop ALL true
+        target:
+          commands: restricted
+          settableVariables: none
+        displayName: Install compiler build sandbox
+
       - ${{ if eq(parameters.TS_GO, true) }}:
           - checkout: typescript-go
             path: typescript-go
@@ -364,6 +388,9 @@ jobs:
         variables:
           BUILT_TYPESCRIPT_DIR: $(Pipeline.Workspace)/BuiltTypeScript
           ARTIFACTS_DIR: $(Pipeline.Workspace)/artifacts
+          # Scratch directories for the sandboxed compiler; see "Run new/baseline benchmark".
+          BENCH_ARTIFACTS_DIR: $(Pipeline.Workspace)/bench-artifacts
+          BENCH_TMP_DIR: $(Pipeline.Workspace)/bench-tmp
           TSPERF_IS_COMPARISON: $[ dependencies.Setup.outputs['setupPipeline.TSPERF_IS_COMPARISON'] ]
           TSPERF_PREDICTABLE: $[ dependencies.Setup.outputs['setupPipeline.TSPERF_PREDICTABLE'] ]
           TYPESCRIPT_COMMIT_NEW: $[ dependencies.Setup.outputs['buildTypeScriptNew.TYPESCRIPT_COMMIT'] ]
@@ -394,6 +421,8 @@ jobs:
               settableVariables: none
             displayName: Tune system
 
+          # Install hosts before entering the network-isolated benchmark sandbox.
+          # Read-only mounts protect these binaries from writes by the compiler.
           - bash: |
               set -exo pipefail
               node $(BENCH_SCRIPTS)/runTsPerf.js install-hosts
@@ -402,36 +431,117 @@ jobs:
               settableVariables: none
             displayName: Install hosts
             retryCountOnTaskFailure: 3
+
+          # Set up the first benchmark before constructing the sandbox, so its repository
+          # exists and we can protect its Git metadata. Third-party installers are sandboxed
+          # separately (see cases/common.sh's run_sandboxed).
           - bash: |
               set -eo pipefail
               # Special case for self benchmark
-              export TYPESCRIPT_COMMIT="$TYPESCRIPT_COMMIT_NEW"
+              if [ "$(TSPERF_IS_COMPARISON)" = "true" ]; then
+                export TYPESCRIPT_COMMIT="$TYPESCRIPT_COMMIT_NEW"
+              else
+                export TYPESCRIPT_COMMIT="$TYPESCRIPT_COMMIT_BASELINE"
+              fi
               bash $(Pipeline.Workspace)/typescript-benchmarking/scripts/setupScenario.sh
             target:
               commands: restricted
               settableVariables: none
-            displayName: Set up scenario for new benchmark
-            condition: and(succeeded(), eq(variables['TSPERF_IS_COMPARISON'], 'true'))
+            displayName: Set up scenario for first benchmark
             retryCountOnTaskFailure: 3
             env:
               TYPESCRIPT_COMMIT_NEW: $(TYPESCRIPT_COMMIT_NEW)
-              TSPERF_VARIABLES_FILE: $(Pipeline.Workspace)/new-scenario-variables.json
+              TYPESCRIPT_COMMIT_BASELINE: $(TYPESCRIPT_COMMIT_BASELINE)
+              TSPERF_VARIABLES_FILE: $(Pipeline.Workspace)/first-scenario-variables.json
 
           - bash: |
               set -eo pipefail
-              node $(BENCH_SCRIPTS)/publishPipelineVariables.js --file $(Pipeline.Workspace)/new-scenario-variables.json --job
+              node $(BENCH_SCRIPTS)/publishPipelineVariables.js --file $(Pipeline.Workspace)/first-scenario-variables.json --job
             target:
               commands: restricted
               settableVariables:
                 - SCENARIO_REF
-            displayName: Publish scenario ref for new benchmark
-            condition: and(succeeded(), eq(variables['TSPERF_IS_COMPARISON'], 'true'))
+            displayName: Publish scenario ref for first benchmark
+
+          # Maintainers approve compiler revisions; this sandbox adds defense in depth if
+          # harmful compiler or dependency behavior is missed during review.
+          # The compiler runs as the agent account, not a separate low-privilege user.
+          # Bubblewrap restricts filesystem access to the mounts below, isolates process
+          # visibility and networking, and ties sandbox lifetime to its parent process.
+          # Only the runner's allowlisted environment enters the sandbox. Bubblewrap sets
+          # no_new_privs, preventing privilege elevation through setuid binaries like sudo.
+          #
+          # Interleaved host and sandbox runs on a benchmark agent showed no meaningful
+          # runtime difference. Startup deltas are tiny and in both directions:
+          #
+          #                                         host         bwrap
+          #   c-tsc/TotalTime                    958.5m ± 0%   959.5m ± 1%         ~ (p=0.963 n=72)
+          #   s-tsc/TotalTime                     8.690 ± 0%    8.680 ± 0%         ~ (p=0.821 n=36)
+          #   c-api/TotalTime                    790.6m ± 1%   787.8m ± 0%         ~ (p=0.099 n=36)
+          #   c-lsp/Req2Geterr                    346.0 ± 0%    347.0 ± 0%         ~ (p=0.367 n=72)
+          #   s-tsserver/Req2Geterr             2.018k ± 11%  2.089k ± 15%         ~ (p=0.831 n=36)
+          #   c-tsgo-startup/ExecutionTime       160.0µ ± 6%   151.0µ ± 4%  -5.62% (p=0.000 n=7200)
+          #   s-tsc-startup/ExecutionTime         185.7 ± 0%    185.6 ± 0%  -0.03% (p=0.028 n=3600)
+          #   s-tsserver-startup/ExecutionTime    286.6 ± 0%    286.8 ± 0%  +0.07% (p=0.001 n=3600)
+          #   c-tsc/MemoryUsed                   113.5k ± 0%   113.4k ± 0%         ~ (p=0.294 n=72)
+          #
+          # Keep a persistent directory bound at /tmp rather than a per-run tmpfs.
+          # TypeScript calls module.enableCompileCache(), so /tmp holds V8 bytecode for the
+          # compiler. Discarding it on every run cost about 5% in tsc measurements.
+          - bash: |
+              set -exo pipefail
+              mkdir -p "$BENCH_ARTIFACTS_DIR" "$BENCH_TMP_DIR" "$TSPERF_SUITE_DIR" "$HOME/.tsperf"
+
+              # Expose these mounts instead of the entire host filesystem. Files in the
+              # mounted trees remain readable; this is not a blanket credential boundary.
+              # Writable binds follow and override read-only binds of their parent paths.
+              A="--ro-bind /usr /usr --ro-bind /etc /etc --proc /proc --dev /dev"
+              A="$A --symlink usr/lib /lib --symlink usr/lib64 /lib64"
+              A="$A --symlink usr/bin /bin --symlink usr/sbin /sbin"
+              # node, installed by UseNode@1.
+              A="$A --ro-bind $AGENT_TOOLSDIRECTORY $AGENT_TOOLSDIRECTORY"
+              # Prevent compiler writes to the installed host runtimes.
+              A="$A --ro-bind $HOME/.tsperf $HOME/.tsperf"
+              # ts-perf itself, and the compiler under test.
+              A="$A --ro-bind $PIPELINE_WORKSPACE/typescript-benchmarking $PIPELINE_WORKSPACE/typescript-benchmarking"
+              A="$A --ro-bind $BUILT_TYPESCRIPT_DIR $BUILT_TYPESCRIPT_DIR"
+              # Keep the suite root read-only so repositories cannot be replaced or renamed.
+              # Individual source trees are writable for scenarios that emit in place, but
+              # Git metadata must remain read-only: host-side setup uses it on the next run,
+              # and git clean/reset do not remove hooks or restore repository configuration.
+              A="$A --ro-bind $TSPERF_SUITE_DIR $TSPERF_SUITE_DIR"
+              for SCENARIO_DIR in "$TSPERF_SUITE_DIR"/*; do
+                if [ -d "$SCENARIO_DIR" ] && [ ! -L "$SCENARIO_DIR" ]; then
+                  A="$A --bind $SCENARIO_DIR $SCENARIO_DIR"
+                  if [ -e "$SCENARIO_DIR/.git" ] || [ -L "$SCENARIO_DIR/.git" ]; then
+                    if [ ! -d "$SCENARIO_DIR/.git" ] || [ -L "$SCENARIO_DIR/.git" ]; then
+                      echo "Unexpected Git metadata at $SCENARIO_DIR/.git" >&2
+                      exit 1
+                    fi
+                    A="$A --ro-bind $SCENARIO_DIR/.git $SCENARIO_DIR/.git"
+                  fi
+                fi
+              done
+              A="$A --bind $BENCH_ARTIFACTS_DIR $BENCH_ARTIFACTS_DIR"
+              A="$A --bind $BENCH_TMP_DIR /tmp"
+              # Unprivileged bubblewrap already does this; make it explicit.
+              A="$A --unshare-user --cap-drop ALL"
+              A="$A --unshare-pid --unshare-ipc --unshare-uts --unshare-net"
+              A="$A --die-with-parent --new-session"
+
+              echo "##vso[task.setvariable variable=BWRAP_ARGS;isReadOnly=true]$A"
+            target:
+              commands: restricted
+              settableVariables:
+                - BWRAP_ARGS
+            displayName: Create benchmark sandbox
 
           - bash: |
               set -exo pipefail
-              node $(BENCH_SCRIPTS)/runTsPerf.js benchmark-$(TSPERF_JOB_KIND) \
+              bash $(Pipeline.Workspace)/typescript-benchmarking/scripts/runBenchmarkSandbox.sh \
+                $(BWRAP_ARGS) node $(BENCH_SCRIPTS)/runTsPerf.js benchmark-$(TSPERF_JOB_KIND) \
                 --builtDir $(BUILT_TYPESCRIPT_DIR)/new \
-                --save $(ARTIFACTS_DIR)/new_$(TSPERF_JOB_NAME).$(TSPERF_JOB_KIND).benchmark
+                --save $(BENCH_ARTIFACTS_DIR)/new_$(TSPERF_JOB_NAME).$(TSPERF_JOB_KIND).benchmark
             target:
               commands: restricted
               settableVariables: none
@@ -447,6 +557,7 @@ jobs:
               commands: restricted
               settableVariables: none
             displayName: Set up scenario for baseline benchmark
+            condition: and(succeeded(), eq(variables['TSPERF_IS_COMPARISON'], 'true'))
             retryCountOnTaskFailure: 3
             env:
               TYPESCRIPT_COMMIT_BASELINE: $(TYPESCRIPT_COMMIT_BASELINE)
@@ -460,16 +571,47 @@ jobs:
               settableVariables:
                 - SCENARIO_REF
             displayName: Publish scenario ref for baseline benchmark
+            condition: and(succeeded(), eq(variables['TSPERF_IS_COMPARISON'], 'true'))
 
           - bash: |
               set -exo pipefail
-              node $(BENCH_SCRIPTS)/runTsPerf.js benchmark-$(TSPERF_JOB_KIND) \
+              bash $(Pipeline.Workspace)/typescript-benchmarking/scripts/runBenchmarkSandbox.sh \
+                $(BWRAP_ARGS) node $(BENCH_SCRIPTS)/runTsPerf.js benchmark-$(TSPERF_JOB_KIND) \
                 --builtDir $(BUILT_TYPESCRIPT_DIR)/baseline \
-                --save $(ARTIFACTS_DIR)/baseline_$(TSPERF_JOB_NAME).$(TSPERF_JOB_KIND).benchmark
+                --save $(BENCH_ARTIFACTS_DIR)/baseline_$(TSPERF_JOB_NAME).$(TSPERF_JOB_KIND).benchmark
             target:
               commands: restricted
               settableVariables: none
             displayName: Run baseline $(TSPERF_JOB_KIND) benchmark
+
+          # Publish only scheduled filenames, not everything in $(BENCH_ARTIFACTS_DIR).
+          # This limits artifact selection; it does not authenticate result contents.
+          - bash: |
+              set -exo pipefail
+
+              mkdir -p $(ARTIFACTS_DIR)
+
+              copy_result() {
+                SRC=$(BENCH_ARTIFACTS_DIR)/$1
+                DEST=$(ARTIFACTS_DIR)/$1
+                # This host-side copy must not follow a result symlink to an otherwise
+                # inaccessible file. Copy the link itself, then reject nonregular results.
+                cp --no-dereference --no-target-directory "$SRC" "$DEST"
+                if [ -L "$DEST" ] || [ ! -f "$DEST" ]; then
+                  rm -f "$DEST"
+                  echo "Unexpected benchmark result at $SRC" >&2
+                  exit 1
+                fi
+              }
+
+              if [ "$(TSPERF_IS_COMPARISON)" = "true" ]; then
+                copy_result new_$(TSPERF_JOB_NAME).$(TSPERF_JOB_KIND).benchmark
+              fi
+              copy_result baseline_$(TSPERF_JOB_NAME).$(TSPERF_JOB_KIND).benchmark
+            target:
+              commands: restricted
+              settableVariables: none
+            displayName: Collect benchmark results
 
           - bash: |
               set -exo pipefail

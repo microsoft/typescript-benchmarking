@@ -1,17 +1,19 @@
-import { execFileSync } from "node:child_process";
+import { execFileSync, spawnSync } from "node:child_process";
 import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
+import { fileURLToPath } from "node:url";
 
 import { afterEach, expect, test } from "vitest";
 
-import { moveBuildOutput } from "../buildTypeScript.js";
+import { moveBuildOutput, removeScratch } from "../buildTypeScript.js";
 
+const sandboxScript = fileURLToPath(new URL("../../buildTypeScriptSandbox.sh", import.meta.url));
 const tempDirs: string[] = [];
 
 afterEach(() => {
     for (const tempDir of tempDirs.splice(0)) {
-        fs.rmSync(tempDir, { recursive: true });
+        fs.rmSync(tempDir, { recursive: true, force: true });
     }
 });
 
@@ -37,11 +39,32 @@ test("collects regular compiler outputs, including nested files", async () => {
     expect(fs.existsSync(build.source)).toBe(false);
 });
 
+test("removes scratch trees containing read-only directories", async () => {
+    const build = createBuild();
+    const moduleDir = path.join(build.home, "go/pkg/mod/example.com/m@v1.0.0");
+    fs.mkdirSync(moduleDir, { recursive: true });
+    fs.writeFileSync(path.join(moduleDir, "go.mod"), "module example.com/m\n");
+    fs.chmodSync(path.join(moduleDir, "go.mod"), 0o444);
+    fs.chmodSync(moduleDir, 0o555);
+    await removeScratch(build.root);
+    expect(fs.existsSync(build.root)).toBe(false);
+});
+
 test("rejects a symlinked compiler output directory", async () => {
     const build = createBuild();
     const link = path.join(build.root, "lib");
     fs.symlinkSync(build.source, link);
     await expect(moveBuildOutput(link, build.output)).rejects.toThrow("Expected a regular build output directory");
+    expect(fs.existsSync(build.output)).toBe(false);
+});
+
+test("rejects a symlinked parent of the compiler output", async () => {
+    const build = createBuild();
+    fs.mkdirSync(path.join(build.source, "local"));
+    const link = path.join(build.root, "built");
+    fs.symlinkSync(build.source, link);
+    await expect(moveBuildOutput(path.join(link, "local"), build.output, build.root))
+        .rejects.toThrow("Expected a regular build output parent directory");
     expect(fs.existsSync(build.output)).toBe(false);
 });
 
@@ -93,4 +116,57 @@ test("rejects logging-command markers in directory names", async () => {
     fs.writeFileSync(path.join(directory, "tsc.js"), "compiler");
     await expect(moveBuildOutput(build.source, build.output)).rejects.toThrow("Unsafe build output filename");
     expect(fs.existsSync(build.output)).toBe(false);
+});
+
+test.each([0, 37])("passes build isolation arguments and preserves exit code %i", exitCode => {
+    const build = createBuild();
+    fs.mkdirSync(path.join(build.source, ".git"));
+    const bin = path.join(build.root, "bin");
+    const capture = path.join(build.root, "bwrap-args");
+    fs.mkdirSync(bin);
+    fs.writeFileSync(
+        path.join(bin, "bwrap"),
+        `#!/usr/bin/env bash
+printf '%s\\0' "$@" > "$BWRAP_CAPTURE"
+echo 'prefix ##vso[task.setvariable variable=TYPESCRIPT_COMMIT]untrusted'
+echo '##[warning]compiler stderr' >&2
+exit "$PROBE_EXIT"
+`,
+        { mode: 0o755 },
+    );
+    const result = spawnSync("bash", [sandboxScript, build.source, build.home, build.tmp, "npm", "ci"], {
+        env: {
+            ...process.env,
+            PATH: `${bin}:${process.env.PATH}`,
+            AGENT_TOOLSDIRECTORY: bin,
+            BWRAP_CAPTURE: capture,
+            PROBE_EXIT: String(exitCode),
+            SYNTHETIC_SECRET: "must-not-be-forwarded",
+        },
+        encoding: "utf8",
+        timeout: 10_000,
+    });
+    expect(result.status).toBe(exitCode);
+    expect(result.stdout).toContain("prefix ##vso[task.setvariable variable=TYPESCRIPT_COMMIT]untrusted");
+    expect(result.stderr).toContain("##[warning]compiler stderr");
+    const args = fs.readFileSync(capture, "utf8").split("\0").slice(0, -1);
+    expect(args).toContain("--clearenv");
+    expect(args).toContain("--unshare-user");
+    expect(args).toContain("--unshare-pid");
+    expect(args).toContain("--die-with-parent");
+    expect(args).toContain("--new-session");
+    const metadataIndex = args.indexOf(`${build.source}/.git`);
+    expect(args.slice(metadataIndex - 1, metadataIndex + 2)).toEqual([
+        "--ro-bind",
+        `${build.source}/.git`,
+        `${build.source}/.git`,
+    ]);
+    // The home bind must follow the /tmp bind, or a home under the host's /tmp is hidden.
+    const tmpIndex = args.indexOf("/tmp");
+    expect(args.slice(tmpIndex - 2, tmpIndex + 1)).toEqual(["--bind", build.tmp, "/tmp"]);
+    const homeBindIndex = args.findIndex((arg, i) => arg === "--bind" && args[i + 1] === build.home);
+    expect(homeBindIndex).toBeGreaterThan(tmpIndex);
+    expect(args.slice(-2)).toEqual(["npm", "ci"]);
+    expect(args).not.toContain("SYNTHETIC_SECRET");
+    expect(args).not.toContain("must-not-be-forwarded");
 });

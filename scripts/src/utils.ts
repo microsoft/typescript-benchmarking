@@ -90,7 +90,18 @@ export function defangLoggingCommands(text: string): string {
     return text.replace(loggingCommandRegExp, "# #");
 }
 
-export async function validateBuildOutput(source: string) {
+export async function validateBuildOutput(source: string, root: string) {
+    const relative = path.relative(root, source);
+    assert(
+        relative !== ".." && !relative.startsWith(`..${path.sep}`) && !path.isAbsolute(relative),
+        "Expected build output inside the compiler checkout",
+    );
+    let directory = root;
+    for (const component of relative.split(path.sep).slice(0, -1)) {
+        directory = path.join(directory, component);
+        assert((await fs.promises.lstat(directory)).isDirectory(), "Expected a regular build output parent directory");
+    }
+
     async function validate(file: string): Promise<void> {
         const stat = await fs.promises.lstat(file);
         if (stat.isDirectory()) {
