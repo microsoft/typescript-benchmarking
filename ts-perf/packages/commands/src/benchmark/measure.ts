@@ -75,7 +75,10 @@ export async function measureAndRunScenarios({ kind, options }: TSOptions, host:
         );
         throw new ProcessExitError(-1, "Scenario not found.");
     }
-    const hosts = await Host.findHosts(options.hosts);
+    const hosts = await Host.findHosts(
+        options.hosts,
+        kind === "api" ? { installed: true, onlyHosts: ["node"] } : undefined,
+    );
     if (kind === "api" && hosts.length === 0) {
         throw new Error("No matching Node host found for API benchmarks. Install the requested host before running.");
     }

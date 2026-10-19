@@ -28,6 +28,8 @@ API benchmarks time an external program that uses the TypeScript 7 JS API. `case
 
 In `scenario.json`, set `"kind": "api"` and set `args` to a Node script (relative to the scenario directory) followed by its arguments. `${typescriptDirectory}` expands to the built compiler. The script runs in `cases/solutions/<name>` and is timed from start to finish. It should point the program at the built `typescript` package, run it, and exit nonzero if the output is wrong.
 
+API benchmarks use Node hosts installed with `ts-perf host install`, not the ambient Node installation. The runner sets `TSPERF_NPM_CLI` to the selected host's bundled npm CLI; `run("npm", ...)` in `cases/api/utils.mjs` invokes it with the selected Node, preserving upstream npm scripts without using ambient package-manager shims.
+
 `ts-perf` sets `TS_API_TIMING_DIR`, and each API client writes timing data there when it is closed. A run that produces no timing data fails, so both compared compiler commits must include timing support (microsoft/TypeScript#64846).
 
 To run the benchmark in CI, add it to `allScenarios` in `scripts/src/setupPipeline.ts` with `kind: "api"` and `runIn: RunType.None`, then request the `api` preset.

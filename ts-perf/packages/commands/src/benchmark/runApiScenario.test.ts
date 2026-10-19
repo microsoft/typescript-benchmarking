@@ -1,6 +1,7 @@
 import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
+import { pathToFileURL } from "node:url";
 
 import { apiTimingSampleKeys, CommonExpansionProvider, Host, HostSpecifier, Measurement, Scenario } from "@ts-perf/api";
 import { HostContext, Logger } from "@ts-perf/core";
@@ -11,6 +12,7 @@ import { runApiProcess, runApiScenario } from "./runApiScenario";
 
 const commit = "a".repeat(40);
 const context = new HostContext(new Logger(0));
+const utilsModule = pathToFileURL(path.resolve(__dirname, "../../../../../cases/api/utils.mjs")).href;
 
 test("propagates command crashes and missing executables", async () => {
     const args = ["-e", "console.error('consumer-crash'); process.exit(1)"];
@@ -20,11 +22,15 @@ test("propagates command crashes and missing executables", async () => {
     await expect(runApiProcess("/nonexistent/tsperf-node", [])).rejects.toThrow();
 });
 
-async function fixture(callback: (root: string, scenario: Scenario) => Promise<void>) {
+async function fixture(callback: (root: string, scenario: Scenario, host: Host) => Promise<void>) {
     const root = await fs.realpath(await fs.mkdtemp(path.join(os.tmpdir(), "tsperf-api-test-")));
     try {
         await fs.writeFile(path.join(root, "info.json"), JSON.stringify({ commit }));
         await fs.mkdir(path.join(root, "test-api"));
+        await fs.writeFile(
+            path.join(root, "npm-cli.cjs"),
+            `require("node:assert/strict").deepEqual(process.argv.slice(2), ["run", "workload", "--", "argument with spaces"]);`,
+        );
         await fs.writeFile(
             path.join(root, "runner.mjs"),
             `
@@ -44,6 +50,10 @@ async function fixture(callback: (root: string, scenario: Scenario) => Promise<v
             await new Promise(resolve => setTimeout(resolve, Number(args.at(-1))));
             if (args.includes("--fail-check")) throw Error("invalid output");
             if (args.includes("--verify-node")) execFileSync("node", ["-e", ""], { stdio: "inherit" });
+            if (args.includes("--verify-npm")) {
+                const { run } = await import(${JSON.stringify(utilsModule)});
+                run("npm", ["run", "workload", "--", "argument with spaces"], process.cwd());
+            }
             if (!args.includes("--missing-dumps")) {
                 const instanceId = randomUUID();
                 const dump = {
@@ -76,6 +86,7 @@ async function fixture(callback: (root: string, scenario: Scenario) => Promise<v
                 "${scenarioDirectory}",
                 "5",
             ]),
+            Host.current.with({ name: "node", npm: "npm-cli.cjs", configFile: path.join(root, "host.json") }),
         );
     }
     finally {
@@ -84,11 +95,11 @@ async function fixture(callback: (root: string, scenario: Scenario) => Promise<v
 }
 
 test("times the whole script with declared arguments, standard expansions and the solution working directory", async () => {
-    await fixture(async (root, scenario) => {
+    await fixture(async (root, scenario, host) => {
         const run = (delay: number) =>
             runApiScenario(
                 scenario.with({ args: [...scenario.args!.slice(0, -1), String(delay)] }),
-                Host.current,
+                host,
                 {
                     builtDir: path.relative(process.cwd(), root),
                     suiteDir: path.relative(process.cwd(), root),
@@ -97,7 +108,7 @@ test("times the whole script with declared arguments, standard expansions and th
                 },
                 context,
                 0,
-                HostSpecifier.create(Host.current),
+                HostSpecifier.create(host),
                 0,
             );
         const slow = await run(120);
@@ -115,8 +126,8 @@ test("times the whole script with declared arguments, standard expansions and th
     });
 });
 
-test("expands the installed host path for both the wrapper and consumer Node subprocesses", async () => {
-    await fixture(async (root, scenario) => {
+test("expands the installed host path and uses bundled npm rather than an ambient shim", async () => {
+    await fixture(async (root, scenario, installedHost) => {
         const bin = path.join(root, "bin");
         const executable = path.join(bin, "node");
         const log = path.join(root, "node-invocations");
@@ -133,14 +144,17 @@ test("expands the installed host path for both the wrapper and consumer Node sub
         `,
         );
         await fs.chmod(executable, 0o755);
-        const host = new Host("node", {
+        await fs.writeFile(path.join(bin, "npm"), "#!/bin/sh\necho ambient-npm-shim >&2\nexit 1\n");
+        await fs.chmod(path.join(bin, "npm"), 0o755);
+        const host = installedHost.with({
+            name: "node",
             executableFile: "${hostsDirectory}/bin/node",
         });
         const expansion = vi.spyOn(CommonExpansionProvider.prototype, "expand")
             .mockImplementation(name => name === "hostsdirectory" ? root : undefined);
         try {
             await runApiScenario(
-                scenario.with({ args: [...scenario.args!.slice(0, -1), "--verify-node", "5"] }),
+                scenario.with({ args: [...scenario.args!.slice(0, -1), "--verify-node", "--verify-npm", "5"] }),
                 host,
                 { builtDir: root, suiteDir: root, iterations: 1 },
                 context,
@@ -170,16 +184,90 @@ test("rejects predictable mode before starting an API consumer", async () => {
     });
 });
 
-test("requires the solution prepared by setup.sh rather than creating it during measurement", async () => {
+test.each([undefined, [`node@${process.version}`]])(
+    "measures only the installed Node when the ambient version matches (hosts: %j)",
+    async hosts => {
+        await fixture(async (root, scenario, host) => {
+            const scenarios = vi.spyOn(Scenario, "findScenarios").mockResolvedValue([scenario]);
+            const availableHosts = vi.spyOn(Host, "getAvailableHosts").mockResolvedValue([host, Host.current]);
+            try {
+                expect(await Host.findHosts(hosts)).toEqual([host, Host.current]);
+                const report = await measureAndRunScenarios({
+                    kind: "api",
+                    options: { builtDir: root, suiteDir: root, iterations: 1, hosts },
+                }, context);
+                expect(report.hosts).toEqual([host]);
+                expect(report.measurements).toHaveLength(1);
+            }
+            finally {
+                scenarios.mockRestore();
+                availableHosts.mockRestore();
+            }
+        });
+    },
+);
+
+test("requires an installed host rather than falling back to ambient Node", async () => {
     await fixture(async (root, scenario) => {
-        await fs.rmdir(path.join(root, scenario.name));
+        const scenarios = vi.spyOn(Scenario, "findScenarios").mockResolvedValue([scenario]);
+        const availableHosts = vi.spyOn(Host, "getAvailableHosts").mockResolvedValue([Host.current]);
+        try {
+            await expect(measureAndRunScenarios({
+                kind: "api",
+                options: { builtDir: root, suiteDir: root, iterations: 1 },
+            }, context)).rejects.toThrow("No matching Node host");
+            await expect(runApiScenario(
+                scenario,
+                Host.current,
+                { builtDir: root, suiteDir: root, iterations: 1 },
+                context,
+                0,
+                HostSpecifier.create(Host.current),
+                0,
+            )).rejects.toThrow("Node host with bundled npm");
+        }
+        finally {
+            scenarios.mockRestore();
+            availableHosts.mockRestore();
+        }
+    });
+});
+
+test("propagates bundled npm failures without falling back to PATH", async () => {
+    await fixture(async (root, scenario, host) => {
+        await fs.writeFile(path.join(root, "npm-cli.cjs"), "console.error('npm-workload-failed'); process.exit(2);");
         await expect(runApiScenario(
-            scenario,
-            Host.current,
+            scenario.with({ args: [...scenario.args!.slice(0, -1), "--verify-npm", "5"] }),
+            host,
             { builtDir: root, suiteDir: root, iterations: 1 },
             context,
             0,
-            HostSpecifier.create(Host.current),
+            HostSpecifier.create(host),
+            0,
+        )).rejects.toThrow("npm-workload-failed");
+        await fs.unlink(path.join(root, "npm-cli.cjs"));
+        await expect(runApiScenario(
+            scenario.with({ args: [...scenario.args!.slice(0, -1), "--verify-npm", "5"] }),
+            host,
+            { builtDir: root, suiteDir: root, iterations: 1 },
+            context,
+            0,
+            HostSpecifier.create(host),
+            0,
+        )).rejects.toThrow("MODULE_NOT_FOUND");
+    });
+});
+
+test("requires the solution prepared by setup.sh rather than creating it during measurement", async () => {
+    await fixture(async (root, scenario, host) => {
+        await fs.rmdir(path.join(root, scenario.name));
+        await expect(runApiScenario(
+            scenario,
+            host,
+            { builtDir: root, suiteDir: root, iterations: 1 },
+            context,
+            0,
+            HostSpecifier.create(host),
             0,
         )).rejects.toThrow(`Run ${path.join(root, "setup.sh")} before benchmarking.`);
         await expect(fs.access(path.join(root, scenario.name))).rejects.toMatchObject({ code: "ENOENT" });
@@ -187,23 +275,23 @@ test("requires the solution prepared by setup.sh rather than creating it during 
 });
 
 test("failed output checks fail the benchmark without a result protocol", async () => {
-    await fixture(async (root, scenario) => {
+    await fixture(async (root, scenario, host) => {
         await expect(runApiScenario(
             scenario.with({ args: [...scenario.args!.slice(0, -1), "--fail-check", "5"] }),
-            Host.current,
+            host,
             { builtDir: root, suiteDir: root, iterations: 1 },
             context,
             0,
-            HostSpecifier.create(Host.current),
+            HostSpecifier.create(host),
             0,
         )).rejects.toThrow("invalid output");
     });
 });
 
 test("preserves warmup counts and fails rather than omitting missing dumps", async () => {
-    await fixture(async (root, scenario) => {
+    await fixture(async (root, scenario, host) => {
         const scenarios = vi.spyOn(Scenario, "findScenarios").mockResolvedValue([scenario]);
-        const hosts = vi.spyOn(Host, "findHosts").mockResolvedValue([Host.current]);
+        const hosts = vi.spyOn(Host, "findHosts").mockResolvedValue([host]);
         try {
             const report = await measureAndRunScenarios({
                 kind: "api",

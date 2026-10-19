@@ -5,6 +5,11 @@ import { createRequire } from "node:module";
 import path from "node:path";
 
 export function run(command, args, cwd) {
+    if (command === "npm") {
+        assert(process.env.TSPERF_NPM_CLI, "API benchmarks require the selected host's npm CLI");
+        args = [process.env.TSPERF_NPM_CLI, ...args];
+        command = process.execPath;
+    }
     return execFileSync(command, args, {
         cwd,
         stdio: "inherit",
