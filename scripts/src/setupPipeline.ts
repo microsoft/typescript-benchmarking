@@ -47,6 +47,7 @@ const defaultWarmups = 1;
 const hosts = {
     // This version is arbitrary (just what was latest on 2023-08-12).
     node20: "node@20.5.1",
+    node24: "node@24.21.0",
     // This matches a recent VS Code version via Electron.
     node18: "node@18.15.0",
     bun: "bun@1.1.24",
@@ -54,7 +55,7 @@ const hosts = {
     native: "native", // Native Go binary; no host runtime needed.
 } as const satisfies Record<string, string>;
 
-const allJobKinds = ["tsc", "tsserver", "lsp", "startup"] as const;
+const allJobKinds = ["tsc", "tsserver", "lsp", "startup", "api"] as const;
 type JobKind = typeof allJobKinds[number];
 
 const enum RunType {
@@ -79,6 +80,9 @@ interface BaseScenario {
 
 // DO NOT change the agents; they must remain the same forever to keep benchmarks comparable.
 const allScenarios: readonly BaseScenario[] = [
+    { kind: "api", name: "vscode-languageserver-api-metamodel", agent: "ts-perf1", runIn: RunType.None, cost: 10 },
+    { kind: "api", name: "typescript-eslint-api-floating", agent: "ts-perf3", runIn: RunType.None, cost: 10 },
+    { kind: "api", name: "typescript-eslint-api-recommended", agent: "ts-perf4", runIn: RunType.None, cost: 10 },
     { kind: "tsc", name: "angular-1", agent: "ts-perf1", runIn: RunType.Any, cost: 64 },
     { kind: "tsc", name: "Compiler-Unions", agent: "ts-perf2", runIn: RunType.Any, cost: 17 },
     { kind: "tsc", name: "vscode", agent: "ts-perf3", runIn: RunType.Any, cost: 107 },
@@ -226,6 +230,13 @@ function* generateBaselinePreset(scenarios: readonly BaseScenario[]): Iterable<S
 }
 
 const presets = {
+    *"api"() {
+        for (const scenario of allScenarios) {
+            if (scenario.kind === "api") {
+                yield { ...scenario, host: hosts.node24, iterations: defaultIterations, warmups: defaultWarmups };
+            }
+        }
+    },
     "baseline": () => generateBaselinePreset(baselineScenarios),
     "full": () => generateBaselinePreset(onDemandScenarios),
     *"regular"() {
@@ -324,7 +335,7 @@ function sanitizeJobName(name: string): JobName {
 }
 
 // This defines the sort order, which is seen in PR replies; tsc is the most important and should be first.
-const kindOrder: readonly JobKind[] = ["tsc", "tsserver", "lsp", "startup"];
+const kindOrder: readonly JobKind[] = ["tsc", "tsserver", "lsp", "startup", "api"];
 
 assert.deepStrictEqual([...allJobKinds].sort(), [...kindOrder].sort(), "kindOrder must contain all job kinds");
 
@@ -482,13 +493,14 @@ function* transformPreset(
                         }
                 }
             }
-            const scenarioHosts = isCorsa ? [hosts.native] : (parameters.hosts ?? [scenario.host]);
+            const scenarioHosts = isCorsa && scenario.kind !== "api" ? [hosts.native]
+                : (parameters.hosts ?? [scenario.host]);
 
             for (const host of scenarioHosts) {
                 yield {
                     ...scenario,
                     host,
-                    iterations: isCorsa ? corsaIterations : scenario.iterations,
+                    iterations: isCorsa && scenario.kind !== "api" ? corsaIterations : scenario.iterations,
                 };
             }
         }
@@ -515,6 +527,15 @@ export async function setupPipeline(input: SetupPipelineInput) {
     const { baselining, implementation, shouldLog } = input;
 
     const parameters = await parseInput(input);
+    if (parameters.preset === "api" && implementation !== "corsa") {
+        throw new Error("The api preset requires the native TypeScript 7 compiler and its matching JS API.");
+    }
+    if (parameters.preset === "api" && parameters.hosts?.some(host => host !== hosts.node24)) {
+        throw new Error(`The api preset requires its pinned host ${hosts.node24}.`);
+    }
+    if (parameters.preset === "api" && parameters.predictable) {
+        throw new Error("The api preset does not support predictable mode for external consumer processes.");
+    }
     if (shouldLog) {
         console.log("Parameters", parameters);
     }

@@ -47,7 +47,10 @@ export class Measurement {
         }
         return new Measurement(
             components.scenarioName,
-            components.scenarioIndex,
+            components.scenarioIndex
+                ?? ("scenarioArgs" in components && typeof components.scenarioArgs === "number"
+                    ? components.scenarioArgs
+                    : undefined),
             components.host && HostSpecifier.create(components.host),
             components.hostIndex,
             values,
@@ -153,7 +156,7 @@ export class Measurement {
         return {
             name: this.name,
             scenarioName: this.scenarioName,
-            scenarioArgs: this.scenarioIndex,
+            scenarioIndex: this.scenarioIndex,
             hostName: this.hostName,
             hostIndex: this.hostIndex,
             host: this.host,

@@ -1,0 +1,5 @@
+{
+    "name": "vscode-languageserver-api-metamodel",
+    "kind": "api",
+    "args": ["../../api/lsp-metamodel.mjs", "${typescriptDirectory}"]
+}

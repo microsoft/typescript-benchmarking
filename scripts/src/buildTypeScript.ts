@@ -5,6 +5,7 @@ import path from "node:path";
 import minimist from "minimist";
 import { Octokit } from "octokit";
 
+import { preserveApiArtifact } from "./apiArtifact.js";
 import { detectTypeScriptImplementation } from "./typeScriptRepo.js";
 import { $, $pipe, getNonEmptyEnv, parseBoolean, RepoInfo, retry, setOutputVariable } from "./utils.js";
 
@@ -24,6 +25,8 @@ assert(outputDir, "Expected output path as first argument");
 const implementation = detectTypeScriptImplementation(".");
 assert(implementation, "Expected to be run from the TypeScript repo");
 const isCorsa = implementation === "corsa";
+const buildApi = process.env.TSPERF_PROCESS_KINDS?.split(/\s+/).includes("api") ?? false;
+assert(!buildApi || isCorsa, "The api preset requires native TypeScript 7");
 
 await $`mkdir -p ${path.dirname(outputDir)}`;
 
@@ -32,7 +35,12 @@ await retry(() => $`npm ci`);
 if (fs.existsSync("Herebyfile.mjs")) {
     if (isCorsa) {
         await $`npx hereby build`;
+        if (buildApi) {
+            await $`npx hereby typescript:build-main`;
+            await $`npx hereby typescript:build-platform --platform ${`${process.platform}-${process.arch}`}`;
+        }
         await $`mv built/local ${outputDir}`;
+        if (buildApi) await preserveApiArtifact(outputDir, commit);
     }
     else {
         await $`npx hereby lkg`;
