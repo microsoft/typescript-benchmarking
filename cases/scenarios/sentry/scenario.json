@@ -1,0 +1,13 @@
+{
+    "name": "sentry",
+    "kind": "tsc",
+    "args": [
+        "-p",
+        "${suiteDirectory}/sentry/tsconfig.json",
+        "--incremental",
+        "false"
+    ],
+    "platforms": [
+        "linux"
+    ]
+}

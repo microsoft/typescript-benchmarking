@@ -1,0 +1,13 @@
+{
+    "name": "social-app",
+    "kind": "tsc",
+    "args": [
+        "-p",
+        "${suiteDirectory}/social-app/tsconfig.check.ios.json",
+        "--incremental",
+        "false"
+    ],
+    "platforms": [
+        "linux"
+    ]
+}

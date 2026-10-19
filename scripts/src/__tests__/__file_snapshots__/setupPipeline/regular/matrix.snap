@@ -64,6 +64,22 @@
       "TSPERF_JOB_SCENARIO": "self-build-src-public-api",
       "TSPERF_JOB_WARMUPS": 1,
     },
+    "tsc_node_18_15_0_sentry": {
+      "TSPERF_JOB_HOST": "node@18.15.0",
+      "TSPERF_JOB_ITERATIONS": 6,
+      "TSPERF_JOB_KIND": "tsc",
+      "TSPERF_JOB_NAME": "tsc_node_18_15_0_sentry",
+      "TSPERF_JOB_SCENARIO": "sentry",
+      "TSPERF_JOB_WARMUPS": 1,
+    },
+    "tsc_node_18_15_0_social_app": {
+      "TSPERF_JOB_HOST": "node@18.15.0",
+      "TSPERF_JOB_ITERATIONS": 6,
+      "TSPERF_JOB_KIND": "tsc",
+      "TSPERF_JOB_NAME": "tsc_node_18_15_0_social_app",
+      "TSPERF_JOB_SCENARIO": "social-app",
+      "TSPERF_JOB_WARMUPS": 1,
+    },
     "tsc_node_18_15_0_strada_build_src": {
       "TSPERF_JOB_HOST": "node@18.15.0",
       "TSPERF_JOB_ITERATIONS": 6,
@@ -78,6 +94,14 @@
       "TSPERF_JOB_KIND": "tsc",
       "TSPERF_JOB_NAME": "tsc_node_18_15_0_strada_compiler",
       "TSPERF_JOB_SCENARIO": "strada-compiler",
+      "TSPERF_JOB_WARMUPS": 1,
+    },
+    "tsc_node_18_15_0_t3code_server": {
+      "TSPERF_JOB_HOST": "node@18.15.0",
+      "TSPERF_JOB_ITERATIONS": 6,
+      "TSPERF_JOB_KIND": "tsc",
+      "TSPERF_JOB_NAME": "tsc_node_18_15_0_t3code_server",
+      "TSPERF_JOB_SCENARIO": "t3code-server",
       "TSPERF_JOB_WARMUPS": 1,
     },
     "tsc_node_18_15_0_ts_pre_modules": {
