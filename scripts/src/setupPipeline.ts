@@ -107,6 +107,7 @@ const allScenarios: readonly BaseScenario[] = [
     { kind: "tsc", name: "sentry", agent: "ts-perf3", runIn: RunType.Any, cost: 16 },
     { kind: "tsc", name: "social-app", agent: "ts-perf2", runIn: RunType.Any, cost: 4 },
     { kind: "tsc", name: "t3code-server", agent: "ts-perf4", runIn: RunType.Any, cost: 21 },
+    { kind: "tsc", name: "arktype", agent: "ts-perf1", runIn: RunType.Any, cost: 3 },
     {
         kind: "tsserver",
         name: "Compiler-UnionsTSServer",
