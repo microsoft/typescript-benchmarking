@@ -162,5 +162,8 @@ async function benchmarkStartup() {
 async function benchmarkApi() {
     const builtDir = checkNonEmpty(args.builtDir, "Expected non-empty --builtDir");
     const tsperfArgs = await getCommonBenchmarkArgs();
+    if (args.save && parseBoolean(getNonEmptyEnv("TSPERF_API_MEMORY"), false)) {
+        tsperfArgs.push("--apiMemory");
+    }
     await $`node ${tsperfExe} benchmark api --builtDir ${builtDir} ${tsperfArgs}`;
 }

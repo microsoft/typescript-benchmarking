@@ -23,6 +23,62 @@ async function createVariablesFile(contents: string) {
     return file;
 }
 
+test.each([
+    { environment: "true", save: true, enabled: true },
+    { environment: "false", save: true, enabled: false },
+    { environment: "true", save: false, enabled: false },
+    { environment: undefined, save: true, enabled: false },
+])(
+    "forwards API memory opt-in only to saved baseline and candidate commands: %j",
+    async ({ environment, save, enabled }) => {
+        const execute = vi.fn(async (_strings: TemplateStringsArray, ..._values: unknown[]) => {});
+        vi.resetModules();
+        vi.doMock("../utils.js", async importOriginal => ({
+            ...await importOriginal<typeof import("../utils.js")>(),
+            $: execute,
+            getRepoInfo: async () => ({ date: "2026-10-20", commit: "a".repeat(40) }),
+        }));
+        const argv = process.argv;
+        vi.stubEnv("TSPERF_EXE", "/ts-perf");
+        vi.stubEnv("TSPERF_SCENARIO_CONFIG_DIR", "/scenarios");
+        vi.stubEnv("TSPERF_SUITE_DIR", "/solutions");
+        vi.stubEnv("TSPERF_JOB_HOST", "node@24.21.0");
+        vi.stubEnv("TSPERF_JOB_SCENARIO", "api-fixture");
+        vi.stubEnv("TSPERF_JOB_ITERATIONS", "2");
+        vi.stubEnv("TSPERF_JOB_WARMUPS", "1");
+        vi.stubEnv("TSPERF_PREDICTABLE", "false");
+        vi.stubEnv("TSPERF_AGENT_BENCHMARK_CPUS", "1");
+        vi.stubEnv("TSPERF_API_MEMORY", environment);
+        try {
+            for (const name of ["baseline", "new"]) {
+                vi.resetModules();
+                process.argv = [
+                    "node",
+                    "runTsPerf.js",
+                    "benchmark-api",
+                    "--builtDir",
+                    `/${name}`,
+                    save ? "--save" : "--load",
+                    `/${name}.benchmark`,
+                ];
+                if (save && environment === undefined) {
+                    await expect(import("../runTsPerf.js")).rejects.toThrow("Expected TSPERF_API_MEMORY");
+                    continue;
+                }
+                await import("../runTsPerf.js");
+                const args = execute.mock.calls.at(-1)!.at(-1) as string[];
+                expect(args.includes("--apiMemory")).toBe(enabled);
+                if (save) expect(args).toEqual(expect.arrayContaining(["--iterations", "2", "--warmups", "1"]));
+            }
+        }
+        finally {
+            process.argv = argv;
+            vi.doUnmock("../utils.js");
+            vi.resetModules();
+        }
+    },
+);
+
 describe("publishPipelineVariables", () => {
     test("escapes multiline values without printing an additional raw diagnostic", async () => {
         const value = "label%0A\r\n##vso[task.setvariable variable=GH_TOKEN]injected";

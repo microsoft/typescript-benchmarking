@@ -1,5 +1,6 @@
 import { Measurement, MeasurementComponents } from "./measurement";
 import { MeasurementComparisonPivot } from "./measurementComparisonPivot";
+import { apiMemorySampleKeys } from "./sample";
 import { Value } from "./value";
 import { ValueComparison } from "./valueComparison";
 
@@ -22,6 +23,12 @@ export class MeasurementComparison {
         public readonly baseline?: Measurement,
         public readonly midline?: Measurement,
     ) {
+        const measurements = [benchmark, baseline, midline].filter(measurement => measurement !== undefined);
+        if (measurements.some(measurement => apiMemorySampleKeys.some(key => measurement.values?.[key]))) {
+            if (measurements.some(measurement => apiMemorySampleKeys.some(key => !measurement.values?.[key]))) {
+                throw new Error("API memory comparisons require --apiMemory on both baseline and candidate.");
+            }
+        }
         this.values = {};
         for (const key in benchmark.values) {
             if (hasProperty(benchmark.values, key)) {

@@ -3,7 +3,15 @@ import os from "node:os";
 import path from "node:path";
 import { pathToFileURL } from "node:url";
 
-import { apiTimingSampleKeys, CommonExpansionProvider, Host, HostSpecifier, Measurement, Scenario } from "@ts-perf/api";
+import {
+    apiMemorySampleKeys,
+    apiTimingSampleKeys,
+    CommonExpansionProvider,
+    Host,
+    HostSpecifier,
+    Measurement,
+    Scenario,
+} from "@ts-perf/api";
 import { HostContext, Logger } from "@ts-perf/core";
 import { expect, test, vi } from "vitest";
 
@@ -45,6 +53,9 @@ async function fixture(callback: (root: string, scenario: Scenario, host: Host) 
                 throw Error("unexpected injected argument");
             }
             const root = path.dirname(fileURLToPath(import.meta.url));
+            const memoryPass = !!process.env.TS_API_MEMORY_DIR;
+            assert.notEqual(memoryPass, !!process.env.TS_API_TIMING_DIR, "exactly one collection pass");
+            await fs.appendFile(path.join(root, "passes"), memoryPass ? "memory\\n" : "timing\\n");
             assert.deepEqual(args.slice(0, 3), [root, root, root]);
             assert.equal(process.cwd(), path.join(root, "test-api"));
             await new Promise(resolve => setTimeout(resolve, Number(args.at(-1))));
@@ -53,6 +64,21 @@ async function fixture(callback: (root: string, scenario: Scenario, host: Host) 
             if (args.includes("--verify-npm")) {
                 const { run } = await import(${JSON.stringify(utilsModule)});
                 run("npm", ["run", "workload", "--", "argument with spaces"], process.cwd());
+            }
+            if (memoryPass) {
+                if (args.includes("--memory-crash")) throw Error("memory-workload-failed");
+                if (!args.includes("--missing-memory")) {
+                    const dump = {
+                        schemaVersion: 1,
+                        client: {
+                            pid: process.pid, heapUsedBytes: 100, peakRSSBytes: 200,
+                            sampling: { id: randomUUID(), intervalBytes: 32768, allocatedBytes: 300 },
+                        },
+                        server: { pid: process.pid + 1, heapAllocBytes: 400, totalAllocBytes: 500 },
+                    };
+                    await fs.writeFile(path.join(process.env.TS_API_MEMORY_DIR, "memory-test.json"), JSON.stringify(dump));
+                }
+                process.exit(0);
             }
             if (!args.includes("--missing-dumps")) {
                 const instanceId = randomUUID();
@@ -123,6 +149,61 @@ test("times the whole script with declared arguments, standard expansions and th
         }
         expect(restored.diff(slow)?.values.apiBytesSent?.benchmarkRelativeDelta).toBe(0);
         expect(restored.merge(slow).values?.apiRoundTripTime?.samples).toEqual([1, 1, 1, 1]);
+    });
+});
+
+test("memory profiling is opt-in and isolated from timing, including inherited collection variables", async () => {
+    await fixture(async (root, scenario, host) => {
+        vi.stubEnv("TS_API_MEMORY_DIR", path.join(root, "unwanted-memory"));
+        vi.stubEnv("TS_API_TIMING_DIR", path.join(root, "unwanted-timing"));
+        try {
+            const run = (apiMemory: boolean) =>
+                runApiScenario(
+                    scenario,
+                    host,
+                    { builtDir: root, suiteDir: root, iterations: 2, warmups: 1, apiMemory },
+                    context,
+                    0,
+                    HostSpecifier.create(host),
+                    0,
+                );
+            const timing = await run(false);
+            expect(apiMemorySampleKeys.every(key => timing.values?.[key] === undefined)).toBe(true);
+            expect(await fs.readFile(path.join(root, "passes"), "utf8")).toBe("timing\n".repeat(3));
+            await fs.unlink(path.join(root, "passes"));
+            const memory = await run(true);
+            expect(await fs.readFile(path.join(root, "passes"), "utf8")).toBe(
+                "timing\n".repeat(3) + "memory\n".repeat(2),
+            );
+            expect(memory.values?.totalTime?.samples).toHaveLength(2);
+            expect(memory.values?.apiRequests?.samples).toEqual([1, 1]);
+            expect(memory.values?.apiClientSampledAllocations?.samples).toEqual([300, 300]);
+            expect(memory.values?.apiServerAllocations?.samples).toEqual([500, 500]);
+            for (const key of apiMemorySampleKeys) {
+                expect(Measurement.create(JSON.parse(JSON.stringify(memory))).values?.[key]?.samples).toHaveLength(2);
+            }
+            await expect(fs.access(path.join(root, "unwanted-memory"))).rejects.toThrow();
+        }
+        finally {
+            vi.unstubAllEnvs();
+        }
+    });
+});
+
+test.each([
+    ["--missing-memory", "Missing API memory dumps"],
+    ["--memory-crash", "memory-workload-failed"],
+])("fails requested memory passes instead of returning timing-only results: %s", async (flag, error) => {
+    await fixture(async (root, scenario, host) => {
+        await expect(runApiScenario(
+            scenario.with({ args: [...scenario.args!.slice(0, -1), flag, "5"] }),
+            host,
+            { builtDir: root, suiteDir: root, iterations: 1, apiMemory: true },
+            context,
+            0,
+            HostSpecifier.create(host),
+            0,
+        )).rejects.toThrow(error);
     });
 });
 

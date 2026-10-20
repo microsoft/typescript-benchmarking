@@ -161,12 +161,31 @@ export function isApiTimingSampleKey(key: string): key is ApiTimingSampleKey {
     return Object.hasOwn(apiTimingMetrics, key);
 }
 
+export const apiMemoryMetrics = {
+    apiClientProcesses: { metric: "API client processes", unit: " processes", precision: 0 },
+    apiClientSampledAllocations: { metric: "API client JS allocated (sampled estimate, sum)", unit: "B", precision: 0 },
+    apiClientHeapUsed: { metric: "API client heap at close (sum of process maxima)", unit: "B", precision: 0 },
+    apiClientPeakRSS: { metric: "API client lifetime peak RSS (max process)", unit: "B", precision: 0 },
+    apiServerProcesses: { metric: "API server processes", unit: " processes", precision: 0 },
+    apiServerAllocations: { metric: "API server Go allocated (exact cumulative, sum)", unit: "B", precision: 0 },
+    apiServerHeapUsed: { metric: "API server heap at close (sum of process maxima)", unit: "B", precision: 0 },
+} as const;
+
+export type ApiMemorySampleKey = keyof typeof apiMemoryMetrics;
+export const apiMemorySampleKeys = Object.keys(apiMemoryMetrics) as ApiMemorySampleKey[];
+
+export function isApiMemorySampleKey(key: string): key is ApiMemorySampleKey {
+    return Object.hasOwn(apiMemoryMetrics, key);
+}
+
 export type SampleKey =
     | CompilerSampleKey
     | TSServerSampleKey
     | StartupSampleKey
-    | ApiTimingSampleKey;
+    | ApiTimingSampleKey
+    | ApiMemorySampleKey;
 
 export function isSampleKey(key: string): key is SampleKey {
-    return isCompilerSampleKey(key) || isTSServerSampleKey(key) || isStartupSampleKey(key) || isApiTimingSampleKey(key);
+    return isCompilerSampleKey(key) || isTSServerSampleKey(key) || isStartupSampleKey(key)
+        || isApiTimingSampleKey(key) || isApiMemorySampleKey(key);
 }
