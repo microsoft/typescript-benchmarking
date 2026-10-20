@@ -88,12 +88,13 @@ test("API memory is opt-in, applies to both commits, and accounts for separate p
     const timing = await setupPipeline(input);
     const memory = await setupPipeline({ ...input, input: "api apiMemory" });
     expect(timing.parameters.apiMemory).toBeUndefined();
-    expect(timing.outputVariables.TSPERF_API_MEMORY).toBeUndefined();
+    expect(timing.outputVariables.TSPERF_API_MEMORY).toBe("false");
     expect(memory.outputVariables.TSPERF_API_MEMORY).toBe("true");
     expect(memory.matrix).toEqual(timing.matrix);
-    expect(memory.compute.total).not.toEqual(timing.compute.total);
+    expect(timing.compute.total).toBe("11m");
+    expect(memory.compute.total).toBe("17m");
     expect((await setupPipeline({ ...input, input: "api apiMemory=false" })).outputVariables.TSPERF_API_MEMORY)
-        .toBeUndefined();
+        .toBe("false");
     await expect(setupPipeline({ ...input, input: "regular apiMemory" })).rejects.toThrow("requires the api preset");
 });
 

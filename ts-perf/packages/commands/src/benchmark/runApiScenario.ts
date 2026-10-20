@@ -131,12 +131,12 @@ export async function runApiScenario(
             }
         }
         if (options.apiMemory) {
-            for (let i = 0; i < iterations + warmups; i++) {
+            for (let i = 0; i < iterations; i++) {
                 const dumpDir = await fs.mkdtemp(path.join(dumpRoot, "memory-"));
                 await runApiProcess(run.cmd!, run.args, { ...env, TS_API_MEMORY_DIR: dumpDir }, workDir, context);
                 const memory = await readApiMemoryDumps(dumpDir);
-                context.info(`API ${scenario.name}: memory pass${i < warmups ? " (warmup)" : ""}`);
-                if (i >= warmups) memorySamples.push(memory);
+                context.info(`API ${scenario.name}: memory pass`);
+                memorySamples.push(memory);
             }
         }
         const values: Partial<Record<string, Value>> = {

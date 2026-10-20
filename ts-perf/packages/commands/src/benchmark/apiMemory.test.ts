@@ -84,13 +84,24 @@ test.each([
     { ...dump, server: { ...dump.server, pid: 1.5 } },
     { ...dump, client: { ...dump.client, sampling: undefined } },
     { ...dump, client: { ...dump.client, sampling: { ...dump.client.sampling, id: "" } } },
-    { ...dump, client: { ...dump.client, sampling: { ...dump.client.sampling, intervalBytes: 16384 } } },
     { ...dump, server: { ...dump.server, peakRSSBytes: undefined } },
 ])("rejects missing/unsupported memory telemetry: %j", async value => {
     await withDumps([value], async directory => {
         await expect(readApiMemoryDumps(directory)).rejects.toThrow();
     });
 });
+
+test.each([16384, 32768, 65536])(
+    "uses the producer's byte estimate independently of sampling interval %i",
+    async intervalBytes => {
+        await withDumps([{
+            ...dump,
+            client: { ...dump.client, sampling: { ...dump.client.sampling, intervalBytes } },
+        }], async directory => {
+            expect((await readApiMemoryDumps(directory)).apiClientSampledAllocations).toBe(300);
+        });
+    },
+);
 
 test.each([undefined, null, -1, Infinity, "100"])("rejects invalid byte counters: %s", async value => {
     await withDumps([{ ...dump, client: { ...dump.client, heapUsedBytes: value } }], async directory => {

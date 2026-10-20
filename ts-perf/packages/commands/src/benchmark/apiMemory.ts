@@ -42,7 +42,6 @@ export async function readApiMemoryDumps(directory: string): Promise<Record<ApiM
             sampling && typeof sampling.id === "string" && sampling.id.length,
             "Missing API allocation sampling window",
         );
-        assert.equal(sampling.intervalBytes, 32768, "Unsupported API allocation sampling interval");
         const allocated = counter(sampling.allocatedBytes, "client.sampling.allocatedBytes");
         const window = windows.get(sampling.id);
         assert(!window || window.pid === clientPid, "API allocation sampling window has inconsistent PIDs");

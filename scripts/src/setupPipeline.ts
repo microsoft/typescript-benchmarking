@@ -596,8 +596,10 @@ export async function setupPipeline(input: SetupPipelineInput) {
         }
         jobNames.push(jobName);
 
-        let cost = scenario.cost * (scenario.iterations + scenario.warmups) * (parameters.apiMemory ? 2 : 1)
-            + jobOverhead;
+        let cost = scenario.cost * (scenario.iterations + scenario.warmups) + jobOverhead;
+        if (parameters.apiMemory) {
+            cost += scenario.cost * scenario.iterations;
+        }
         if (!baselining) {
             cost *= 2;
         }
@@ -630,7 +632,7 @@ export async function setupPipeline(input: SetupPipelineInput) {
     }
 
     outputVariables[`TSPERF_PREDICTABLE`] = parameters.predictable ? "true" : "false";
-    if (parameters.apiMemory) outputVariables["TSPERF_API_MEMORY"] = "true";
+    outputVariables["TSPERF_API_MEMORY"] = parameters.apiMemory ? "true" : "false";
     outputVariables["TSPERF_IS_CUSTOM_COMMIT_RANGE"] = parameters.isCustomCommitRange ? "true" : "false";
     outputVariables["TSPERF_IS_COMPARISON"] = parameters.isComparison ? "true" : "false";
     outputVariables[`TSPERF_BASELINE_COMMIT`] = parameters.baselineCommit;

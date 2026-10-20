@@ -173,7 +173,7 @@ test("memory profiling is opt-in and isolated from timing, including inherited c
             await fs.unlink(path.join(root, "passes"));
             const memory = await run(true);
             expect(await fs.readFile(path.join(root, "passes"), "utf8")).toBe(
-                "timing\n".repeat(3) + "memory\n".repeat(3),
+                "timing\n".repeat(3) + "memory\n".repeat(2),
             );
             expect(memory.values?.totalTime?.samples).toHaveLength(2);
             expect(memory.values?.apiRequests?.samples).toEqual([1, 1]);

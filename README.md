@@ -42,8 +42,9 @@ This requires additional compiler support for `TS_API_MEMORY_DIR`; timing-only c
 and candidate with the same option; comparing memory-enabled and timing-only reports is rejected.
 
 The runner first completes ordinary timing iterations with memory collection disabled, then repeats the same
-consumer command, candidate, installed Node host and bundled npm in separate memory-only iterations. Both passes
-use the requested iteration/warmup counts, but memory passes never contribute wall-time or timing-counter samples.
+consumer command, candidate, installed Node host and bundled npm in separate memory-only iterations. Memory passes
+use the requested iteration count without additional warmups: each iteration starts fresh processes, and the timing
+pass has already warmed OS caches. Memory passes never contribute wall-time or timing-counter samples.
 The runner does not force GC. CI's API preset pins Node 24.21.0.
 
 Memory dumps use schema version 1 and contain `client.pid`, `client.heapUsedBytes`, `client.peakRSSBytes`,
@@ -54,7 +55,7 @@ Memory dumps use schema version 1 and contain `client.pid`, `client.heapUsedByte
 | -------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
 | Client JS allocated (sampled estimate) | V8 inspector allocation sampling at a fixed 32 KiB interval, including allocations collected by **both major and minor GC**. Shared overlapping-client sampling windows are counted once (maximum cumulative estimate per window ID); disjoint windows are summed. This is not an exact JS allocation total, does not include all native/external allocations, and includes other JS activity in the API client's process during the profiling window. |
 | Client/server heap at close            | JS `heapUsed` / Go `HeapAlloc` snapshots, including uncollected garbage, not live-after-GC or peak heap. Maximum observed snapshot per PID, then summed across distinct processes; **not a simultaneous total**.                                                                                                                                                                                                                                       |
-| Client/server lifetime peak RSS        | Maximum single-process lifetime high-water RSS, in bytes, across the corresponding PIDs; **not a sum of process peaks**. May include startup before API profiling.                                                                                                                                                                                                                                                                                     |
+| Client/server lifetime peak RSS        | Maximum single-process lifetime high-water RSS, in bytes, across the corresponding PIDs; **not a sum of process peaks**. May include startup before API profiling. On Linux the producer uses `/proc/self/status` `VmHWM` (since the current executable image started), not `getrusage`'s inherited pre-exec launcher high-water mark.                                                                                                                 |
 | Server Go allocated (exact cumulative) | Go runtime `TotalAlloc`, maximum per server PID then summed. Cumulative allocated Go heap bytes since process startup, not retained memory or all OS/native allocations.                                                                                                                                                                                                                                                                               |
 
 Only processes hosting an API client or its server contribute; npm and wrapper processes without API clients do
