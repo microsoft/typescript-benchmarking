@@ -17,7 +17,7 @@ const dump = {
         peakRSSBytes: 200,
         sampling: { id: "window-one", intervalBytes: 32768, allocatedBytes: 300 },
     },
-    server: { pid: 201, heapAllocBytes: 400, totalAllocBytes: 500, peakRSSBytes: 600 },
+    server: { pid: 201, heapAllocBytes: 400, totalAllocBytes: 500 },
 };
 
 async function withDumps(dumps: unknown[], callback: (directory: string) => Promise<void>) {
@@ -62,7 +62,6 @@ test("deduplicates shared processes/windows, sums disjoint windows, and never su
             apiServerProcesses: 2,
             apiServerAllocations: 1200,
             apiServerHeapUsed: 800,
-            apiServerPeakRSS: 600,
         });
     });
 });
@@ -84,7 +83,9 @@ test.each([
     { ...dump, server: { ...dump.server, pid: 1.5 } },
     { ...dump, client: { ...dump.client, sampling: undefined } },
     { ...dump, client: { ...dump.client, sampling: { ...dump.client.sampling, id: "" } } },
-    { ...dump, server: { ...dump.server, peakRSSBytes: undefined } },
+    { ...dump, client: { ...dump.client, peakRSSBytes: undefined } },
+    { ...dump, server: { ...dump.server, heapAllocBytes: undefined } },
+    { ...dump, server: { ...dump.server, totalAllocBytes: undefined } },
 ])("rejects missing/unsupported memory telemetry: %j", async value => {
     await withDumps([value], async directory => {
         await expect(readApiMemoryDumps(directory)).rejects.toThrow();
@@ -124,12 +125,22 @@ test("rejects inconsistent sampling identity and aggregate overflow", async () =
 test("preserves memory scalars through report serialization, merging and comparisons", async () => {
     await withDumps([dump], async directory => {
         const sample = await readApiMemoryDumps(directory);
+        expect(Object.keys(sample)).toEqual([
+            "apiClientProcesses",
+            "apiClientSampledAllocations",
+            "apiClientHeapUsed",
+            "apiClientPeakRSS",
+            "apiServerProcesses",
+            "apiServerAllocations",
+            "apiServerHeapUsed",
+        ]);
         const values = Object.fromEntries(apiMemorySampleKeys.map(key => {
             const { metric, unit, precision } = apiMemoryMetrics[key];
             return [key, computeMetrics([sample[key], sample[key]], metric, unit, precision)];
         }));
         const measurement = new Measurement("api-fixture", 0, undefined, 0, values);
         const report = Benchmark.create({ measurements: [measurement], iterations: 2 });
+        expect(JSON.stringify(report)).not.toContain("apiServerPeakRSS");
         const restored = Benchmark.parse(JSON.stringify(report));
         expect(restored.measurements[0].values).toEqual(values);
         const merged = measurement.merge(restored.measurements[0]);
@@ -148,6 +159,7 @@ test("preserves memory scalars through report serialization, merging and compari
             printBenchmark(restored, { format, color: false }, out);
             printComparison(restored.diff(report)!, { format, color: false }, out);
             for (const { metric } of Object.values(apiMemoryMetrics)) expect(text).toContain(metric);
+            expect(text).not.toContain("API server lifetime peak RSS");
         }
     });
 });

@@ -74,7 +74,7 @@ async function fixture(callback: (root: string, scenario: Scenario, host: Host) 
                             pid: process.pid, heapUsedBytes: 100, peakRSSBytes: 200,
                             sampling: { id: randomUUID(), intervalBytes: 32768, allocatedBytes: 300 },
                         },
-                        server: { pid: process.pid + 1, heapAllocBytes: 400, totalAllocBytes: 500, peakRSSBytes: 600 },
+                        server: { pid: process.pid + 1, heapAllocBytes: 400, totalAllocBytes: 500 },
                     };
                     await fs.writeFile(path.join(process.env.TS_API_MEMORY_DIR, "memory-test.json"), JSON.stringify(dump));
                 }

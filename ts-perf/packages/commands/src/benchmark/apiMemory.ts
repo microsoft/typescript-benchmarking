@@ -24,7 +24,7 @@ export async function readApiMemoryDumps(directory: string): Promise<Record<ApiM
         "Missing API memory dumps. --apiMemory requires compiler support for TS_API_MEMORY_DIR and clients must close.",
     );
     const clients = new Map<number, { heap: number; rss: number; }>();
-    const servers = new Map<number, { heap: number; rss: number; allocated: number; }>();
+    const servers = new Map<number, { heap: number; allocated: number; }>();
     const windows = new Map<string, { pid: number; allocated: number; }>();
     for (const file of files) {
         const dump = JSON.parse(await fs.readFile(path.join(directory, file), "utf8"));
@@ -35,7 +35,6 @@ export async function readApiMemoryDumps(directory: string): Promise<Record<ApiM
         const clientHeap = counter(dump.client.heapUsedBytes, "client.heapUsedBytes");
         const clientRSS = counter(dump.client.peakRSSBytes, "client.peakRSSBytes");
         const serverHeap = counter(dump.server.heapAllocBytes, "server.heapAllocBytes");
-        const serverRSS = counter(dump.server.peakRSSBytes, "server.peakRSSBytes (requires a supported OS)");
         const serverAllocated = counter(dump.server.totalAllocBytes, "server.totalAllocBytes");
         const sampling = dump.client.sampling;
         assert(
@@ -54,7 +53,6 @@ export async function readApiMemoryDumps(directory: string): Promise<Record<ApiM
         const server = servers.get(serverPid);
         servers.set(serverPid, {
             heap: Math.max(server?.heap ?? 0, serverHeap),
-            rss: Math.max(server?.rss ?? 0, serverRSS),
             allocated: Math.max(server?.allocated ?? 0, serverAllocated),
         });
     }
@@ -66,7 +64,6 @@ export async function readApiMemoryDumps(directory: string): Promise<Record<ApiM
         apiServerProcesses: servers.size,
         apiServerAllocations: [...servers.values()].reduce((sum, server) => sum + server.allocated, 0),
         apiServerHeapUsed: [...servers.values()].reduce((sum, server) => sum + server.heap, 0),
-        apiServerPeakRSS: Math.max(...[...servers.values()].map(server => server.rss)),
     };
     for (const [key, value] of Object.entries(values)) counter(value, key);
     return values;

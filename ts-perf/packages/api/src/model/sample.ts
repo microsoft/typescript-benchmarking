@@ -169,7 +169,6 @@ export const apiMemoryMetrics = {
     apiServerProcesses: { metric: "API server processes", unit: " processes", precision: 0 },
     apiServerAllocations: { metric: "API server Go allocated (exact cumulative, sum)", unit: "B", precision: 0 },
     apiServerHeapUsed: { metric: "API server heap at close (sum of process maxima)", unit: "B", precision: 0 },
-    apiServerPeakRSS: { metric: "API server lifetime peak RSS (max process)", unit: "B", precision: 0 },
 } as const;
 
 export type ApiMemorySampleKey = keyof typeof apiMemoryMetrics;
