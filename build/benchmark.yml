@@ -132,8 +132,6 @@ variables:
   # Only upload if the provided ref is explicitly main/release-* and we've run on the baseline machine.
   # This means that main pushes will automatically upload, but we can still queue builds off of main with a specific commit in the API.
   SHOULD_UPLOAD: $[ and(or(eq(variables['REF'], 'refs/heads/main'), startsWith(variables['REF'], 'refs/heads/release-')), eq(variables['USE_BASELINE_MACHINE'], 'true')) ]
-  PROCESS_RESULTS_POOL: $[ iif(eq(variables['SHOULD_UPLOAD'], 'true'), 'TypeScript-1ES-Deploys', 'Azure Pipelines') ]
-  PROCESS_RESULTS_DEMAND: $[ iif(eq(variables['SHOULD_UPLOAD'], 'true'), 'ImageOverride -equals azure-linux-3', 'Agent.OS -equals Linux') ]
   # This is a hack to emulate a ternary operator.
   # https://github.com/microsoft/azure-pipelines-yaml/issues/256#issuecomment-824121862
   # Since this is annoying, here's a playground to help generate them: https://tsplay.dev/wO2DRW
@@ -649,10 +647,7 @@ jobs:
     # "not(failed())" is also true when the build has been canceled, so ignore that too.
     condition: and(not(failed()), not(canceled()))
     pool:
-      name: $(PROCESS_RESULTS_POOL)
       vmImage: ubuntu-latest
-      demands:
-        - $(PROCESS_RESULTS_DEMAND)
     workspace:
       clean: all # Always start with a clean slate.
 
