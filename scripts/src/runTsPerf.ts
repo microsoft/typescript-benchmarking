@@ -9,7 +9,7 @@ const [subcommand, ...rawArgs] = process.argv.slice(2);
 
 const args = minimist(rawArgs, {
     string: ["builtDir", "save", "saveBlob", "baseline", "load", "baselineName", "benchmarkName", "format"],
-    boolean: ["quiet"],
+    boolean: ["quiet", "apiMemory"],
 });
 
 const tsperfExe = checkNonEmpty(process.env.TSPERF_EXE, "Expected TSPERF_EXE environment variable to be set");
@@ -162,5 +162,8 @@ async function benchmarkStartup() {
 async function benchmarkApi() {
     const builtDir = checkNonEmpty(args.builtDir, "Expected non-empty --builtDir");
     const tsperfArgs = await getCommonBenchmarkArgs();
+    if (args.apiMemory || parseBoolean(process.env.TSPERF_API_MEMORY, false)) {
+        tsperfArgs.push("--apiMemory");
+    }
     await $`node ${tsperfExe} benchmark api --builtDir ${builtDir} ${tsperfArgs}`;
 }

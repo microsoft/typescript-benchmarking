@@ -272,6 +272,7 @@ exit "$PROBE_EXIT"
         TSPERF_JOB_ITERATIONS: "2",
         TSPERF_JOB_WARMUPS: "0",
         TSPERF_PREDICTABLE: "false",
+        TSPERF_API_MEMORY: "true",
         TSPERF_AGENT_BENCHMARK_CPUS: "2,3",
         LANG: "C.UTF-8",
         LC_ALL: "C",

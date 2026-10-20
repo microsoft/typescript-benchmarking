@@ -294,6 +294,7 @@ jobs:
             - TSPERF_JOB_NAMES_STARTUP
             - TSPERF_JOB_NAMES_API
             - TSPERF_PREDICTABLE
+            - TSPERF_API_MEMORY
             - TSPERF_IS_CUSTOM_COMMIT_RANGE
             - TSPERF_IS_COMPARISON
             - TSPERF_BASELINE_COMMIT
@@ -393,6 +394,7 @@ jobs:
           BENCH_TMP_DIR: $(Pipeline.Workspace)/bench-tmp
           TSPERF_IS_COMPARISON: $[ dependencies.Setup.outputs['setupPipeline.TSPERF_IS_COMPARISON'] ]
           TSPERF_PREDICTABLE: $[ dependencies.Setup.outputs['setupPipeline.TSPERF_PREDICTABLE'] ]
+          TSPERF_API_MEMORY: $[ dependencies.Setup.outputs['setupPipeline.TSPERF_API_MEMORY'] ]
           TYPESCRIPT_COMMIT_NEW: $[ dependencies.Setup.outputs['buildTypeScriptNew.TYPESCRIPT_COMMIT'] ]
           TYPESCRIPT_COMMIT_BASELINE: $[ dependencies.Setup.outputs['buildTypeScriptBaseline.TYPESCRIPT_COMMIT'] ]
 

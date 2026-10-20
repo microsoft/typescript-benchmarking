@@ -34,6 +34,37 @@ API benchmarks use Node hosts installed with `ts-perf host install`, not the amb
 
 To run the benchmark in CI, add it to `allScenarios` in `scripts/src/setupPipeline.ts` with `kind: "api"` and `runIn: RunType.None`, then request the `api` preset.
 
+#### API allocations and memory
+
+Use `ts-perf benchmark api --apiMemory` (or the CI preset `api apiMemory`) to collect client/server memory.
+This requires additional compiler support for `TS_API_MEMORY_DIR`; timing-only candidates remain supported without
+`--apiMemory`, but a requested memory pass fails if dumps or supported counters are missing. Run both baseline
+and candidate with the same option; comparing memory-enabled and timing-only reports is rejected.
+
+The runner first completes ordinary timing iterations with memory collection disabled, then repeats the same
+consumer command, candidate, installed Node host and bundled npm in separate memory-only iterations. Both passes
+use the requested iteration/warmup counts, but memory passes never contribute wall-time or timing-counter samples.
+The runner does not force GC. CI's API preset pins Node 24.21.0.
+
+Memory dumps use schema version 1 and contain `client.pid`, `client.heapUsedBytes`, `client.peakRSSBytes`,
+`client.sampling.{id,intervalBytes,allocatedBytes}` and
+`server.{pid,heapAllocBytes,totalAllocBytes,peakRSSBytes}`. These are process-wide, not per-request or per-client:
+
+| Metric                                 | Meaning and aggregation                                                                                                                                                                                                                                                                                                                                                                                                                                |
+| -------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Client JS allocated (sampled estimate) | V8 inspector allocation sampling at a fixed 32 KiB interval, including allocations collected by **both major and minor GC**. Shared overlapping-client sampling windows are counted once (maximum cumulative estimate per window ID); disjoint windows are summed. This is not an exact JS allocation total, does not include all native/external allocations, and includes other JS activity in the API client's process during the profiling window. |
+| Client/server heap at close            | JS `heapUsed` / Go `HeapAlloc` snapshots, including uncollected garbage, not live-after-GC or peak heap. Maximum observed snapshot per PID, then summed across distinct processes; **not a simultaneous total**.                                                                                                                                                                                                                                       |
+| Client/server lifetime peak RSS        | Maximum single-process lifetime high-water RSS, in bytes, across the corresponding PIDs; **not a sum of process peaks**. May include startup before API profiling.                                                                                                                                                                                                                                                                                     |
+| Server Go allocated (exact cumulative) | Go runtime `TotalAlloc`, maximum per server PID then summed. Cumulative allocated Go heap bytes since process startup, not retained memory or all OS/native allocations.                                                                                                                                                                                                                                                                               |
+
+Only processes hosting an API client or its server contribute; npm and wrapper processes without API clients do
+not. JS heap/allocation counters cover the main V8 isolate, not worker isolates or native/external allocations;
+RSS covers the entire process. Collection from a worker thread fails explicitly.
+Client process counts and server process counts are reported separately. Snapshot and allocation measurements
+include profiling overhead; the sampling window starts with the first overlapping API client and ends when the last
+closes, rather than covering the entire consumer command. Unsupported sampling or peak-RSS collection fails the
+memory pass instead of reporting zeros. Sampling noise and allocations before client creation remain limitations.
+
 ## Contributing
 
 This project welcomes contributions and suggestions. Most contributions require you to agree to a

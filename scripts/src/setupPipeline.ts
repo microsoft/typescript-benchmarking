@@ -365,6 +365,7 @@ function prettySeconds(seconds: number) {
 
 interface Parameters {
     preset: PresetName;
+    apiMemory?: boolean;
     predictable: boolean | undefined;
     hosts: string[] | undefined;
     isComparison: boolean;
@@ -414,6 +415,9 @@ async function parseInput({ input, isPr, gitParseRev }: SetupPipelineInput) {
         const [key, value] = part.split("=", 2) as [string, string | undefined];
 
         switch (key) {
+            case "apiMemory":
+                parsed.apiMemory = parseBoolean(value, true);
+                break;
             case "predictable":
                 parsed.predictable = parseBoolean(value, true);
                 break;
@@ -532,6 +536,9 @@ export async function setupPipeline(input: SetupPipelineInput) {
     const { baselining, implementation, shouldLog } = input;
 
     const parameters = await parseInput(input);
+    if (parameters.apiMemory && parameters.preset !== "api") {
+        throw new Error("apiMemory requires the api preset.");
+    }
     if (parameters.preset === "api" && implementation !== "corsa") {
         throw new Error("The api preset requires the native TypeScript 7 compiler and its matching JS API.");
     }
@@ -589,7 +596,8 @@ export async function setupPipeline(input: SetupPipelineInput) {
         }
         jobNames.push(jobName);
 
-        let cost = scenario.cost * (scenario.iterations + scenario.warmups) + jobOverhead;
+        let cost = scenario.cost * (scenario.iterations + scenario.warmups) * (parameters.apiMemory ? 2 : 1)
+            + jobOverhead;
         if (!baselining) {
             cost *= 2;
         }
@@ -622,6 +630,7 @@ export async function setupPipeline(input: SetupPipelineInput) {
     }
 
     outputVariables[`TSPERF_PREDICTABLE`] = parameters.predictable ? "true" : "false";
+    if (parameters.apiMemory) outputVariables["TSPERF_API_MEMORY"] = "true";
     outputVariables["TSPERF_IS_CUSTOM_COMMIT_RANGE"] = parameters.isCustomCommitRange ? "true" : "false";
     outputVariables["TSPERF_IS_COMPARISON"] = parameters.isComparison ? "true" : "false";
     outputVariables[`TSPERF_BASELINE_COMMIT`] = parameters.baselineCommit;

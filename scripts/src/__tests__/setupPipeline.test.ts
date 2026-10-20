@@ -76,6 +76,27 @@ test("API preset rejects predictable mode", async () => {
     })).rejects.toThrow("does not support predictable mode");
 });
 
+test("API memory is opt-in, applies to both commits, and accounts for separate passes", async () => {
+    const input = {
+        input: "api",
+        baselining: false,
+        isPr: true,
+        shouldLog: false,
+        gitParseRev: fakeGitRevParse,
+        implementation: "corsa" as const,
+    };
+    const timing = await setupPipeline(input);
+    const memory = await setupPipeline({ ...input, input: "api apiMemory" });
+    expect(timing.parameters.apiMemory).toBeUndefined();
+    expect(timing.outputVariables.TSPERF_API_MEMORY).toBeUndefined();
+    expect(memory.outputVariables.TSPERF_API_MEMORY).toBe("true");
+    expect(memory.matrix).toEqual(timing.matrix);
+    expect(memory.compute.total).not.toEqual(timing.compute.total);
+    expect((await setupPipeline({ ...input, input: "api apiMemory=false" })).outputVariables.TSPERF_API_MEMORY)
+        .toBeUndefined();
+    await expect(setupPipeline({ ...input, input: "regular apiMemory" })).rejects.toThrow("requires the api preset");
+});
+
 async function fakeGitRevParse(query: string): Promise<GitParseRevResult> {
     switch (query) {
         case "release-5.3...release-5.4":

@@ -55,6 +55,7 @@ export interface BenchmarkOptions extends AzureStorageOptions, CommonOptions {
     errorRange?: number;
     cpus?: string;
     predictable?: boolean;
+    apiMemory?: boolean;
 }
 
 export type TSOptions =

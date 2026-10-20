@@ -6,6 +6,8 @@ import { performance } from "node:perf_hooks";
 import * as readline from "node:readline";
 
 import {
+    apiMemoryMetrics,
+    apiMemorySampleKeys,
     apiTimingMetrics,
     apiTimingSampleKeys,
     CommandLineArgumentsBuilder,
@@ -21,6 +23,7 @@ import {
 import { HostContext } from "@ts-perf/core";
 
 import { BenchmarkOptions } from ".";
+import { readApiMemoryDumps } from "./apiMemory";
 import { readApiTimingDumps } from "./apiTiming";
 
 export function runApiProcess(
@@ -94,20 +97,26 @@ export async function runApiScenario(
     );
     const samples: number[] = [];
     const timingSamples: Awaited<ReturnType<typeof readApiTimingDumps>>[] = [];
+    const memorySamples: Awaited<ReturnType<typeof readApiMemoryDumps>>[] = [];
     const iterations = options.iterations ?? 5;
     const warmups = options.warmups ?? 0;
-    const timingDir = await fs.mkdtemp(path.join(os.tmpdir(), "tsperf-api-"));
+    const dumpRoot = await fs.mkdtemp(path.join(os.tmpdir(), "tsperf-api-"));
+    const env: NodeJS.ProcessEnv = {
+        ...process.env,
+        PATH: `${path.dirname(executable)}${path.delimiter}${process.env.PATH}`,
+        TSPERF_NPM_CLI: expansion.expand(path.resolve(host.configDirectory, host.npm)),
+    };
+    delete env.TS_API_MEMORY_DIR;
+    delete env.TS_API_TIMING_DIR;
     try {
         for (let i = 0; i < iterations + warmups; i++) {
-            const dumpDir = await fs.mkdtemp(path.join(timingDir, "timing-"));
+            const dumpDir = await fs.mkdtemp(path.join(dumpRoot, "timing-"));
             const before = performance.now();
             await runApiProcess(
                 run.cmd!,
                 run.args,
                 {
-                    ...process.env,
-                    PATH: `${path.dirname(executable)}${path.delimiter}${process.env.PATH}`,
-                    TSPERF_NPM_CLI: expansion.expand(path.resolve(host.configDirectory, host.npm)),
+                    ...env,
                     TS_API_TIMING_DIR: dumpDir,
                 },
                 workDir,
@@ -119,6 +128,15 @@ export async function runApiScenario(
             if (i >= warmups) {
                 samples.push(elapsedMs / 1000);
                 timingSamples.push(timing);
+            }
+        }
+        if (options.apiMemory) {
+            for (let i = 0; i < iterations + warmups; i++) {
+                const dumpDir = await fs.mkdtemp(path.join(dumpRoot, "memory-"));
+                await runApiProcess(run.cmd!, run.args, { ...env, TS_API_MEMORY_DIR: dumpDir }, workDir, context);
+                const memory = await readApiMemoryDumps(dumpDir);
+                context.info(`API ${scenario.name}: memory pass${i < warmups ? " (warmup)" : ""}`);
+                if (i >= warmups) memorySamples.push(memory);
             }
         }
         const values: Partial<Record<string, Value>> = {
@@ -133,9 +151,20 @@ export async function runApiScenario(
                 definition.precision,
             );
         }
+        if (options.apiMemory) {
+            for (const key of apiMemorySampleKeys) {
+                const definition = apiMemoryMetrics[key];
+                values[key] = computeMetrics(
+                    memorySamples.map(sample => sample[key]),
+                    definition.metric,
+                    definition.unit,
+                    definition.precision,
+                );
+            }
+        }
         return new Measurement(scenario.name, scenarioIndex, hostSpecifier, hostIndex, values);
     }
     finally {
-        await fs.rm(timingDir, { recursive: true, force: true });
+        await fs.rm(dumpRoot, { recursive: true, force: true });
     }
 }
