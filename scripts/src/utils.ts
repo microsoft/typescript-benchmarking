@@ -77,3 +77,32 @@ export function parseBoolean(value: string | undefined, defaultValue: boolean): 
     if (!value) return defaultValue;
     return value.toUpperCase() === "TRUE";
 }
+
+// Azure Pipelines recognizes logging commands anywhere in a line. Break their markers
+// rather than prefixing output, so diagnostic and artifact text remains data.
+const loggingCommandRegExp = /##(?=\[|vso\[)/g;
+
+export function defangLoggingCommands(text: string): string {
+    return text.replace(loggingCommandRegExp, "# #");
+}
+
+export async function validateBuildOutput(source: string) {
+    async function validate(file: string): Promise<void> {
+        const stat = await fs.promises.lstat(file);
+        if (stat.isDirectory()) {
+            for (const name of await fs.promises.readdir(file)) {
+                assert(
+                    !/[\u0000-\u001F\u007F-\u009F]/.test(name) && defangLoggingCommands(name) === name,
+                    `Unsafe build output filename ${JSON.stringify(defangLoggingCommands(name))}`,
+                );
+                await validate(path.join(file, name));
+            }
+        }
+        else {
+            assert(stat.isFile(), `Unexpected build output at ${defangLoggingCommands(file)}`);
+        }
+    }
+
+    assert((await fs.promises.lstat(source)).isDirectory(), "Expected a regular build output directory");
+    await validate(source);
+}

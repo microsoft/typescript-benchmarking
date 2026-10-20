@@ -2,6 +2,8 @@ import assert from "node:assert";
 import fs from "node:fs/promises";
 import path from "node:path";
 
+import { validateBuildOutput } from "./utils.js";
+
 export async function preserveApiArtifact(
     outputDir: string,
     commit: string,
@@ -12,6 +14,8 @@ export async function preserveApiArtifact(
     const modules = path.join(apiDir, "node_modules");
     const packageDir = path.join(modules, "typescript");
     const platformName = `typescript-${platform}`;
+    await validateBuildOutput(path.join(sourceDir, "built/npm/typescript"));
+    await validateBuildOutput(path.join(sourceDir, `built/npm/${platformName}`));
     await fs.cp(path.join(sourceDir, "built/npm/typescript"), packageDir, { recursive: true });
     await fs.cp(path.join(sourceDir, `built/npm/${platformName}`), path.join(modules, "@typescript", platformName), {
         recursive: true,
