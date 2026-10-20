@@ -63,17 +63,61 @@ export async function getRepoInfo(builtDir: string) {
     return RepoInfo.parse(parsed);
 }
 
+function escapeVariableValue(value: string | number | boolean) {
+    return String(value).replaceAll("%", "%AZP25").replaceAll("\r", "%0D").replaceAll("\n", "%0A");
+}
+
 export function setOutputVariable(name: string, value: string | number | boolean) {
-    console.log(`setting output ${name}=${value}`);
-    console.log(`##vso[task.setvariable variable=${name};isOutput=true]${value}`);
+    assert(/^[A-Za-z_][A-Za-z0-9_]*$/.test(name), "Unexpected pipeline variable name");
+    console.log(`##vso[task.setvariable variable=${name};isOutput=true]${escapeVariableValue(value)}`);
 }
 
 export function setJobVariable(name: string, value: string | number | boolean) {
-    console.log(`setting variable ${name}=${value}`);
-    console.log(`##vso[task.setvariable variable=${name}]${value}`);
+    assert(/^[A-Za-z_][A-Za-z0-9_]*$/.test(name), "Unexpected pipeline variable name");
+    console.log(`##vso[task.setvariable variable=${name};isReadOnly=true]${escapeVariableValue(value)}`);
 }
 
 export function parseBoolean(value: string | undefined, defaultValue: boolean): boolean {
     if (!value) return defaultValue;
     return value.toUpperCase() === "TRUE";
+}
+
+// Azure Pipelines recognizes logging commands anywhere in a line. Break their markers
+// rather than prefixing output, so diagnostic and artifact text remains data.
+const loggingCommandRegExp = /##(?=\[|vso\[)/g;
+
+export function defangLoggingCommands(text: string): string {
+    return text.replace(loggingCommandRegExp, "# #");
+}
+
+export async function validateBuildOutput(source: string, root: string) {
+    const relative = path.relative(root, source);
+    assert(
+        relative !== ".." && !relative.startsWith(`..${path.sep}`) && !path.isAbsolute(relative),
+        "Expected build output inside the compiler checkout",
+    );
+    let directory = root;
+    for (const component of relative.split(path.sep).slice(0, -1)) {
+        directory = path.join(directory, component);
+        assert((await fs.promises.lstat(directory)).isDirectory(), "Expected a regular build output parent directory");
+    }
+
+    async function validate(file: string): Promise<void> {
+        const stat = await fs.promises.lstat(file);
+        if (stat.isDirectory()) {
+            for (const name of await fs.promises.readdir(file)) {
+                assert(
+                    !/[\u0000-\u001F\u007F-\u009F]/.test(name) && defangLoggingCommands(name) === name,
+                    `Unsafe build output filename ${JSON.stringify(defangLoggingCommands(name))}`,
+                );
+                await validate(path.join(file, name));
+            }
+        }
+        else {
+            assert(stat.isFile(), `Unexpected build output at ${defangLoggingCommands(file)}`);
+        }
+    }
+
+    assert((await fs.promises.lstat(source)).isDirectory(), "Expected a regular build output directory");
+    await validate(source);
 }

@@ -16,6 +16,9 @@ steps:
   - bash: |
       set -exo pipefail
       git config --global core.longpaths true
+    target:
+      commands: restricted
+      settableVariables: none
     displayName: Enable git long paths
 
   - script: |
@@ -23,4 +26,7 @@ steps:
       corepack enable
       corepack enable npm
       corepack prepare pnpm@latest-11 --activate
+    target:
+      commands: restricted
+      settableVariables: none
     displayName: 'Setup pnpm'

@@ -11,11 +11,27 @@
     name: pyperf
   become: yes
 
-- name: Allow any user to sudo pyperf
+# The compiler under test runs as the agent user. Giving that user arbitrary pyperf
+# arguments would let it run any command as root, e.g. via "pyperf command".
+- name: Install system tuning command
+  ansible.builtin.copy:
+    dest: /usr/local/sbin/tsperf-tune-system
+    owner: root
+    group: root
+    mode: '0755'
+    content: |
+      #!/bin/sh
+      exec /usr/local/bin/pyperf system tune --affinity {{ isolated_cpus | quote }}
+  become: yes
+
+- name: Allow the agent user to tune the system
   ansible.builtin.copy:
     dest: /etc/sudoers.d/pyperf
     owner: root
     group: root
-    content: 'ALL ALL=(ALL) NOPASSWD: /usr/local/bin/pyperf'
+    mode: '0440'
+    # An empty argument list prevents passing options to the tuning command.
+    content: |
+      {{ agent_user }} ALL=(root) NOPASSWD: /usr/local/sbin/tsperf-tune-system ""
     validate: /usr/sbin/visudo -csf %s
   become: yes

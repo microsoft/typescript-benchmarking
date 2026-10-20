@@ -4,6 +4,8 @@
     pkg:
       - ripgrep
       - unzip
+      # Used to sandbox the compiler under test; see build/benchmark.yml.
+      - bubblewrap
       # https://github.com/microsoft/vscode/blob/08631fab3a63e8439bec69dce08aa5cf95360d48/resources/linux/snap/snapcraft.yaml#L22
       - ca-certificates
       - libasound2

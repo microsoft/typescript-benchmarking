@@ -106,6 +106,29 @@ test("rejects registry binary fallback", async () => {
     await expect(f.verify()).rejects.toThrow("Registry binary fallback");
 });
 
+test.each(["typescript", platformName])("rejects symlinks in the %s package before copying", async name => {
+    const f = await fixture();
+    await fs.symlink("/nonexistent", path.join(f.source, "built/npm", name, "link"));
+    await expect(f.preserve()).rejects.toThrow("Unexpected build output");
+    await expect(fs.access(f.output)).rejects.toMatchObject({ code: "ENOENT" });
+});
+
+test.each(["typescript", platformName])("rejects logging-command filenames in the %s package", async name => {
+    const f = await fixture();
+    await fs.writeFile(path.join(f.source, "built/npm", name, "##vso[task.debug]output"), "");
+    await expect(f.preserve()).rejects.toThrow("Unsafe build output filename");
+    await expect(fs.access(f.output)).rejects.toMatchObject({ code: "ENOENT" });
+});
+
+test("rejects a symlinked parent of the packaged API outputs", async () => {
+    const f = await fixture();
+    const packages = path.join(f.source, "built/npm");
+    await fs.rename(packages, `${packages}-original`);
+    await fs.symlink("npm-original", packages);
+    await expect(f.preserve()).rejects.toThrow("Expected a regular build output parent directory");
+    await expect(fs.access(f.output)).rejects.toMatchObject({ code: "ENOENT" });
+});
+
 test("rejects a missing packaged native binary", async () => {
     const f = await fixture();
     await f.preserve();

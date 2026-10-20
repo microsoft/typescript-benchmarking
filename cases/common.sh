@@ -11,19 +11,23 @@ function clone_scenario() {
     SOLUTION_DIR=../../solutions/$SCENARIO_NAME
 
     if ! test -d $SOLUTION_DIR; then
-        git clone --filter blob:none $SCENARIO_REPO $SOLUTION_DIR
+        git -c core.hooksPath=/dev/null clone --filter blob:none $SCENARIO_REPO $SOLUTION_DIR
     fi
 
     cd $SOLUTION_DIR
-    git clean -fdx
-    git reset --hard HEAD
+    git -c core.hooksPath=/dev/null -c core.fsmonitor=false clean -fdx
+    git -c core.hooksPath=/dev/null -c core.fsmonitor=false reset --hard HEAD
 
     if test -z "$SCENARIO_REF"; then
-        SCENARIO_REF=$(git rev-parse HEAD)
-        echo "##vso[task.setvariable variable=SCENARIO_REF]$SCENARIO_REF"
+        SCENARIO_REF=$(git -c core.hooksPath=/dev/null rev-parse HEAD)
+        if [ -n "${TSPERF_SCENARIO_REF_FILE:-}" ]; then
+            printf '%s\n' "$SCENARIO_REF" > "$TSPERF_SCENARIO_REF_FILE"
+        else
+            echo "##vso[task.setvariable variable=SCENARIO_REF]$SCENARIO_REF"
+        fi
     else
-        git fetch origin $SCENARIO_REF
-        git switch --detach FETCH_HEAD
+        git -c core.hooksPath=/dev/null fetch origin $SCENARIO_REF
+        git -c core.hooksPath=/dev/null -c core.fsmonitor=false switch --detach FETCH_HEAD
     fi
 }
 
@@ -41,6 +45,15 @@ function clone_strada_scenario() {
 }
 
 function run_sandboxed() {
+    local -a GIT_MOUNT=()
+    if [ -e "$PWD/.git" ] || [ -L "$PWD/.git" ]; then
+        if [ ! -d "$PWD/.git" ] || [ -L "$PWD/.git" ]; then
+            echo "Unexpected Git metadata at $PWD/.git" >&2
+            return 1
+        fi
+        GIT_MOUNT=(--volume "$PWD/.git:/sandbox/.git:ro")
+    fi
+
     USER_DOCKER_SOCK=/run/user/$(id -u)/docker.sock
 
     if [ -e $USER_DOCKER_SOCK ]; then
@@ -121,13 +134,16 @@ function run_sandboxed() {
         --name $SANDBOX_CONTAINER \
         --rm \
         --network $NO_INTERNET \
-        --volume $PWD:/sandbox \
+        --volume "$PWD:/sandbox" \
+        "${GIT_MOUNT[@]}" \
         --workdir /sandbox \
         --env HTTP_PROXY=$PROXY_ADDR \
         --env HTTPS_PROXY=$PROXY_ADDR \
         --env YARN_HTTP_PROXY=$PROXY_ADDR \
         --env YARN_HTTPS_PROXY=$PROXY_ADDR \
         --env COREPACK_ENABLE_DOWNLOAD_PROMPT=0 \
+        --env HUSKY=0 \
+        --env HUSKY_SKIP_INSTALL=1 \
         --env CHANGE_USER_ID=$CHANGE_USER_ID \
         $NODE_IMAGE \
         sh -c '

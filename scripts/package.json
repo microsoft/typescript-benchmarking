@@ -21,7 +21,8 @@
         "octokit": "^5.0.5",
         "ora": "^9.4.1",
         "pretty-ms": "^9.3.0",
-        "sort-keys": "^6.0.1"
+        "sort-keys": "^6.0.1",
+        "yaml": "^2.9.1"
     },
     "scripts": {
         "build": "tsc",
