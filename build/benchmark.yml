@@ -200,6 +200,9 @@ jobs:
           verifySha merge "$actualMergeSha" "$EXPECTED_MERGE_SHA"
           verifySha base "$actualBaseSha" "$EXPECTED_BASE_SHA"
           verifySha head "$actualHeadSha" "$EXPECTED_HEAD_SHA"
+        target:
+          commands: restricted
+          settableVariables: none
         displayName: Verify TypeScript PR snapshot
         workingDirectory: $(TYPESCRIPT_DIR)
         env:
@@ -221,7 +224,12 @@ jobs:
           cd $(TYPESCRIPT_DIR)
           git fetch origin $(OLD_REF)
           git switch --detach FETCH_HEAD
-          for i in `git branch -a | grep remote | grep -v HEAD | grep -v main`; do git branch --track ${i#remotes/origin/} $i; done
+          for i in `git branch -a | grep remote | grep -v HEAD | grep -v main`; do
+            git branch --track ${i#remotes/origin/} $i
+          done
+        target:
+          commands: restricted
+          settableVariables: none
         displayName: Convert TypeScript clone to blobless clone
         # Only do this if one of the parameters looks like it's going to change the commit range.
         condition: and(succeeded(), contains(variables['TSPERF_PRESET'], 'commit'))
@@ -229,36 +237,108 @@ jobs:
       - bash: |
           set -exo pipefail
           node $(BENCH_SCRIPTS)/setupPipeline.js
-        displayName: Setup pipeline
+        target:
+          commands: restricted
+          settableVariables: none
+        displayName: Compute pipeline setup
+        env:
+          TSPERF_VARIABLES_FILE: $(Pipeline.Workspace)/setup-variables.json
+
+      - bash: |
+          set -eo pipefail
+          node $(BENCH_SCRIPTS)/publishPipelineVariables.js --file $(Pipeline.Workspace)/setup-variables.json --job --output
+        target:
+          commands: restricted
+          settableVariables:
+            - MATRIX_any
+            - MATRIX_ts_perf1
+            - MATRIX_ts_perf2
+            - MATRIX_ts_perf3
+            - MATRIX_ts_perf4
+            - MATRIX_ts_perf5
+            - MATRIX_ts_perf6
+            - MATRIX_ts_perf7
+            - MATRIX_ts_perf8
+            - MATRIX_ts_perf9
+            - MATRIX_ts_perf10
+            - MATRIX_ts_perf11
+            - MATRIX_ts_perf12
+            - TSPERF_PROCESS_KINDS
+            - TSPERF_JOB_NAMES_TSC
+            - TSPERF_JOB_NAMES_TSSERVER
+            - TSPERF_JOB_NAMES_LSP
+            - TSPERF_JOB_NAMES_STARTUP
+            - TSPERF_JOB_NAMES_API
+            - TSPERF_PREDICTABLE
+            - TSPERF_IS_CUSTOM_COMMIT_RANGE
+            - TSPERF_IS_COMPARISON
+            - TSPERF_BASELINE_COMMIT
+            - TSPERF_BASELINE_NAME
+            - TSPERF_NEW_COMMIT
+            - TSPERF_NEW_NAME
+        displayName: Publish pipeline setup
         name: setupPipeline
 
       - bash: |
           set -exo pipefail
           git switch --detach $(TSPERF_NEW_COMMIT)
+        target:
+          commands: restricted
+          settableVariables: none
         displayName: Switch to new commit
         condition: and(succeeded(), eq(variables['TSPERF_IS_COMPARISON'], 'true'))
         workingDirectory: $(TYPESCRIPT_DIR)
 
       - bash: |
           set -exo pipefail
-          node $(BENCH_SCRIPTS)/buildTypeScript.js --outputDir $(ARTIFACTS_DIR)/new
+          node $(BENCH_SCRIPTS)/buildTypeScript.js --outputDir $(ARTIFACTS_DIR)/new \
+            --variablesFile $(Pipeline.Workspace)/new-variables.json
+        target:
+          commands: restricted
+          settableVariables: none
         displayName: Build new TypeScript
         condition: and(succeeded(), eq(variables['TSPERF_IS_COMPARISON'], 'true'))
         workingDirectory: $(TYPESCRIPT_DIR)
+
+      - bash: |
+          set -eo pipefail
+          node $(BENCH_SCRIPTS)/publishPipelineVariables.js --file $(Pipeline.Workspace)/new-variables.json --output
+        target:
+          commands: restricted
+          settableVariables:
+            - TYPESCRIPT_COMMIT
+        displayName: Publish new compiler commit
+        condition: and(succeeded(), eq(variables['TSPERF_IS_COMPARISON'], 'true'))
         name: buildTypeScriptNew
 
       - bash: |
           set -exo pipefail
           git switch --detach $(TSPERF_BASELINE_COMMIT)
+        target:
+          commands: restricted
+          settableVariables: none
         displayName: Switch to baseline commit
         condition: and(succeeded(), not(eq(variables['TSPERF_BASELINE_COMMIT'], 'HEAD')))
         workingDirectory: $(TYPESCRIPT_DIR)
 
       - bash: |
           set -exo pipefail
-          node $(BENCH_SCRIPTS)/buildTypeScript.js --baseline --outputDir $(ARTIFACTS_DIR)/baseline
+          node $(BENCH_SCRIPTS)/buildTypeScript.js --baseline --outputDir $(ARTIFACTS_DIR)/baseline \
+            --variablesFile $(Pipeline.Workspace)/baseline-variables.json
+        target:
+          commands: restricted
+          settableVariables: none
         displayName: Build baseline TypeScript
         workingDirectory: $(TYPESCRIPT_DIR)
+
+      - bash: |
+          set -eo pipefail
+          node $(BENCH_SCRIPTS)/publishPipelineVariables.js --file $(Pipeline.Workspace)/baseline-variables.json --output
+        target:
+          commands: restricted
+          settableVariables:
+            - TYPESCRIPT_COMMIT
+        displayName: Publish baseline compiler commit
         name: buildTypeScriptBaseline
 
       - publish: $(ARTIFACTS_DIR)
@@ -300,57 +380,95 @@ jobs:
           - bash: |
               set -exo pipefail
               find $(BUILT_TYPESCRIPT_DIR) -type f \( -name 'tsgo' -o -name 'tsc' \) -exec chmod +x {} +
+            target:
+              commands: restricted
+              settableVariables: none
             displayName: Make native TypeScript executable
 
           # This is provided by the agent.
           - bash: |
               set -exo pipefail
               sudo pyperf system tune --affinity "${TSPERF_AGENT_ISOLATED_CPUS:-$TSPERF_AGENT_BENCHMARK_CPUS}"
+            target:
+              commands: restricted
+              settableVariables: none
             displayName: Tune system
 
           - bash: |
               set -exo pipefail
               node $(BENCH_SCRIPTS)/runTsPerf.js install-hosts
+            target:
+              commands: restricted
+              settableVariables: none
             displayName: Install hosts
             retryCountOnTaskFailure: 3
           - bash: |
-              set -exo pipefail
+              set -eo pipefail
               # Special case for self benchmark
-              export TYPESCRIPT_COMMIT=$(TYPESCRIPT_COMMIT_NEW)
-              SETUP=$(TSPERF_SCENARIO_CONFIG_DIR)/$(TSPERF_JOB_SCENARIO)/setup.sh
-              if test -f $SETUP; then
-                echo "Running $SETUP"
-                bash $SETUP
-              fi
+              export TYPESCRIPT_COMMIT="$TYPESCRIPT_COMMIT_NEW"
+              bash $(Pipeline.Workspace)/typescript-benchmarking/scripts/setupScenario.sh
+            target:
+              commands: restricted
+              settableVariables: none
             displayName: Set up scenario for new benchmark
             condition: and(succeeded(), eq(variables['TSPERF_IS_COMPARISON'], 'true'))
             retryCountOnTaskFailure: 3
+            env:
+              TYPESCRIPT_COMMIT_NEW: $(TYPESCRIPT_COMMIT_NEW)
+              TSPERF_VARIABLES_FILE: $(Pipeline.Workspace)/new-scenario-variables.json
+
+          - bash: |
+              set -eo pipefail
+              node $(BENCH_SCRIPTS)/publishPipelineVariables.js --file $(Pipeline.Workspace)/new-scenario-variables.json --job
+            target:
+              commands: restricted
+              settableVariables:
+                - SCENARIO_REF
+            displayName: Publish scenario ref for new benchmark
+            condition: and(succeeded(), eq(variables['TSPERF_IS_COMPARISON'], 'true'))
 
           - bash: |
               set -exo pipefail
               node $(BENCH_SCRIPTS)/runTsPerf.js benchmark-$(TSPERF_JOB_KIND) \
                 --builtDir $(BUILT_TYPESCRIPT_DIR)/new \
                 --save $(ARTIFACTS_DIR)/new_$(TSPERF_JOB_NAME).$(TSPERF_JOB_KIND).benchmark
+            target:
+              commands: restricted
+              settableVariables: none
             displayName: Run new $(TSPERF_JOB_KIND) benchmark
             condition: and(succeeded(), eq(variables['TSPERF_IS_COMPARISON'], 'true'))
 
           - bash: |
-              set -exo pipefail
+              set -eo pipefail
               # Special case for self benchmark
-              export TYPESCRIPT_COMMIT=$(TYPESCRIPT_COMMIT_BASELINE)
-              SETUP=$(TSPERF_SCENARIO_CONFIG_DIR)/$(TSPERF_JOB_SCENARIO)/setup.sh
-              if test -f $SETUP; then
-                echo "Running $SETUP"
-                bash $SETUP
-              fi
+              export TYPESCRIPT_COMMIT="$TYPESCRIPT_COMMIT_BASELINE"
+              bash $(Pipeline.Workspace)/typescript-benchmarking/scripts/setupScenario.sh
+            target:
+              commands: restricted
+              settableVariables: none
             displayName: Set up scenario for baseline benchmark
             retryCountOnTaskFailure: 3
+            env:
+              TYPESCRIPT_COMMIT_BASELINE: $(TYPESCRIPT_COMMIT_BASELINE)
+              TSPERF_VARIABLES_FILE: $(Pipeline.Workspace)/baseline-scenario-variables.json
+
+          - bash: |
+              set -eo pipefail
+              node $(BENCH_SCRIPTS)/publishPipelineVariables.js --file $(Pipeline.Workspace)/baseline-scenario-variables.json --job
+            target:
+              commands: restricted
+              settableVariables:
+                - SCENARIO_REF
+            displayName: Publish scenario ref for baseline benchmark
 
           - bash: |
               set -exo pipefail
               node $(BENCH_SCRIPTS)/runTsPerf.js benchmark-$(TSPERF_JOB_KIND) \
                 --builtDir $(BUILT_TYPESCRIPT_DIR)/baseline \
                 --save $(ARTIFACTS_DIR)/baseline_$(TSPERF_JOB_NAME).$(TSPERF_JOB_KIND).benchmark
+            target:
+              commands: restricted
+              settableVariables: none
             displayName: Run baseline $(TSPERF_JOB_KIND) benchmark
 
           - bash: |
@@ -359,8 +477,19 @@ jobs:
                 --builtDir $(BUILT_TYPESCRIPT_DIR)/baseline \
                 --baseline $(ARTIFACTS_DIR)/baseline_$(TSPERF_JOB_NAME).$(TSPERF_JOB_KIND).benchmark \
                 --load $(ARTIFACTS_DIR)/new_$(TSPERF_JOB_NAME).$(TSPERF_JOB_KIND).benchmark
+            target:
+              commands: restricted
+              settableVariables: none
             displayName: Compare new to baseline benchmark
             condition: and(succeeded(), eq(variables['TSPERF_IS_COMPARISON'], 'true'))
+
+          - bash: |
+              set -eo pipefail
+              node $(BENCH_SCRIPTS)/validateBenchmarkResults.js artifacts
+            target:
+              commands: restricted
+              settableVariables: none
+            displayName: Validate benchmark artifacts
 
           - publish: $(ARTIFACTS_DIR)
             artifact: PartialBenchmark_$(TSPERF_JOB_NAME)
@@ -419,11 +548,17 @@ jobs:
       - bash: |
           set -eo pipefail
           node $(BENCH_SCRIPTS)/collectBenchmarkResults.js
+        target:
+          commands: restricted
+          settableVariables: none
         displayName: Collect scheduled benchmark results
 
       - bash: |
           set -exo pipefail
           mkdir -p $(MERGED_DIR)
+        target:
+          commands: restricted
+          settableVariables: none
         displayName: Create merged output directory
 
       - bash: |
@@ -477,10 +612,21 @@ jobs:
                 --quiet >> $(Pipeline.Workspace)/comment.html
             fi
           done
+        target:
+          commands: restricted
+          settableVariables: none
         displayName: Merge benchmarks
         env:
           TSPERF_NEW_NAME: $(TSPERF_NEW_NAME)
           TSPERF_BASELINE_NAME: $(TSPERF_BASELINE_NAME)
+
+      - bash: |
+          set -eo pipefail
+          node $(BENCH_SCRIPTS)/validateBenchmarkResults.js processed
+        target:
+          commands: restricted
+          settableVariables: none
+        displayName: Validate processed results
 
       - publish: $(MERGED_DIR)
         artifact: Benchmarks
@@ -492,6 +638,10 @@ jobs:
           scriptType: bash
           scriptLocation: inlineScript
           inlineScript: node $(CREATE_TOKEN_SCRIPT)
+        target:
+          commands: restricted
+          settableVariables:
+            - GH_TOKEN
         displayName: Create GitHub App token
         condition: and(succeeded(), eq(variables['IS_PR'], 'true'))
         env:
@@ -506,6 +656,9 @@ jobs:
       - bash: |
           set -exo pipefail
           node $(BENCH_SCRIPTS)/postPerfResult.js --fragment $(Pipeline.Workspace)/comment.html
+        target:
+          commands: restricted
+          settableVariables: none
         displayName: Publish PR comment
         condition: and(succeeded(), eq(variables['IS_PR'], 'true'))
         env:
@@ -516,6 +669,9 @@ jobs:
           GH_TOKEN: $(GH_TOKEN)
 
       - script: node $(CREATE_TOKEN_SCRIPT)
+        target:
+          commands: restricted
+          settableVariables: none
         displayName: Revoke GitHub App token
         condition: and(always(), ne(variables['GH_TOKEN'], ''))
         env:
@@ -564,6 +720,10 @@ jobs:
           scriptType: bash
           scriptLocation: inlineScript
           inlineScript: node $(CREATE_TOKEN_SCRIPT)
+        target:
+          commands: restricted
+          settableVariables:
+            - GH_TOKEN
         displayName: Create GitHub App token
         env:
           APP_CLIENT_ID: $(TYPESCRIPT_AUTOMATION_GITHUB_APP_CLIENT_ID)
@@ -575,13 +735,25 @@ jobs:
           OUTPUT: azure-pipelines
           AZURE_TOKEN_VARIABLE: GH_TOKEN
 
-      # Sets $(TSPERF_BLOB_LATEST)
       - bash: |
           set -exo pipefail
           node $(BENCH_SCRIPTS)/checkLatestCommitForRef.js --builtDir $(BUILT_TYPESCRIPT_DIR)/baseline
+        target:
+          commands: restricted
+          settableVariables: none
         displayName: Check if commit is latest for ref
         env:
           GH_TOKEN: $(GH_TOKEN)
+          TSPERF_VARIABLES_FILE: $(Pipeline.Workspace)/upload-variables.json
+
+      - bash: |
+          set -eo pipefail
+          node $(BENCH_SCRIPTS)/publishPipelineVariables.js --file $(Pipeline.Workspace)/upload-variables.json --job
+        target:
+          commands: restricted
+          settableVariables:
+            - TSPERF_BLOB_LATEST
+        displayName: Publish upload metadata
 
       - task: AzureCLI@2
         inputs:
@@ -616,9 +788,15 @@ jobs:
                 --load $(MERGED_DIR)/baseline.${KIND}.benchmark \
                 --saveBlob ${NAME}
             done
+        target:
+          commands: restricted
+          settableVariables: none
         displayName: Upload benchmarks to blob store
 
       - script: node $(CREATE_TOKEN_SCRIPT)
+        target:
+          commands: restricted
+          settableVariables: none
         displayName: Revoke GitHub App token
         condition: and(always(), ne(variables['GH_TOKEN'], ''))
         env:
@@ -651,6 +829,10 @@ jobs:
           scriptType: bash
           scriptLocation: inlineScript
           inlineScript: node $(CREATE_TOKEN_SCRIPT)
+        target:
+          commands: restricted
+          settableVariables:
+            - GH_TOKEN
         displayName: Create GitHub App token
         env:
           APP_CLIENT_ID: $(TYPESCRIPT_AUTOMATION_GITHUB_APP_CLIENT_ID)
@@ -664,6 +846,9 @@ jobs:
       - bash: |
           set -exo pipefail
           node $(BENCH_SCRIPTS)/postPerfResult.js --failed
+        target:
+          commands: restricted
+          settableVariables: none
         displayName: Publish PR comment
         env:
           DISTINCT_ID: ${{ parameters.DISTINCT_ID }}
@@ -673,6 +858,9 @@ jobs:
           GH_TOKEN: $(GH_TOKEN)
 
       - script: node $(CREATE_TOKEN_SCRIPT)
+        target:
+          commands: restricted
+          settableVariables: none
         displayName: Revoke GitHub App token
         condition: and(always(), ne(variables['GH_TOKEN'], ''))
         env:

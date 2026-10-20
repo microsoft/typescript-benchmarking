@@ -1,9 +1,10 @@
 import assert from "node:assert";
+import fs from "node:fs/promises";
 
 import minimist from "minimist";
 import { Octokit } from "octokit";
 
-import { getNonEmptyEnv, getRepoInfo, setJobVariable } from "./utils.js";
+import { getNonEmptyEnv, getRepoInfo } from "./utils.js";
 
 const auth = getNonEmptyEnv("GH_TOKEN");
 
@@ -49,4 +50,8 @@ const info = await getRepoInfo(args.builtDir);
 const ref = getNonEmptyEnv("REF");
 const isLatest = await isLatestCommitForRef(ref, info.commit);
 
-setJobVariable("TSPERF_BLOB_LATEST", isLatest);
+await fs.writeFile(
+    getNonEmptyEnv("TSPERF_VARIABLES_FILE"),
+    JSON.stringify({ TSPERF_BLOB_LATEST: String(isLatest) }),
+    { flag: "wx" },
+);

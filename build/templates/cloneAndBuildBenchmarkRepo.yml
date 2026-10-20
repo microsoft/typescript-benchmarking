@@ -10,6 +10,9 @@ steps:
       set -exo pipefail
       cd $(Pipeline.Workspace)/typescript-benchmarking
       pnpm install
+    target:
+      commands: restricted
+      settableVariables: none
     displayName: Install typescript-benchmarking
     retryCountOnTaskFailure: 3
 
@@ -17,15 +20,26 @@ steps:
       set -exo pipefail
       cd $(Pipeline.Workspace)/typescript-benchmarking
       pnpm build
+    target:
+      commands: restricted
+      settableVariables: none
     displayName: Build typescript-benchmarking
 
   - bash: |
-      echo "##vso[task.setvariable variable=BENCH_SCRIPTS]$(Pipeline.Workspace)/typescript-benchmarking/scripts/dist"
+      echo "##vso[task.setvariable variable=BENCH_SCRIPTS;isReadOnly=true]$(Pipeline.Workspace)/typescript-benchmarking/scripts/dist"
       # TODO(jakebailey): we can resolve this directly from the scripts dir now
-      echo "##vso[task.setvariable variable=TSPERF_EXE]$(Pipeline.Workspace)/typescript-benchmarking/ts-perf/bin/ts-perf"
+      echo "##vso[task.setvariable variable=TSPERF_EXE;isReadOnly=true]$(Pipeline.Workspace)/typescript-benchmarking/ts-perf/bin/ts-perf"
 
       # TODO(jakebailey): actually create these dirs, move them to more reasonable names, clone external repos as needed
-      echo "##vso[task.setvariable variable=TSPERF_SCENARIO_CONFIG_DIR]$(Pipeline.Workspace)/typescript-benchmarking/cases/scenarios"
-      echo "##vso[task.setvariable variable=TSPERF_SUITE_DIR]$(Pipeline.Workspace)/typescript-benchmarking/cases/solutions"
-      echo "##vso[task.setvariable variable=CREATE_TOKEN_SCRIPT]$(Pipeline.Workspace)/typescript-benchmarking/scripts/create-github-app-token-from-keyvault.cjs"
+      echo "##vso[task.setvariable variable=TSPERF_SCENARIO_CONFIG_DIR;isReadOnly=true]$(Pipeline.Workspace)/typescript-benchmarking/cases/scenarios"
+      echo "##vso[task.setvariable variable=TSPERF_SUITE_DIR;isReadOnly=true]$(Pipeline.Workspace)/typescript-benchmarking/cases/solutions"
+      echo "##vso[task.setvariable variable=CREATE_TOKEN_SCRIPT;isReadOnly=true]$(Pipeline.Workspace)/typescript-benchmarking/scripts/create-github-app-token-from-keyvault.cjs"
+    target:
+      commands: restricted
+      settableVariables:
+        - BENCH_SCRIPTS
+        - TSPERF_EXE
+        - TSPERF_SCENARIO_CONFIG_DIR
+        - TSPERF_SUITE_DIR
+        - CREATE_TOKEN_SCRIPT
     displayName: Set typescript-benchmarking variables

@@ -15,7 +15,6 @@ import {
     parseBoolean,
     RepoInfo,
     retry,
-    setOutputVariable,
     validateBuildOutput,
 } from "./utils.js";
 
@@ -31,12 +30,13 @@ async function main() {
     const { stdout: timestampDir } = await $pipe`date -d ${date} -u +%Y/%m/%d`;
 
     const args = minimist(process.argv.slice(2), {
-        string: ["outputDir"],
+        string: ["outputDir", "variablesFile"],
         boolean: ["baseline"],
     });
 
     const outputDir = args.outputDir;
     assert(outputDir, "Expected output path as first argument");
+    assert(typeof args.variablesFile === "string" && args.variablesFile, "Expected --variablesFile");
 
     const implementation = detectTypeScriptImplementation(".");
     assert(implementation, "Expected to be run from the TypeScript repo");
@@ -120,7 +120,7 @@ async function main() {
     console.log(`Writing ${outputInfoPath} with contents:\n${outputInfo}}`);
     await fs.promises.writeFile(outputInfoPath, outputInfo);
 
-    setOutputVariable("TYPESCRIPT_COMMIT", commit);
+    await fs.promises.writeFile(args.variablesFile, JSON.stringify({ TYPESCRIPT_COMMIT: commit }), { flag: "wx" });
 }
 
 if (esMain(import.meta)) {

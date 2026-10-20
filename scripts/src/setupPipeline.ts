@@ -1,4 +1,5 @@
 import assert from "node:assert";
+import fs from "node:fs/promises";
 import { isDeepStrictEqual } from "node:util";
 
 import esMain from "es-main";
@@ -6,7 +7,7 @@ import prettyMilliseconds from "pretty-ms";
 import sortKeys from "sort-keys";
 
 import { detectTypeScriptImplementation, TypeScriptImplementation } from "./typeScriptRepo.js";
-import { $pipe, getNonEmptyEnv, parseBoolean, setJobVariable, setOutputVariable } from "./utils.js";
+import { $pipe, getNonEmptyEnv, parseBoolean } from "./utils.js";
 
 // Keep in sync with inventory.yml and benchmark.yml.
 const allAgents = [
@@ -714,10 +715,7 @@ async function main() {
         shouldLog: true,
         gitParseRev,
     });
-    for (const [key, value] of Object.entries(outputVariables)) {
-        setOutputVariable(key, value);
-        setJobVariable(key, value);
-    }
+    await fs.writeFile(getNonEmptyEnv("TSPERF_VARIABLES_FILE"), JSON.stringify(outputVariables), { flag: "wx" });
 }
 
 if (esMain(import.meta)) {

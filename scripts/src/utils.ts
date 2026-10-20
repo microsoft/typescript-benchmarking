@@ -63,14 +63,18 @@ export async function getRepoInfo(builtDir: string) {
     return RepoInfo.parse(parsed);
 }
 
+function escapeVariableValue(value: string | number | boolean) {
+    return String(value).replaceAll("%", "%AZP25").replaceAll("\r", "%0D").replaceAll("\n", "%0A");
+}
+
 export function setOutputVariable(name: string, value: string | number | boolean) {
-    console.log(`setting output ${name}=${value}`);
-    console.log(`##vso[task.setvariable variable=${name};isOutput=true]${value}`);
+    assert(/^[A-Za-z_][A-Za-z0-9_]*$/.test(name), "Unexpected pipeline variable name");
+    console.log(`##vso[task.setvariable variable=${name};isOutput=true]${escapeVariableValue(value)}`);
 }
 
 export function setJobVariable(name: string, value: string | number | boolean) {
-    console.log(`setting variable ${name}=${value}`);
-    console.log(`##vso[task.setvariable variable=${name}]${value}`);
+    assert(/^[A-Za-z_][A-Za-z0-9_]*$/.test(name), "Unexpected pipeline variable name");
+    console.log(`##vso[task.setvariable variable=${name};isReadOnly=true]${escapeVariableValue(value)}`);
 }
 
 export function parseBoolean(value: string | undefined, defaultValue: boolean): boolean {
