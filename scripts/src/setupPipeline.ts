@@ -55,8 +55,12 @@ const hosts = {
     native: "native", // Native Go binary; no host runtime needed.
 } as const satisfies Record<string, string>;
 
-const allJobKinds = ["tsc", "tsserver", "lsp", "startup", "api"] as const;
-type JobKind = typeof allJobKinds[number];
+export const allJobKinds = ["tsc", "tsserver", "lsp", "startup", "api"] as const;
+export type JobKind = typeof allJobKinds[number];
+
+export function isJobKind(value: string): value is JobKind {
+    return allJobKinds.some(kind => kind === value);
+}
 
 const enum RunType {
     None = 0,
@@ -559,6 +563,7 @@ export async function setupPipeline(input: SetupPipelineInput) {
     };
 
     const processKinds = new Set<JobKind>();
+    const jobNamesByKind = new Map<JobKind, JobName[]>();
 
     const jobOverhead = 40; // Time taken per benchmark job to clone, build, etc
     let totalCost = 0;
@@ -577,6 +582,11 @@ export async function setupPipeline(input: SetupPipelineInput) {
             TSPERF_JOB_WARMUPS: scenario.warmups,
         };
         processKinds.add(scenario.kind);
+        let jobNames = jobNamesByKind.get(scenario.kind);
+        if (!jobNames) {
+            jobNamesByKind.set(scenario.kind, jobNames = []);
+        }
+        jobNames.push(jobName);
 
         let cost = scenario.cost * (scenario.iterations + scenario.warmups) + jobOverhead;
         if (!baselining) {
@@ -599,10 +609,16 @@ export async function setupPipeline(input: SetupPipelineInput) {
         }
     }
 
-    // These are outputs for the ProcessResults job, specifying which results were
-    // produced previously and need to be processed. This is a space separated list,
-    // iterated in the pipeline in bash.
+    // Tell ProcessResults which benchmark kinds are scheduled, as a space-separated
+    // list for the pipeline's Bash loop.
     outputVariables[`TSPERF_PROCESS_KINDS`] = kindOrder.filter(kind => processKinds.has(kind)).join(" ");
+
+    // Give ProcessResults exact scheduled names so unexpected artifact files do not enter
+    // the merge. This constrains file selection, not the authenticity of their contents.
+    for (const kind of kindOrder) {
+        const jobNames = jobNamesByKind.get(kind) ?? [];
+        outputVariables[`TSPERF_JOB_NAMES_${kind.toUpperCase()}`] = jobNames.sort().join(" ");
+    }
 
     outputVariables[`TSPERF_PREDICTABLE`] = parameters.predictable ? "true" : "false";
     outputVariables["TSPERF_IS_CUSTOM_COMMIT_RANGE"] = parameters.isCustomCommitRange ? "true" : "false";
@@ -633,7 +649,7 @@ export async function setupPipeline(input: SetupPipelineInput) {
     };
 }
 
-if (esMain(import.meta)) {
+async function main() {
     async function gitParseRev(query: string): Promise<GitParseRevResult> {
         const cwd = getNonEmptyEnv("TYPESCRIPT_DIR");
 
@@ -700,7 +716,13 @@ if (esMain(import.meta)) {
     });
     for (const [key, value] of Object.entries(outputVariables)) {
         setOutputVariable(key, value);
-        // Also set them as environment variables for the job.
         setJobVariable(key, value);
     }
+}
+
+if (esMain(import.meta)) {
+    await main().catch((error: unknown) => {
+        console.error(error);
+        process.exitCode = 1;
+    });
 }

@@ -385,6 +385,11 @@ jobs:
     variables:
       TSPERF_IS_COMPARISON: $[ dependencies.Setup.outputs['setupPipeline.TSPERF_IS_COMPARISON'] ]
       TSPERF_PROCESS_KINDS: $[ dependencies.Setup.outputs['setupPipeline.TSPERF_PROCESS_KINDS'] ]
+      TSPERF_JOB_NAMES_TSC: $[ dependencies.Setup.outputs['setupPipeline.TSPERF_JOB_NAMES_TSC'] ]
+      TSPERF_JOB_NAMES_TSSERVER: $[ dependencies.Setup.outputs['setupPipeline.TSPERF_JOB_NAMES_TSSERVER'] ]
+      TSPERF_JOB_NAMES_LSP: $[ dependencies.Setup.outputs['setupPipeline.TSPERF_JOB_NAMES_LSP'] ]
+      TSPERF_JOB_NAMES_STARTUP: $[ dependencies.Setup.outputs['setupPipeline.TSPERF_JOB_NAMES_STARTUP'] ]
+      TSPERF_JOB_NAMES_API: $[ dependencies.Setup.outputs['setupPipeline.TSPERF_JOB_NAMES_API'] ]
       TSPERF_NEW_NAME: $[ dependencies.Setup.outputs['setupPipeline.TSPERF_NEW_NAME'] ]
       TSPERF_BASELINE_NAME: $[ dependencies.Setup.outputs['setupPipeline.TSPERF_BASELINE_NAME'] ]
       BUILT_TYPESCRIPT_DIR: $(Pipeline.Workspace)/BuiltTypeScript
@@ -394,20 +399,14 @@ jobs:
     steps:
       - template: templates/setup.yml
 
-      - download: current
-        patterns: '**/*.benchmark'
+      # Restrict the artifact namespace as well as the extension. Compiler builds may
+      # contain arbitrary files, but only scheduled partial results belong in the merge.
+      - task: DownloadPipelineArtifact@2
+        inputs:
+          buildType: current
+          itemPattern: 'PartialBenchmark_*/**/*.benchmark'
+          targetPath: $(Pipeline.Workspace)
         displayName: Download benchmarks
-
-      # Azure Pipelines haphazardly drops all artifacts into $(Pipeline.Workspace) with no
-      # way to customize where they're placed. To deal with this, we download the benchmarks
-      # first and move them somewhere else, before doing any other steps that would download
-      # further artifacts.
-      - bash: |
-          set -exo pipefail
-          shopt -s globstar
-          mkdir -p $(BENCHMARKS_DIR)
-          mv $(Pipeline.Workspace)/**/*.benchmark $(BENCHMARKS_DIR)
-        displayName: Move artifacts
 
       # We only need this because ts-perf requires it even for loading existing benchmarks
       - download: current
@@ -415,6 +414,11 @@ jobs:
         displayName: Download built TypeScript
 
       - template: templates/cloneAndBuildBenchmarkRepo.yml # Sets $(BENCH_SCRIPTS), $(TSPERF_EXE)
+
+      - bash: |
+          set -eo pipefail
+          node $(BENCH_SCRIPTS)/collectBenchmarkResults.js
+        displayName: Collect scheduled benchmark results
 
       - task: AzureCLI@2
         inputs:
@@ -438,15 +442,33 @@ jobs:
         displayName: Create merged output directory
 
       - bash: |
-          set -exo pipefail
+          set -eo pipefail
 
           for KIND in $(TSPERF_PROCESS_KINDS); do
             echo "Merging ${KIND} benchmarks"
 
-            node $(TSPERF_EXE) merge --output $(MERGED_DIR)/baseline.${KIND}.benchmark $(BENCHMARKS_DIR)/baseline_*.${KIND}.benchmark
+            # Merge the results this run scheduled, by name, rather than globbing whatever
+            # was downloaded. Artifacts come from the benchmark agents, which run the
+            # compiler built from the pull request under test, so they may contain files
+            # that no job in this run produced.
+            JOB_NAMES_VAR="TSPERF_JOB_NAMES_${KIND^^}"
+            JOB_NAMES="${!JOB_NAMES_VAR}"
+            if [[ -z "${JOB_NAMES}" ]]; then
+              echo "No job names for ${KIND} benchmarks" >&2
+              exit 1
+            fi
+
+            BASELINE_FILES=()
+            NEW_FILES=()
+            for JOB_NAME in ${JOB_NAMES}; do
+              BASELINE_FILES+=("$(BENCHMARKS_DIR)/baseline_${JOB_NAME}.${KIND}.benchmark")
+              NEW_FILES+=("$(BENCHMARKS_DIR)/new_${JOB_NAME}.${KIND}.benchmark")
+            done
+
+            node $(TSPERF_EXE) merge --output $(MERGED_DIR)/baseline.${KIND}.benchmark "${BASELINE_FILES[@]}"
 
             if [[ $(TSPERF_IS_COMPARISON) == "true" ]]; then
-              node $(TSPERF_EXE) merge --output $(MERGED_DIR)/new.${KIND}.benchmark $(BENCHMARKS_DIR)/new_*.${KIND}.benchmark
+              node $(TSPERF_EXE) merge --output $(MERGED_DIR)/new.${KIND}.benchmark "${NEW_FILES[@]}"
 
               # Print summary for logs
               node $(BENCH_SCRIPTS)/runTsPerf.js benchmark-${KIND} \
@@ -457,8 +479,8 @@ jobs:
               echo "<h2>${KIND}</h2>" >> $(Pipeline.Workspace)/comment.html
               node $(BENCH_SCRIPTS)/runTsPerf.js benchmark-${KIND} \
                 --builtDir $(BUILT_TYPESCRIPT_DIR)/baseline \
-                --baseline $(MERGED_DIR)/baseline.${KIND}.benchmark --baselineName $(TSPERF_BASELINE_NAME) \
-                --load $(MERGED_DIR)/new.${KIND}.benchmark --benchmarkName $(TSPERF_NEW_NAME) \
+                --baseline $(MERGED_DIR)/baseline.${KIND}.benchmark --baselineName "$TSPERF_BASELINE_NAME" \
+                --load $(MERGED_DIR)/new.${KIND}.benchmark --benchmarkName "$TSPERF_NEW_NAME" \
                 --format html-fragment \
                 --quiet >> $(Pipeline.Workspace)/comment.html
             else
@@ -473,6 +495,9 @@ jobs:
             fi
           done
         displayName: Merge benchmarks
+        env:
+          TSPERF_NEW_NAME: $(TSPERF_NEW_NAME)
+          TSPERF_BASELINE_NAME: $(TSPERF_BASELINE_NAME)
 
       - publish: $(MERGED_DIR)
         artifact: Benchmarks

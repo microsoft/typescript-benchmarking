@@ -1,24 +1,21 @@
 import { Benchmark, Command, CommandMap } from "@ts-perf/api";
-import { HostContext } from "@ts-perf/core";
 
 export interface MergeOptions {
     files: string[];
     output: string;
 }
 
-export async function merge(options: MergeOptions, host: HostContext) {
+export async function merge(options: MergeOptions) {
     let benchmarks;
     try {
         benchmarks = await Promise.all(options.files.map(file => Benchmark.loadAsync(file)));
     }
     catch (e) {
-        host.error(`Failed to load benchmark files: ${e}`);
-        return;
+        throw new Error(`Failed to load benchmark files`, { cause: e });
     }
 
     if (benchmarks.length < 1) {
-        host.error(`Expected at least one benchmark file`);
-        return;
+        throw new Error(`Expected at least one benchmark file`);
     }
 
     try {
@@ -29,8 +26,7 @@ export async function merge(options: MergeOptions, host: HostContext) {
         await result.saveAsync(options.output);
     }
     catch (e) {
-        host.error(`Failed to merge benchmark files: ${e}`);
-        return;
+        throw new Error(`Failed to merge benchmark files`, { cause: e });
     }
 }
 
@@ -52,7 +48,7 @@ const command: Command<MergeOptions> = {
             description: "Where to store the merged benchmark file.",
         },
     },
-    exec: ({ options }, host) => merge(options, host),
+    exec: ({ options }) => merge(options),
 };
 
 export function registerCommands(commands: CommandMap) {

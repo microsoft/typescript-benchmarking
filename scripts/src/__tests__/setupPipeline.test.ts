@@ -1,10 +1,11 @@
 import fs from "node:fs";
+import os from "node:os";
 import path from "node:path";
 import url from "node:url";
 
 import filenamify from "filenamify";
 import { globSync } from "glob";
-import { expect, test } from "vitest";
+import { expect, test, vi } from "vitest";
 
 import { allPresetNames, GitParseRevResult, setupPipeline } from "../setupPipeline.js";
 
@@ -172,5 +173,34 @@ test("abandoned snapshots", () => {
         throw new Error(
             "Abandoned snapshots found; please update snapshots to remove them:\n" + abandonedSnapshots.join("\n"),
         );
+    }
+});
+
+test("reports setup failures without rewriting compiler manifest diagnostics", async () => {
+    const repoDir = fs.mkdtempSync(path.join(os.tmpdir(), "typescript-benchmarking-pipeline-"));
+    const exitCode = process.exitCode;
+    const log = vi.spyOn(console, "error").mockImplementation(() => {});
+    vi.resetModules();
+    vi.doMock("es-main", () => ({ default: () => true }));
+    vi.stubEnv("TSPERF_PRESET", "default");
+    vi.stubEnv("TYPESCRIPT_DIR", repoDir);
+    fs.writeFileSync(
+        path.join(repoDir, "package.json"),
+        "##vso[task.setvariable variable=BENCH_SCRIPTS]/untrusted/compiler/repo",
+    );
+    try {
+        await import("../setupPipeline.js");
+        expect(process.exitCode).toBe(1);
+        expect(log).toHaveBeenCalledOnce();
+        const diagnostic = log.mock.calls.flat().join("\n");
+        expect(diagnostic).toContain("##vso[task");
+    }
+    finally {
+        process.exitCode = exitCode;
+        fs.rmSync(repoDir, { recursive: true });
+        vi.restoreAllMocks();
+        vi.unstubAllEnvs();
+        vi.doUnmock("es-main");
+        vi.resetModules();
     }
 });
