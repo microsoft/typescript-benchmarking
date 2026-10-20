@@ -647,9 +647,7 @@ jobs:
     # "not(failed())" is also true when the build has been canceled, so ignore that too.
     condition: and(not(failed()), not(canceled()))
     pool:
-      name: TypeScript-1ES-Deploys
-      demands:
-        - ImageOverride -equals azure-linux-3
+      vmImage: ubuntu-latest
     workspace:
       clean: all # Always start with a clean slate.
 
@@ -952,9 +950,7 @@ jobs:
       - ProcessResults
     condition: and(failed(), eq(variables['IS_PR'], 'true'))
     pool:
-      name: TypeScript-1ES-Deploys
-      demands:
-        - ImageOverride -equals azure-linux-3
+      vmImage: ubuntu-latest
     workspace:
       clean: all # Always start with a clean slate.
 
