@@ -383,6 +383,7 @@ jobs:
       clean: all # Always start with a clean slate.
 
     variables:
+      GH_TOKEN: ''
       TSPERF_IS_COMPARISON: $[ dependencies.Setup.outputs['setupPipeline.TSPERF_IS_COMPARISON'] ]
       TSPERF_PROCESS_KINDS: $[ dependencies.Setup.outputs['setupPipeline.TSPERF_PROCESS_KINDS'] ]
       TSPERF_JOB_NAMES_TSC: $[ dependencies.Setup.outputs['setupPipeline.TSPERF_JOB_NAMES_TSC'] ]
@@ -420,22 +421,6 @@ jobs:
           node $(BENCH_SCRIPTS)/collectBenchmarkResults.js
         displayName: Collect scheduled benchmark results
 
-      - task: AzureCLI@2
-        inputs:
-          azureSubscription: $(azureSubscription)
-          scriptType: bash
-          scriptLocation: inlineScript
-          inlineScript: node $(CREATE_TOKEN_SCRIPT)
-        displayName: Create GitHub App token
-        env:
-          APP_CLIENT_ID: $(TYPESCRIPT_AUTOMATION_GITHUB_APP_CLIENT_ID)
-          KEY_ID: $(TYPESCRIPT_AUTOMATION_GITHUB_APP_KEY_ID)
-          OWNER: microsoft
-          REPOSITORIES: $(REPO)
-          PERMISSIONS: contents:read,issues:write,pull_requests:write
-          OUTPUT: azure-pipelines
-          AZURE_TOKEN_VARIABLE: GH_TOKEN
-
       - bash: |
           set -exo pipefail
           mkdir -p $(MERGED_DIR)
@@ -447,10 +432,8 @@ jobs:
           for KIND in $(TSPERF_PROCESS_KINDS); do
             echo "Merging ${KIND} benchmarks"
 
-            # Merge the results this run scheduled, by name, rather than globbing whatever
-            # was downloaded. Artifacts come from the benchmark agents, which run the
-            # compiler built from the pull request under test, so they may contain files
-            # that no job in this run produced.
+            # Merge scheduled results by name rather than globbing downloaded files.
+            # Unexpected artifact files must not become additional report inputs.
             JOB_NAMES_VAR="TSPERF_JOB_NAMES_${KIND^^}"
             JOB_NAMES="${!JOB_NAMES_VAR}"
             if [[ -z "${JOB_NAMES}" ]]; then
@@ -503,6 +486,23 @@ jobs:
         artifact: Benchmarks
         displayName: Publish benchmark artifacts
 
+      - task: AzureCLI@2
+        inputs:
+          azureSubscription: $(azureSubscription)
+          scriptType: bash
+          scriptLocation: inlineScript
+          inlineScript: node $(CREATE_TOKEN_SCRIPT)
+        displayName: Create GitHub App token
+        condition: and(succeeded(), eq(variables['IS_PR'], 'true'))
+        env:
+          APP_CLIENT_ID: $(TYPESCRIPT_AUTOMATION_GITHUB_APP_CLIENT_ID)
+          KEY_ID: $(TYPESCRIPT_AUTOMATION_GITHUB_APP_KEY_ID)
+          OWNER: microsoft
+          REPOSITORIES: $(REPO)
+          PERMISSIONS: pull_requests:write
+          OUTPUT: azure-pipelines
+          AZURE_TOKEN_VARIABLE: GH_TOKEN
+
       - bash: |
           set -exo pipefail
           node $(BENCH_SCRIPTS)/postPerfResult.js --fragment $(Pipeline.Workspace)/comment.html
@@ -515,12 +515,71 @@ jobs:
           STATUS_COMMENT: ${{ parameters.STATUS_COMMENT }}
           GH_TOKEN: $(GH_TOKEN)
 
+      - script: node $(CREATE_TOKEN_SCRIPT)
+        displayName: Revoke GitHub App token
+        condition: and(always(), ne(variables['GH_TOKEN'], ''))
+        env:
+          REVOKE_TOKEN: $(GH_TOKEN)
+
+  # Keep blob-write credentials out of ProcessResults, which parses and renders results
+  # produced while running the approved compiler revisions. Upload eligibility comes from
+  # Setup, not runtime variables in ProcessResults. ProcessResults still supplies the merged
+  # data and must succeed before this job runs; separation does not authenticate that data.
+  - job: UploadResults
+    dependsOn:
+      - Setup
+      - ProcessResults
+    condition: and(succeeded(), eq(variables['SHOULD_UPLOAD'], 'true'))
+    pool:
+      name: TypeScript-1ES-Deploys
+      demands:
+        - ImageOverride -equals azure-linux-3
+    workspace:
+      clean: all # Always start with a clean slate.
+
+    variables:
+      GH_TOKEN: ''
+      TSPERF_PROCESS_KINDS: $[ dependencies.Setup.outputs['setupPipeline.TSPERF_PROCESS_KINDS'] ]
+      BUILT_TYPESCRIPT_DIR: $(Pipeline.Workspace)/BuiltTypeScript
+      # The merged benchmarks, as published by ProcessResults.
+      MERGED_DIR: $(Pipeline.Workspace)/Benchmarks
+
+    steps:
+      - template: templates/setup.yml
+
+      - download: current
+        artifact: Benchmarks
+        displayName: Download merged benchmarks
+
+      # We only need this because ts-perf requires it even for loading existing benchmarks
+      - download: current
+        artifact: BuiltTypeScript
+        displayName: Download built TypeScript
+
+      - template: templates/cloneAndBuildBenchmarkRepo.yml # Sets $(BENCH_SCRIPTS), $(TSPERF_EXE)
+
+      - task: AzureCLI@2
+        inputs:
+          azureSubscription: $(azureSubscription)
+          scriptType: bash
+          scriptLocation: inlineScript
+          inlineScript: node $(CREATE_TOKEN_SCRIPT)
+        displayName: Create GitHub App token
+        env:
+          APP_CLIENT_ID: $(TYPESCRIPT_AUTOMATION_GITHUB_APP_CLIENT_ID)
+          KEY_ID: $(TYPESCRIPT_AUTOMATION_GITHUB_APP_KEY_ID)
+          OWNER: microsoft
+          REPOSITORIES: $(REPO)
+          # This job only reads a ref to see if it is the latest commit.
+          PERMISSIONS: contents:read
+          OUTPUT: azure-pipelines
+          AZURE_TOKEN_VARIABLE: GH_TOKEN
+
       # Sets $(TSPERF_BLOB_LATEST)
       - bash: |
           set -exo pipefail
           node $(BENCH_SCRIPTS)/checkLatestCommitForRef.js --builtDir $(BUILT_TYPESCRIPT_DIR)/baseline
         displayName: Check if commit is latest for ref
-        condition: and(succeeded(), eq(variables['SHOULD_UPLOAD'], 'true'))
         env:
           GH_TOKEN: $(GH_TOKEN)
 
@@ -558,11 +617,10 @@ jobs:
                 --saveBlob ${NAME}
             done
         displayName: Upload benchmarks to blob store
-        condition: and(succeeded(), eq(variables['SHOULD_UPLOAD'], 'true'))
 
       - script: node $(CREATE_TOKEN_SCRIPT)
         displayName: Revoke GitHub App token
-        condition: always()
+        condition: and(always(), ne(variables['GH_TOKEN'], ''))
         env:
           REVOKE_TOKEN: $(GH_TOKEN)
 
@@ -580,6 +638,9 @@ jobs:
     workspace:
       clean: all # Always start with a clean slate.
 
+    variables:
+      GH_TOKEN: ''
+
     steps:
       - template: templates/setup.yml
       - template: templates/cloneAndBuildBenchmarkRepo.yml # Sets $(BENCH_SCRIPTS), $(TSPERF_EXE)
@@ -596,7 +657,7 @@ jobs:
           KEY_ID: $(TYPESCRIPT_AUTOMATION_GITHUB_APP_KEY_ID)
           OWNER: microsoft
           REPOSITORIES: $(REPO)
-          PERMISSIONS: contents:read,issues:write,pull_requests:write
+          PERMISSIONS: pull_requests:write
           OUTPUT: azure-pipelines
           AZURE_TOKEN_VARIABLE: GH_TOKEN
 
@@ -613,6 +674,6 @@ jobs:
 
       - script: node $(CREATE_TOKEN_SCRIPT)
         displayName: Revoke GitHub App token
-        condition: always()
+        condition: and(always(), ne(variables['GH_TOKEN'], ''))
         env:
           REVOKE_TOKEN: $(GH_TOKEN)
