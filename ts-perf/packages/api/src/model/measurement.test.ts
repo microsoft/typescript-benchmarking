@@ -1,5 +1,6 @@
 import { expect, test } from "vitest";
 
+import { formatComparisonBaseline, formatComparisonCurrent, formatComparisonMetric } from "../format";
 import { Benchmark } from "./benchmark";
 import { HostSpecifier } from "./hostSpecifier";
 import { Measurement } from "./measurement";
@@ -47,4 +48,35 @@ test("scenario-only filtering remaps scenarioIndex and preserves hostIndex", () 
     expect(filtered.measurements[0].scenarioIndex).toBe(0);
     expect(filtered.measurements[0].hostIndex).toBe(1);
     expect(filtered.measurements[0].values?.totalTime?.samples).toEqual([1, 2]);
+});
+
+const failed = Measurement.createFailed("test", 1, measurement.host!, 1);
+
+test("failed measurements survive serialization, filtering and merging", () => {
+    const restored = Measurement.create(JSON.parse(JSON.stringify(failed)));
+    expect(restored.failed).toBe(true);
+    expect(restored.values).toEqual({});
+    expect(Measurement.create(JSON.parse(JSON.stringify(measurement))).failed).toBe(false);
+
+    expect(report().with({ measurements: [failed] }).filter([], ["node@24.21.0"]).measurements[0].failed).toBe(true);
+
+    expect(measurement.merge(failed).failed).toBe(true);
+    expect(failed.merge(measurement).failed).toBe(true);
+});
+
+test("comparisons with a failed side pivot to a single failed row", () => {
+    const passing = report();
+    const crashed = passing.with({ measurements: [failed] });
+
+    for (const comparison of [crashed.diff(passing)!, passing.diff(crashed)!]) {
+        const pivots = comparison.measurements[0].pivot();
+        expect(pivots).toHaveLength(1);
+        expect(pivots[0].failed).toBe(true);
+    }
+
+    const [pivot] = crashed.diff(passing)!.measurements[0].pivot();
+    expect(formatComparisonMetric(pivot)).toBe("⚠️ Failed");
+    expect(formatComparisonBaseline(pivot)).toBe("");
+    expect(formatComparisonCurrent(pivot)).toBe("failed");
+    expect(failed.pivot().map(pivot => pivot.failed)).toEqual([true]);
 });

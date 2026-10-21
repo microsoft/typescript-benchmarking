@@ -10,6 +10,7 @@ export interface MeasurementComponents extends Partial<Record<SampleKey, Value |
     scenarioIndex?: number;
     host?: HostSpecifier | HostSpecifierComponents;
     hostIndex?: number;
+    failed?: boolean;
 }
 
 const hasOwnProperty = Object.prototype.hasOwnProperty;
@@ -24,7 +25,18 @@ export class Measurement {
         public readonly host?: HostSpecifier,
         public readonly hostIndex?: number,
         public readonly values?: Partial<Record<string, Value>>,
+        /** The benchmarked process crashed or exited unsuccessfully, so no values were recorded. */
+        public readonly failed = false,
     ) {
+    }
+
+    public static createFailed(
+        scenarioName: string,
+        scenarioIndex: number,
+        host: HostSpecifier,
+        hostIndex: number,
+    ): Measurement {
+        return new Measurement(scenarioName, scenarioIndex, host, hostIndex, {}, /*failed*/ true);
     }
 
     public get name() {
@@ -53,7 +65,8 @@ export class Measurement {
                     : undefined),
             components.host && HostSpecifier.create(components.host),
             components.hostIndex,
-            values,
+            components.failed ? {} : values,
+            !!components.failed,
         );
     }
 
@@ -63,6 +76,7 @@ export class Measurement {
             scenarioIndex: this.scenarioIndex,
             host: this.host,
             hostIndex: this.hostIndex,
+            failed: this.failed || undefined,
             ...this.values,
         };
     }
@@ -72,6 +86,7 @@ export class Measurement {
         const { scenarioIndex = this.scenarioIndex } = components;
         const { hostIndex = this.hostIndex } = components;
         const { host = this.host } = components;
+        const { failed = this.failed } = components;
         const values: Partial<Record<string, ValueComponents>> = { ...this.values };
         let equalValues = true;
         for (const key in components) {
@@ -88,6 +103,7 @@ export class Measurement {
             && this.scenarioIndex === scenarioIndex
             && this.hostIndex === hostIndex
             && this.host === host
+            && this.failed === failed
             && equalValues
         ) {
             return this;
@@ -97,6 +113,7 @@ export class Measurement {
             scenarioIndex,
             host,
             hostIndex,
+            failed,
             ...values,
         });
     }
@@ -110,6 +127,9 @@ export class Measurement {
     }
 
     public pivot() {
+        if (this.failed) {
+            return [new MeasurementPivot(this, /*value*/ undefined)];
+        }
         const pivots: MeasurementPivot[] = [];
         for (const key in this.values) {
             if (hasProperty(this.values, key)) {
@@ -131,6 +151,9 @@ export class Measurement {
         ) {
             throw Error("Cannot merge measurements with different scenarios or hosts.");
         }
+
+        if (this.failed) return this;
+        if (other.failed) return other;
 
         if (!this.values) return other;
         if (!other.values) return this;
@@ -160,6 +183,7 @@ export class Measurement {
             hostName: this.hostName,
             hostIndex: this.hostIndex,
             host: this.host,
+            failed: this.failed || undefined,
             ...this.values,
         };
     }

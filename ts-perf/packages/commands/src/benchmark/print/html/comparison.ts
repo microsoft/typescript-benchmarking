@@ -447,18 +447,27 @@ function getMetricClassNames(measurement: MeasurementComparisonPivot) {
 }
 
 function getBaselineMeanClassNames(measurement: MeasurementComparisonPivot, ranges: Record<string, Range>) {
+    if (measurement.failed) {
+        return new ClassNames("baseline", "mean").addIf(!!measurement.measurement.baseline?.failed, "bad").toString();
+    }
     return new ClassNames("baseline", "mean")
         .addRange(measurement.baseline!.relativeMarginOfError, ranges)
         .toString();
 }
 
 function getMidlineMeanClassNames(measurement: MeasurementComparisonPivot, ranges: Record<string, Range>) {
+    if (measurement.failed) {
+        return new ClassNames("midline", "mean").addIf(!!measurement.measurement.midline?.failed, "bad").toString();
+    }
     return new ClassNames("midline", "mean")
         .addRange(measurement.midline!.relativeMarginOfError, ranges)
         .toString();
 }
 
 function getCurrentMeanClassNames(measurement: MeasurementComparisonPivot, ranges: Record<string, Range>) {
+    if (measurement.failed) {
+        return new ClassNames("current", "mean").addIf(!!measurement.measurement.benchmark.failed, "bad").toString();
+    }
     return new ClassNames("current", "mean")
         .addRange(measurement.benchmark.relativeMarginOfError, ranges)
         .toString();
@@ -518,6 +527,7 @@ function getMidlineDeltaMarkers(
 }
 
 function getBaselineDeltaClassNames(measurement: MeasurementComparisonPivot, ranges: Record<string, Range>) {
+    if (measurement.failed) return new ClassNames("baseline", "delta");
     return new ClassNames("baseline", "delta")
         .addRangeIf(
             measurement.baselineRelativeIsSignificant,
@@ -527,6 +537,7 @@ function getBaselineDeltaClassNames(measurement: MeasurementComparisonPivot, ran
 }
 
 function getMidlineDeltaClassNames(measurement: MeasurementComparisonPivot, ranges: Record<string, Range>) {
+    if (measurement.failed) return new ClassNames("midline", "delta");
     return new ClassNames("midline", "delta")
         .addRangeIf(
             measurement.midlineRelativeIsSignificant,
@@ -537,6 +548,7 @@ function getMidlineDeltaClassNames(measurement: MeasurementComparisonPivot, rang
 
 function getMeasurementClassNames(measurement: MeasurementComparisonPivot) {
     return new ClassNames("measurement")
+        .addIf(measurement.failed, "failed")
         .addIf(measurement.metric === "Memory used", "memory")
         .addIf(measurement.metric === "Parse Time", "parse-time")
         .addIf(measurement.metric === "Bind Time", "bind-time")

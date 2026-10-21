@@ -145,44 +145,61 @@ export function formatTestHost(testHost: Host) {
     return name;
 }
 
+export const failedMetricText = "⚠️ Failed";
+
+/** Text for a side of a failed comparison: "failed" when that side failed, otherwise empty. */
+export function formatFailedSide(failed: boolean | undefined) {
+    return failed ? "failed" : "";
+}
+
 export function formatComparisonMetric(comparison: MeasurementComparisonPivot) {
+    if (comparison.failed) return failedMetricText;
     return comparison.metric || comparison.name;
 }
 
 export function formatComparisonBaseline(comparison: MeasurementComparisonPivot) {
+    if (comparison.failed) return formatFailedSide(comparison.measurement.baseline?.failed);
     return formatMean(comparison.baseline!);
 }
 
 export function formatComparisonMidline(comparison: MeasurementComparisonPivot) {
+    if (comparison.failed) return formatFailedSide(comparison.measurement.midline?.failed);
     return formatMean(comparison.midline!);
 }
 
 export function formatComparisonCurrent(comparison: MeasurementComparisonPivot) {
+    if (comparison.failed) return formatFailedSide(comparison.measurement.benchmark.failed);
     return formatMean(comparison.benchmark);
 }
 
 export function formatComparisonBaselineDelta(comparison: MeasurementComparisonPivot) {
+    if (comparison.failed) return "";
     return formatDelta(comparison.benchmark, comparison.baseline!, comparison.baselineRelativeIsSignificant);
 }
 
 export function formatComparisonMidlineDelta(comparison: MeasurementComparisonPivot) {
+    if (comparison.failed) return "";
     return formatDelta(comparison.benchmark, comparison.midline!, comparison.midlineRelativeIsSignificant);
 }
 
 export function formatComparisonBaselinePValue(comparison: MeasurementComparisonPivot) {
+    if (comparison.failed) return "";
     return formatPValue(comparison.baselineRelativePValue, comparison.benchmark, comparison.baseline!);
 }
 
 export function formatComparisonMidlinePValue(comparison: MeasurementComparisonPivot) {
+    if (comparison.failed) return "";
     return formatPValue(comparison.midlineRelativePValue, comparison.benchmark, comparison.midline!);
 }
 
 export function formatComparisonBest(comparison: MeasurementComparisonPivot) {
+    if (comparison.failed) return "";
     if (comparison.benchmark.allSamplesEqual) return "~";
     return formatUnit(comparison.benchmark.minimum, comparison.benchmark);
 }
 
 export function formatComparisonWorst(comparison: MeasurementComparisonPivot) {
+    if (comparison.failed) return "";
     if (comparison.benchmark.allSamplesEqual) return "~";
     return formatUnit(comparison.benchmark.maximum, comparison.benchmark);
 }

@@ -23,11 +23,18 @@ export class MeasurementComparison {
         public readonly midline?: Measurement,
     ) {
         this.values = {};
+        if (this.failed) {
+            return;
+        }
         for (const key in benchmark.values) {
             if (hasProperty(benchmark.values, key)) {
                 this.values[key] = Value.diff(benchmark.values[key], baseline?.values?.[key], midline?.values?.[key]);
             }
         }
+    }
+
+    public get failed() {
+        return this.benchmark.failed || !!this.baseline?.failed || !!this.midline?.failed;
     }
 
     public get name() {
@@ -82,6 +89,9 @@ export class MeasurementComparison {
     }
 
     public pivot() {
+        if (this.failed) {
+            return [new MeasurementComparisonPivot(this, /*value*/ undefined)];
+        }
         const pivots: MeasurementComparisonPivot[] = [];
         for (const key in this.values) {
             if (hasProperty(this.values, key)) {

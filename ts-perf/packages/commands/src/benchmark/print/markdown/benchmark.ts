@@ -1,4 +1,13 @@
-import { Benchmark, formatMean, formatTestHost, formatUnit, Host, Measurement } from "@ts-perf/api";
+import {
+    Benchmark,
+    failedMetricText,
+    formatMean,
+    formatTestHost,
+    formatUnit,
+    Host,
+    Measurement,
+    MeasurementPivot,
+} from "@ts-perf/api";
 import { SystemInfo } from "@ts-perf/core";
 import { from, Query } from "iterable-query";
 
@@ -86,10 +95,10 @@ ${
                 from(group).select(measurement =>
                     markdown`
 <tr>
-<td align="left">${measurement.metric}</td>
-<td align="right">${formatMean(measurement)}</td>
-<td align="right">${measurement.allSamplesEqual ? "~" : formatUnit(measurement.minimum, measurement)}</td>
-<td align="right">${measurement.allSamplesEqual ? "~" : formatUnit(measurement.maximum, measurement)}</td>
+<td align="left">${measurement.failed ? failedMetricText : measurement.metric}</td>
+<td align="right">${measurement.failed ? "failed" : formatMean(measurement)}</td>
+<td align="right">${formatBest(measurement)}</td>
+<td align="right">${formatWorst(measurement)}</td>
 </tr>`
                 )
             }
@@ -97,6 +106,16 @@ ${
         )
     }
 </table>  \n`;
+}
+
+function formatBest(measurement: MeasurementPivot) {
+    if (measurement.failed) return "";
+    return measurement.allSamplesEqual ? "~" : formatUnit(measurement.minimum, measurement);
+}
+
+function formatWorst(measurement: MeasurementPivot) {
+    if (measurement.failed) return "";
+    return measurement.allSamplesEqual ? "~" : formatUnit(measurement.maximum, measurement);
 }
 
 function formatSummary(benchmark: Benchmark, options: BenchmarkOptions) {

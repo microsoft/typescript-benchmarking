@@ -89,17 +89,17 @@ export function printComparison(
             { className: "group header", border: { top: "double" }, foregroundColor: "cyan" },
             {
                 className: "body",
-                match: (x: MeasurementComparisonPivot) => x.benchmarkRelativeDelta < -0.1,
+                match: (x: MeasurementComparisonPivot) => !x.failed && x.benchmarkRelativeDelta < -0.1,
                 foregroundColor: "green",
             },
             {
                 className: "body",
-                match: (x: MeasurementComparisonPivot) => x.benchmarkRelativeDelta > 0.1,
+                match: (x: MeasurementComparisonPivot) => !x.failed && x.benchmarkRelativeDelta > 0.1,
                 foregroundColor: "yellow",
             },
             {
                 className: "body",
-                match: (x: MeasurementComparisonPivot) => x.benchmarkRelativeDelta > 0.3,
+                match: (x: MeasurementComparisonPivot) => x.failed || x.benchmarkRelativeDelta > 0.3,
                 foregroundColor: "red",
             },
             {

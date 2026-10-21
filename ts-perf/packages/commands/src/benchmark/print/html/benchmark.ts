@@ -1,4 +1,13 @@
-import { Benchmark, formatMean, formatTestHost, formatUnit, Host, Measurement, MeasurementPivot } from "@ts-perf/api";
+import {
+    Benchmark,
+    failedMetricText,
+    formatMean,
+    formatTestHost,
+    formatUnit,
+    Host,
+    Measurement,
+    MeasurementPivot,
+} from "@ts-perf/api";
 import { SystemInfo } from "@ts-perf/core";
 import { from, Query } from "iterable-query";
 
@@ -231,16 +240,18 @@ function formatReport(benchmark: Benchmark, options: BenchmarkOptions, noStyles:
                         html`
             <tr class="${getMeasurementClassNames(measurement)}">
                 <td ${noStyles ? "align=left" : `class="${getMetricClassNames(measurement)}"`}>${
-                            cell(measurement.metric)
+                            cell(measurement.failed ? failedMetricText : measurement.metric)
                         }</td>
                 <td ${noStyles ? "align=right" : `class="${getCurrentMeanClassNames(measurement)}"`}>${
-                            cell(formatMean(measurement))
+                            cell(measurement.failed ? "failed" : formatMean(measurement))
                         }</td>
                 <td ${noStyles ? "align=right" : `class="current best"`}>${
-                            measurement.allSamplesEqual ? "~" : cell(formatUnit(measurement.minimum, measurement))
+                            measurement.failed ? "" : measurement.allSamplesEqual ? "~"
+                                : cell(formatUnit(measurement.minimum, measurement))
                         }</td>
                 <td ${noStyles ? "align=right" : `class="current worst"`}>${
-                            measurement.allSamplesEqual ? "~" : cell(formatUnit(measurement.maximum, measurement))
+                            measurement.failed ? "" : measurement.allSamplesEqual ? "~"
+                                : cell(formatUnit(measurement.maximum, measurement))
                         }</td>
             </tr>`
                     )
@@ -276,12 +287,14 @@ function getMetricClassNames(measurement: MeasurementPivot) {
 }
 
 function getCurrentMeanClassNames(measurement: MeasurementPivot) {
+    if (measurement.failed) return new ClassNames("current", "mean", "bad");
     return new ClassNames("current", "mean")
         .addRange(measurement.relativeMarginOfError, relativeMarginOfErrorClassNames);
 }
 
 function getMeasurementClassNames(measurement: MeasurementPivot) {
     return new ClassNames("measurement")
+        .addIf(measurement.failed, "failed")
         .addIf(measurement.metric === "Memory used", "memory")
         .addIf(measurement.metric === "Parse Time", "parse-time")
         .addIf(measurement.metric === "Bind Time", "bind-time")
