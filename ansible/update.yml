@@ -9,6 +9,18 @@
         autoremove: yes
         update_cache: yes
       become: yes
+      register: apt_upgrade
+
+    # Package upgrades only restart the system docker, which is disabled here.
+    # The agent's rootless daemon would keep running against the old containerd.
+    - name: Restart rootless docker
+      when: apt_upgrade.changed
+      ansible.builtin.systemd:
+        name: docker.service
+        state: restarted
+        scope: user
+      become: yes
+      become_user: azdo
 
     - name: Check reboot
       ansible.builtin.import_tasks: tasks/check_reboot.yml
