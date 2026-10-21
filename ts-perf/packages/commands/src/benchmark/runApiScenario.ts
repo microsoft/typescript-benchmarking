@@ -101,18 +101,27 @@ export async function runApiScenario(
         for (let i = 0; i < iterations + warmups; i++) {
             const dumpDir = await fs.mkdtemp(path.join(timingDir, "timing-"));
             const before = performance.now();
-            await runApiProcess(
-                run.cmd!,
-                run.args,
-                {
-                    ...process.env,
-                    PATH: `${path.dirname(executable)}${path.delimiter}${process.env.PATH}`,
-                    TSPERF_NPM_CLI: expansion.expand(path.resolve(host.configDirectory, host.npm)),
-                    TS_API_TIMING_DIR: dumpDir,
-                },
-                workDir,
-                context,
-            );
+            try {
+                await runApiProcess(
+                    run.cmd!,
+                    run.args,
+                    {
+                        ...process.env,
+                        PATH: `${path.dirname(executable)}${path.delimiter}${process.env.PATH}`,
+                        TSPERF_NPM_CLI: expansion.expand(path.resolve(host.configDirectory, host.npm)),
+                        TS_API_TIMING_DIR: dumpDir,
+                    },
+                    workDir,
+                    context,
+                );
+            }
+            catch (e) {
+                context.error(
+                    `Scenario '${scenario.name}' failed: ${e instanceof Error ? e.message : e}. `
+                        + `Recording it as failed and skipping remaining iterations.`,
+                );
+                return Measurement.createFailed(scenario.name, scenarioIndex, hostSpecifier, hostIndex);
+            }
             const elapsedMs = performance.now() - before;
             const timing = await readApiTimingDumps(dumpDir);
             context.info(`API ${scenario.name}: ${elapsedMs.toFixed(2)}ms${i < warmups ? " (warmup)" : ""}`);

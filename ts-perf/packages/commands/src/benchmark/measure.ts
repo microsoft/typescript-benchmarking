@@ -180,6 +180,19 @@ export async function measureAndRunScenarios({ kind, options }: TSOptions, host:
     );
 }
 
+function reportFailure(
+    context: HostContext,
+    name: string,
+    reason: string,
+    scenario: Scenario,
+    scenarioIndex: number,
+    hostSpecifier: HostSpecifier,
+    hostIndex: number,
+) {
+    context.error(`Scenario '${name}' failed: ${reason}. Recording it as failed and skipping remaining iterations.`);
+    return Measurement.createFailed(scenario.name, scenarioIndex, hostSpecifier, hostIndex);
+}
+
 function isNativeBinary(filePath: string): boolean {
     return !filePath.endsWith(".js");
 }
@@ -277,7 +290,20 @@ async function runCompilerScenario(
         }
         catch {}
 
-        if (!isWarmup && values.totalTime) {
+        // Type errors also cause a nonzero exit, so a crash is detected by the missing diagnostics.
+        if (!values.totalTime) {
+            return reportFailure(
+                context,
+                name,
+                `no timing diagnostics were reported (exit status ${status})`,
+                scenario,
+                scenarioIndex,
+                hostSpecifier,
+                hostIndex,
+            );
+        }
+
+        if (!isWarmup) {
             samples.push(values);
         }
     }
@@ -364,7 +390,7 @@ async function runTSServerScenario(
                 context.error(`>> ${line}`);
             });
 
-            return new Promise<number>(resolve => childProcess.once("exit", resolve));
+            return new Promise<number | null>(resolve => childProcess.once("exit", resolve));
         };
         const status = await runAndParseOutput();
         const after = performance.now();
@@ -379,6 +405,18 @@ async function runTSServerScenario(
             await fs.promises.rm(temp.outDirectory, { recursive: true });
         }
         catch {}
+
+        if (status !== 0) {
+            return reportFailure(
+                context,
+                name,
+                `exited with status ${status}`,
+                scenario,
+                scenarioIndex,
+                hostSpecifier,
+                hostIndex,
+            );
+        }
 
         if (!isWarmup) {
             samples.push(values);
@@ -461,7 +499,7 @@ async function runLSPScenario(
                 context.error(`>> ${line}`);
             });
 
-            return new Promise<number>(resolve => childProcess.once("exit", resolve));
+            return new Promise<number | null>(resolve => childProcess.once("exit", resolve));
         };
         const status = await runAndParseOutput();
         const after = performance.now();
@@ -476,6 +514,18 @@ async function runLSPScenario(
             await fs.promises.rm(temp.outDirectory, { recursive: true });
         }
         catch {}
+
+        if (status !== 0) {
+            return reportFailure(
+                context,
+                name,
+                `exited with status ${status}`,
+                scenario,
+                scenarioIndex,
+                hostSpecifier,
+                hostIndex,
+            );
+        }
 
         if (!isWarmup) {
             samples.push(values);
@@ -498,7 +548,7 @@ async function runLSPScenario(
 }
 
 async function runStartupScenario(
-    _name: string,
+    name: string,
     scenario: Scenario,
     host: Host,
     options: BenchmarkOptions & StartupOptions,
@@ -536,12 +586,12 @@ async function runStartupScenario(
     // The startup times are pretty quick; multiply the number of iterations by
     // a scaling factor in order to get statistically significant results.
     const scale = 100;
-    function execute(): Promise<number | undefined> {
+    function execute(): Promise<number | NodeJS.Signals | null> {
         // We can't use the tsserver harness here, as it is incompatible with --cpus;
         // instead, we do the same thing as the other processes, as closing stdin
         // is also a valid way to exit the server.
         const childProcess = spawn(cmd!, args, { stdio: "ignore" });
-        return new Promise(resolve => childProcess.once("exit", code => resolve(code || undefined)));
+        return new Promise(resolve => childProcess.once("exit", (code, signal) => resolve(code ?? signal)));
     }
 
     const samples: StartupSample[] = [];
@@ -550,13 +600,23 @@ async function runStartupScenario(
     const runs = numIterations + numWarmups;
     for (let i = 0; i < runs; i++) {
         const isWarmup = i < numWarmups;
-        let exitCode: number | undefined;
-
         const beforeAll = performance.now();
         for (let j = 0; j < scale; j++) {
             const before = performance.now();
-            exitCode ??= await execute();
+            const status = await execute();
             const after = performance.now();
+
+            if (status !== 0) {
+                return reportFailure(
+                    context,
+                    name,
+                    `exited with status ${status}`,
+                    scenario,
+                    scenarioIndex,
+                    hostSpecifier,
+                    hostIndex,
+                );
+            }
 
             if (!isWarmup) {
                 samples.push({
@@ -567,7 +627,7 @@ async function runStartupScenario(
         const afterAll = performance.now();
 
         context.info(
-            `    ${formatProgress(i, runs)} Completed ${scale} iterations${exitCode ? " (with errors)" : ""} in ${
+            `    ${formatProgress(i, runs)} Completed ${scale} iterations in ${
                 ((afterAll - beforeAll) / 1000).toFixed(2)
             }s.${isWarmup ? ` (warmup)` : ""}`,
         );
