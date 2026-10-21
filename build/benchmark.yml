@@ -529,6 +529,8 @@ jobs:
               A="$A --unshare-pid --unshare-ipc --unshare-uts --unshare-net"
               A="$A --die-with-parent --new-session"
 
+              # xtrace would echo this logging command too, setting the variable twice.
+              set +x
               echo "##vso[task.setvariable variable=BWRAP_ARGS;isReadOnly=true]$A"
             target:
               commands: restricted
