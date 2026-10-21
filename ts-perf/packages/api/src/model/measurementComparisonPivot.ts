@@ -4,8 +4,13 @@ import { ValueComparison } from "./valueComparison";
 export class MeasurementComparisonPivot {
     constructor(
         public readonly measurement: MeasurementComparison,
-        public readonly value: ValueComparison,
+        /** Undefined when the measurement failed; check {@link failed} before reading values. */
+        public readonly value: ValueComparison | undefined,
     ) {
+    }
+
+    public get failed() {
+        return this.value === undefined;
     }
 
     public get name() {
@@ -30,42 +35,42 @@ export class MeasurementComparisonPivot {
         return this.measurement.host;
     }
     public get metric() {
-        return this.value.metric;
+        return this.value?.metric ?? "";
     }
     public get metricIndex() {
-        return this.value.metricIndex;
+        return this.value?.metricIndex ?? -1;
     }
     public get benchmark() {
-        return this.value.benchmark;
+        return this.value!.benchmark;
     }
     public get benchmarkRelativeDelta() {
-        return this.value.benchmarkRelativeDelta;
+        return this.value!.benchmarkRelativeDelta;
     }
     public get baseline() {
-        return this.value.baseline;
+        return this.value!.baseline;
     }
     public get baselineRelativeDelta() {
-        return this.value.baselineRelativeDelta;
+        return this.value!.baselineRelativeDelta;
     }
     public get baselineRelativePValue() {
-        return this.value.baselineRelativePValue;
+        return this.value!.baselineRelativePValue;
     }
     public get baselineRelativeIsSignificant() {
-        return this.value.baselineRelativeIsSignificant;
+        return this.value!.baselineRelativeIsSignificant;
     }
     public get midline() {
-        return this.value.midline;
+        return this.value!.midline;
     }
     public get midlineRelativeDelta() {
-        return this.value.midlineRelativeDelta;
+        return this.value!.midlineRelativeDelta;
     }
     public get midlineRelativePValue() {
-        return this.value.midlineRelativePValue;
+        return this.value!.midlineRelativePValue;
     }
     public get midlineRelativeIsSignificant() {
-        return this.value.midlineRelativeIsSignificant;
+        return this.value!.midlineRelativeIsSignificant;
     }
     public get worst() {
-        return this.value.worst;
+        return this.value!.worst;
     }
 }

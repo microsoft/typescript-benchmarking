@@ -233,28 +233,45 @@ test("requires an installed host rather than falling back to ambient Node", asyn
     });
 });
 
-test("propagates bundled npm failures without falling back to PATH", async () => {
+async function expectFailedMeasurement(measurement: Promise<Measurement>, message: string) {
+    const error = vi.spyOn(context, "error");
+    try {
+        expect((await measurement).failed).toBe(true);
+        expect(error).toHaveBeenCalledWith(expect.stringContaining(message));
+    }
+    finally {
+        error.mockRestore();
+    }
+}
+
+test("reports bundled npm failures without falling back to PATH", async () => {
     await fixture(async (root, scenario, host) => {
         await fs.writeFile(path.join(root, "npm-cli.cjs"), "console.error('npm-workload-failed'); process.exit(2);");
-        await expect(runApiScenario(
-            scenario.with({ args: [...scenario.args!.slice(0, -1), "--verify-npm", "5"] }),
-            host,
-            { builtDir: root, suiteDir: root, iterations: 1 },
-            context,
-            0,
-            HostSpecifier.create(host),
-            0,
-        )).rejects.toThrow("npm-workload-failed");
+        await expectFailedMeasurement(
+            runApiScenario(
+                scenario.with({ args: [...scenario.args!.slice(0, -1), "--verify-npm", "5"] }),
+                host,
+                { builtDir: root, suiteDir: root, iterations: 1 },
+                context,
+                0,
+                HostSpecifier.create(host),
+                0,
+            ),
+            "npm-workload-failed",
+        );
         await fs.unlink(path.join(root, "npm-cli.cjs"));
-        await expect(runApiScenario(
-            scenario.with({ args: [...scenario.args!.slice(0, -1), "--verify-npm", "5"] }),
-            host,
-            { builtDir: root, suiteDir: root, iterations: 1 },
-            context,
-            0,
-            HostSpecifier.create(host),
-            0,
-        )).rejects.toThrow("MODULE_NOT_FOUND");
+        await expectFailedMeasurement(
+            runApiScenario(
+                scenario.with({ args: [...scenario.args!.slice(0, -1), "--verify-npm", "5"] }),
+                host,
+                { builtDir: root, suiteDir: root, iterations: 1 },
+                context,
+                0,
+                HostSpecifier.create(host),
+                0,
+            ),
+            "MODULE_NOT_FOUND",
+        );
     });
 });
 
@@ -274,17 +291,20 @@ test("requires the solution prepared by setup.sh rather than creating it during 
     });
 });
 
-test("failed output checks fail the benchmark without a result protocol", async () => {
+test("failed output checks mark the measurement failed without a result protocol", async () => {
     await fixture(async (root, scenario, host) => {
-        await expect(runApiScenario(
-            scenario.with({ args: [...scenario.args!.slice(0, -1), "--fail-check", "5"] }),
-            host,
-            { builtDir: root, suiteDir: root, iterations: 1 },
-            context,
-            0,
-            HostSpecifier.create(host),
-            0,
-        )).rejects.toThrow("invalid output");
+        await expectFailedMeasurement(
+            runApiScenario(
+                scenario.with({ args: [...scenario.args!.slice(0, -1), "--fail-check", "5"] }),
+                host,
+                { builtDir: root, suiteDir: root, iterations: 1 },
+                context,
+                0,
+                HostSpecifier.create(host),
+                0,
+            ),
+            "invalid output",
+        );
     });
 });
 

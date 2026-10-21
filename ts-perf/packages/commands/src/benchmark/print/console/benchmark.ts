@@ -1,4 +1,4 @@
-import { Benchmark, formatMean, formatUnit, MeasurementPivot } from "@ts-perf/api";
+import { Benchmark, failedMetricText, formatMean, formatUnit, MeasurementPivot } from "@ts-perf/api";
 import { Query } from "iterable-query";
 import { Border, Table } from "table-style";
 
@@ -18,10 +18,18 @@ export function printBenchmark(benchmark: Benchmark, options: BenchmarkOptions, 
             { by: x => x.measurementName },
         ],
         columns: [
-            { header: "Project", key: "metric", expression: x => x.metric },
-            { header: "Average", expression: x => formatMean(x), align: "right" },
-            { header: "Best", expression: x => x.allSamplesEqual ? "~" : formatUnit(x.minimum, x), align: "right" },
-            { header: "Worst", expression: x => x.allSamplesEqual ? "~" : formatUnit(x.maximum, x), align: "right" },
+            { header: "Project", key: "metric", expression: x => x.failed ? failedMetricText : x.metric },
+            { header: "Average", expression: x => x.failed ? "failed" : formatMean(x), align: "right" },
+            {
+                header: "Best",
+                expression: x => x.failed ? "" : x.allSamplesEqual ? "~" : formatUnit(x.minimum, x),
+                align: "right",
+            },
+            {
+                header: "Worst",
+                expression: x => x.failed ? "" : x.allSamplesEqual ? "~" : formatUnit(x.maximum, x),
+                align: "right",
+            },
         ],
         rowStyles: [
             "*",

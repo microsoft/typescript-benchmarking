@@ -134,7 +134,15 @@ async function runPerf(options: CLIOpts) {
 
     connection.listen();
 
-    serverProc.on("exit", code => console.log(code ? `Exited with code ${code}` : `Terminated`));
+    let shuttingDown = false;
+    serverProc.on("exit", code => {
+        console.log(code ? `Exited with code ${code}` : `Terminated`);
+        // A crash can leave a request waiting forever for its response.
+        if (!shuttingDown) {
+            console.error("Server exited unexpectedly");
+            process.exit(3);
+        }
+    });
 
     // seq tracks request numbering; starts at 1 for initialize (analogous to configure in tsserver)
     let seq = 1;
@@ -208,6 +216,7 @@ async function runPerf(options: CLIOpts) {
     }
     finally {
         // Shut down the LSP server
+        shuttingDown = true;
         try {
             await connection.sendRequest(protocol.ShutdownRequest.method);
             await connection.sendNotification(protocol.ExitNotification.method);

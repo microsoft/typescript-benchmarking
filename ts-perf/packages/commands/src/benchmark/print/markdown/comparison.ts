@@ -4,6 +4,7 @@ import {
     formatComparisonBest,
     formatComparisonMetric,
     formatComparisonWorst,
+    formatFailedSide,
     formatPercent,
     formatTestHost,
     formatUnit,
@@ -153,14 +154,17 @@ ${midline ? markdown`<td align="right" valign="top">${formatComparisonMidlinePVa
 }
 
 function formatComparisonBaseline(comparison: MeasurementComparisonPivot) {
+    if (comparison.failed) return formatFailedSide(comparison.measurement.baseline?.failed);
     return formatMean(comparison.baseline!);
 }
 
 function formatComparisonMidline(comparison: MeasurementComparisonPivot) {
+    if (comparison.failed) return formatFailedSide(comparison.measurement.midline?.failed);
     return formatMean(comparison.midline!);
 }
 
 function formatComparisonCurrent(comparison: MeasurementComparisonPivot) {
+    if (comparison.failed) return formatFailedSide(comparison.measurement.benchmark.failed);
     return formatMean(comparison.benchmark);
 }
 
@@ -176,18 +180,22 @@ function formatMean(measurement: Value | MeasurementPivot) {
 }
 
 function formatComparisonBaselineDelta(comparison: MeasurementComparisonPivot) {
+    if (comparison.failed) return "";
     return formatDelta(comparison.benchmark, comparison.baseline!, comparison.baselineRelativeIsSignificant);
 }
 
 function formatComparisonMidlineDelta(comparison: MeasurementComparisonPivot) {
+    if (comparison.failed) return "";
     return formatDelta(comparison.benchmark, comparison.midline!, comparison.midlineRelativeIsSignificant);
 }
 
 export function formatComparisonBaselinePValue(comparison: MeasurementComparisonPivot) {
+    if (comparison.failed) return "";
     return formatPValue(comparison.baselineRelativePValue, comparison.benchmark, comparison.baseline!);
 }
 
 export function formatComparisonMidlinePValue(comparison: MeasurementComparisonPivot) {
+    if (comparison.failed) return "";
     return formatPValue(comparison.midlineRelativePValue, comparison.benchmark, comparison.midline!);
 }
 

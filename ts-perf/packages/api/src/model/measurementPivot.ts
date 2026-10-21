@@ -4,8 +4,13 @@ import { Value } from "./value";
 export class MeasurementPivot {
     constructor(
         public readonly measurement: Measurement,
-        public readonly value: Value,
+        /** Undefined when the measurement failed; check {@link failed} before reading values. */
+        public readonly value: Value | undefined,
     ) {
+    }
+
+    public get failed() {
+        return this.value === undefined;
     }
 
     public get name() {
@@ -27,42 +32,42 @@ export class MeasurementPivot {
         return this.measurement.hostIndex;
     }
     public get metric() {
-        return this.value.metric;
+        return this.value?.metric ?? "";
     }
     public get metricIndex() {
-        return this.value.metricIndex;
+        return this.value?.metricIndex ?? -1;
     }
     public get samples() {
-        return this.value.samples;
+        return this.value!.samples;
     }
     public get mean() {
-        return this.value.mean;
+        return this.value!.mean;
     }
     public get minimum() {
-        return this.value.minimum;
+        return this.value!.minimum;
     }
     public get maximum() {
-        return this.value.maximum;
+        return this.value!.maximum;
     }
     public get marginOfError() {
-        return this.value.marginOfError;
+        return this.value!.marginOfError;
     }
     public get variance() {
-        return this.value.variance;
+        return this.value!.variance;
     }
     public get standardDeviation() {
-        return this.value.standardDeviation;
+        return this.value!.standardDeviation;
     }
     public get relativeMarginOfError() {
-        return this.value.relativeMarginOfError;
+        return this.value!.relativeMarginOfError;
     }
     public get unit() {
-        return this.value.unit;
+        return this.value!.unit;
     }
     public get precision() {
-        return this.value.precision;
+        return this.value!.precision;
     }
     public get allSamplesEqual() {
-        return this.value.allSamplesEqual;
+        return this.value!.allSamplesEqual;
     }
 }

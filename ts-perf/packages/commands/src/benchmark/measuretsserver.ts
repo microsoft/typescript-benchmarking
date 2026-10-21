@@ -110,8 +110,16 @@ async function runPerf(options: CLIOpts) {
         // Arguments to node
         execArgv,
     );
+    let shuttingDown = false;
     try {
-        server.on("exit", code => console.log(code ? `Exited with code ${code}` : `Terminated`));
+        server.on("exit", code => {
+            console.log(code ? `Exited with code ${code}` : `Terminated`);
+            // A crash can leave a request waiting forever for its response.
+            if (!shuttingDown) {
+                console.error("Server exited unexpectedly");
+                process.exit(3);
+            }
+        });
 
         if (options.cpus) {
             if (!server.pid) {
@@ -182,6 +190,7 @@ async function runPerf(options: CLIOpts) {
     }
     finally {
         // Tell the server to shut down
+        shuttingDown = true;
         // eslint-disable-next-line no-useless-assignment
         await server.message({ seq: seq++, command: "exit" });
     }
