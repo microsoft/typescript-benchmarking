@@ -323,6 +323,8 @@ jobs:
         displayName: Build new TypeScript
         condition: and(succeeded(), eq(variables['TSPERF_IS_COMPARISON'], 'true'))
         workingDirectory: $(TYPESCRIPT_DIR)
+        env:
+          TMPDIR: $(Pipeline.Workspace)
 
       - bash: |
           set -eo pipefail
@@ -354,6 +356,8 @@ jobs:
           settableVariables: none
         displayName: Build baseline TypeScript
         workingDirectory: $(TYPESCRIPT_DIR)
+        env:
+          TMPDIR: $(Pipeline.Workspace)
 
       - bash: |
           set -eo pipefail
