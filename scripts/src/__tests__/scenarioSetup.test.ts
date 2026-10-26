@@ -5,11 +5,57 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 
 import { afterEach, expect, test } from "vitest";
+import { parse } from "yaml";
 
 const commonScript = fileURLToPath(new URL("../../../cases/common.sh", import.meta.url));
 const setupScript = fileURLToPath(new URL("../../setupScenario.sh", import.meta.url));
 const benchmarkScript = fileURLToPath(new URL("../../runBenchmarkSandbox.sh", import.meta.url));
+const sandboxTemplate = parse(
+    fs.readFileSync(fileURLToPath(new URL("../../../build/templates/installSandbox.yml", import.meta.url)), "utf8"),
+) as {
+    steps: (
+        | { bash: string; displayName: string; }
+        | { "${{ if parameters.HOSTED_BENCHMARK }}": { bash: string; displayName: string; }[]; }
+    )[];
+};
 const tempDirs: string[] = [];
+
+function hostedCpuScript() {
+    const hostedSteps = sandboxTemplate.steps.find(step => "${{ if parameters.HOSTED_BENCHMARK }}" in step);
+    if (!hostedSteps || !("${{ if parameters.HOSTED_BENCHMARK }}" in hostedSteps)) {
+        throw new Error("Missing hosted sandbox setup");
+    }
+    const cpuStep = hostedSteps["${{ if parameters.HOSTED_BENCHMARK }}"]
+        .find(step => step.displayName === "Configure hosted benchmark CPUs");
+    if (!cpuStep) {
+        throw new Error("Missing hosted CPU configuration");
+    }
+    return cpuStep.bash;
+}
+
+test("hosted CPU configuration selects CPUs the benchmark process can actually use", () => {
+    const allowed = fs.readFileSync("/proc/self/status", "utf8").match(/^Cpus_allowed_list:\s*(.+)$/m)?.[1];
+    expect(allowed).toBeTruthy();
+    const result = spawnSync("bash", ["-c", hostedCpuScript()], { encoding: "utf8", timeout: 10_000 });
+    expect(result.status).toBe(0);
+    expect(result.stdout).toContain(
+        `##vso[task.setvariable variable=TSPERF_AGENT_BENCHMARK_CPUS;isReadOnly=true]${allowed}`,
+    );
+    expect(result.stdout).toContain("results are provisional");
+});
+
+test("hosted CPU configuration does not publish unusable affinity", () => {
+    const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), "typescript-benchmarking-hosted-"));
+    tempDirs.push(tempDir);
+    fs.writeFileSync(path.join(tempDir, "taskset"), "#!/bin/sh\nexit 37\n", { mode: 0o755 });
+    const result = spawnSync("bash", ["-c", hostedCpuScript()], {
+        env: { ...process.env, PATH: `${tempDir}:${process.env.PATH}` },
+        encoding: "utf8",
+        timeout: 10_000,
+    });
+    expect(result.status).toBe(37);
+    expect(result.stdout).not.toContain("task.setvariable");
+});
 
 afterEach(() => {
     for (const tempDir of tempDirs.splice(0)) {

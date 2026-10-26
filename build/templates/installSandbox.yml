@@ -1,0 +1,60 @@
+parameters:
+  - name: HOSTED_BENCHMARK
+    type: boolean
+    default: false
+
+steps:
+  - bash: |
+      set -exo pipefail
+      sudo apt-get update
+      sudo apt-get install -y bubblewrap
+
+      # Ubuntu 24.04 blocks unprivileged user namespaces unless an AppArmor profile
+      # allows them. Allow them for bubblewrap only, like Ubuntu's browser profiles.
+      if [ "$(cat /proc/sys/kernel/apparmor_restrict_unprivileged_userns 2>/dev/null)" = "1" ]; then
+        sudo tee /etc/apparmor.d/bwrap > /dev/null << 'EOF'
+      abi <abi/4.0>,
+      include <tunables/global>
+
+      profile bwrap /usr/bin/bwrap flags=(unconfined) {
+        userns,
+      }
+      EOF
+        sudo apparmor_parser -r /etc/apparmor.d/bwrap
+      fi
+      bwrap --ro-bind / / --unshare-user --cap-drop ALL true
+    target:
+      commands: restricted
+      settableVariables: none
+    displayName: Install compiler sandbox
+
+  - ${{ if parameters.HOSTED_BENCHMARK }}:
+      # Match the scenario installer sandbox used by the GitHub-hosted scenario tests.
+      # Only dependency installation uses gVisor; measured compilers use bubblewrap.
+      - bash: |
+          set -exo pipefail
+          sudo apt-get install -y apt-transport-https ca-certificates curl gnupg
+          curl -fsSL https://gvisor.dev/archive.key | sudo gpg --dearmor -o /usr/share/keyrings/gvisor-archive-keyring.gpg
+          echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/gvisor-archive-keyring.gpg] https://storage.googleapis.com/gvisor/releases release main" | sudo tee /etc/apt/sources.list.d/gvisor.list > /dev/null
+          sudo apt-get update
+          sudo apt-get install -y runsc
+          sudo runsc install
+          sudo systemctl restart docker
+          docker info
+        target:
+          commands: restricted
+          settableVariables: none
+        displayName: Install scenario sandbox
+
+      - bash: |
+          set -eo pipefail
+          CPUS=$(awk '/^Cpus_allowed_list:/ {print $2}' /proc/self/status)
+          test -n "$CPUS"
+          taskset --cpu-list "$CPUS" true
+          echo "##vso[task.setvariable variable=TSPERF_AGENT_BENCHMARK_CPUS;isReadOnly=true]$CPUS"
+          echo "##vso[task.logissue type=warning]Using a hosted VM without dedicated CPU isolation or system tuning; results are provisional."
+        target:
+          commands: restricted
+          settableVariables:
+            - TSPERF_AGENT_BENCHMARK_CPUS
+        displayName: Configure hosted benchmark CPUs
