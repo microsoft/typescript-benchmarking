@@ -315,6 +315,7 @@ jobs:
 
       - bash: |
           set -exo pipefail
+          mkdir -p "$TMPDIR"
           node $(BENCH_SCRIPTS)/buildTypeScript.js --outputDir $(ARTIFACTS_DIR)/new \
             --variablesFile $(Pipeline.Workspace)/new-variables.json
         target:
@@ -324,7 +325,7 @@ jobs:
         condition: and(succeeded(), eq(variables['TSPERF_IS_COMPARISON'], 'true'))
         workingDirectory: $(TYPESCRIPT_DIR)
         env:
-          TMPDIR: $(Pipeline.Workspace)
+          TMPDIR: $(Pipeline.Workspace)/compiler-build-tmp
 
       - bash: |
           set -eo pipefail
@@ -349,6 +350,7 @@ jobs:
 
       - bash: |
           set -exo pipefail
+          mkdir -p "$TMPDIR"
           node $(BENCH_SCRIPTS)/buildTypeScript.js --baseline --outputDir $(ARTIFACTS_DIR)/baseline \
             --variablesFile $(Pipeline.Workspace)/baseline-variables.json
         target:
@@ -357,7 +359,7 @@ jobs:
         displayName: Build baseline TypeScript
         workingDirectory: $(TYPESCRIPT_DIR)
         env:
-          TMPDIR: $(Pipeline.Workspace)
+          TMPDIR: $(Pipeline.Workspace)/compiler-build-tmp
 
       - bash: |
           set -eo pipefail
