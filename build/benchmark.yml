@@ -363,7 +363,7 @@ jobs:
         condition: and(succeeded(), not(eq(dependencies.Setup.outputs['setupPipeline.MATRIX_${{ replace(agent, '-', '_') }}'], '{}')))
         pool:
           ${{ if parameters.USE_HOSTED_RUNNERS }}:
-            vmImage: ubuntu-24.04
+            vmImage: ubuntu-latest
           ${{ else }}:
             name: ts-perf-ddfun
             ${{ if not(eq(agent, 'any')) }}:
