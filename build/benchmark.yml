@@ -71,6 +71,16 @@ parameters:
     type: boolean
     default: true
 
+  - name: HOSTED_POOL
+    displayName: Optional 1ES benchmark pool
+    type: string
+    default: ''
+
+  - name: HOSTED_IMAGE
+    displayName: Image in the 1ES benchmark pool
+    type: string
+    default: azure-linux-3
+
   # PR trigger params
   - name: DISTINCT_ID
     displayName: Distinct ID for this run (PR runs only)
@@ -363,7 +373,12 @@ jobs:
         condition: and(succeeded(), not(eq(dependencies.Setup.outputs['setupPipeline.MATRIX_${{ replace(agent, '-', '_') }}'], '{}')))
         pool:
           ${{ if parameters.USE_HOSTED_RUNNERS }}:
-            vmImage: ubuntu-latest
+            ${{ if eq(parameters.HOSTED_POOL, '') }}:
+              vmImage: ubuntu-latest
+            ${{ else }}:
+              name: ${{ parameters.HOSTED_POOL }}
+              demands:
+                - ImageOverride -equals ${{ parameters.HOSTED_IMAGE }}
           ${{ else }}:
             name: ts-perf-ddfun
             ${{ if not(eq(agent, 'any')) }}:

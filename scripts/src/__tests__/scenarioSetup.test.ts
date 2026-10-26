@@ -20,23 +20,24 @@ const sandboxTemplate = parse(
 };
 const tempDirs: string[] = [];
 
-function hostedCpuScript() {
-    const hostedSteps = sandboxTemplate.steps.find(step => "${{ if parameters.HOSTED_BENCHMARK }}" in step);
-    if (!hostedSteps || !("${{ if parameters.HOSTED_BENCHMARK }}" in hostedSteps)) {
-        throw new Error("Missing hosted sandbox setup");
+function sandboxScript(displayName: string) {
+    const steps = sandboxTemplate.steps.flatMap(step =>
+        "bash" in step ? [step] : step["${{ if parameters.HOSTED_BENCHMARK }}"]
+    );
+    const step = steps.find(step => step.displayName === displayName);
+    if (!step) {
+        throw new Error(`Missing sandbox step: ${displayName}`);
     }
-    const cpuStep = hostedSteps["${{ if parameters.HOSTED_BENCHMARK }}"]
-        .find(step => step.displayName === "Configure hosted benchmark CPUs");
-    if (!cpuStep) {
-        throw new Error("Missing hosted CPU configuration");
-    }
-    return cpuStep.bash;
+    return step.bash;
 }
 
 test("hosted CPU configuration selects CPUs the benchmark process can actually use", () => {
     const allowed = fs.readFileSync("/proc/self/status", "utf8").match(/^Cpus_allowed_list:\s*(.+)$/m)?.[1];
     expect(allowed).toBeTruthy();
-    const result = spawnSync("bash", ["-c", hostedCpuScript()], { encoding: "utf8", timeout: 10_000 });
+    const result = spawnSync("bash", ["-c", sandboxScript("Configure hosted benchmark CPUs")], {
+        encoding: "utf8",
+        timeout: 10_000,
+    });
     expect(result.status).toBe(0);
     expect(result.stdout).toContain(
         `##vso[task.setvariable variable=TSPERF_AGENT_BENCHMARK_CPUS;isReadOnly=true]${allowed}`,
@@ -48,13 +49,86 @@ test("hosted CPU configuration does not publish unusable affinity", () => {
     const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), "typescript-benchmarking-hosted-"));
     tempDirs.push(tempDir);
     fs.writeFileSync(path.join(tempDir, "taskset"), "#!/bin/sh\nexit 37\n", { mode: 0o755 });
-    const result = spawnSync("bash", ["-c", hostedCpuScript()], {
+    const result = spawnSync("bash", ["-c", sandboxScript("Configure hosted benchmark CPUs")], {
         env: { ...process.env, PATH: `${tempDir}:${process.env.PATH}` },
         encoding: "utf8",
         timeout: 10_000,
     });
     expect(result.status).toBe(37);
     expect(result.stdout).not.toContain("task.setvariable");
+});
+
+function runAzureLinuxSetup(env: Record<string, string> = {}) {
+    const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), "typescript-benchmarking-azurelinux-"));
+    tempDirs.push(tempDir);
+    const commands = path.join(tempDir, "commands");
+    const script = `
+command() {
+    if [ "$1" = "-v" ]; then
+        case "$2" in
+            apt-get) return 1 ;;
+            tdnf) return 0 ;;
+        esac
+    fi
+    builtin command "$@"
+}
+sudo() {
+    printf '%s\\n' "$*" >> "$COMMANDS"
+    if [ "$1" = "tdnf" ] && [ "\${FAIL_PACKAGES:-}" = "true" ]; then
+        return 37
+    fi
+}
+curl() {
+    if [[ "$2" == */gvisor.tar.bz2.sha512 ]]; then
+        (cd "\${4%/*}" && sha512sum gvisor.tar.bz2) > "$4"
+        if [ "\${CORRUPT_DOWNLOAD:-}" = "true" ]; then
+            printf 'modified' >> "\${4%/*}/gvisor.tar.bz2"
+        fi
+    else
+        printf '#!/bin/sh\\nexit 0\\n' > "$4"
+    fi
+}
+docker() { printf '%s\\n' "docker $*" >> "$COMMANDS"; }
+${sandboxScript("Install scenario sandbox")}
+`;
+    const result = spawnSync("bash", ["-c", script], {
+        env: {
+            ...process.env,
+            AGENT_TEMPDIRECTORY: tempDir,
+            COMMANDS: commands,
+            ...env,
+        },
+        encoding: "utf8",
+        timeout: 10_000,
+    });
+    return { result, commands: fs.readFileSync(commands, "utf8"), files: fs.readdirSync(tempDir) };
+}
+
+test("Azure Linux installs and verifies gVisor before configuring Docker", () => {
+    const { result, commands, files } = runAzureLinuxSetup();
+    expect(result.status).toBe(0);
+    expect(commands).toContain("tdnf install -y ca-certificates curl moby-engine moby-cli util-linux acl tar bzip2");
+    expect(commands).toContain("tar -xjf");
+    expect(commands).toContain("/usr/local/bin/runsc install\nsystemctl restart docker\n");
+    expect(commands).toContain("docker info");
+    expect(files).toEqual(["commands"]);
+});
+
+test("Azure Linux rejects a corrupted gVisor download before installing or starting it", () => {
+    const { result, commands, files } = runAzureLinuxSetup({ CORRUPT_DOWNLOAD: "true" });
+    expect(result.status).not.toBe(0);
+    expect(result.stderr).toContain("checksum did NOT match");
+    expect(commands).not.toContain("tar -xjf");
+    expect(commands).not.toContain("systemctl");
+    expect(files).toEqual(["commands"]);
+});
+
+test("Azure Linux stops when sandbox prerequisites cannot be installed", () => {
+    const { result, commands, files } = runAzureLinuxSetup({ FAIL_PACKAGES: "true" });
+    expect(result.status).toBe(37);
+    expect(commands).not.toContain("runsc install");
+    expect(commands).not.toContain("systemctl");
+    expect(files).toEqual(["commands"]);
 });
 
 afterEach(() => {
