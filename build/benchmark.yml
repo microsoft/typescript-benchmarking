@@ -69,7 +69,7 @@ parameters:
   - name: USE_HOSTED_RUNNERS
     displayName: Use temporary hosted runners (no historical uploads; noisier results)
     type: boolean
-    default: false
+    default: true
 
   # PR trigger params
   - name: DISTINCT_ID
