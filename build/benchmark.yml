@@ -66,6 +66,11 @@ parameters:
     type: boolean
     default: false
 
+  - name: USE_HOSTED_RUNNERS
+    displayName: Use temporary hosted runners (no historical uploads; noisier results)
+    type: boolean
+    default: false
+
   # PR trigger params
   - name: DISTINCT_ID
     displayName: Distinct ID for this run (PR runs only)
@@ -128,7 +133,7 @@ variables:
   PRETTY_REF: $[ replace(replace(replace(replace(variables['REF'], '/merge', ''), 'refs/pull/', 'pr.'), 'refs/heads/', ''), '/', '_') ]
   IS_PR: $[ startsWith(variables['REF'], 'refs/pull/') ]
   # True if this run should demand a baseline machine.
-  USE_BASELINE_MACHINE: $[ or(eq(variables['Build.Reason'], 'ResourceTrigger'), ${{ parameters.HISTORICAL_RUN }}) ]
+  USE_BASELINE_MACHINE: $[ and(not(${{ parameters.USE_HOSTED_RUNNERS }}), or(eq(variables['Build.Reason'], 'ResourceTrigger'), ${{ parameters.HISTORICAL_RUN }})) ]
   # Only upload if the provided ref is explicitly main/release-* and we've run on the baseline machine.
   # This means that main pushes will automatically upload, but we can still queue builds off of main with a specific commit in the API.
   SHOULD_UPLOAD: $[ and(or(eq(variables['REF'], 'refs/heads/main'), startsWith(variables['REF'], 'refs/heads/release-')), eq(variables['USE_BASELINE_MACHINE'], 'true')) ]
@@ -158,29 +163,7 @@ jobs:
       - template: templates/setup.yml
       - template: templates/cloneAndBuildBenchmarkRepo.yml # Sets $(BENCH_SCRIPTS), $(TSPERF_EXE)
 
-      - bash: |
-          set -exo pipefail
-          sudo apt-get update
-          sudo apt-get install -y bubblewrap
-
-          # Ubuntu 24.04 blocks unprivileged user namespaces unless an AppArmor profile
-          # allows them. Allow them for bubblewrap only, like Ubuntu's browser profiles.
-          if [ "$(cat /proc/sys/kernel/apparmor_restrict_unprivileged_userns 2>/dev/null)" = "1" ]; then
-            sudo tee /etc/apparmor.d/bwrap > /dev/null << 'EOF'
-          abi <abi/4.0>,
-          include <tunables/global>
-
-          profile bwrap /usr/bin/bwrap flags=(unconfined) {
-            userns,
-          }
-          EOF
-            sudo apparmor_parser -r /etc/apparmor.d/bwrap
-          fi
-          bwrap --ro-bind / / --unshare-user --cap-drop ALL true
-        target:
-          commands: restricted
-          settableVariables: none
-        displayName: Install compiler build sandbox
+      - template: templates/installSandbox.yml
 
       - ${{ if eq(parameters.TS_GO, true) }}:
           - checkout: typescript-go
@@ -379,9 +362,12 @@ jobs:
         dependsOn: Setup
         condition: and(succeeded(), not(eq(dependencies.Setup.outputs['setupPipeline.MATRIX_${{ replace(agent, '-', '_') }}'], '{}')))
         pool:
-          name: ts-perf-ddfun
-          ${{ if not(eq(agent, 'any')) }}:
-            demands: Agent.Name -equals ${{ agent }}
+          ${{ if parameters.USE_HOSTED_RUNNERS }}:
+            vmImage: ubuntu-24.04
+          ${{ else }}:
+            name: ts-perf-ddfun
+            ${{ if not(eq(agent, 'any')) }}:
+              demands: Agent.Name -equals ${{ agent }}
         workspace:
           clean: all # Always start with a clean slate.
 
@@ -404,6 +390,11 @@ jobs:
           - template: templates/setup.yml
           - template: templates/cloneAndBuildBenchmarkRepo.yml # Sets $(BENCH_SCRIPTS), $(TSPERF_EXE)
 
+          - ${{ if parameters.USE_HOSTED_RUNNERS }}:
+              - template: templates/installSandbox.yml
+                parameters:
+                  HOSTED_BENCHMARK: true
+
           - download: current
             artifact: BuiltTypeScript
             displayName: Download built TypeScript
@@ -417,13 +408,14 @@ jobs:
             displayName: Make native TypeScript executable
 
           # Installed by ansible/tasks/pyperf.yml.
-          - bash: |
-              set -exo pipefail
-              sudo -n /usr/local/sbin/tsperf-tune-system
-            target:
-              commands: restricted
-              settableVariables: none
-            displayName: Tune system
+          - ${{ if not(parameters.USE_HOSTED_RUNNERS) }}:
+              - bash: |
+                  set -exo pipefail
+                  sudo -n /usr/local/sbin/tsperf-tune-system
+                target:
+                  commands: restricted
+                  settableVariables: none
+                displayName: Tune system
 
           # Install hosts before entering the network-isolated benchmark sandbox.
           # Read-only mounts protect these binaries from writes by the compiler.
@@ -706,6 +698,15 @@ jobs:
           commands: restricted
           settableVariables: none
         displayName: Create merged output directory
+
+      - ${{ if parameters.USE_HOSTED_RUNNERS }}:
+          - bash: |
+              set -eo pipefail
+              echo '<p><strong>Provisional hosted-runner results:</strong> these VMs are not the dedicated benchmark machines. Results may be noisier and are not comparable to the historical series. For comparisons, both revisions of each scenario ran on the same VM.</p>' > "$(Pipeline.Workspace)/comment.html"
+            target:
+              commands: restricted
+              settableVariables: none
+            displayName: Label provisional hosted-runner results
 
       - bash: |
           set -eo pipefail

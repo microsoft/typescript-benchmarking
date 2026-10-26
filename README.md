@@ -34,6 +34,20 @@ API benchmarks use Node hosts installed with `ts-perf host install`, not the amb
 
 To run the benchmark in CI, add it to `allScenarios` in `scripts/src/setupPipeline.ts` with `kind: "api"` and `runIn: RunType.None`, then request the `api` preset.
 
+## Temporary hosted benchmark runners
+
+When the dedicated machines are unavailable, manually queue `build/benchmark.yml`
+with `USE_HOSTED_RUNNERS: true`. The benchmark jobs use Microsoft-hosted
+`ubuntu-24.04` VMs, with both revisions of each scenario measured on the same VM.
+Presets and explicit commit comparisons work as usual.
+
+Hosted results are provisional: the VMs lack the dedicated machines' CPU isolation
+and system tuning. Reports include a warning, and results are never uploaded to
+the historical series, even for main/release triggers or `HISTORICAL_RUN`.
+The compiler and dependency-installation sandboxes remain enabled.
+
+Leave `USE_HOSTED_RUNNERS` at its default `false` to use the dedicated machines.
+
 ## Contributing
 
 This project welcomes contributions and suggestions. Most contributions require you to agree to a
