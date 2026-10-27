@@ -74,12 +74,12 @@ parameters:
   - name: HOSTED_POOL
     displayName: Optional 1ES benchmark pool
     type: string
-    default: ''
+    default: TypeScript-Benchmarking
 
   - name: HOSTED_IMAGE
     displayName: Image in the 1ES benchmark pool
     type: string
-    default: azure-linux-3
+    default: azure-linux-3-benchmarks
 
   # PR trigger params
   - name: DISTINCT_ID
