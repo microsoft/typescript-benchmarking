@@ -598,6 +598,19 @@ jobs:
                     return 1
                   }
 
+                  # Rounds check for quiet four times as often as sequential runs. Brief
+                  # periodic I/O on otherwise idle VMs occasionally prevents a quiet window,
+                  # so retry before failing the job.
+                  wait_for_idle() {
+                    for ATTEMPT in 1 2 3; do
+                      if node $(BENCH_SCRIPTS)/waitForBenchmarkIdle.js; then
+                        return 0
+                      fi
+                      echo "Machine was not quiet (attempt $ATTEMPT)" >&2
+                    done
+                    return 1
+                  }
+
                   NEW_FILES=()
                   BASELINE_FILES=()
                   for (( PAIR = 0; PAIR < PAIRS; PAIR++ )); do
@@ -614,7 +627,7 @@ jobs:
                         CURRENT_SIDE=$SIDE
                       fi
                       if [ "${WAIT_FOR_IDLE,,}" = true ]; then
-                        node $(BENCH_SCRIPTS)/waitForBenchmarkIdle.js
+                        wait_for_idle
                       fi
                       OUT=$ROUNDS_DIR/${SIDE}_${PAIR}.benchmark
                       TSPERF_JOB_ITERATIONS=$ITERATIONS bash "$SCRIPTS_DIR/runBenchmarkSandbox.sh" \
