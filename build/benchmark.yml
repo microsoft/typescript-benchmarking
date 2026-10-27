@@ -71,6 +71,16 @@ parameters:
     type: boolean
     default: true
 
+  - name: HOSTED_POOL
+    displayName: Optional 1ES benchmark pool
+    type: string
+    default: TypeScript-Benchmarking
+
+  - name: HOSTED_IMAGE
+    displayName: Image in the 1ES benchmark pool
+    type: string
+    default: azure-linux-3-benchmarks
+
   # PR trigger params
   - name: DISTINCT_ID
     displayName: Distinct ID for this run (PR runs only)
@@ -363,7 +373,12 @@ jobs:
         condition: and(succeeded(), not(eq(dependencies.Setup.outputs['setupPipeline.MATRIX_${{ replace(agent, '-', '_') }}'], '{}')))
         pool:
           ${{ if parameters.USE_HOSTED_RUNNERS }}:
-            vmImage: ubuntu-latest
+            ${{ if eq(parameters.HOSTED_POOL, '') }}:
+              vmImage: ubuntu-latest
+            ${{ else }}:
+              name: ${{ parameters.HOSTED_POOL }}
+              demands:
+                - ImageOverride -equals ${{ parameters.HOSTED_IMAGE }}
           ${{ else }}:
             name: ts-perf-ddfun
             ${{ if not(eq(agent, 'any')) }}:
@@ -534,6 +549,14 @@ jobs:
                 - BWRAP_ARGS
             displayName: Create benchmark sandbox
 
+          - ${{ if parameters.USE_HOSTED_RUNNERS }}:
+              - bash: node $(BENCH_SCRIPTS)/waitForBenchmarkIdle.js
+                target:
+                  commands: restricted
+                  settableVariables: none
+                displayName: Wait for idle before new benchmark
+                condition: and(succeeded(), eq(variables['TSPERF_IS_COMPARISON'], 'true'))
+
           - bash: |
               set -exo pipefail
               bash $(Pipeline.Workspace)/typescript-benchmarking/scripts/runBenchmarkSandbox.sh \
@@ -570,6 +593,13 @@ jobs:
                 - SCENARIO_REF
             displayName: Publish scenario ref for baseline benchmark
             condition: and(succeeded(), eq(variables['TSPERF_IS_COMPARISON'], 'true'))
+
+          - ${{ if parameters.USE_HOSTED_RUNNERS }}:
+              - bash: node $(BENCH_SCRIPTS)/waitForBenchmarkIdle.js
+                target:
+                  commands: restricted
+                  settableVariables: none
+                displayName: Wait for idle before baseline benchmark
 
           - bash: |
               set -exo pipefail

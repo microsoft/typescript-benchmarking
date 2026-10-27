@@ -6,8 +6,17 @@ parameters:
 steps:
   - bash: |
       set -exo pipefail
-      sudo apt-get update
-      sudo apt-get install -y bubblewrap
+      if ! command -v bwrap >/dev/null; then
+        if command -v apt-get >/dev/null; then
+          sudo apt-get update
+          sudo apt-get install -y bubblewrap
+        elif command -v tdnf >/dev/null; then
+          sudo tdnf install -y bubblewrap
+        else
+          echo "Unsupported package manager for bubblewrap installation" >&2
+          exit 1
+        fi
+      fi
 
       # Ubuntu 24.04 blocks unprivileged user namespaces unless an AppArmor profile
       # allows them. Allow them for bubblewrap only, like Ubuntu's browser profiles.
@@ -33,13 +42,34 @@ steps:
       # Only dependency installation uses gVisor; measured compilers use bubblewrap.
       - bash: |
           set -exo pipefail
-          sudo apt-get install -y apt-transport-https ca-certificates curl gnupg
-          curl -fsSL https://gvisor.dev/archive.key | sudo gpg --dearmor -o /usr/share/keyrings/gvisor-archive-keyring.gpg
-          echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/gvisor-archive-keyring.gpg] https://storage.googleapis.com/gvisor/releases release main" | sudo tee /etc/apt/sources.list.d/gvisor.list > /dev/null
-          sudo apt-get update
-          sudo apt-get install -y runsc
-          sudo runsc install
+          if command -v apt-get >/dev/null; then
+            sudo apt-get install -y apt-transport-https ca-certificates curl gnupg acl
+            curl -fsSL https://gvisor.dev/archive.key | sudo gpg --dearmor -o /usr/share/keyrings/gvisor-archive-keyring.gpg
+            echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/gvisor-archive-keyring.gpg] https://storage.googleapis.com/gvisor/releases release main" | sudo tee /etc/apt/sources.list.d/gvisor.list > /dev/null
+            sudo apt-get update
+            sudo apt-get install -y runsc
+            RUNSC=/usr/bin/runsc
+          elif command -v tdnf >/dev/null; then
+            sudo tdnf install -y ca-certificates curl moby-engine moby-cli moby-buildx util-linux acl tar bzip2
+            INSTALL_DIR=$(mktemp -d "${AGENT_TEMPDIRECTORY:?}/tsperf-runsc.XXXXXX")
+            trap 'rm -f "$INSTALL_DIR/gvisor.tar.bz2" "$INSTALL_DIR/gvisor.tar.bz2.sha512"; rmdir "$INSTALL_DIR"' EXIT
+            URL="https://storage.googleapis.com/gvisor/releases/release/latest/$(uname -m)"
+            curl -fsSL "$URL/gvisor.tar.bz2" -o "$INSTALL_DIR/gvisor.tar.bz2"
+            curl -fsSL "$URL/gvisor.tar.bz2.sha512" -o "$INSTALL_DIR/gvisor.tar.bz2.sha512"
+            (cd "$INSTALL_DIR" && sha512sum --check gvisor.tar.bz2.sha512)
+            sudo tar -xjf "$INSTALL_DIR/gvisor.tar.bz2" -C /usr/local/bin --no-same-owner --no-same-permissions
+            RUNSC=/usr/local/bin/runsc
+          else
+            echo "Unsupported package manager for scenario sandbox installation" >&2
+            exit 1
+          fi
+          docker buildx version
+          sudo "$RUNSC" install
           sudo systemctl restart docker
+          # New Docker installations do not grant the running agent access to its socket.
+          if [ ! -w /var/run/docker.sock ]; then
+            sudo setfacl -m "u:$(id -u):rw" /var/run/docker.sock
+          fi
           docker info
         target:
           commands: restricted
