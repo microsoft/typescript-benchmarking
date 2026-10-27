@@ -549,6 +549,14 @@ jobs:
                 - BWRAP_ARGS
             displayName: Create benchmark sandbox
 
+          - ${{ if parameters.USE_HOSTED_RUNNERS }}:
+              - bash: node $(BENCH_SCRIPTS)/waitForBenchmarkIdle.js
+                target:
+                  commands: restricted
+                  settableVariables: none
+                displayName: Wait for idle before new benchmark
+                condition: and(succeeded(), eq(variables['TSPERF_IS_COMPARISON'], 'true'))
+
           - bash: |
               set -exo pipefail
               bash $(Pipeline.Workspace)/typescript-benchmarking/scripts/runBenchmarkSandbox.sh \
@@ -585,6 +593,13 @@ jobs:
                 - SCENARIO_REF
             displayName: Publish scenario ref for baseline benchmark
             condition: and(succeeded(), eq(variables['TSPERF_IS_COMPARISON'], 'true'))
+
+          - ${{ if parameters.USE_HOSTED_RUNNERS }}:
+              - bash: node $(BENCH_SCRIPTS)/waitForBenchmarkIdle.js
+                target:
+                  commands: restricted
+                  settableVariables: none
+                displayName: Wait for idle before baseline benchmark
 
           - bash: |
               set -exo pipefail
