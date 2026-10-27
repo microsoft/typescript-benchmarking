@@ -40,6 +40,10 @@ function clone_strada_scenario() {
     if is_corsa || test -z "${TYPESCRIPT_COMMIT:-}"; then
         clone_scenario https://github.com/microsoft/TypeScript.git strada
     else
+        # Interleaved comparisons must set this scenario up again when switching compilers.
+        if [ -n "${TSPERF_SCENARIO_COMMIT_DEPENDENT_FILE:-}" ]; then
+            : > "$TSPERF_SCENARIO_COMMIT_DEPENDENT_FILE"
+        fi
         clone_scenario https://github.com/microsoft/TypeScript.git "$TYPESCRIPT_COMMIT"
     fi
 }
