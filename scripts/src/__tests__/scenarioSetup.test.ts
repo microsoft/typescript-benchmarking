@@ -88,7 +88,12 @@ curl() {
         printf '#!/bin/sh\\nexit 0\\n' > "$4"
     fi
 }
-docker() { printf '%s\\n' "docker $*" >> "$COMMANDS"; }
+docker() {
+    printf '%s\\n' "docker $*" >> "$COMMANDS"
+    if [ "$1" = "buildx" ] && [ "\${FAIL_BUILDX:-}" = "true" ]; then
+        return 37
+    fi
+}
 ${sandboxScript("Install scenario sandbox")}
 `;
     const result = spawnSync("bash", ["-c", script], {
@@ -107,9 +112,11 @@ ${sandboxScript("Install scenario sandbox")}
 test("Azure Linux installs and verifies gVisor before configuring Docker", () => {
     const { result, commands, files } = runAzureLinuxSetup();
     expect(result.status).toBe(0);
-    expect(commands).toContain("tdnf install -y ca-certificates curl moby-engine moby-cli util-linux acl tar bzip2");
+    expect(commands).toContain(
+        "tdnf install -y ca-certificates curl moby-engine moby-cli moby-buildx util-linux acl tar bzip2",
+    );
     expect(commands).toContain("tar -xjf");
-    expect(commands).toContain("/usr/local/bin/runsc install\nsystemctl restart docker\n");
+    expect(commands).toContain("docker buildx version\n/usr/local/bin/runsc install\nsystemctl restart docker\n");
     expect(commands).toContain("docker info");
     expect(files).toEqual(["commands"]);
 });
@@ -125,6 +132,14 @@ test("Azure Linux rejects a corrupted gVisor download before installing or start
 
 test("Azure Linux stops when sandbox prerequisites cannot be installed", () => {
     const { result, commands, files } = runAzureLinuxSetup({ FAIL_PACKAGES: "true" });
+    expect(result.status).toBe(37);
+    expect(commands).not.toContain("runsc install");
+    expect(commands).not.toContain("systemctl");
+    expect(files).toEqual(["commands"]);
+});
+
+test("Azure Linux stops before configuring Docker if Buildx is unavailable", () => {
+    const { result, commands, files } = runAzureLinuxSetup({ FAIL_BUILDX: "true" });
     expect(result.status).toBe(37);
     expect(commands).not.toContain("runsc install");
     expect(commands).not.toContain("systemctl");

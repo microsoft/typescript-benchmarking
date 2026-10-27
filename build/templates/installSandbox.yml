@@ -50,7 +50,7 @@ steps:
             sudo apt-get install -y runsc
             RUNSC=/usr/bin/runsc
           elif command -v tdnf >/dev/null; then
-            sudo tdnf install -y ca-certificates curl moby-engine moby-cli util-linux acl tar bzip2
+            sudo tdnf install -y ca-certificates curl moby-engine moby-cli moby-buildx util-linux acl tar bzip2
             INSTALL_DIR=$(mktemp -d "${AGENT_TEMPDIRECTORY:?}/tsperf-runsc.XXXXXX")
             trap 'rm -f "$INSTALL_DIR/gvisor.tar.bz2" "$INSTALL_DIR/gvisor.tar.bz2.sha512"; rmdir "$INSTALL_DIR"' EXIT
             URL="https://storage.googleapis.com/gvisor/releases/release/latest/$(uname -m)"
@@ -63,6 +63,7 @@ steps:
             echo "Unsupported package manager for scenario sandbox installation" >&2
             exit 1
           fi
+          docker buildx version
           sudo "$RUNSC" install
           sudo systemctl restart docker
           # New Docker installations do not grant the running agent access to its socket.
