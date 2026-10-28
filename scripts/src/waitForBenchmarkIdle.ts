@@ -29,7 +29,7 @@ function readCpuTimes(): CpuTimes[] {
     });
 }
 
-export async function waitForBenchmarkIdle() {
+export async function waitForBenchmarkIdle(requiredSeconds = 5) {
     const unavailable = new Set<Resource>();
     function readPressure(): Partial<Record<Resource, number>> {
         const pressure: Partial<Record<Resource, number>> = {};
@@ -61,7 +61,13 @@ export async function waitForBenchmarkIdle() {
         return { cpus: readCpuTimes(), pressure: readPressure(), time: performance.now() };
     }
 
-    console.log("Waiting up to 60s for 5 consecutive quiet seconds: CPU average <=5%, peak <=20%, pressure <=1%.");
+    assert(
+        Number.isInteger(requiredSeconds) && requiredSeconds > 0,
+        "Expected a positive whole number of quiet seconds",
+    );
+    console.log(
+        `Waiting up to 60s for ${requiredSeconds} consecutive quiet seconds: CPU average <=5%, peak <=20%, pressure <=1%.`,
+    );
     let previous = sample();
     const start = previous.time;
     let quietSeconds = 0;
@@ -107,7 +113,7 @@ export async function waitForBenchmarkIdle() {
         console.log(
             `${((current.time - start) / 1000).toFixed(1)}s: ${lastSummary}; quiet=${quietSeconds.toFixed(1)}s`,
         );
-        if (quietSeconds >= 5) {
+        if (quietSeconds >= requiredSeconds) {
             console.log("Machine is quiet; starting benchmark without discarding any measured samples.");
             return;
         }
@@ -117,8 +123,10 @@ export async function waitForBenchmarkIdle() {
 }
 
 if (esMain(import.meta)) {
-    await waitForBenchmarkIdle().catch((error: unknown) => {
-        console.error(error);
-        process.exitCode = 1;
-    });
+    await waitForBenchmarkIdle(process.argv[2] === undefined ? undefined : Number(process.argv[2])).catch(
+        (error: unknown) => {
+            console.error(error);
+            process.exitCode = 1;
+        },
+    );
 }
