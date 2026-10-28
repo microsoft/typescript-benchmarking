@@ -1,7 +1,7 @@
 {
-  "parallel": "47m 42s",
+  "parallel": "1h 16m 14s",
   "perAgent": {
-    "any": "3h 37m 38s",
+    "any": "5h 38m 26s",
   },
-  "total": "3h 37m 38s",
+  "total": "5h 38m 26s",
 }
