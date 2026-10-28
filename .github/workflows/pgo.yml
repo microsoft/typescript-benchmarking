@@ -1,0 +1,138 @@
+name: Generate PGO profile
+
+on:
+  workflow_dispatch:
+    inputs:
+      ref:
+        description: TypeScript branch, tag, or commit to profile
+        type: string
+        required: true
+        default: main
+
+permissions:
+  contents: read
+
+defaults:
+  run:
+    shell: bash
+
+jobs:
+  seed:
+    runs-on: ubuntu-latest
+    outputs:
+      go-version: ${{ steps.seed.outputs.go-version }}
+    env:
+      GOMEMLIMIT: 6GiB
+    steps:
+      - run: echo "TMPDIR=$RUNNER_TEMP" >> "$GITHUB_ENV"
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          repository: microsoft/TypeScript
+          ref: ${{ inputs.ref }}
+          path: compiler
+          persist-credentials: false
+      - uses: actions/setup-go@90ad2b35f69faf97585ad74d28fa006d2739b7af
+        with:
+          go-version-file: compiler/tsc/go.mod
+          cache-dependency-path: compiler/tsc/go.sum
+      - name: Build non-PGO compiler with external libraries
+        id: seed
+        env:
+          CGO_ENABLED: '0'
+        run: |
+          mkdir -p "$RUNNER_TEMP/seed"
+          go -C compiler/tsc build -pgo=off -tags=noembed -o "$RUNNER_TEMP/seed/tsc" ./cmd/tsc
+          cp compiler/tsc/internal/bundled/libs/*.d.ts "$RUNNER_TEMP/seed/"
+          echo "go-version=$(go env GOVERSION | sed 's/^go//')" >> "$GITHUB_OUTPUT"
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
+        with:
+          name: pgo-seed
+          path: ${{ runner.temp }}/seed
+          if-no-files-found: error
+          retention-days: 7
+
+  matrix:
+    runs-on: ubuntu-latest
+    outputs:
+      matrix: ${{ steps.matrix.outputs.matrix }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: 24
+      - uses: pnpm/action-setup@ea17c68df8912ef543352723c149a84f56e3d413 # v6.1.0
+        with:
+          run_install: true
+      - run: pnpm --dir scripts build
+      - id: matrix
+        run: echo "matrix=$(node scripts/dist/generatePgo.js matrix)" >> "$GITHUB_OUTPUT"
+
+  profile:
+    needs: [seed, matrix]
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix: ${{ fromJson(needs.matrix.outputs.matrix) }}
+    env:
+      SCENARIO: ${{ matrix.scenario }}
+    steps:
+      - run: echo "TMPDIR=$RUNNER_TEMP" >> "$GITHUB_ENV"
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: 24
+      - uses: pnpm/action-setup@ea17c68df8912ef543352723c149a84f56e3d413 # v6.1.0
+        with:
+          run_install: true
+      - run: pnpm --dir scripts build
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333
+        with:
+          name: pgo-seed
+          path: ${{ runner.temp }}/seed
+      - name: Install scenario setup sandbox
+        run: |
+          bash scripts/installGvisor.sh
+          sudo /usr/local/bin/runsc install
+          sudo systemctl restart docker
+      - name: Prepare benchmark
+        if: ${{ hashFiles(format('cases/scenarios/{0}/setup.sh', matrix.scenario)) != '' }}
+        run: bash "cases/scenarios/$SCENARIO/setup.sh"
+      - name: Profile one emit-enabled compilation per workload
+        run: node scripts/dist/generatePgo.js "$SCENARIO" "$RUNNER_TEMP/seed/tsc" "$RUNNER_TEMP/profiles/$SCENARIO" "$RUNNER_TEMP/emit"
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
+        if: ${{ !cancelled() }}
+        with:
+          name: pgo-profiles-${{ matrix.scenario }}
+          path: ${{ runner.temp }}/profiles
+          if-no-files-found: error
+          retention-days: 7
+
+  merge:
+    needs: [seed, profile]
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "TMPDIR=$RUNNER_TEMP" >> "$GITHUB_ENV"
+      - uses: actions/setup-go@90ad2b35f69faf97585ad74d28fa006d2739b7af
+        with:
+          go-version: ${{ needs.seed.outputs.go-version }}
+          cache: false
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333
+        with:
+          pattern: pgo-profiles-*
+          merge-multiple: true
+          path: ${{ runner.temp }}/profiles
+      - name: Merge CPU profiles
+        run: |
+          profiles=("$RUNNER_TEMP"/profiles/*/*-cpuprofile.pb.gz)
+          mkdir -p "$RUNNER_TEMP/pgo"
+          go tool pprof -proto "${profiles[@]}" > "$RUNNER_TEMP/pgo/default.pgo"
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
+        with:
+          name: default-pgo
+          path: ${{ runner.temp }}/pgo
+          if-no-files-found: error
+          retention-days: 30
