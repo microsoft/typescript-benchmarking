@@ -5,6 +5,21 @@ import path from "node:path";
 
 import esMain from "es-main";
 
+import { setupPipeline } from "./setupPipeline.js";
+
+// Train on the compiler scenarios that "perf test this faster" benchmarks.
+export async function getPgoScenarios() {
+    const { matrix } = await setupPipeline({
+        input: "tsc-only",
+        baselining: false,
+        isPr: false,
+        implementation: "corsa",
+        shouldLog: false,
+        gitParseRev: () => Promise.reject(new Error("Unexpected commit range")),
+    });
+    return Object.values(matrix.any).map(job => job.TSPERF_JOB_SCENARIO).sort();
+}
+
 export function getCompilerArgs(root: string, scenario: string, output: string, profile: string) {
     const config: { kind: string; args: string[]; } = JSON.parse(
         fs.readFileSync(path.join(root, "cases/scenarios", scenario, "scenario.json"), "utf8"),
@@ -64,6 +79,10 @@ export function profileScenario(root: string, scenario: string, binary: string, 
 }
 
 if (esMain(import.meta)) {
+    if (process.argv[2] === "matrix") {
+        console.log(JSON.stringify({ scenario: await getPgoScenarios() }));
+        process.exit();
+    }
     const [scenario, binary, profile, output] = process.argv.slice(2);
     assert(scenario && binary && profile && output, "Usage: generatePgo <scenario> <compiler> <profiles> <emit>");
     profileScenario(process.cwd(), scenario, path.resolve(binary), path.resolve(profile), path.resolve(output));

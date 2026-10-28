@@ -51,25 +51,30 @@ jobs:
           if-no-files-found: error
           retention-days: 7
 
+  matrix:
+    runs-on: ubuntu-latest
+    outputs:
+      matrix: ${{ steps.matrix.outputs.matrix }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: 24
+      - uses: pnpm/action-setup@ea17c68df8912ef543352723c149a84f56e3d413 # v6.1.0
+        with:
+          run_install: true
+      - run: pnpm --dir scripts build
+      - id: matrix
+        run: echo "matrix=$(node scripts/dist/generatePgo.js matrix)" >> "$GITHUB_OUTPUT"
+
   profile:
-    needs: seed
+    needs: [seed, matrix]
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
-      matrix:
-        scenario:
-          - vscode
-          - sentry
-          - social-app
-          - t3code-server
-          - mui-docs
-          - arktype
-          - webpack
-          - xstate-main
-          - strada-build-src
-          - effect
-          - tanstack-router
-          - class-transformer
+      matrix: ${{ fromJson(needs.matrix.outputs.matrix) }}
     env:
       SCENARIO: ${{ matrix.scenario }}
     steps:
@@ -94,6 +99,7 @@ jobs:
           sudo /usr/local/bin/runsc install
           sudo systemctl restart docker
       - name: Prepare benchmark
+        if: ${{ hashFiles(format('cases/scenarios/{0}/setup.sh', matrix.scenario)) != '' }}
         run: bash "cases/scenarios/$SCENARIO/setup.sh"
       - name: Profile one emit-enabled compilation per workload
         run: node scripts/dist/generatePgo.js "$SCENARIO" "$RUNNER_TEMP/seed/tsc" "$RUNNER_TEMP/profiles/$SCENARIO" "$RUNNER_TEMP/emit"

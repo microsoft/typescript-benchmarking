@@ -4,14 +4,12 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 
 import { expect, test } from "vitest";
-import { parse } from "yaml";
 
-import { getCompilerArgs, profileScenario } from "../generatePgo.js";
+import { getCompilerArgs, getPgoScenarios, profileScenario } from "../generatePgo.js";
 
 const root = fileURLToPath(new URL("../../..", import.meta.url));
-const workflow = parse(fs.readFileSync(path.join(root, ".github/workflows/pgo.yml"), "utf8"));
 
-test.each(workflow.jobs.profile.strategy.matrix.scenario as string[])(
+test.each(await getPgoScenarios())(
     "%s uses its benchmark config with emit enabled and diagnostic reporting disabled",
     scenario => {
         const args = getCompilerArgs(root, scenario, "/emit", "/profiles");
