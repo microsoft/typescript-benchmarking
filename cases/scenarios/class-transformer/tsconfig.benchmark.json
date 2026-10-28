@@ -1,0 +1,14 @@
+{
+    "extends": "./tsconfig.spec.json",
+    "compilerOptions": {
+        "module": "Node16",
+        "moduleResolution": "Node16",
+        "rootDir": ".",
+        "sourceMap": true,
+        "types": ["node", "jest"],
+        "skipLibCheck": true,
+        "declaration": true
+    },
+    "include": ["src", "test"],
+    "exclude": ["node_modules", "build"]
+}

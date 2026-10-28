@@ -1,0 +1,11 @@
+{
+    "name": "tanstack-router",
+    "kind": "tsc",
+    "args": [
+        "-p",
+        "${suiteDirectory}/tanstack-router/packages/router-core"
+    ],
+    "platforms": [
+        "linux"
+    ]
+}

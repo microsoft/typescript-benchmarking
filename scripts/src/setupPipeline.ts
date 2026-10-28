@@ -110,6 +110,9 @@ const allScenarios: readonly BaseScenario[] = [
     { kind: "tsc", name: "social-app", agent: "ts-perf2", runIn: RunType.Any, cost: 4 },
     { kind: "tsc", name: "t3code-server", agent: "ts-perf4", runIn: RunType.Any, cost: 21 },
     { kind: "tsc", name: "arktype", agent: "ts-perf1", runIn: RunType.Any, cost: 3 },
+    { kind: "tsc", name: "effect", agent: "ts-perf2", runIn: RunType.Any, cost: 8 },
+    { kind: "tsc", name: "tanstack-router", agent: "ts-perf2", runIn: RunType.Any, cost: 2 },
+    { kind: "tsc", name: "class-transformer", agent: "ts-perf2", runIn: RunType.Any, cost: 1 },
     {
         kind: "tsserver",
         name: "Compiler-UnionsTSServer",
