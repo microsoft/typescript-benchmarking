@@ -8,10 +8,6 @@ steps:
     inputs:
       version: ${{ parameters.NODE_VERSION }}
     displayName: 'Install Node ${{ parameters.NODE_VERSION }}'
-  - task: GoTool@0
-    inputs:
-      version: '1.26'
-    displayName: 'Install Go'
 
   - bash: |
       set -exo pipefail

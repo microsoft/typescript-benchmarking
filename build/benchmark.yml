@@ -173,6 +173,7 @@ jobs:
       ARTIFACTS_DIR: $(Pipeline.Workspace)/artifacts
       TYPESCRIPT_DIR: $(Pipeline.Workspace)/$(REPO)
       TSPERF_PRESET: ${{ parameters.TSPERF_PRESET }}
+      GO_VERSION: ''
 
     steps:
       - template: templates/setup.yml
@@ -231,6 +232,44 @@ jobs:
           EXPECTED_HEAD_SHA: ${{ parameters.EXPECTED_HEAD_SHA }}
           EXPECTED_BASE_SHA: ${{ parameters.EXPECTED_BASE_SHA }}
           EXPECTED_MERGE_SHA: ${{ parameters.EXPECTED_MERGE_SHA }}
+
+      - bash: |
+          set -euo pipefail
+          if [[ -L tsc || -L tsc/go.mod || -L go.mod ]]; then
+            echo "Unexpected symlink in compiler Go module path" >&2
+            exit 1
+          fi
+          if [[ -e tsc/go.mod ]]; then
+            module=tsc/go.mod
+          elif [[ -e go.mod ]]; then
+            module=go.mod
+          else
+            echo "No compiler Go module; skipping Go installation"
+            exit 0
+          fi
+          if [[ ! -f "$module" ]]; then
+            echo "Expected a regular compiler go.mod" >&2
+            exit 1
+          fi
+          if ! version=$(grep -oP '^go \K[0-9]+\.[0-9]+' "$module"); then
+            echo "Expected a Go version directive in compiler go.mod" >&2
+            exit 1
+          fi
+          echo "##vso[task.setvariable variable=GO_VERSION;isReadOnly=true]$version"
+        target:
+          commands: restricted
+          settableVariables:
+            - GO_VERSION
+        displayName: Read compiler Go version
+        workingDirectory: $(TYPESCRIPT_DIR)
+
+      - task: GoTool@0
+        inputs:
+          version: $(GO_VERSION)
+          goDownloadUrl: https://aka.ms/golang/release/latest
+        displayName: Install Go
+        condition: and(succeeded(), ne(variables['GO_VERSION'], ''))
+        retryCountOnTaskFailure: 3
 
       # Ideally we'd just do this:
       #   git config remote.origin.fetch "+refs/heads/*:refs/remotes/origin/*"
