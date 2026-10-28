@@ -20,15 +20,11 @@ jobs:
   seed:
     runs-on: ubuntu-latest
     outputs:
-      matrix: ${{ steps.matrix.outputs.matrix }}
       go-version: ${{ steps.seed.outputs.go-version }}
     env:
       GOMEMLIMIT: 6GiB
     steps:
       - run: echo "TMPDIR=$RUNNER_TEMP" >> "$GITHUB_ENV"
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-        with:
-          persist-credentials: false
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           repository: microsoft/TypeScript
@@ -39,20 +35,15 @@ jobs:
         with:
           go-version-file: compiler/tsc/go.mod
           cache-dependency-path: compiler/tsc/go.sum
-      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
-        with:
-          node-version: 24
-      - uses: pnpm/action-setup@ea17c68df8912ef543352723c149a84f56e3d413 # v6.1.0
-        with:
-          run_install: true
-      - run: pnpm --dir scripts build
-      - id: matrix
-        run: echo "matrix=$(node scripts/dist/generatePgo.js matrix)" >> "$GITHUB_OUTPUT"
       - name: Build non-PGO compiler with external libraries
         id: seed
         env:
-          TYPESCRIPT_REF: ${{ inputs.ref }}
-        run: node scripts/dist/generatePgo.js seed compiler "$RUNNER_TEMP/seed" "$TYPESCRIPT_REF"
+          CGO_ENABLED: '0'
+        run: |
+          mkdir -p "$RUNNER_TEMP/seed"
+          go -C compiler/tsc build -pgo=off -tags=noembed -o "$RUNNER_TEMP/seed/tsc" ./cmd/tsc
+          cp compiler/tsc/internal/bundled/libs/*.d.ts "$RUNNER_TEMP/seed/"
+          echo "go-version=$(go env GOVERSION | sed 's/^go//')" >> "$GITHUB_OUTPUT"
       - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
         with:
           name: pgo-seed
@@ -65,7 +56,20 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
-      matrix: ${{ fromJson(needs.seed.outputs.matrix) }}
+      matrix:
+        scenario:
+          - vscode
+          - sentry
+          - social-app
+          - t3code-server
+          - mui-docs
+          - arktype
+          - webpack
+          - xstate-main
+          - strada-build-src
+          - effect
+          - tanstack-router
+          - class-transformer
     env:
       SCENARIO: ${{ matrix.scenario }}
     steps:
@@ -92,7 +96,7 @@ jobs:
       - name: Prepare benchmark
         run: bash "cases/scenarios/$SCENARIO/setup.sh"
       - name: Profile one emit-enabled compilation per workload
-        run: node scripts/dist/generatePgo.js collect "$SCENARIO" "$RUNNER_TEMP/seed" "$RUNNER_TEMP/profiles"
+        run: node scripts/dist/generatePgo.js "$SCENARIO" "$RUNNER_TEMP/seed/tsc" "$RUNNER_TEMP/profiles/$SCENARIO" "$RUNNER_TEMP/emit"
       - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
         if: ${{ !cancelled() }}
         with:
@@ -106,27 +110,20 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - run: echo "TMPDIR=$RUNNER_TEMP" >> "$GITHUB_ENV"
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-        with:
-          persist-credentials: false
       - uses: actions/setup-go@90ad2b35f69faf97585ad74d28fa006d2739b7af
         with:
           go-version: ${{ needs.seed.outputs.go-version }}
           cache: false
-      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
-        with:
-          node-version: 24
-      - uses: pnpm/action-setup@ea17c68df8912ef543352723c149a84f56e3d413 # v6.1.0
-        with:
-          run_install: true
-      - run: pnpm --dir scripts build
       - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333
         with:
           pattern: pgo-profiles-*
           merge-multiple: true
           path: ${{ runner.temp }}/profiles
-      - name: Merge CPU profiles and validate Go PGO input
-        run: node scripts/dist/generatePgo.js merge "$RUNNER_TEMP/profiles" "$RUNNER_TEMP/pgo"
+      - name: Merge CPU profiles
+        run: |
+          profiles=("$RUNNER_TEMP"/profiles/*/*-cpuprofile.pb.gz)
+          mkdir -p "$RUNNER_TEMP/pgo"
+          go tool pprof -proto "${profiles[@]}" > "$RUNNER_TEMP/pgo/default.pgo"
       - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
         with:
           name: default-pgo
