@@ -455,22 +455,14 @@ function* transformPreset(
     implementation: TypeScriptImplementation,
 ): Iterable<Scenario> {
     const isCorsa = implementation === "corsa";
-    const all = [...worker()];
+    const seen: Scenario[] = [];
 
-    for (const scenario of all) {
-        let dupe = false;
-        for (const other of all) {
-            if (other === scenario) {
-                continue;
-            }
-            if (isDeepStrictEqual(scenario, other)) {
-                dupe = true;
-                break;
-            }
+    for (const scenario of worker()) {
+        if (seen.some(other => isDeepStrictEqual(scenario, other))) {
+            continue;
         }
-        if (!dupe) {
-            yield scenario;
-        }
+        seen.push(scenario);
+        yield scenario;
     }
 
     function* worker(): Iterable<Scenario> {
