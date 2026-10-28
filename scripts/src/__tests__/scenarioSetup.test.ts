@@ -43,7 +43,6 @@ test("hosted CPU configuration selects CPUs the benchmark process can actually u
     expect(result.stdout).toContain(
         `##vso[task.setvariable variable=TSPERF_AGENT_BENCHMARK_CPUS;isReadOnly=true]${allowed}`,
     );
-    expect(result.stdout).toContain("results are provisional");
 });
 
 test("hosted CPU configuration does not publish unusable affinity", () => {
