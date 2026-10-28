@@ -71,7 +71,6 @@ steps:
           test -n "$CPUS"
           taskset --cpu-list "$CPUS" true
           echo "##vso[task.setvariable variable=TSPERF_AGENT_BENCHMARK_CPUS;isReadOnly=true]$CPUS"
-          echo "##vso[task.logissue type=warning]Using a hosted VM without dedicated CPU isolation or system tuning; results are provisional."
         target:
           commands: restricted
           settableVariables:

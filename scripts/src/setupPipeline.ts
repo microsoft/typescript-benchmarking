@@ -41,7 +41,7 @@ type BaselineAgent = Exclude<AllAgents, ReserveAgents>;
 type Agent = "any" | AllAgents;
 
 const defaultIterations = 6;
-const corsaIterations = 12;
+const corsaIterations = 20;
 const defaultWarmups = 1;
 
 // TODO(jakebailey): have unpinned variants; ts-perf mostly supports @latest.
