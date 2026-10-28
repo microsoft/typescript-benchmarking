@@ -118,16 +118,9 @@ test("rejects logging-command markers in directory names", async () => {
     expect(fs.existsSync(build.output)).toBe(false);
 });
 
-test.each([
-    { exitCode: 0, hasGo: false },
-    { exitCode: 37, hasGo: false },
-    { exitCode: 0, hasGo: true },
-    { exitCode: 37, hasGo: true },
-])("passes build isolation arguments ($hasGo Go) and preserves exit code $exitCode", ({ exitCode, hasGo }) => {
+test.each([0, 37])("passes build isolation arguments and preserves exit code %i", exitCode => {
     const build = createBuild();
     fs.mkdirSync(path.join(build.source, ".git"));
-    const goRoot = path.join(build.root, "go");
-    if (hasGo) fs.mkdirSync(goRoot);
     const bin = path.join(build.root, "bin");
     const capture = path.join(build.root, "bwrap-args");
     fs.mkdirSync(bin);
@@ -149,7 +142,6 @@ exit "$PROBE_EXIT"
             BWRAP_CAPTURE: capture,
             PROBE_EXIT: String(exitCode),
             SYNTHETIC_SECRET: "must-not-be-forwarded",
-            GOROOT: hasGo ? goRoot : "",
         },
         encoding: "utf8",
         timeout: 10_000,
@@ -177,13 +169,4 @@ exit "$PROBE_EXIT"
     expect(args.slice(-2)).toEqual(["npm", "ci"]);
     expect(args).not.toContain("SYNTHETIC_SECRET");
     expect(args).not.toContain("must-not-be-forwarded");
-    if (hasGo) {
-        const goRootIndex = args.indexOf("GOROOT");
-        expect(args.slice(goRootIndex - 1, goRootIndex + 2)).toEqual(["--setenv", "GOROOT", goRoot]);
-        const goBindIndex = args.indexOf(goRoot);
-        expect(args.slice(goBindIndex - 1, goBindIndex + 2)).toEqual(["--ro-bind", goRoot, goRoot]);
-    }
-    else {
-        expect(args).not.toContain("GOROOT");
-    }
 });

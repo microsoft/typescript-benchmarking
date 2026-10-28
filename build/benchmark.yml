@@ -173,6 +173,7 @@ jobs:
       ARTIFACTS_DIR: $(Pipeline.Workspace)/artifacts
       TYPESCRIPT_DIR: $(Pipeline.Workspace)/$(REPO)
       TSPERF_PRESET: ${{ parameters.TSPERF_PRESET }}
+      GO_VERSION: ''
 
     steps:
       - template: templates/setup.yml
@@ -254,17 +255,21 @@ jobs:
             echo "Expected a Go version directive in compiler go.mod" >&2
             exit 1
           fi
-          archive="$AGENT_TEMPDIRECTORY/golang.tar.gz"
-          goRoot="$AGENT_TEMPDIRECTORY/go"
-          curl --fail --location --retry 3 --retry-all-errors --output "$archive" \
-            "https://aka.ms/golang/release/latest/go${version}.linux-amd64.tar.gz"
-          tar -C "$AGENT_TEMPDIRECTORY" -xzf "$archive"
-          rm -f "$archive"
-          "$goRoot/bin/go" version
-          echo "##vso[task.setvariable variable=GOROOT;isReadOnly=true]$goRoot"
-          echo "##vso[task.prependpath]$goRoot/bin"
-        displayName: Install Go
+          echo "##vso[task.setvariable variable=GO_VERSION;isReadOnly=true]$version"
+        target:
+          commands: restricted
+          settableVariables:
+            - GO_VERSION
+        displayName: Read compiler Go version
         workingDirectory: $(TYPESCRIPT_DIR)
+
+      - task: GoTool@0
+        inputs:
+          version: $(GO_VERSION)
+          goDownloadUrl: https://aka.ms/golang/release/latest
+        displayName: Install Go
+        condition: and(succeeded(), ne(variables['GO_VERSION'], ''))
+        retryCountOnTaskFailure: 3
 
       # Ideally we'd just do this:
       #   git config remote.origin.fetch "+refs/heads/*:refs/remotes/origin/*"

@@ -37,7 +37,7 @@ ARGS=(
 RESOLV_CONF=$(readlink -f /etc/resolv.conf)
 ARGS+=(--ro-bind "$RESOLV_CONF" "$RESOLV_CONF")
 if [ -n "${GOROOT:-}" ]; then
-    ARGS+=(--ro-bind "$GOROOT" "$GOROOT" --setenv GOROOT "$GOROOT")
+    ARGS+=(--setenv GOROOT "$GOROOT")
 fi
 
 exec bwrap "${ARGS[@]}" "$@"
