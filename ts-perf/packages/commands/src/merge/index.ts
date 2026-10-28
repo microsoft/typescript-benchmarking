@@ -1,8 +1,10 @@
 import { Benchmark, Command, CommandMap } from "@ts-perf/api";
+import { CommandLineParseError } from "power-options";
 
 export interface MergeOptions {
     files: string[];
     output: string;
+    iterations?: number;
 }
 
 export async function merge(options: MergeOptions) {
@@ -22,6 +24,9 @@ export async function merge(options: MergeOptions) {
         let result = benchmarks[0];
         for (let i = 1; i < benchmarks.length; i++) {
             result = result.merge(benchmarks[i]);
+        }
+        if (options.iterations !== undefined) {
+            result = result.with({ iterations: options.iterations });
         }
         await result.saveAsync(options.output);
     }
@@ -46,6 +51,16 @@ const command: Command<MergeOptions> = {
             type: "string",
             required: true,
             description: "Where to store the merged benchmark file.",
+        },
+        iterations: {
+            type: "number",
+            param: "count",
+            description: "Records <count> iterations in the merged file, such as when merging rounds of one benchmark.",
+            validate: (value: number, arg: string) => {
+                if (!Number.isInteger(value) || value <= 0) {
+                    throw new CommandLineParseError(`Option '${arg}' expects a positive integer.`, /*help*/ true);
+                }
+            },
         },
     },
     exec: ({ options }) => merge(options),

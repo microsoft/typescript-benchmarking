@@ -271,6 +271,38 @@ if [ "$1" = "run" ]; then printf '%s\\n' "$@" >> "$DOCKER_ARGS"; fi
     return { result, args: fs.existsSync(argsFile) ? fs.readFileSync(argsFile, "utf8").split("\n") : [] };
 }
 
+test.each([
+    ["the compiler commit", false, true],
+    ["the strada branch for native compilers", true, false],
+])("marks commit-dependent setup only when cloning %s", (_, isCorsa, dependent) => {
+    const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), "typescript-benchmarking-strada-"));
+    tempDirs.push(tempDir);
+    const builtDir = path.join(tempDir, "built");
+    fs.mkdirSync(path.join(builtDir, "baseline"), { recursive: true });
+    if (isCorsa) {
+        fs.writeFileSync(path.join(builtDir, "baseline/tsc"), "");
+    }
+    const marker = path.join(tempDir, "commit-dependent");
+    const result = spawnSync(
+        "bash",
+        ["-c", 'set -eo pipefail; source "$COMMON_SCRIPT"; clone_scenario() { echo "$2"; }; clone_strada_scenario'],
+        {
+            env: {
+                ...process.env,
+                COMMON_SCRIPT: commonScript,
+                BUILT_TYPESCRIPT_DIR: builtDir,
+                TYPESCRIPT_COMMIT: "0123456789abcdef0123456789abcdef01234567",
+                TSPERF_SCENARIO_COMMIT_DEPENDENT_FILE: marker,
+            },
+            encoding: "utf8",
+            timeout: 10_000,
+        },
+    );
+    expect(result.status).toBe(0);
+    expect(result.stdout.trim()).toBe(isCorsa ? "strada" : "0123456789abcdef0123456789abcdef01234567");
+    expect(fs.existsSync(marker)).toBe(dependent);
+});
+
 test("passes a read-only Git metadata mount and disables Husky during installation", () => {
     const scenario = createScenario();
     const { result, args } = runInstaller(scenario);

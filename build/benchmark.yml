@@ -81,6 +81,11 @@ parameters:
     type: string
     default: azure-linux-3-benchmarks
 
+  - name: INTERLEAVE_BENCHMARKS
+    displayName: Alternate baseline and new benchmark rounds
+    type: boolean
+    default: true
+
   # PR trigger params
   - name: DISTINCT_ID
     displayName: Distinct ID for this run (PR runs only)
@@ -464,6 +469,7 @@ jobs:
               TYPESCRIPT_COMMIT_NEW: $(TYPESCRIPT_COMMIT_NEW)
               TYPESCRIPT_COMMIT_BASELINE: $(TYPESCRIPT_COMMIT_BASELINE)
               TSPERF_VARIABLES_FILE: $(Pipeline.Workspace)/first-scenario-variables.json
+              TSPERF_SCENARIO_COMMIT_DEPENDENT_FILE: $(Pipeline.Workspace)/scenario-commit-dependent
 
           - bash: |
               set -eo pipefail
@@ -549,50 +555,158 @@ jobs:
                 - BWRAP_ARGS
             displayName: Create benchmark sandbox
 
-          - ${{ if parameters.USE_HOSTED_RUNNERS }}:
-              - bash: node $(BENCH_SCRIPTS)/waitForBenchmarkIdle.js
+          # Sequential phases on shared cloud VMs can shift every sample when the VM's speed
+          # changes between phases. Alternate shorter rounds so drift affects both sides.
+          # Pairs alternate order (new/baseline, then baseline/new) to cancel linear drift.
+          # Each round runs the configured warmups; merging restores the per-side sample count.
+          - ${{ if parameters.INTERLEAVE_BENCHMARKS }}:
+              - bash: |
+                  set -eo pipefail
+                  SCRIPTS_DIR=$(Pipeline.Workspace)/typescript-benchmarking/scripts
+                  ROUNDS_DIR=$(BENCH_ARTIFACTS_DIR)/rounds
+                  mkdir -p "$ROUNDS_DIR"
+
+                  TOTAL=$TSPERF_JOB_ITERATIONS
+                  if [[ ! "$TOTAL" =~ ^[1-9][0-9]*$ ]]; then
+                    echo "Unexpected iteration count" >&2
+                    exit 1
+                  fi
+                  PAIRS=$(( TOTAL < 4 ? TOTAL : 4 ))
+
+                  # Scenarios cloned at the compiler commit must be set up again per side.
+                  RESETUP=false
+                  if [ "$TYPESCRIPT_COMMIT_BASELINE" != "$TYPESCRIPT_COMMIT_NEW" ] \
+                    && [ -e "$TSPERF_SCENARIO_COMMIT_DEPENDENT_FILE" ]; then
+                    RESETUP=true
+                  fi
+                  # The first setup step used the new commit.
+                  CURRENT_SIDE=new
+
+                  setup_side() {
+                    if [ "$1" = new ]; then
+                      export TYPESCRIPT_COMMIT="$TYPESCRIPT_COMMIT_NEW"
+                    else
+                      export TYPESCRIPT_COMMIT="$TYPESCRIPT_COMMIT_BASELINE"
+                    fi
+                    for ATTEMPT in 1 2 3 4; do
+                      if bash "$SCRIPTS_DIR/setupScenario.sh"; then
+                        return 0
+                      fi
+                      echo "Scenario setup failed (attempt $ATTEMPT)" >&2
+                      sleep 10
+                    done
+                    return 1
+                  }
+
+                  # Rounds check for quiet four times as often as sequential runs. Brief
+                  # periodic I/O on otherwise idle VMs occasionally prevents a quiet window,
+                  # so retry before failing the job.
+                  wait_for_idle() {
+                    for ATTEMPT in 1 2 3; do
+                      if node $(BENCH_SCRIPTS)/waitForBenchmarkIdle.js; then
+                        return 0
+                      fi
+                      echo "Machine was not quiet (attempt $ATTEMPT)" >&2
+                    done
+                    return 1
+                  }
+
+                  NEW_FILES=()
+                  BASELINE_FILES=()
+                  for (( PAIR = 0; PAIR < PAIRS; PAIR++ )); do
+                    ITERATIONS=$(( TOTAL / PAIRS + (PAIR < TOTAL % PAIRS ? 1 : 0) ))
+                    if (( PAIR % 2 == 0 )); then
+                      SIDES="new baseline"
+                    else
+                      SIDES="baseline new"
+                    fi
+                    for SIDE in $SIDES; do
+                      echo "Round $PAIR: $SIDE, $ITERATIONS iterations"
+                      if [ "$RESETUP" = true ] && [ "$SIDE" != "$CURRENT_SIDE" ]; then
+                        setup_side "$SIDE"
+                        CURRENT_SIDE=$SIDE
+                      fi
+                      if [ "${WAIT_FOR_IDLE,,}" = true ]; then
+                        wait_for_idle
+                      fi
+                      OUT=$ROUNDS_DIR/${SIDE}_${PAIR}.benchmark
+                      TSPERF_JOB_ITERATIONS=$ITERATIONS bash "$SCRIPTS_DIR/runBenchmarkSandbox.sh" \
+                        $(BWRAP_ARGS) node $(BENCH_SCRIPTS)/runTsPerf.js benchmark-$(TSPERF_JOB_KIND) \
+                        --builtDir $(BUILT_TYPESCRIPT_DIR)/$SIDE \
+                        --save "$OUT"
+                      if [ "$SIDE" = new ]; then
+                        NEW_FILES+=("$OUT")
+                      else
+                        BASELINE_FILES+=("$OUT")
+                      fi
+                    done
+                  done
+
+                  # Round files are written by the sandbox, so merge them there too.
+                  bash "$SCRIPTS_DIR/runBenchmarkSandbox.sh" $(BWRAP_ARGS) \
+                    node $(TSPERF_EXE) merge --iterations "$TOTAL" \
+                    --output $(BENCH_ARTIFACTS_DIR)/new_$(TSPERF_JOB_NAME).$(TSPERF_JOB_KIND).benchmark \
+                    "${NEW_FILES[@]}"
+                  bash "$SCRIPTS_DIR/runBenchmarkSandbox.sh" $(BWRAP_ARGS) \
+                    node $(TSPERF_EXE) merge --iterations "$TOTAL" \
+                    --output $(BENCH_ARTIFACTS_DIR)/baseline_$(TSPERF_JOB_NAME).$(TSPERF_JOB_KIND).benchmark \
+                    "${BASELINE_FILES[@]}"
                 target:
                   commands: restricted
                   settableVariables: none
-                displayName: Wait for idle before new benchmark
+                displayName: Run interleaved $(TSPERF_JOB_KIND) benchmarks
+                condition: and(succeeded(), eq(variables['TSPERF_IS_COMPARISON'], 'true'))
+                env:
+                  TYPESCRIPT_COMMIT_NEW: $(TYPESCRIPT_COMMIT_NEW)
+                  TYPESCRIPT_COMMIT_BASELINE: $(TYPESCRIPT_COMMIT_BASELINE)
+                  TSPERF_VARIABLES_FILE: $(Pipeline.Workspace)/interleaved-scenario-variables.json
+                  TSPERF_SCENARIO_COMMIT_DEPENDENT_FILE: $(Pipeline.Workspace)/scenario-commit-dependent
+                  WAIT_FOR_IDLE: ${{ parameters.USE_HOSTED_RUNNERS }}
+          - ${{ else }}:
+              - ${{ if parameters.USE_HOSTED_RUNNERS }}:
+                  - bash: node $(BENCH_SCRIPTS)/waitForBenchmarkIdle.js
+                    target:
+                      commands: restricted
+                      settableVariables: none
+                    displayName: Wait for idle before new benchmark
+                    condition: and(succeeded(), eq(variables['TSPERF_IS_COMPARISON'], 'true'))
+
+              - bash: |
+                  set -exo pipefail
+                  bash $(Pipeline.Workspace)/typescript-benchmarking/scripts/runBenchmarkSandbox.sh \
+                    $(BWRAP_ARGS) node $(BENCH_SCRIPTS)/runTsPerf.js benchmark-$(TSPERF_JOB_KIND) \
+                    --builtDir $(BUILT_TYPESCRIPT_DIR)/new \
+                    --save $(BENCH_ARTIFACTS_DIR)/new_$(TSPERF_JOB_NAME).$(TSPERF_JOB_KIND).benchmark
+                target:
+                  commands: restricted
+                  settableVariables: none
+                displayName: Run new $(TSPERF_JOB_KIND) benchmark
                 condition: and(succeeded(), eq(variables['TSPERF_IS_COMPARISON'], 'true'))
 
-          - bash: |
-              set -exo pipefail
-              bash $(Pipeline.Workspace)/typescript-benchmarking/scripts/runBenchmarkSandbox.sh \
-                $(BWRAP_ARGS) node $(BENCH_SCRIPTS)/runTsPerf.js benchmark-$(TSPERF_JOB_KIND) \
-                --builtDir $(BUILT_TYPESCRIPT_DIR)/new \
-                --save $(BENCH_ARTIFACTS_DIR)/new_$(TSPERF_JOB_NAME).$(TSPERF_JOB_KIND).benchmark
-            target:
-              commands: restricted
-              settableVariables: none
-            displayName: Run new $(TSPERF_JOB_KIND) benchmark
-            condition: and(succeeded(), eq(variables['TSPERF_IS_COMPARISON'], 'true'))
+              - bash: |
+                  set -eo pipefail
+                  # Special case for self benchmark
+                  export TYPESCRIPT_COMMIT="$TYPESCRIPT_COMMIT_BASELINE"
+                  bash $(Pipeline.Workspace)/typescript-benchmarking/scripts/setupScenario.sh
+                target:
+                  commands: restricted
+                  settableVariables: none
+                displayName: Set up scenario for baseline benchmark
+                condition: and(succeeded(), eq(variables['TSPERF_IS_COMPARISON'], 'true'))
+                retryCountOnTaskFailure: 3
+                env:
+                  TYPESCRIPT_COMMIT_BASELINE: $(TYPESCRIPT_COMMIT_BASELINE)
+                  TSPERF_VARIABLES_FILE: $(Pipeline.Workspace)/baseline-scenario-variables.json
 
-          - bash: |
-              set -eo pipefail
-              # Special case for self benchmark
-              export TYPESCRIPT_COMMIT="$TYPESCRIPT_COMMIT_BASELINE"
-              bash $(Pipeline.Workspace)/typescript-benchmarking/scripts/setupScenario.sh
-            target:
-              commands: restricted
-              settableVariables: none
-            displayName: Set up scenario for baseline benchmark
-            condition: and(succeeded(), eq(variables['TSPERF_IS_COMPARISON'], 'true'))
-            retryCountOnTaskFailure: 3
-            env:
-              TYPESCRIPT_COMMIT_BASELINE: $(TYPESCRIPT_COMMIT_BASELINE)
-              TSPERF_VARIABLES_FILE: $(Pipeline.Workspace)/baseline-scenario-variables.json
-
-          - bash: |
-              set -eo pipefail
-              node $(BENCH_SCRIPTS)/publishPipelineVariables.js --file $(Pipeline.Workspace)/baseline-scenario-variables.json --job
-            target:
-              commands: restricted
-              settableVariables:
-                - SCENARIO_REF
-            displayName: Publish scenario ref for baseline benchmark
-            condition: and(succeeded(), eq(variables['TSPERF_IS_COMPARISON'], 'true'))
+              - bash: |
+                  set -eo pipefail
+                  node $(BENCH_SCRIPTS)/publishPipelineVariables.js --file $(Pipeline.Workspace)/baseline-scenario-variables.json --job
+                target:
+                  commands: restricted
+                  settableVariables:
+                    - SCENARIO_REF
+                displayName: Publish scenario ref for baseline benchmark
+                condition: and(succeeded(), eq(variables['TSPERF_IS_COMPARISON'], 'true'))
 
           - ${{ if parameters.USE_HOSTED_RUNNERS }}:
               - bash: node $(BENCH_SCRIPTS)/waitForBenchmarkIdle.js
@@ -600,6 +714,8 @@ jobs:
                   commands: restricted
                   settableVariables: none
                 displayName: Wait for idle before baseline benchmark
+                ${{ if parameters.INTERLEAVE_BENCHMARKS }}:
+                  condition: and(succeeded(), ne(variables['TSPERF_IS_COMPARISON'], 'true'))
 
           - bash: |
               set -exo pipefail
@@ -611,6 +727,8 @@ jobs:
               commands: restricted
               settableVariables: none
             displayName: Run baseline $(TSPERF_JOB_KIND) benchmark
+            ${{ if parameters.INTERLEAVE_BENCHMARKS }}:
+              condition: and(succeeded(), ne(variables['TSPERF_IS_COMPARISON'], 'true'))
 
           # Publish only scheduled filenames, not everything in $(BENCH_ARTIFACTS_DIR).
           # This limits artifact selection; it does not authenticate result contents.
