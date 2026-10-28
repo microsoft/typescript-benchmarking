@@ -3,6 +3,32 @@
 This repo contains the infrastructure for TypeScript's benchmarking system, including build scripts
 and the `ts-perf` CLI tool.
 
+## Generating a PGO profile
+
+Run the **Generate PGO profile** GitHub Actions workflow manually with a TypeScript branch, tag,
+or commit in `microsoft/TypeScript` (default: `main`). The ref must contain the native compiler
+in `tsc/`. The workflow builds a non-PGO seed with that revision's Go version and external library
+files, then prepares the training projects using their existing sandboxed benchmark setup scripts.
+
+Training covers VS Code, Sentry, Bluesky, t3code server and web, MUI docs, ArkType, Webpack,
+the Strada source build, Effect, TanStack Router, and class-transformer. There is no separate
+t3code web scenario; it reuses the server scenario's checkout. XState remains an evaluation holdout.
+Scenario setup scripts determine project revisions; unpinned revisions are resolved during setup
+and recorded in the artifact. The Strada workload uses the original TypeScript repository's
+`strada` branch, independently of the native compiler ref.
+
+Each workload gets an unprofiled preflight compilation followed by one CPU-profiled compilation.
+Both emit from scratch with diagnostic reporting disabled to avoid profiling forced garbage
+collections. Emit overrides enable JavaScript/declaration output where appropriate; TanStack
+declaration emit is disabled because its test exports include a cyclic inferred type.
+Existing TypeScript diagnostics are logged and recorded, and profiling must preserve both
+diagnostics and emitted bytes. Compiler crashes, missing outputs, or missing profiles fail the job.
+
+Download the **default-pgo** artifact for `default.pgo`, its SHA-256 and provenance in `manifest.json`,
+and the per-workload profiles and logs. All twelve CPU profiles are merged with `go tool pprof -proto`,
+without normalization or reweighting, and validated with Go's PGO preprocessor.
+The workflow does not commit the profile or push a branch.
+
 ## Adding a benchmark
 
 Public benchmarks are stored in the `cases` directory.
