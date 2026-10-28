@@ -851,15 +851,6 @@ jobs:
           settableVariables: none
         displayName: Create merged output directory
 
-      - ${{ if parameters.USE_HOSTED_RUNNERS }}:
-          - bash: |
-              set -eo pipefail
-              echo '<p><strong>Provisional hosted-runner results:</strong> these VMs are not the dedicated benchmark machines. Results may be noisier and are not comparable to the historical series. For comparisons, both revisions of each scenario ran on the same VM.</p>' > "$(Pipeline.Workspace)/comment.html"
-            target:
-              commands: restricted
-              settableVariables: none
-            displayName: Label provisional hosted-runner results
-
       - bash: |
           set -eo pipefail
 
