@@ -54,6 +54,14 @@ test("requires five quiet seconds and uses deltas rather than stale averages or 
     expect(read).toHaveBeenCalledTimes(24);
 });
 
+test("accepts a shorter quiet window", async () => {
+    mockCounters();
+    const waiting = waitForBenchmarkIdle(2);
+    await vi.advanceTimersByTimeAsync(2000);
+    await waiting;
+    expect(console.log).toHaveBeenCalledWith(expect.stringContaining("Machine is quiet"));
+});
+
 test("restarts the quiet window when one CPU becomes busy", async () => {
     mockCounters({ busy: (second, cpu) => second === 3 && cpu === 0 ? 30 : 0 });
     const waiting = waitForBenchmarkIdle();

@@ -595,9 +595,13 @@ jobs:
             displayName: Create benchmark sandbox
 
           # Sequential phases on shared cloud VMs can shift every sample when the VM's speed
-          # changes between phases. Alternate shorter rounds so drift affects both sides.
-          # Pairs alternate order (new/baseline, then baseline/new) to cancel linear drift.
-          # Each round runs the configured warmups; merging restores the per-side sample count.
+          # changes between phases. Alternate one-iteration rounds so that drift, and short
+          # slowdowns lasting a few iterations, affect both sides. Pairs alternate order
+          # (new/baseline, then baseline/new) to cancel linear drift. Only each side's first
+          # round runs the configured warmups; later rounds read the evicted build back into
+          # the page cache instead, which keeps per-round overhead small. Merging restores the
+          # per-side sample count. Scenarios that must be set up again whenever the compiler
+          # changes keep four rounds with warmups, since each switch reruns their setup.
           # The compiler binaries stay in the page cache for the whole job, and their physical
           # placement can make one side's copy persistently a few percent faster. Evicting them
           # before every round gives each round a fresh placement so that bias averages out.
@@ -613,7 +617,6 @@ jobs:
                     echo "Unexpected iteration count" >&2
                     exit 1
                   fi
-                  PAIRS=$(( TOTAL < 4 ? TOTAL : 4 ))
 
                   # Scenarios cloned at the compiler commit must be set up again per side.
                   RESETUP=false
@@ -623,6 +626,12 @@ jobs:
                   fi
                   # The first setup step used the new commit.
                   CURRENT_SIDE=new
+
+                  if [ "$RESETUP" = true ]; then
+                    PAIRS=$(( TOTAL < 4 ? TOTAL : 4 ))
+                  else
+                    PAIRS=$TOTAL
+                  fi
 
                   setup_side() {
                     if [ "$1" = new ]; then
@@ -640,12 +649,12 @@ jobs:
                     return 1
                   }
 
-                  # Rounds check for quiet four times as often as sequential runs. Brief
-                  # periodic I/O on otherwise idle VMs occasionally prevents a quiet window,
-                  # so retry before failing the job.
+                  # Every round checks for quiet, so later rounds use a shorter quiet window.
+                  # Brief periodic I/O on otherwise idle VMs occasionally prevents a quiet
+                  # window, so retry before failing the job.
                   wait_for_idle() {
                     for ATTEMPT in 1 2 3; do
-                      if node $(BENCH_SCRIPTS)/waitForBenchmarkIdle.js; then
+                      if node $(BENCH_SCRIPTS)/waitForBenchmarkIdle.js "$1"; then
                         return 0
                       fi
                       echo "Machine was not quiet (attempt $ATTEMPT)" >&2
@@ -669,11 +678,19 @@ jobs:
                         CURRENT_SIDE=$SIDE
                       fi
                       find "$(BUILT_TYPESCRIPT_DIR)" -type f -exec dd if={} iflag=nocache count=0 status=none \;
+                      if (( PAIR == 0 )) || [ "$RESETUP" = true ]; then
+                        WARMUPS=$TSPERF_JOB_WARMUPS
+                        QUIET_SECONDS=5
+                      else
+                        WARMUPS=0
+                        QUIET_SECONDS=2
+                        find "$(BUILT_TYPESCRIPT_DIR)/$SIDE" -type f -exec cat {} + > /dev/null
+                      fi
                       if [ "${WAIT_FOR_IDLE,,}" = true ]; then
-                        wait_for_idle
+                        wait_for_idle "$QUIET_SECONDS"
                       fi
                       OUT=$ROUNDS_DIR/${SIDE}_${PAIR}.benchmark
-                      TSPERF_JOB_ITERATIONS=$ITERATIONS bash "$SCRIPTS_DIR/runBenchmarkSandbox.sh" \
+                      TSPERF_JOB_WARMUPS=$WARMUPS TSPERF_JOB_ITERATIONS=$ITERATIONS bash "$SCRIPTS_DIR/runBenchmarkSandbox.sh" \
                         $(BWRAP_ARGS) node $(BENCH_SCRIPTS)/runTsPerf.js benchmark-$(TSPERF_JOB_KIND) \
                         --builtDir $(BUILT_TYPESCRIPT_DIR)/$SIDE \
                         --save "$OUT"

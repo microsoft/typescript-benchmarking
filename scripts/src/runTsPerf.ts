@@ -68,7 +68,10 @@ async function getCommonBenchmarkArgs() {
         tsperfArgs.push("--host", host);
         tsperfArgs.push("--scenario", scenario);
         tsperfArgs.push("--iterations", iterations);
-        tsperfArgs.push("--warmups", warmups);
+        // ts-perf rejects an explicit 0, which is already its default.
+        if (warmups !== "0") {
+            tsperfArgs.push("--warmups", warmups);
+        }
         tsperfArgs.push("--cpus", cpus);
         if (predictable) {
             tsperfArgs.push("--predictable");
