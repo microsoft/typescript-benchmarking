@@ -17,6 +17,7 @@ EOF
 RUN cat <<EOF > /etc/tinyproxy/filter
 ^registry\.npmjs\.org$
 ^registry\.yarnpkg\.com$
+^npm\.jsr\.io$
 ^codeload\.github\.com$
 ^github\.com$
 ^saucelabs\.com$
