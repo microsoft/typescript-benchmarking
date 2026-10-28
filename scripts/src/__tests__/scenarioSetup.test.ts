@@ -7,6 +7,7 @@ import { fileURLToPath } from "node:url";
 import { afterEach, expect, test } from "vitest";
 import { parse } from "yaml";
 
+const repoRoot = fileURLToPath(new URL("../../..", import.meta.url));
 const commonScript = fileURLToPath(new URL("../../../cases/common.sh", import.meta.url));
 const setupScript = fileURLToPath(new URL("../../setupScenario.sh", import.meta.url));
 const benchmarkScript = fileURLToPath(new URL("../../runBenchmarkSandbox.sh", import.meta.url));
@@ -62,6 +63,9 @@ function runAzureLinuxSetup(env: Record<string, string> = {}) {
     const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), "typescript-benchmarking-azurelinux-"));
     tempDirs.push(tempDir);
     const commands = path.join(tempDir, "commands");
+    const workspace = fs.mkdtempSync(path.join(os.tmpdir(), "typescript-benchmarking-workspace-"));
+    tempDirs.push(workspace);
+    fs.symlinkSync(repoRoot, path.join(workspace, "typescript-benchmarking"));
     const script = `
 command() {
     if [ "$1" = "-v" ]; then
@@ -79,8 +83,16 @@ sudo() {
     fi
 }
 curl() {
-    printf '%s\\n' "curl $2" >> "$COMMANDS"
-    printf '#!/bin/sh\\nexit 0\\n' > "$4"
+    local out url
+    while [ $# -gt 0 ]; do
+        case "$1" in
+            -o) out=$2; shift ;;
+            https://*) url=$1 ;;
+        esac
+        shift
+    done
+    printf '%s\\n' "curl $url" >> "$COMMANDS"
+    printf '#!/bin/sh\\nexit 0\\n' > "$out"
 }
 # The stub download cannot match the pinned checksum, so accept it unless testing corruption.
 sha512sum() {
@@ -96,12 +108,14 @@ docker() {
         return 37
     fi
 }
+export -f sudo curl sha512sum docker
 ${sandboxScript("Install scenario sandbox")}
 `;
     const result = spawnSync("bash", ["-c", script], {
         env: {
             ...process.env,
             AGENT_TEMPDIRECTORY: tempDir,
+            PIPELINE_WORKSPACE: workspace,
             COMMANDS: commands,
             ...env,
         },
@@ -118,9 +132,11 @@ test("Azure Linux installs and verifies gVisor before configuring Docker", () =>
         "tdnf install -y ca-certificates curl moby-engine moby-cli moby-buildx util-linux acl tar bzip2",
     );
     expect(commands).toContain(
-        "curl https://storage.googleapis.com/gvisor/releases/release/20261019.0/x86_64/gvisor.tar.bz2\n",
+        `curl https://storage.googleapis.com/gvisor/releases/release/20261019.0/${
+            os.arch() === "arm64" ? "aarch64" : "x86_64"
+        }/gvisor.tar.bz2\n`,
     );
-    expect(commands).toMatch(/^sha512sum --check 7cbc2aee[0-9a-f]{120} {2}\S+\/gvisor\.tar\.bz2$/m);
+    expect(commands).toMatch(/^sha512sum --check [0-9a-f]{128} {2}\S+\/gvisor\.tar\.bz2$/m);
     expect(commands).toContain("tar -xjf");
     expect(commands).toContain("docker buildx version\n/usr/local/bin/runsc install\nsystemctl restart docker\n");
     expect(commands).toContain("docker info");
