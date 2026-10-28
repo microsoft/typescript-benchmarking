@@ -96,14 +96,6 @@
       "TSPERF_JOB_SCENARIO": "mui-docs",
       "TSPERF_JOB_WARMUPS": 1,
     },
-    "tsc_bun_1_1_3_self_build_src_public_api": {
-      "TSPERF_JOB_HOST": "bun@1.1.3",
-      "TSPERF_JOB_ITERATIONS": 6,
-      "TSPERF_JOB_KIND": "tsc",
-      "TSPERF_JOB_NAME": "tsc_bun_1_1_3_self_build_src_public_api",
-      "TSPERF_JOB_SCENARIO": "self-build-src-public-api",
-      "TSPERF_JOB_WARMUPS": 1,
-    },
     "tsc_bun_1_1_3_sentry": {
       "TSPERF_JOB_HOST": "bun@1.1.3",
       "TSPERF_JOB_ITERATIONS": 6,
@@ -206,14 +198,6 @@
       "TSPERF_JOB_KIND": "tsc",
       "TSPERF_JOB_NAME": "tsc_vscode_1_88_1_mui_docs",
       "TSPERF_JOB_SCENARIO": "mui-docs",
-      "TSPERF_JOB_WARMUPS": 1,
-    },
-    "tsc_vscode_1_88_1_self_build_src_public_api": {
-      "TSPERF_JOB_HOST": "vscode@1.88.1",
-      "TSPERF_JOB_ITERATIONS": 6,
-      "TSPERF_JOB_KIND": "tsc",
-      "TSPERF_JOB_NAME": "tsc_vscode_1_88_1_self_build_src_public_api",
-      "TSPERF_JOB_SCENARIO": "self-build-src-public-api",
       "TSPERF_JOB_WARMUPS": 1,
     },
     "tsc_vscode_1_88_1_sentry": {
