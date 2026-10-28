@@ -559,6 +559,9 @@ jobs:
           # changes between phases. Alternate shorter rounds so drift affects both sides.
           # Pairs alternate order (new/baseline, then baseline/new) to cancel linear drift.
           # Each round runs the configured warmups; merging restores the per-side sample count.
+          # The compiler binaries stay in the page cache for the whole job, and their physical
+          # placement can make one side's copy persistently a few percent faster. Evicting them
+          # before every round gives each round a fresh placement so that bias averages out.
           - ${{ if parameters.INTERLEAVE_BENCHMARKS }}:
               - bash: |
                   set -eo pipefail
@@ -626,6 +629,7 @@ jobs:
                         setup_side "$SIDE"
                         CURRENT_SIDE=$SIDE
                       fi
+                      find "$(BUILT_TYPESCRIPT_DIR)" -type f -exec dd if={} iflag=nocache count=0 status=none \;
                       if [ "${WAIT_FOR_IDLE,,}" = true ]; then
                         wait_for_idle
                       fi
