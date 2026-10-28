@@ -1,0 +1,13 @@
+{
+    "name": "class-transformer",
+    "kind": "tsc",
+    "args": [
+        "-p",
+        "${suiteDirectory}/class-transformer/tsconfig.benchmark.json",
+        "--outDir",
+        "${outDirectory}"
+    ],
+    "platforms": [
+        "linux"
+    ]
+}

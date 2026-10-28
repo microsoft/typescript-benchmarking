@@ -1,0 +1,11 @@
+{
+    "name": "effect",
+    "kind": "tsc",
+    "args": [
+        "-b",
+        "${suiteDirectory}/effect/packages/effect"
+    ],
+    "platforms": [
+        "linux"
+    ]
+}

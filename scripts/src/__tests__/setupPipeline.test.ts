@@ -33,6 +33,21 @@ const inputs = [
     "startup-only hosts=node@22.8.0",
 ];
 
+test.each(["baseline", "full"])("native %s retains compiler scenarios after host normalization", async input => {
+    const result = await setupPipeline({
+        input,
+        baselining: input === "baseline",
+        isPr: input !== "baseline",
+        shouldLog: false,
+        gitParseRev: fakeGitRevParse,
+        implementation: "corsa",
+    });
+    const jobs = Object.values(result.matrix).flatMap(jobs => Object.values(jobs));
+    expect(jobs.filter(job => job.TSPERF_JOB_SCENARIO === "Compiler-Unions")).toEqual([
+        expect.objectContaining({ TSPERF_JOB_KIND: "tsc", TSPERF_JOB_HOST: "native" }),
+    ]);
+});
+
 test("API preset is opt-in, uses pinned Node rather than native, and processes API reports", async () => {
     const result = await setupPipeline({
         input: "api",

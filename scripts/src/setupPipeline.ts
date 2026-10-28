@@ -100,13 +100,6 @@ const allScenarios: readonly BaseScenario[] = [
     },
     { kind: "tsc", name: "strada-compiler", agent: "ts-perf1", runIn: RunType.Any, cost: 25 },
     { kind: "tsc", name: "strada-build-src", agent: "ts-perf2", runIn: RunType.Any, cost: 51 },
-    {
-        kind: "tsc",
-        name: "self-build-src-public-api",
-        agent: "ts-perf2",
-        runIn: RunType.Any,
-        cost: 51,
-    },
     { kind: "tsc", name: "mui-docs", agent: "ts-perf4", runIn: RunType.OnDemand, cost: 77 },
     { kind: "tsc", name: "mui-docs-1", agent: "ts-perf4", runIn: RunType.Baseline, cost: 77 },
     { kind: "tsc", name: "webpack", agent: "ts-perf3", runIn: RunType.OnDemand, cost: 22 },
@@ -117,6 +110,9 @@ const allScenarios: readonly BaseScenario[] = [
     { kind: "tsc", name: "social-app", agent: "ts-perf2", runIn: RunType.Any, cost: 4 },
     { kind: "tsc", name: "t3code-server", agent: "ts-perf4", runIn: RunType.Any, cost: 21 },
     { kind: "tsc", name: "arktype", agent: "ts-perf1", runIn: RunType.Any, cost: 3 },
+    { kind: "tsc", name: "effect", agent: "ts-perf2", runIn: RunType.Any, cost: 8 },
+    { kind: "tsc", name: "tanstack-router", agent: "ts-perf2", runIn: RunType.Any, cost: 2 },
+    { kind: "tsc", name: "class-transformer", agent: "ts-perf2", runIn: RunType.Any, cost: 1 },
     {
         kind: "tsserver",
         name: "Compiler-UnionsTSServer",
@@ -455,28 +451,20 @@ function* transformPreset(
     implementation: TypeScriptImplementation,
 ): Iterable<Scenario> {
     const isCorsa = implementation === "corsa";
-    const all = [...worker()];
+    const seen: Scenario[] = [];
 
-    for (const scenario of all) {
-        let dupe = false;
-        for (const other of all) {
-            if (other === scenario) {
-                continue;
-            }
-            if (isDeepStrictEqual(scenario, other)) {
-                dupe = true;
-                break;
-            }
+    for (const scenario of worker()) {
+        if (seen.some(other => isDeepStrictEqual(scenario, other))) {
+            continue;
         }
-        if (!dupe) {
-            yield scenario;
-        }
+        seen.push(scenario);
+        yield scenario;
     }
 
     function* worker(): Iterable<Scenario> {
         for (const scenario of iter) {
             if (
-                (isCorsa && (scenario.kind === "tsserver" || scenario.name === "self-build-src-public-api"))
+                (isCorsa && scenario.kind === "tsserver")
                 || (!isCorsa && scenario.kind === "lsp")
             ) {
                 continue;
