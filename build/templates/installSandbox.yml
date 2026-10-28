@@ -52,11 +52,18 @@ steps:
           elif command -v tdnf >/dev/null; then
             sudo tdnf install -y ca-certificates curl moby-engine moby-cli moby-buildx util-linux acl tar bzip2
             INSTALL_DIR=$(mktemp -d "${AGENT_TEMPDIRECTORY:?}/tsperf-runsc.XXXXXX")
-            trap 'rm -f "$INSTALL_DIR/gvisor.tar.bz2" "$INSTALL_DIR/gvisor.tar.bz2.sha512"; rmdir "$INSTALL_DIR"' EXIT
-            URL="https://storage.googleapis.com/gvisor/releases/release/latest/$(uname -m)"
+            trap 'rm -f "$INSTALL_DIR/gvisor.tar.bz2"; rmdir "$INSTALL_DIR"' EXIT
+            # Pin a release and its checksums. The "latest" tarball and checksum are
+            # replaced separately, so they can disagree while a release is published.
+            GVISOR_RELEASE=20261019.0
+            case "$(uname -m)" in
+              x86_64) GVISOR_SHA512=7cbc2aeeee809dcccfb40e612504a1b76f2c119790cee59e482f7b35428cccc4f71705e7e322442d07d1f7d29b5d9e72e31319fc3088d6dcbec9fc7c1f0d8881 ;;
+              aarch64) GVISOR_SHA512=6b14b582cd3185169df54275eed8721d94c9b40e6cb1533d0d0c46573271c6d2d03db586ea1caac46a45e805797f00b115bead9fb93636a1ffa69f2430958977 ;;
+              *) echo "Unsupported architecture for gVisor" >&2; exit 1 ;;
+            esac
+            URL="https://storage.googleapis.com/gvisor/releases/release/$GVISOR_RELEASE/$(uname -m)"
             curl -fsSL "$URL/gvisor.tar.bz2" -o "$INSTALL_DIR/gvisor.tar.bz2"
-            curl -fsSL "$URL/gvisor.tar.bz2.sha512" -o "$INSTALL_DIR/gvisor.tar.bz2.sha512"
-            (cd "$INSTALL_DIR" && sha512sum --check gvisor.tar.bz2.sha512)
+            echo "$GVISOR_SHA512  $INSTALL_DIR/gvisor.tar.bz2" | sha512sum --check
             sudo tar -xjf "$INSTALL_DIR/gvisor.tar.bz2" -C /usr/local/bin --no-same-owner --no-same-permissions
             RUNSC=/usr/local/bin/runsc
           else

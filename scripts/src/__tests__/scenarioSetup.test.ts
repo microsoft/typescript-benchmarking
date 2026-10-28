@@ -79,13 +79,15 @@ sudo() {
     fi
 }
 curl() {
-    if [[ "$2" == */gvisor.tar.bz2.sha512 ]]; then
-        (cd "\${4%/*}" && sha512sum gvisor.tar.bz2) > "$4"
-        if [ "\${CORRUPT_DOWNLOAD:-}" = "true" ]; then
-            printf 'modified' >> "\${4%/*}/gvisor.tar.bz2"
-        fi
+    printf '%s\\n' "curl $2" >> "$COMMANDS"
+    printf '#!/bin/sh\\nexit 0\\n' > "$4"
+}
+# The stub download cannot match the pinned checksum, so accept it unless testing corruption.
+sha512sum() {
+    if [ "\${CORRUPT_DOWNLOAD:-}" = "true" ]; then
+        builtin command sha512sum "$@"
     else
-        printf '#!/bin/sh\\nexit 0\\n' > "$4"
+        printf '%s\\n' "sha512sum $* $(cat)" >> "$COMMANDS"
     fi
 }
 docker() {
@@ -115,6 +117,10 @@ test("Azure Linux installs and verifies gVisor before configuring Docker", () =>
     expect(commands).toContain(
         "tdnf install -y ca-certificates curl moby-engine moby-cli moby-buildx util-linux acl tar bzip2",
     );
+    expect(commands).toContain(
+        "curl https://storage.googleapis.com/gvisor/releases/release/20261019.0/x86_64/gvisor.tar.bz2\n",
+    );
+    expect(commands).toMatch(/^sha512sum --check 7cbc2aee[0-9a-f]{120} {2}\S+\/gvisor\.tar\.bz2$/m);
     expect(commands).toContain("tar -xjf");
     expect(commands).toContain("docker buildx version\n/usr/local/bin/runsc install\nsystemctl restart docker\n");
     expect(commands).toContain("docker info");
