@@ -132,7 +132,7 @@ jobs:
           go tool pprof -proto "${profiles[@]}" > "$RUNNER_TEMP/pgo/default.pgo"
       - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
         with:
-          name: default-pgo
-          path: ${{ runner.temp }}/pgo
+          path: ${{ runner.temp }}/pgo/default.pgo
+          archive: false
           if-no-files-found: error
           retention-days: 30
