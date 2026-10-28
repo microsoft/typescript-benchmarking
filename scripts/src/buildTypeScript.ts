@@ -12,40 +12,6 @@ import { preserveApiArtifact } from "./apiArtifact.js";
 import { detectTypeScriptImplementation } from "./typeScriptRepo.js";
 import { $, $pipe, getNonEmptyEnv, parseBoolean, RepoInfo, retry, validateBuildOutput } from "./utils.js";
 
-const sandboxScript = fileURLToPath(new URL("../buildTypeScriptSandbox.sh", import.meta.url));
-
-export function getGoVersion(sourceDir: string) {
-    const tscDir = path.join(sourceDir, "tsc");
-    const tscStat = fs.lstatSync(tscDir, { throwIfNoEntry: false });
-    assert(!tscStat || tscStat.isDirectory(), "Expected a regular tsc directory");
-    for (const relative of ["tsc/go.mod", "go.mod"]) {
-        const file = path.join(sourceDir, relative);
-        const stat = fs.lstatSync(file, { throwIfNoEntry: false });
-        if (!stat) continue;
-        assert(stat.isFile(), "Expected a regular compiler go.mod");
-        const version = /^go[ \t]+([0-9]+\.[0-9]+)(?:\.[0-9]+)?[ \t]*(?:\/\/[^\r\n]*)?\r?$/m.exec(
-            fs.readFileSync(file, "utf8"),
-        )?.[1];
-        assert(version, "Expected a Go version directive in compiler go.mod");
-        return version;
-    }
-    throw new Error("Expected a go.mod for the native compiler");
-}
-
-export async function installGo(sourceDir: string, buildHome: string, buildTmp: string) {
-    const version = getGoVersion(sourceDir);
-    const arch = process.arch === "x64" ? "amd64" : process.arch;
-    assert(process.platform === "linux" && (arch === "amd64" || arch === "arm64"), "Unsupported Go build platform");
-    const url = `https://aka.ms/golang/release/latest/go${version}.linux-${arch}.tar.gz`;
-    const archive = path.join(buildHome, "golang.tar.gz");
-    const toolchain = path.join(buildHome, "toolchain");
-    await fs.promises.mkdir(toolchain);
-    await $`bash ${sandboxScript} ${sourceDir} ${buildHome} ${buildTmp} curl --fail --location --retry 3 --retry-all-errors --output ${archive} ${url}`;
-    await $`bash ${sandboxScript} ${sourceDir} ${buildHome} ${buildTmp} tar -C ${toolchain} -xzf ${archive}`;
-    await fs.promises.rm(archive);
-    await $`bash ${sandboxScript} ${sourceDir} ${buildHome} ${buildTmp} go version`;
-}
-
 export async function moveBuildOutput(source: string, output: string, root = path.dirname(path.resolve(source))) {
     await validateBuildOutput(source, root);
     await $`mv -- ${source} ${output}`;
@@ -79,6 +45,7 @@ async function main() {
     assert(!buildApi || isCorsa, "The api preset requires native TypeScript 7");
 
     const sourceDir = process.cwd();
+    const sandboxScript = fileURLToPath(new URL("../buildTypeScriptSandbox.sh", import.meta.url));
     const scratch = await fs.promises.mkdtemp(path.join(os.tmpdir(), "tsperf-build-"));
     const buildHome = path.join(scratch, "home");
     const buildTmp = path.join(scratch, "tmp");
@@ -87,7 +54,6 @@ async function main() {
         await fs.promises.mkdir(path.dirname(outputDir), { recursive: true });
         await fs.promises.mkdir(buildHome);
         await fs.promises.mkdir(buildTmp);
-        if (isCorsa) await installGo(sourceDir, buildHome, buildTmp);
         await retry(() => $`bash ${sandboxScript} ${sourceDir} ${buildHome} ${buildTmp} npm ci`);
 
         if (fs.existsSync("Herebyfile.mjs")) {

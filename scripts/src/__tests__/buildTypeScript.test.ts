@@ -6,7 +6,7 @@ import { fileURLToPath } from "node:url";
 
 import { afterEach, expect, test } from "vitest";
 
-import { getGoVersion, moveBuildOutput, removeScratch } from "../buildTypeScript.js";
+import { moveBuildOutput, removeScratch } from "../buildTypeScript.js";
 
 const sandboxScript = fileURLToPath(new URL("../../buildTypeScriptSandbox.sh", import.meta.url));
 const tempDirs: string[] = [];
@@ -29,41 +29,6 @@ function createBuild() {
     }
     return { root, source, output, home, tmp };
 }
-
-test.each(["go.mod", "tsc/go.mod"])("selects Go from the checked-out %s", modulePath => {
-    const build = createBuild();
-    const file = path.join(build.source, modulePath);
-    fs.mkdirSync(path.dirname(file), { recursive: true });
-    fs.writeFileSync(file, "module example.com/compiler\n\ngo 1.27.2 // minimum version\n");
-    expect(getGoVersion(build.source)).toBe("1.27");
-    fs.writeFileSync(file, "module example.com/compiler\r\n\r\ngo 1.26\r\n");
-    expect(getGoVersion(build.source)).toBe("1.26");
-});
-
-test("prefers the migrated compiler module over a root module", () => {
-    const build = createBuild();
-    fs.mkdirSync(path.join(build.source, "tsc"));
-    fs.writeFileSync(path.join(build.source, "go.mod"), "go 1.26\n");
-    fs.writeFileSync(path.join(build.source, "tsc/go.mod"), "go 1.27\n");
-    expect(getGoVersion(build.source)).toBe("1.27");
-});
-
-test("rejects a native compiler without a module or valid Go version", () => {
-    const build = createBuild();
-    expect(() => getGoVersion(build.source)).toThrow("Expected a go.mod for the native compiler");
-    fs.writeFileSync(path.join(build.source, "go.mod"), "module example.com/compiler\n");
-    expect(() => getGoVersion(build.source)).toThrow("Expected a Go version directive");
-});
-
-test("rejects symlinked Go module files and parent directories", () => {
-    const build = createBuild();
-    const module = path.join(build.root, "go.mod");
-    fs.writeFileSync(module, "go 1.27\n");
-    fs.symlinkSync(module, path.join(build.source, "go.mod"));
-    expect(() => getGoVersion(build.source)).toThrow("Expected a regular compiler go.mod");
-    fs.symlinkSync(build.root, path.join(build.source, "tsc"));
-    expect(() => getGoVersion(build.source)).toThrow("Expected a regular tsc directory");
-});
 
 test("collects regular compiler outputs, including nested files", async () => {
     const build = createBuild();
@@ -161,7 +126,8 @@ test.each([
 ])("passes build isolation arguments ($hasGo Go) and preserves exit code $exitCode", ({ exitCode, hasGo }) => {
     const build = createBuild();
     fs.mkdirSync(path.join(build.source, ".git"));
-    if (hasGo) fs.mkdirSync(path.join(build.home, "toolchain/go"), { recursive: true });
+    const goRoot = path.join(build.root, "go");
+    if (hasGo) fs.mkdirSync(goRoot);
     const bin = path.join(build.root, "bin");
     const capture = path.join(build.root, "bwrap-args");
     fs.mkdirSync(bin);
@@ -183,7 +149,7 @@ exit "$PROBE_EXIT"
             BWRAP_CAPTURE: capture,
             PROBE_EXIT: String(exitCode),
             SYNTHETIC_SECRET: "must-not-be-forwarded",
-            GOROOT: "/unrelated/go",
+            GOROOT: hasGo ? goRoot : "",
         },
         encoding: "utf8",
         timeout: 10_000,
@@ -211,16 +177,11 @@ exit "$PROBE_EXIT"
     expect(args.slice(-2)).toEqual(["npm", "ci"]);
     expect(args).not.toContain("SYNTHETIC_SECRET");
     expect(args).not.toContain("must-not-be-forwarded");
-    expect(args).not.toContain("/unrelated/go");
     if (hasGo) {
         const goRootIndex = args.indexOf("GOROOT");
-        expect(args.slice(goRootIndex - 1, goRootIndex + 2)).toEqual([
-            "--setenv",
-            "GOROOT",
-            `${build.home}/toolchain/go`,
-        ]);
-        const pathIndex = args.lastIndexOf("PATH");
-        expect(args[pathIndex + 1]).toBe(`${build.home}/toolchain/go/bin:${bin}:${process.env.PATH}`);
+        expect(args.slice(goRootIndex - 1, goRootIndex + 2)).toEqual(["--setenv", "GOROOT", goRoot]);
+        const goBindIndex = args.indexOf(goRoot);
+        expect(args.slice(goBindIndex - 1, goBindIndex + 2)).toEqual(["--ro-bind", goRoot, goRoot]);
     }
     else {
         expect(args).not.toContain("GOROOT");

@@ -232,6 +232,40 @@ jobs:
           EXPECTED_BASE_SHA: ${{ parameters.EXPECTED_BASE_SHA }}
           EXPECTED_MERGE_SHA: ${{ parameters.EXPECTED_MERGE_SHA }}
 
+      - bash: |
+          set -euo pipefail
+          if [[ -L tsc || -L tsc/go.mod || -L go.mod ]]; then
+            echo "Unexpected symlink in compiler Go module path" >&2
+            exit 1
+          fi
+          if [[ -e tsc/go.mod ]]; then
+            module=tsc/go.mod
+          elif [[ -e go.mod ]]; then
+            module=go.mod
+          else
+            echo "No compiler Go module; skipping Go installation"
+            exit 0
+          fi
+          if [[ ! -f "$module" ]]; then
+            echo "Expected a regular compiler go.mod" >&2
+            exit 1
+          fi
+          if ! version=$(grep -oP '^go \K[0-9]+\.[0-9]+' "$module"); then
+            echo "Expected a Go version directive in compiler go.mod" >&2
+            exit 1
+          fi
+          archive="$AGENT_TEMPDIRECTORY/golang.tar.gz"
+          goRoot="$AGENT_TEMPDIRECTORY/go"
+          curl --fail --location --retry 3 --retry-all-errors --output "$archive" \
+            "https://aka.ms/golang/release/latest/go${version}.linux-amd64.tar.gz"
+          tar -C "$AGENT_TEMPDIRECTORY" -xzf "$archive"
+          rm -f "$archive"
+          "$goRoot/bin/go" version
+          echo "##vso[task.setvariable variable=GOROOT;isReadOnly=true]$goRoot"
+          echo "##vso[task.prependpath]$goRoot/bin"
+        displayName: Install Go
+        workingDirectory: $(TYPESCRIPT_DIR)
+
       # Ideally we'd just do this:
       #   git config remote.origin.fetch "+refs/heads/*:refs/remotes/origin/*"
       #   git config remote.origin.promisor true

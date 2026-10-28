@@ -36,8 +36,8 @@ ARGS=(
 # Some images keep resolv.conf's target under /run, which is otherwise not exposed.
 RESOLV_CONF=$(readlink -f /etc/resolv.conf)
 ARGS+=(--ro-bind "$RESOLV_CONF" "$RESOLV_CONF")
-if [ -d "$BUILD_HOME/toolchain/go" ]; then
-    ARGS+=(--setenv GOROOT "$BUILD_HOME/toolchain/go" --setenv PATH "$BUILD_HOME/toolchain/go/bin:$PATH")
+if [ -n "${GOROOT:-}" ]; then
+    ARGS+=(--ro-bind "$GOROOT" "$GOROOT" --setenv GOROOT "$GOROOT")
 fi
 
 exec bwrap "${ARGS[@]}" "$@"
