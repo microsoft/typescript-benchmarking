@@ -82,9 +82,9 @@ parameters:
     default: azure-linux-3-benchmarks
 
   - name: INTERLEAVE_BENCHMARKS
-    displayName: Alternate baseline and new benchmark rounds (experimental)
+    displayName: Alternate baseline and new benchmark rounds
     type: boolean
-    default: false
+    default: true
 
   # PR trigger params
   - name: DISTINCT_ID
