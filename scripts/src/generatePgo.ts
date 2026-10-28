@@ -14,6 +14,7 @@ export const trainingScenarios = [
     "mui-docs",
     "arktype",
     "webpack",
+    "xstate-main",
     "strada-build-src",
     "effect",
     "tanstack-router",
@@ -71,25 +72,11 @@ export function getWorkloads(root: string, scenario: string, output: string): Wo
         "--rewriteRelativeImportExtensions",
         ...common,
     ];
-    const workloads: Workload[] = [{
+    return [{
         name: scenario,
         args: [...args, ...emit, ...(scenario === "tanstack-router" ? ["--declaration", "false"] : [])],
         emittedDirectory: output,
     }];
-    if (scenario === "t3code-server") {
-        workloads.push({
-            name: "t3code-web",
-            args: [
-                "-p",
-                path.join(solution, "apps/web/tsconfig.json"),
-                ...emit,
-                "--composite",
-                "false",
-            ],
-            emittedDirectory: output,
-        });
-    }
-    return workloads;
 }
 
 export function buildSeed(root: string, compiler: string, output: string, ref: string) {
@@ -219,7 +206,7 @@ export function collectProfiles(root: string, scenario: string, seed: string, ou
 }
 
 export function mergeProfiles(input: string, output: string) {
-    const expected = [...trainingScenarios, "t3code-web"].sort();
+    const expected = [...trainingScenarios].sort();
     const directories = fs.readdirSync(input).sort();
     assert.deepEqual(directories, expected, "Missing or unexpected training workloads");
     const manifests = directories.map(directory =>
@@ -254,7 +241,6 @@ export function mergeProfiles(input: string, output: string) {
         merge: "go tool pprof -proto (no normalization or reweighting)",
         runsPerWorkload: 1,
         checkers: 4,
-        holdouts: ["xstate-main"],
         workloads: manifests,
     });
     fs.cpSync(input, path.join(output, "workloads"), { recursive: true });

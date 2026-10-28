@@ -16,10 +16,10 @@ afterEach(() => {
     for (const directory of temporary.splice(0)) fs.rmSync(directory, { recursive: true });
 });
 
-test("training uses existing compiler scenarios with twelve workloads and an independent XState holdout", () => {
+test("training uses twelve existing compiler scenarios, including XState", () => {
     const workloads = trainingScenarios.flatMap(scenario => getWorkloads(root, scenario, "/scratch/emit"));
     expect(workloads).toHaveLength(12);
-    expect(workloads.some(workload => workload.name.includes("xstate"))).toBe(false);
+    expect(workloads.some(workload => workload.name === "xstate-main")).toBe(true);
     for (const scenario of trainingScenarios) {
         expect(fs.existsSync(path.join(root, "cases/scenarios", scenario, "setup.sh"))).toBe(true);
     }
@@ -48,14 +48,9 @@ test("training uses existing compiler scenarios with twelve workloads and an ind
     }
 });
 
-test("emit adjustments preserve t3code web and disable TanStack's cyclic declaration emit", () => {
+test("training does not add ad-hoc workloads and disables TanStack's cyclic declaration emit", () => {
     const t3code = getWorkloads(root, "t3code-server", "/scratch/emit");
-    expect(t3code.map(workload => workload.name)).toEqual(["t3code-server", "t3code-web"]);
-    expect(t3code[1].args).toEqual(expect.arrayContaining([
-        path.join(root, "cases/solutions/t3code-server/apps/web/tsconfig.json"),
-        "--composite",
-        "false",
-    ]));
+    expect(t3code.map(workload => workload.name)).toEqual(["t3code-server"]);
     const [tanstack] = getWorkloads(root, "tanstack-router", "/scratch/emit");
     expect(tanstack.args.slice(-2)).toEqual(["--declaration", "false"]);
     expect(() => getWorkloads(root, "../other", "/scratch/emit")).toThrow("Unknown training scenario");
