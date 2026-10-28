@@ -66,13 +66,13 @@ export function profileScenario(root: string, scenario: string, binary: string, 
     if (result.error) throw result.error;
     const text = result.stdout + result.stderr;
     fs.writeFileSync(path.join(profile, "compiler.log"), text);
-    process.stdout.write(text);
-    assert(
-        result.signal === null && !/^(?:panic:|fatal error:)/m.test(text)
-            && (result.status === 0 || ((result.status === 1 || result.status === 2) && /error TS\d+:/.test(text))),
-        `Compiler failed (exit ${result.status}, signal ${result.signal})`,
-    );
-    if (result.status !== 0) console.warn("Retaining profile from compilation with TypeScript diagnostics.");
+    const errors = text.match(/error TS\d+:/g)?.length ?? 0;
+    const ok = result.signal === null && !/^(?:panic:|fatal error:)/m.test(text)
+        && (result.status === 0 || ((result.status === 1 || result.status === 2) && errors > 0));
+    // Many benchmarks have known type errors; only show the output when the compiler itself fails.
+    if (!ok) process.stdout.write(text);
+    assert(ok, `Compiler failed (exit ${result.status}, signal ${result.signal})`);
+    if (errors > 0) console.warn(`Retaining profile from compilation with ${errors} TypeScript errors.`);
     assert.equal(
         fs.readdirSync(profile).filter(file => file.endsWith("-cpuprofile.pb.gz")).length,
         1,
