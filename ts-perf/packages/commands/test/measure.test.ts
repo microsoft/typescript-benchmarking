@@ -48,7 +48,9 @@ test.each([undefined, 0, 1.234])("records CPU time %s without inventing unavaila
     const builtDir = createBuiltDir("tsc.js");
     fs.writeFileSync(
         path.join(builtDir, "tsc.js"),
-        `console.log("Total time: 1.000s");
+        `console.log("Symbols: 100");
+        console.log("Bind time: 0.000s");
+        console.log("Total time: 1.000s");
         ${cpuTime === undefined ? "" : `console.log("CPU time: ${cpuTime.toFixed(3)}s");`}`,
     );
     const scenarios = vi.spyOn(Scenario, "findScenarios").mockResolvedValue([
@@ -61,6 +63,11 @@ test.each([undefined, 0, 1.234])("records CPU time %s without inventing unavaila
             options: { builtDir, iterations: 2 },
         }, new HostContext(new Logger(0)));
         const value = report.measurements[0].values?.cpuTime;
+        expect(report.measurements[0].values?.parseTime).toBeUndefined();
+        expect(report.measurements[0].values?.memoryUsed).toBeUndefined();
+        expect(report.measurements[0].values?.errors?.samples).toEqual([0, 0]);
+        expect(report.measurements[0].values?.symbols?.samples).toEqual([100, 100]);
+        expect(report.measurements[0].values?.bindTime?.samples).toEqual([0, 0]);
         if (cpuTime === undefined) {
             expect(value).toBeUndefined();
         }
