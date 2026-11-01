@@ -117,7 +117,7 @@ export class Value {
     }
 
     public diff(baseline: Value | undefined, midline?: Value) {
-        return baseline || midline ? new ValueComparison(this, baseline, midline) : undefined;
+        return new ValueComparison(this, baseline, midline);
     }
 
     public toJSON(): any {

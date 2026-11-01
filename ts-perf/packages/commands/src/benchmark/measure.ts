@@ -310,6 +310,7 @@ async function runCompilerScenario(
 
     const metrics: Record<string, Value | undefined> = Object.create(null);
     for (const sampleName of compilerSampleKeys) {
+        if (sampleName === "cpuTime" && samples.some(sample => sample.cpuTime === undefined)) continue;
         metrics[sampleName] = computeMetrics(
             samples.map(x => x[sampleName] ?? 0),
             getCompilerMetricName(sampleName),
