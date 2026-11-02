@@ -243,7 +243,7 @@ async function runCompilerScenario(
     const runs = numIterations + numWarmups;
     for (let i = 0; i < runs; i++) {
         const isWarmup = i < numWarmups;
-        const values: CompilerSample = { errors: 0 };
+        const values: CompilerSample = Object.create(null);
         if (hasBuild) {
             const cleanProcess = spawn(clean!, cleanargs);
             let cleanProcessOutput = "";
@@ -310,10 +310,8 @@ async function runCompilerScenario(
 
     const metrics: Record<string, Value | undefined> = Object.create(null);
     for (const sampleName of compilerSampleKeys) {
-        const values = samples.map(sample => sample[sampleName]).filter(value => value !== undefined);
-        if (values.length !== samples.length) continue;
         metrics[sampleName] = computeMetrics(
-            values,
+            samples.map(x => x[sampleName] ?? 0),
             getCompilerMetricName(sampleName),
             getCompilerSampleKeyUnit(sampleName),
             precisions[sampleName] ?? 0,

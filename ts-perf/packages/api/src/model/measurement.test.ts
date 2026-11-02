@@ -1,15 +1,6 @@
 import { expect, test } from "vitest";
 
-import {
-    formatComparisonBaseline,
-    formatComparisonBaselineDelta,
-    formatComparisonBaselinePValue,
-    formatComparisonCurrent,
-    formatComparisonMetric,
-    formatComparisonMidline,
-    formatComparisonMidlineDelta,
-    formatComparisonMidlinePValue,
-} from "../format";
+import { formatComparisonBaseline, formatComparisonCurrent, formatComparisonMetric } from "../format";
 import { Benchmark } from "./benchmark";
 import { HostSpecifier } from "./hostSpecifier";
 import { Measurement } from "./measurement";
@@ -28,25 +19,6 @@ test("measurement indices survive serialization and legacy output", () => {
             .scenarioIndex,
     ).toBe(7);
     expect(restored.values?.totalTime?.samples).toEqual([1, 2]);
-});
-
-test("CPU time survives serialization and comparisons with an older compiler", () => {
-    const current = new Measurement("test", 1, measurement.host, 1, {
-        ...measurement.values,
-        cpuTime: computeMetrics([1.234], "CPU time", "s", 3),
-    });
-    const restored = Measurement.create(JSON.parse(JSON.stringify(current)));
-    expect(restored.values?.cpuTime?.samples).toEqual([1.234]);
-
-    const [cpu] = restored.diff(measurement)!.pivot().filter(pivot => pivot.metric === "CPU time");
-    expect(cpu).toBeDefined();
-    expect(formatComparisonCurrent(cpu)).toBe("1.234s");
-    expect(formatComparisonBaseline(cpu)).toBe("");
-    expect(formatComparisonBaselineDelta(cpu)).toBe("");
-    expect(formatComparisonBaselinePValue(cpu)).toBe("");
-    expect(formatComparisonMidline(cpu)).toBe("");
-    expect(formatComparisonMidlineDelta(cpu)).toBe("");
-    expect(formatComparisonMidlinePValue(cpu)).toBe("");
 });
 
 function report() {
