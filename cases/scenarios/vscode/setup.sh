@@ -7,7 +7,7 @@ source ../../common.sh
 
 clone_scenario https://github.com/microsoft/vscode.git
 
-run_sandboxed sh -c 'npm ci --ignore-scripts'
+run_sandboxed sh -c 'npx --yes pnpm@12.16.0 install --frozen-lockfile --ignore-scripts'
 
 # VS Code downloads Electron's types in a postinstall script, which --ignore-scripts
 # skips. Fetch them here instead, verified against VS Code's checksum manifest.
