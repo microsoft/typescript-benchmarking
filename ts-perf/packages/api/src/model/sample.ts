@@ -13,6 +13,7 @@ export const compilerSampleKeys = [
     "bindTime",
     "checkTime",
     "emitTime",
+    "cpuTime",
     "totalTime",
 ] as const;
 
@@ -37,6 +38,7 @@ const compilerSampleKeyToDiagnosticName = {
     bindTime: "Bind time",
     checkTime: "Check time",
     emitTime: "Emit time",
+    cpuTime: "CPU time",
     totalTime: "Total time",
 } as const satisfies { [K in CompilerSampleKey]: string; };
 
@@ -98,6 +100,7 @@ const compilerSampleKeyToUnit = {
     bindTime: "s",
     checkTime: "s",
     emitTime: "s",
+    cpuTime: "s",
     totalTime: "s",
 } as const satisfies { [K in CompilerSampleKey]: "s" | "k" | ""; };
 

@@ -1,9 +1,16 @@
 import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
+import { Writable } from "node:stream";
 
-import { afterEach, expect, test } from "vitest";
+import { Host, Measurement, Scenario } from "@ts-perf/api";
+import { HostContext, Logger } from "@ts-perf/core";
+import { afterEach, expect, test, vi } from "vitest";
 
+import { measureAndRunScenarios } from "../src/benchmark/measure.js";
+import { printComparison as printConsoleComparison } from "../src/benchmark/print/console/comparison.js";
+import { printComparison as printHtmlComparison } from "../src/benchmark/print/html/comparison.js";
+import { printComparison as printMarkdownComparison } from "../src/benchmark/print/markdown/comparison.js";
 import { resolveBuiltPath } from "../src/benchmark/resolveBuiltPath.js";
 
 const tempDirs: string[] = [];
@@ -35,4 +42,70 @@ test("resolves the migrated native compiler for compiler and LSP scenarios", () 
     const builtDir = createBuiltDir("tsc");
     expect(resolveBuiltPath(builtDir, "tsc")).toBe(path.join(builtDir, "tsc"));
     expect(resolveBuiltPath(builtDir, "tsgo")).toBe(path.join(builtDir, "tsc"));
+});
+
+test.each([undefined, 0, 1.234])("records CPU time %s without inventing unavailable values", async cpuTime => {
+    const builtDir = createBuiltDir("tsc.js");
+    fs.writeFileSync(
+        path.join(builtDir, "tsc.js"),
+        `console.log("Symbols: 100");
+        console.log("Bind time: 0.000s");
+        console.log("Total time: 1.000s");
+        ${cpuTime === undefined ? "" : `console.log("CPU time: ${cpuTime.toFixed(3)}s");`}`,
+    );
+    const scenarios = vi.spyOn(Scenario, "findScenarios").mockResolvedValue([
+        new Scenario("test", "tsc", path.join(builtDir, "scenario.json"), []),
+    ]);
+    const hosts = vi.spyOn(Host, "findHosts").mockResolvedValue([Host.current]);
+    try {
+        const report = await measureAndRunScenarios({
+            kind: "tsc",
+            options: { builtDir, iterations: 2 },
+        }, new HostContext(new Logger(0)));
+        const value = report.measurements[0].values?.cpuTime;
+        expect(report.measurements[0].values?.parseTime).toBeUndefined();
+        expect(report.measurements[0].values?.memoryUsed).toBeUndefined();
+        expect(report.measurements[0].values?.errors?.samples).toEqual([0, 0]);
+        expect(report.measurements[0].values?.symbols?.samples).toEqual([100, 100]);
+        expect(report.measurements[0].values?.bindTime?.samples).toEqual([0, 0]);
+        if (cpuTime === undefined) {
+            expect(value).toBeUndefined();
+        }
+        else {
+            expect(value?.samples).toEqual([cpuTime, cpuTime]);
+            expect(value?.unit).toBe("s");
+            expect(value?.precision).toBe(3);
+            const baseline = report.with({
+                measurements: report.measurements.map(measurement =>
+                    Measurement.create({ ...measurement.getComponents(), cpuTime: undefined })
+                ),
+            });
+            const comparison = report.diff(baseline, baseline)!;
+            for (
+                const [format, print] of [
+                    ["html", printHtmlComparison],
+                    ["html-fragment", printHtmlComparison],
+                    ["markdown", printMarkdownComparison],
+                    ["console", printConsoleComparison],
+                ] as const
+            ) {
+                let output = "";
+                const writer = new Writable({
+                    write(chunk, _encoding, callback) {
+                        output += chunk;
+                        callback();
+                    },
+                });
+                print(comparison, { format, baseline: "baseline", midline: "baseline" }, writer);
+                expect(output).toContain("CPU time");
+                expect(output).toContain(`${cpuTime.toFixed(3)}s`);
+                expect(output).not.toContain("NaN");
+                expect(output).not.toContain("Infinity");
+            }
+        }
+    }
+    finally {
+        scenarios.mockRestore();
+        hosts.mockRestore();
+    }
 });
