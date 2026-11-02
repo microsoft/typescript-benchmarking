@@ -159,12 +159,12 @@ export function formatComparisonMetric(comparison: MeasurementComparisonPivot) {
 
 export function formatComparisonBaseline(comparison: MeasurementComparisonPivot) {
     if (comparison.failed) return formatFailedSide(comparison.measurement.baseline?.failed);
-    return comparison.baseline ? formatMean(comparison.baseline) : "";
+    return formatMean(comparison.baseline!);
 }
 
 export function formatComparisonMidline(comparison: MeasurementComparisonPivot) {
     if (comparison.failed) return formatFailedSide(comparison.measurement.midline?.failed);
-    return comparison.midline ? formatMean(comparison.midline) : "";
+    return formatMean(comparison.midline!);
 }
 
 export function formatComparisonCurrent(comparison: MeasurementComparisonPivot) {
@@ -173,23 +173,23 @@ export function formatComparisonCurrent(comparison: MeasurementComparisonPivot) 
 }
 
 export function formatComparisonBaselineDelta(comparison: MeasurementComparisonPivot) {
-    if (comparison.failed || !comparison.baseline) return "";
-    return formatDelta(comparison.benchmark, comparison.baseline, comparison.baselineRelativeIsSignificant);
+    if (comparison.failed) return "";
+    return formatDelta(comparison.benchmark, comparison.baseline!, comparison.baselineRelativeIsSignificant);
 }
 
 export function formatComparisonMidlineDelta(comparison: MeasurementComparisonPivot) {
-    if (comparison.failed || !comparison.midline) return "";
-    return formatDelta(comparison.benchmark, comparison.midline, comparison.midlineRelativeIsSignificant);
+    if (comparison.failed) return "";
+    return formatDelta(comparison.benchmark, comparison.midline!, comparison.midlineRelativeIsSignificant);
 }
 
 export function formatComparisonBaselinePValue(comparison: MeasurementComparisonPivot) {
-    if (comparison.failed || !comparison.baseline) return "";
-    return formatPValue(comparison.baselineRelativePValue, comparison.benchmark, comparison.baseline);
+    if (comparison.failed) return "";
+    return formatPValue(comparison.baselineRelativePValue, comparison.benchmark, comparison.baseline!);
 }
 
 export function formatComparisonMidlinePValue(comparison: MeasurementComparisonPivot) {
-    if (comparison.failed || !comparison.midline) return "";
-    return formatPValue(comparison.midlineRelativePValue, comparison.benchmark, comparison.midline);
+    if (comparison.failed) return "";
+    return formatPValue(comparison.midlineRelativePValue, comparison.benchmark, comparison.midline!);
 }
 
 export function formatComparisonBest(comparison: MeasurementComparisonPivot) {

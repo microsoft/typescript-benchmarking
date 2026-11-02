@@ -447,20 +447,20 @@ function getMetricClassNames(measurement: MeasurementComparisonPivot) {
 }
 
 function getBaselineMeanClassNames(measurement: MeasurementComparisonPivot, ranges: Record<string, Range>) {
-    if (measurement.failed || !measurement.baseline) {
+    if (measurement.failed) {
         return new ClassNames("baseline", "mean").addIf(!!measurement.measurement.baseline?.failed, "bad").toString();
     }
     return new ClassNames("baseline", "mean")
-        .addRange(measurement.baseline.relativeMarginOfError, ranges)
+        .addRange(measurement.baseline!.relativeMarginOfError, ranges)
         .toString();
 }
 
 function getMidlineMeanClassNames(measurement: MeasurementComparisonPivot, ranges: Record<string, Range>) {
-    if (measurement.failed || !measurement.midline) {
+    if (measurement.failed) {
         return new ClassNames("midline", "mean").addIf(!!measurement.measurement.midline?.failed, "bad").toString();
     }
     return new ClassNames("midline", "mean")
-        .addRange(measurement.midline.relativeMarginOfError, ranges)
+        .addRange(measurement.midline!.relativeMarginOfError, ranges)
         .toString();
 }
 
