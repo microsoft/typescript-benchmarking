@@ -11,7 +11,7 @@ run_sandboxed sh -c 'npx --yes pnpm@12.16.0 install --frozen-lockfile --ignore-s
 
 # VS Code downloads Electron's types in a postinstall script, which --ignore-scripts
 # skips. Fetch them here instead, verified against VS Code's checksum manifest.
-ELECTRON_VERSION=$(sed -nE 's/^target="([0-9]+\.[0-9]+\.[0-9]+)"$/\1/p' .npmrc)
+ELECTRON_VERSION=$(jq -er '.nativeBuild.target | strings | select(test("^[0-9]+\\.[0-9]+\\.[0-9]+$"))' package.json)
 ELECTRON_TYPES_SHA256=$(sed -nE 's/^([a-f0-9]{64}) \*electron\.d\.ts$/\1/p' build/checksums/electron.txt)
 test -n "$ELECTRON_VERSION"
 test -n "$ELECTRON_TYPES_SHA256"
