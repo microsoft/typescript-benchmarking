@@ -31,7 +31,7 @@ jobs:
           ref: ${{ inputs.ref }}
           path: compiler
           persist-credentials: false
-      - uses: actions/setup-go@90ad2b35f69faf97585ad74d28fa006d2739b7af
+      - uses: actions/setup-go@7d2730e317c8366225b42fced34583b26440a9cc
         with:
           go-version-file: compiler/tsc/go.mod
           cache-dependency-path: compiler/tsc/go.sum
@@ -116,7 +116,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - run: echo "TMPDIR=$RUNNER_TEMP" >> "$GITHUB_ENV"
-      - uses: actions/setup-go@90ad2b35f69faf97585ad74d28fa006d2739b7af
+      - uses: actions/setup-go@7d2730e317c8366225b42fced34583b26440a9cc
         with:
           go-version: ${{ needs.seed.outputs.go-version }}
           cache: false
