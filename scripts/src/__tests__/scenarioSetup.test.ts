@@ -1,4 +1,5 @@
 import { execFileSync, spawnSync } from "node:child_process";
+import { createHash } from "node:crypto";
 import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
@@ -171,6 +172,66 @@ afterEach(() => {
     for (const tempDir of tempDirs.splice(0)) {
         fs.rmSync(tempDir, { recursive: true });
     }
+});
+
+function runVscodeSetup(target: string | undefined, corruptDownload = false) {
+    const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), "typescript-benchmarking-vscode-"));
+    tempDirs.push(tempDir);
+    const scenarioDir = path.join(tempDir, "cases/scenarios/vscode");
+    const repoDir = path.join(tempDir, "cases/solutions/vscode");
+    const binDir = path.join(tempDir, "bin");
+    fs.mkdirSync(scenarioDir, { recursive: true });
+    fs.mkdirSync(path.join(repoDir, "build/checksums"), { recursive: true });
+    fs.mkdirSync(binDir);
+    fs.copyFileSync(
+        path.join(repoRoot, "cases/scenarios/vscode/setup.sh"),
+        path.join(scenarioDir, "setup.sh"),
+    );
+    fs.writeFileSync(
+        path.join(tempDir, "cases/common.sh"),
+        "clone_scenario() { cd ../../solutions/vscode; }\nrun_sandboxed() { :; }\n",
+    );
+    fs.writeFileSync(path.join(repoDir, "package.json"), JSON.stringify({ nativeBuild: { target } }));
+    const contents = "Electron type declarations\n";
+    const checksum = createHash("sha256").update(contents).digest("hex");
+    fs.writeFileSync(path.join(repoDir, "build/checksums/electron.txt"), `${checksum} *electron.d.ts\n`);
+    fs.writeFileSync(
+        path.join(binDir, "curl"),
+        `#!/usr/bin/env bash
+printf '%s\\n' "$*" > "$CURL_ARGS"
+printf '%s\\n' '${corruptDownload ? "Corrupted download" : contents.trim()}' > .build/typings/electron.d.ts
+`,
+        { mode: 0o755 },
+    );
+    const argsFile = path.join(tempDir, "curl-args");
+    const result = spawnSync("bash", [path.join(scenarioDir, "setup.sh")], {
+        env: { ...process.env, PATH: `${binDir}:${process.env.PATH}`, CURL_ARGS: argsFile },
+        encoding: "utf8",
+        timeout: 10_000,
+    });
+    return { result, args: fs.existsSync(argsFile) ? fs.readFileSync(argsFile, "utf8") : "" };
+}
+
+test("VS Code downloads and verifies Electron types using package.json without .npmrc", () => {
+    const { result, args } = runVscodeSetup("42.7.1");
+    expect(result.status).toBe(0);
+    expect(args).toContain("https://github.com/electron/electron/releases/download/v42.7.1/electron.d.ts");
+    expect(result.stdout).toContain(".build/typings/electron.d.ts: OK");
+});
+
+test.each([undefined, "", "invalid", "42.7.1/other"])(
+    "VS Code rejects invalid Electron version %j before downloading",
+    target => {
+        const { result, args } = runVscodeSetup(target);
+        expect(result.status).not.toBe(0);
+        expect(args).toBe("");
+    },
+);
+
+test("VS Code rejects Electron types that do not match its checksum manifest", () => {
+    const { result } = runVscodeSetup("42.7.1", true);
+    expect(result.status).not.toBe(0);
+    expect(result.stderr).toContain("checksum did NOT match");
 });
 
 function createScenario() {
