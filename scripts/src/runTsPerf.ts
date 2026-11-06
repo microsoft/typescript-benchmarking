@@ -9,7 +9,7 @@ const [subcommand, ...rawArgs] = process.argv.slice(2);
 
 const args = minimist(rawArgs, {
     string: ["builtDir", "save", "saveBlob", "baseline", "load", "baselineName", "benchmarkName", "format"],
-    boolean: ["quiet"],
+    boolean: ["quiet", "paired"],
 });
 
 const tsperfExe = checkNonEmpty(process.env.TSPERF_EXE, "Expected TSPERF_EXE environment variable to be set");
@@ -122,6 +122,9 @@ async function getCommonBenchmarkArgs() {
         }
         if (args.quiet) {
             tsperfArgs.push("--quiet");
+        }
+        if (args.paired) {
+            tsperfArgs.push("--paired");
         }
     }
 
