@@ -110,3 +110,9 @@ test("normalizing times removes per-machine offsets but keeps other metrics", ()
     const [alone] = Benchmark.normalizeTimes([machine([1, 1.2], [10, 20])]);
     expect(alone.measurements[0].values?.totalTime?.samples).toEqual([1, 1.2]);
 });
+
+test("large samples use the normal critical value", () => {
+    const samples = Array.from({ length: 40 }, (_, i) => 1 + (i % 2) / 10);
+    const value = computeMetrics(samples, "Total time", "s", 4)!;
+    expect(value.marginOfError).toBeCloseTo(1.96 * value.standardDeviation / Math.sqrt(40));
+});
