@@ -17,7 +17,15 @@ export TSPERF_SCENARIO_REF_FILE=$SCENARIO_REF_FILE
 SETUP=$TSPERF_SCENARIO_CONFIG_DIR/$TSPERF_JOB_SCENARIO/setup.sh
 if test -f "$SETUP"; then
     echo "Running $SETUP"
-    bash "$SETUP"
+    # Fail stalled downloads so the pipeline's task retries can run;
+    # Azure Pipelines does not retry tasks that hit timeoutInMinutes.
+    timeout --kill-after=1m 15m bash "$SETUP" || {
+        status=$?
+        if [ "$status" -eq 124 ]; then
+            echo "Scenario setup timed out" >&2
+        fi
+        exit "$status"
+    }
 fi
 
 # The pipeline-controlled setup script hands off a commit ID outside the installer mount.

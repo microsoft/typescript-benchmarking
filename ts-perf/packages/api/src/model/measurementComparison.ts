@@ -7,6 +7,7 @@ export interface MeasurementComparisonComponents {
     benchmark: Measurement | MeasurementComponents;
     baseline?: Measurement | MeasurementComponents;
     midline?: Measurement | MeasurementComponents;
+    paired?: boolean;
 }
 
 const hasOwnProperty = Object.prototype.hasOwnProperty;
@@ -21,6 +22,7 @@ export class MeasurementComparison {
         public readonly benchmark: Measurement,
         public readonly baseline?: Measurement,
         public readonly midline?: Measurement,
+        public readonly paired = false,
     ) {
         this.values = {};
         if (this.failed) {
@@ -28,7 +30,12 @@ export class MeasurementComparison {
         }
         for (const key in benchmark.values) {
             if (hasProperty(benchmark.values, key)) {
-                this.values[key] = Value.diff(benchmark.values[key], baseline?.values?.[key], midline?.values?.[key]);
+                this.values[key] = Value.diff(
+                    benchmark.values[key],
+                    baseline?.values?.[key],
+                    midline?.values?.[key],
+                    paired,
+                );
             }
         }
     }
@@ -61,6 +68,7 @@ export class MeasurementComparison {
             Measurement.create(components.benchmark),
             components.baseline && Measurement.create(components.baseline),
             components.midline && Measurement.create(components.midline),
+            components.paired,
         );
     }
 
@@ -69,6 +77,7 @@ export class MeasurementComparison {
             benchmark: this.benchmark,
             baseline: this.baseline,
             midline: this.midline,
+            paired: this.paired,
         };
     }
 
@@ -76,16 +85,18 @@ export class MeasurementComparison {
         const { benchmark = this.benchmark } = components;
         const { baseline = this.baseline } = components;
         const { midline = this.midline } = components;
+        const { paired = this.paired } = components;
 
         if (
             benchmark === this.benchmark
             && baseline === this.baseline
             && midline === this.midline
+            && paired === this.paired
         ) {
             return this;
         }
 
-        return MeasurementComparison.create({ benchmark, baseline, midline });
+        return MeasurementComparison.create({ benchmark, baseline, midline, paired });
     }
 
     public pivot() {

@@ -118,12 +118,17 @@ export class Measurement {
         });
     }
 
-    public static diff(benchmark: Measurement | undefined, baseline: Measurement | undefined, midline?: Measurement) {
-        return benchmark && benchmark.diff(baseline, midline);
+    public static diff(
+        benchmark: Measurement | undefined,
+        baseline: Measurement | undefined,
+        midline?: Measurement,
+        paired?: boolean,
+    ) {
+        return benchmark && benchmark.diff(baseline, midline, paired);
     }
 
-    public diff(baseline: Measurement | undefined, midline?: Measurement) {
-        return baseline || midline ? new MeasurementComparison(this, baseline, midline) : undefined;
+    public diff(baseline: Measurement | undefined, midline?: Measurement, paired?: boolean) {
+        return baseline || midline ? new MeasurementComparison(this, baseline, midline, paired) : undefined;
     }
 
     public pivot() {

@@ -8,6 +8,7 @@ export interface BenchmarkComparisonComponents {
     benchmark: Benchmark | BenchmarkComponents;
     baseline?: Benchmark | BenchmarkComponents;
     midline?: Benchmark | BenchmarkComponents;
+    paired?: boolean;
 }
 
 export class BenchmarkComparison {
@@ -17,6 +18,7 @@ export class BenchmarkComparison {
         public readonly benchmark: Benchmark,
         public readonly baseline: Benchmark | undefined,
         public readonly midline: Benchmark | undefined,
+        public readonly paired = false,
     ) {
         this.measurements = Query
             .from(benchmark.measurements)
@@ -32,7 +34,7 @@ export class BenchmarkComparison {
                 x => x.name,
                 (left, midline) => ({ benchmark: left && left.benchmark, baseline: left && left.baseline, midline }),
             )
-            .select(({ benchmark, baseline, midline }) => Measurement.diff(benchmark, baseline, midline)!)
+            .select(({ benchmark, baseline, midline }) => Measurement.diff(benchmark, baseline, midline, paired)!)
             .where((diff: MeasurementComparison | undefined): diff is MeasurementComparison => diff !== undefined)
             .orderBy(scenario => scenario.scenarioName)
             .thenBy(scenario => scenario.hostName)
@@ -44,6 +46,7 @@ export class BenchmarkComparison {
             Benchmark.create(components.benchmark),
             components.baseline && Benchmark.create(components.baseline),
             components.midline && Benchmark.create(components.midline),
+            components.paired,
         );
     }
 
@@ -52,6 +55,7 @@ export class BenchmarkComparison {
             benchmark: this.benchmark,
             baseline: this.baseline,
             midline: this.midline,
+            paired: this.paired,
         };
     }
 
@@ -59,15 +63,17 @@ export class BenchmarkComparison {
         const { benchmark = this.benchmark } = components;
         const { baseline = this.baseline } = components;
         const { midline = this.midline } = components;
+        const { paired = this.paired } = components;
 
         if (
             benchmark === this.benchmark
             && baseline === this.baseline
             && midline === this.midline
+            && paired === this.paired
         ) {
             return this;
         }
 
-        return BenchmarkComparison.create({ benchmark, baseline, midline });
+        return BenchmarkComparison.create({ benchmark, baseline, midline, paired });
     }
 }

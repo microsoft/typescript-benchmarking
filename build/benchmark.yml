@@ -81,6 +81,13 @@ parameters:
     type: string
     default: azure-linux-3-benchmarks
 
+  # Hosted VMs differ in speed and in how noisy they are; averaging over several
+  # narrows error bars. ProcessResults normalizes away their speed differences.
+  - name: HOSTED_VMS_PER_SCENARIO
+    displayName: Hosted VMs to run each scenario on
+    type: number
+    default: 2
+
   - name: INTERLEAVE_BENCHMARKS
     displayName: Alternate baseline and new benchmark rounds
     type: boolean
@@ -304,6 +311,8 @@ jobs:
         displayName: Compute pipeline setup
         env:
           TSPERF_VARIABLES_FILE: $(Pipeline.Workspace)/setup-variables.json
+          ${{ if parameters.USE_HOSTED_RUNNERS }}:
+            TSPERF_VMS_PER_SCENARIO: ${{ parameters.HOSTED_VMS_PER_SCENARIO }}
 
       - bash: |
           set -eo pipefail
@@ -821,15 +830,22 @@ jobs:
 
           - bash: |
               set -exo pipefail
+              PAIRED_ARGS=()
+              if [ "${INTERLEAVED,,}" = true ]; then
+                PAIRED_ARGS=(--paired)
+              fi
               node $(BENCH_SCRIPTS)/runTsPerf.js benchmark-$(TSPERF_JOB_KIND) \
                 --builtDir $(BUILT_TYPESCRIPT_DIR)/baseline \
                 --baseline $(ARTIFACTS_DIR)/baseline_$(TSPERF_JOB_NAME).$(TSPERF_JOB_KIND).benchmark \
-                --load $(ARTIFACTS_DIR)/new_$(TSPERF_JOB_NAME).$(TSPERF_JOB_KIND).benchmark
+                --load $(ARTIFACTS_DIR)/new_$(TSPERF_JOB_NAME).$(TSPERF_JOB_KIND).benchmark \
+                "${PAIRED_ARGS[@]}"
             target:
               commands: restricted
               settableVariables: none
             displayName: Compare new to baseline benchmark
             condition: and(succeeded(), eq(variables['TSPERF_IS_COMPARISON'], 'true'))
+            env:
+              INTERLEAVED: ${{ parameters.INTERLEAVE_BENCHMARKS }}
 
           - bash: |
               set -eo pipefail
@@ -924,27 +940,47 @@ jobs:
 
             BASELINE_FILES=()
             NEW_FILES=()
+            BASELINE_PARTNER_ARGS=()
+            NEW_PARTNER_ARGS=()
             for JOB_NAME in ${JOB_NAMES}; do
               BASELINE_FILES+=("$(BENCHMARKS_DIR)/baseline_${JOB_NAME}.${KIND}.benchmark")
               NEW_FILES+=("$(BENCHMARKS_DIR)/new_${JOB_NAME}.${KIND}.benchmark")
+              if [[ $(TSPERF_IS_COMPARISON) == "true" ]]; then
+                BASELINE_PARTNER_ARGS+=(--normalizeWith "$(BENCHMARKS_DIR)/new_${JOB_NAME}.${KIND}.benchmark")
+                NEW_PARTNER_ARGS+=(--normalizeWith "$(BENCHMARKS_DIR)/baseline_${JOB_NAME}.${KIND}.benchmark")
+              fi
             done
 
-            node $(TSPERF_EXE) merge --output $(MERGED_DIR)/baseline.${KIND}.benchmark "${BASELINE_FILES[@]}"
+            # Interleaved rounds measure sample i of each side together, and merging keeps
+            # that order on both sides, so those comparisons use the pairs.
+            PAIRED_ARGS=()
+            if [ "${INTERLEAVED,,}" = true ]; then
+              PAIRED_ARGS=(--paired)
+            fi
+
+            # A scenario run on several machines has one file per machine; normalize their speeds.
+            # Both sides of a comparison ran on the same machines, so each machine gets one scale
+            # from both sides, which leaves the ratios between the sides unchanged.
+            node $(TSPERF_EXE) merge --normalize "${BASELINE_PARTNER_ARGS[@]}" \
+              --output $(MERGED_DIR)/baseline.${KIND}.benchmark "${BASELINE_FILES[@]}"
 
             if [[ $(TSPERF_IS_COMPARISON) == "true" ]]; then
-              node $(TSPERF_EXE) merge --output $(MERGED_DIR)/new.${KIND}.benchmark "${NEW_FILES[@]}"
+              node $(TSPERF_EXE) merge --normalize "${NEW_PARTNER_ARGS[@]}" \
+                --output $(MERGED_DIR)/new.${KIND}.benchmark "${NEW_FILES[@]}"
 
               # Print summary for logs
               node $(BENCH_SCRIPTS)/runTsPerf.js benchmark-${KIND} \
                 --builtDir $(BUILT_TYPESCRIPT_DIR)/baseline \
                 --baseline $(MERGED_DIR)/baseline.${KIND}.benchmark \
-                --load $(MERGED_DIR)/new.${KIND}.benchmark
+                --load $(MERGED_DIR)/new.${KIND}.benchmark \
+                "${PAIRED_ARGS[@]}"
 
               echo "<h2>${KIND}</h2>" >> $(Pipeline.Workspace)/comment.html
               node $(BENCH_SCRIPTS)/runTsPerf.js benchmark-${KIND} \
                 --builtDir $(BUILT_TYPESCRIPT_DIR)/baseline \
                 --baseline $(MERGED_DIR)/baseline.${KIND}.benchmark --baselineName "$TSPERF_BASELINE_NAME" \
                 --load $(MERGED_DIR)/new.${KIND}.benchmark --benchmarkName "$TSPERF_NEW_NAME" \
+                "${PAIRED_ARGS[@]}" \
                 --format html-fragment \
                 --quiet >> $(Pipeline.Workspace)/comment.html
             else
@@ -965,6 +1001,7 @@ jobs:
         env:
           TSPERF_NEW_NAME: $(TSPERF_NEW_NAME)
           TSPERF_BASELINE_NAME: $(TSPERF_BASELINE_NAME)
+          INTERLEAVED: ${{ parameters.INTERLEAVE_BENCHMARKS }}
 
       - bash: |
           set -eo pipefail

@@ -112,12 +112,12 @@ export class Value {
         });
     }
 
-    public static diff(benchmark: Value | undefined, baseline: Value | undefined, midline?: Value) {
-        return benchmark && benchmark.diff(baseline, midline);
+    public static diff(benchmark: Value | undefined, baseline: Value | undefined, midline?: Value, paired?: boolean) {
+        return benchmark && benchmark.diff(baseline, midline, paired);
     }
 
-    public diff(baseline: Value | undefined, midline?: Value) {
-        return baseline || midline ? new ValueComparison(this, baseline, midline) : undefined;
+    public diff(baseline: Value | undefined, midline?: Value, paired?: boolean) {
+        return baseline || midline ? new ValueComparison(this, baseline, midline, paired) : undefined;
     }
 
     public toJSON(): any {
@@ -213,7 +213,7 @@ export function computeMetrics(samples: number[], metric: string, unit: string, 
     const standardDeviation = Math.sqrt(variance);
     const standardError = standardDeviation / Math.sqrt(size);
     const tIndex = Math.round(size - 1);
-    const criticalValue = T[tIndex < 1 ? 1 : tIndex > 30 ? 0 : tIndex];
+    const criticalValue = T[tIndex < 1 ? 1 : Math.min(tIndex, T.length - 1)];
     const marginOfError = standardError * criticalValue;
     const relativeMarginOfError = marginOfError / mean;
     return new Value(

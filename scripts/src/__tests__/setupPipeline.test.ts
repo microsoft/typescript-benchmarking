@@ -69,6 +69,34 @@ test("API preset is opt-in, uses pinned Node rather than native, and processes A
     expect(result.parameters.newCommit).toBe("HEAD");
 });
 
+test("scenarios can be split across several hosted VMs", async () => {
+    const options = {
+        input: "faster",
+        baselining: false,
+        isPr: true,
+        shouldLog: false,
+        gitParseRev: fakeGitRevParse,
+        implementation: "corsa",
+    } as const;
+    const single = await setupPipeline(options);
+    const split = await setupPipeline({ ...options, vmsPerScenario: 2 });
+
+    const singleNames = Object.keys(single.matrix.any);
+    expect(Object.keys(split.matrix.any).sort()).toEqual(
+        singleNames.flatMap(name => [`${name}_vm1`, `${name}_vm2`]).sort(),
+    );
+    const [first] = Object.values(single.matrix.any);
+    expect(Object.values(split.matrix.any)).toContainEqual({
+        ...first,
+        TSPERF_JOB_NAME: `${first!.TSPERF_JOB_NAME}_vm2`,
+    });
+    expect(split.outputVariables.TSPERF_JOB_NAMES_TSC!.split(" ")).toHaveLength(singleNames.length * 2);
+
+    await expect(setupPipeline({ ...options, baselining: true, vmsPerScenario: 2 })).rejects.toThrow(
+        "one machine per scenario",
+    );
+});
+
 test("API preset rejects an unpinned host", async () => {
     await expect(setupPipeline({
         input: "api host=native",

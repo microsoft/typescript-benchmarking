@@ -5,6 +5,7 @@ import { Benchmark } from "./benchmark";
 import { HostSpecifier } from "./hostSpecifier";
 import { Measurement } from "./measurement";
 import { computeMetrics } from "./value";
+import { ValueComparison } from "./valueComparison";
 
 const measurement = new Measurement("test", 1, HostSpecifier.create({ name: "node", version: "v24.21.0" }), 1, {
     totalTime: computeMetrics([1, 2], "Total time", "s", 4),
@@ -79,4 +80,85 @@ test("comparisons with a failed side pivot to a single failed row", () => {
     expect(formatComparisonBaseline(pivot)).toBe("");
     expect(formatComparisonCurrent(pivot)).toBe("failed");
     expect(failed.pivot().map(pivot => pivot.failed)).toEqual([true]);
+});
+
+test("normalizing times removes per-machine offsets but keeps other metrics", () => {
+    const host = HostSpecifier.create({ name: "node", version: "v24.21.0" });
+    const machine = (time: number[], memory: number[]) =>
+        report().with({
+            measurements: [
+                new Measurement("test", 1, host, 1, {
+                    totalTime: computeMetrics(time, "Total time", "s", 4),
+                    memoryUsed: computeMetrics(memory, "Memory used", "k", 0),
+                }),
+            ],
+        });
+    const [fast, slow] = Benchmark.normalizeTimes([machine([1, 1.2], [10, 20]), machine([2, 2.4], [30, 40])]);
+
+    for (const benchmark of [fast, slow]) {
+        const samples = benchmark.measurements[0].values!.totalTime!.samples;
+        expect(samples[0]).toBeCloseTo(1.5);
+        expect(samples[1]).toBeCloseTo(1.8);
+    }
+    expect(fast.measurements[0].values?.memoryUsed?.samples).toEqual([10, 20]);
+
+    const merged = fast.merge(slow).measurements[0].values!.totalTime!;
+    expect(merged.mean).toBeCloseTo(1.65);
+    expect(merged.relativeMarginOfError).toBeLessThan(
+        machine([1, 1.2, 2, 2.4], [0]).measurements[0].values!.totalTime!.relativeMarginOfError,
+    );
+
+    const [alone] = Benchmark.normalizeTimes([machine([1, 1.2], [10, 20])]);
+    expect(alone.measurements[0].values?.totalTime?.samples).toEqual([1, 1.2]);
+});
+
+test("normalizing with partners keeps the ratios between paired samples", () => {
+    const host = HostSpecifier.create({ name: "node", version: "v24.21.0" });
+    const machine = (time: number[]) =>
+        report().with({
+            measurements: [
+                new Measurement("test", 1, host, 1, { totalTime: computeMetrics(time, "Total time", "s", 4) }),
+            ],
+        });
+    const baselines = [machine([1, 1]), machine([2, 2])];
+    const news = [machine([1.1, 1.1]), machine([1.8, 1.8])];
+    const normalizedBaselines = Benchmark.normalizeTimes(baselines, news);
+    const normalizedNews = Benchmark.normalizeTimes(news, baselines);
+
+    for (let i = 0; i < 2; i++) {
+        const baseline = normalizedBaselines[i].measurements[0].values!.totalTime!.samples[0];
+        const current = normalizedNews[i].measurements[0].values!.totalTime!.samples[0];
+        const original = news[i].measurements[0].values!.totalTime!.samples[0]
+            / baselines[i].measurements[0].values!.totalTime!.samples[0];
+        expect(current / baseline).toBeCloseTo(original);
+    }
+    expect(() => Benchmark.normalizeTimes(baselines, [news[0]])).toThrow();
+});
+
+test("large samples use the normal critical value", () => {
+    const samples = Array.from({ length: 40 }, (_, i) => 1 + (i % 2) / 10);
+    const value = computeMetrics(samples, "Total time", "s", 4)!;
+    expect(value.marginOfError).toBeCloseTo(1.96 * value.standardDeviation / Math.sqrt(40));
+});
+
+test("paired comparisons use the ratios of samples measured together", () => {
+    // Each pair shares the machine's speed at the time; one new sample also hit a stall.
+    const speeds = [1, 3, 1.5, 2.5, 1.2, 2, 2.8, 1.8, 1.1, 2.2];
+    const baseline = computeMetrics(speeds, "Total time", "s", 4)!;
+    const current = computeMetrics(speeds.map((x, i) => x * (i === 3 ? 2 : 1.02)), "Total time", "s", 4)!;
+
+    const unpaired = new ValueComparison(current, baseline);
+    expect(unpaired.baselineRelativeIsSignificant).toBe(false);
+
+    const paired = new ValueComparison(current, baseline, /*midline*/ undefined, /*paired*/ true);
+    expect(paired.baselineRelativeDelta).toBeCloseTo(0.02);
+    expect(paired.baselineRelativeIsSignificant).toBe(true);
+
+    const uneven = new ValueComparison(
+        current,
+        computeMetrics(speeds.slice(1), "Total time", "s", 4)!,
+        undefined,
+        true,
+    );
+    expect(uneven.baselineRelativeDelta).toBeCloseTo((current.mean - uneven.baseline!.mean) / uneven.baseline!.mean);
 });

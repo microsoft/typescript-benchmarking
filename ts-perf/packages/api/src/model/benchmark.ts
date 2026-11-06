@@ -13,8 +13,19 @@ import { HostPattern } from "./hostPattern";
 import { Measurement, MeasurementComponents } from "./measurement";
 import { Repository, RepositoryComponents } from "./repository";
 import { Scenario, ScenarioComponents } from "./scenario";
+import { computeMetrics, Value } from "./value";
 
 const blobPrefixRegExp = /^blob:/i;
+
+const timeUnits: ReadonlySet<string> = new Set(["s", "ms"]);
+
+function* timeValues(measurement: Measurement): Iterable<[key: string, value: Value]> {
+    for (const [key, value] of Object.entries(measurement.values ?? {})) {
+        if (value && timeUnits.has(value.unit) && value.mean > 0) {
+            yield [key, value];
+        }
+    }
+}
 
 export interface BenchmarkComponents {
     date?: string;
@@ -240,12 +251,91 @@ export class Benchmark {
         }
     }
 
-    public static diff(benchmark: Benchmark | undefined, baseline: Benchmark | undefined, midline?: Benchmark) {
-        return benchmark && benchmark.diff(baseline, midline);
+    /**
+     * Rescales time samples so that, for each measurement found in more than one
+     * benchmark, every benchmark's mean equals the average of those means. Results
+     * from different machines can then be merged without the speed differences
+     * between machines counting as sample noise.
+     *
+     * When `partners` is given, `partners[i]` ran on the same machine as
+     * `benchmarks[i]`, and each machine's speed is taken from both. Normalizing
+     * the partners with `benchmarks` as their partners then applies the same scale
+     * to both sides, which keeps the ratios between paired samples unchanged.
+     */
+    public static normalizeTimes(benchmarks: readonly Benchmark[], partners?: readonly Benchmark[]): Benchmark[] {
+        if (partners && partners.length !== benchmarks.length) {
+            throw new Error("Expected one partner benchmark for each benchmark.");
+        }
+
+        const speeds = benchmarks.map((benchmark, i) => {
+            const partnerMeans = new Map<string, number>();
+            for (const measurement of partners?.[i].measurements ?? []) {
+                for (const [key, value] of timeValues(measurement)) {
+                    partnerMeans.set(`${measurement.name}\0${key}`, value.mean);
+                }
+            }
+            const speeds = new Map<string, number>();
+            for (const measurement of benchmark.measurements) {
+                for (const [key, value] of timeValues(measurement)) {
+                    const id = `${measurement.name}\0${key}`;
+                    const partnerMean = partnerMeans.get(id);
+                    speeds.set(id, partnerMean === undefined ? value.mean : (value.mean + partnerMean) / 2);
+                }
+            }
+            return speeds;
+        });
+
+        const all = new Map<string, number[]>();
+        for (const machine of speeds) {
+            for (const [id, speed] of machine) {
+                let list = all.get(id);
+                if (!list) {
+                    all.set(id, list = []);
+                }
+                list.push(speed);
+            }
+        }
+
+        return benchmarks.map((benchmark, i) =>
+            benchmark.with({
+                measurements: benchmark.measurements.map(measurement => {
+                    const values: Partial<Record<string, Value>> = {};
+                    for (const [key, value] of timeValues(measurement)) {
+                        const id = `${measurement.name}\0${key}`;
+                        const list = all.get(id)!;
+                        if (list.length < 2) {
+                            continue;
+                        }
+                        const scale = list.reduce((a, b) => a + b) / list.length / speeds[i].get(id)!;
+                        values[key] = computeMetrics(
+                            value.samples.map(x => x * scale),
+                            value.metric,
+                            value.unit,
+                            value.precision,
+                        ) ?? value;
+                    }
+                    return measurement.with(values as MeasurementComponents);
+                }),
+            })
+        );
     }
 
-    public diff(baseline: Benchmark | undefined, midline?: Benchmark) {
-        return baseline || midline ? new BenchmarkComparison(this, baseline, midline) : undefined;
+    /**
+     * Compares `benchmark` to `baseline` and `midline`. With `paired`, sample i of each
+     * was measured together, such as in alternating rounds on one machine, and deltas
+     * come from the ratios of those pairs.
+     */
+    public static diff(
+        benchmark: Benchmark | undefined,
+        baseline: Benchmark | undefined,
+        midline?: Benchmark,
+        paired?: boolean,
+    ) {
+        return benchmark && benchmark.diff(baseline, midline, paired);
+    }
+
+    public diff(baseline: Benchmark | undefined, midline?: Benchmark, paired?: boolean) {
+        return baseline || midline ? new BenchmarkComparison(this, baseline, midline, paired) : undefined;
     }
 
     public filter(scenarios: string[], hosts: string[]) {

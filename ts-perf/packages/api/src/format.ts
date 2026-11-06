@@ -21,18 +21,13 @@ export function formatPValue(p: number, current: Value | MeasurementPivot, basel
     return `p=${p.toFixed(3)} n=${n1 === n2 ? n1 : `${n1}+${n2}`}`;
 }
 
-export function formatDelta(
-    current: Value | MeasurementPivot,
-    baseline: Value | MeasurementPivot,
-    isSignificant: boolean,
-) {
+export function formatDelta(relativeDelta: number, baseline: Value | MeasurementPivot, isSignificant: boolean) {
     if (!isSignificant) {
         return "~";
     }
 
-    const delta = current.mean - baseline.mean;
-    const relativeDelta = delta / baseline.mean;
-    return formatUnit(delta, current, /*sign*/ true) + " (" + formatPercent(relativeDelta, /*sign*/ true, 6) + ")";
+    const delta = relativeDelta * baseline.mean;
+    return formatUnit(delta, baseline, /*sign*/ true) + " (" + formatPercent(relativeDelta, /*sign*/ true, 6) + ")";
 }
 
 const percentFormat = new Intl.NumberFormat("en-US", {
@@ -174,12 +169,16 @@ export function formatComparisonCurrent(comparison: MeasurementComparisonPivot) 
 
 export function formatComparisonBaselineDelta(comparison: MeasurementComparisonPivot) {
     if (comparison.failed) return "";
-    return formatDelta(comparison.benchmark, comparison.baseline!, comparison.baselineRelativeIsSignificant);
+    return formatDelta(
+        comparison.baselineRelativeDelta,
+        comparison.baseline!,
+        comparison.baselineRelativeIsSignificant,
+    );
 }
 
 export function formatComparisonMidlineDelta(comparison: MeasurementComparisonPivot) {
     if (comparison.failed) return "";
-    return formatDelta(comparison.benchmark, comparison.midline!, comparison.midlineRelativeIsSignificant);
+    return formatDelta(comparison.midlineRelativeDelta, comparison.midline!, comparison.midlineRelativeIsSignificant);
 }
 
 export function formatComparisonBaselinePValue(comparison: MeasurementComparisonPivot) {
