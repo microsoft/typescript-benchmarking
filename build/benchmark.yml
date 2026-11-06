@@ -81,6 +81,13 @@ parameters:
     type: string
     default: azure-linux-3-benchmarks
 
+  # Hosted VMs differ in speed and in how noisy they are; averaging over several
+  # narrows error bars. ProcessResults normalizes away their speed differences.
+  - name: HOSTED_VMS_PER_SCENARIO
+    displayName: Hosted VMs to run each scenario on
+    type: number
+    default: 2
+
   - name: INTERLEAVE_BENCHMARKS
     displayName: Alternate baseline and new benchmark rounds
     type: boolean
@@ -304,6 +311,8 @@ jobs:
         displayName: Compute pipeline setup
         env:
           TSPERF_VARIABLES_FILE: $(Pipeline.Workspace)/setup-variables.json
+          ${{ if parameters.USE_HOSTED_RUNNERS }}:
+            TSPERF_VMS_PER_SCENARIO: ${{ parameters.HOSTED_VMS_PER_SCENARIO }}
 
       - bash: |
           set -eo pipefail
@@ -929,10 +938,11 @@ jobs:
               NEW_FILES+=("$(BENCHMARKS_DIR)/new_${JOB_NAME}.${KIND}.benchmark")
             done
 
-            node $(TSPERF_EXE) merge --output $(MERGED_DIR)/baseline.${KIND}.benchmark "${BASELINE_FILES[@]}"
+            # A scenario run on several machines has one file per machine; normalize their speeds.
+            node $(TSPERF_EXE) merge --normalize --output $(MERGED_DIR)/baseline.${KIND}.benchmark "${BASELINE_FILES[@]}"
 
             if [[ $(TSPERF_IS_COMPARISON) == "true" ]]; then
-              node $(TSPERF_EXE) merge --output $(MERGED_DIR)/new.${KIND}.benchmark "${NEW_FILES[@]}"
+              node $(TSPERF_EXE) merge --normalize --output $(MERGED_DIR)/new.${KIND}.benchmark "${NEW_FILES[@]}"
 
               # Print summary for logs
               node $(BENCH_SCRIPTS)/runTsPerf.js benchmark-${KIND} \

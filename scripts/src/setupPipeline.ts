@@ -513,11 +513,19 @@ export interface SetupPipelineInput {
     isPr: boolean;
     implementation: TypeScriptImplementation;
     shouldLog: boolean;
+    /**
+     * Runs each scenario on this many machines. ProcessResults normalizes away the
+     * speed differences between them when merging, so this narrows error bars on
+     * hosted VMs whose noise varies from VM to VM.
+     */
+    vmsPerScenario?: number;
     gitParseRev: (query: string) => Promise<GitParseRevResult>;
 }
 
 export async function setupPipeline(input: SetupPipelineInput) {
-    const { baselining, implementation, shouldLog } = input;
+    const { baselining, implementation, shouldLog, vmsPerScenario = 1 } = input;
+    assert(Number.isInteger(vmsPerScenario) && vmsPerScenario >= 1, "Expected a positive VM count per scenario");
+    assert(!baselining || vmsPerScenario === 1, "Baseline runs must use one machine per scenario");
 
     const parameters = await parseInput(input);
     if (parameters.preset === "api" && implementation !== "corsa") {
@@ -561,29 +569,32 @@ export async function setupPipeline(input: SetupPipelineInput) {
 
     for (const scenario of transformPreset(parameters, preset(), implementation)) {
         const agent = baselining ? scenario.agent : "any";
-        const jobName = sanitizeJobName(`${scenario.kind}_${scenario.host}_${scenario.name}`);
-        matrix[agent][jobName] = {
-            TSPERF_JOB_KIND: scenario.kind,
-            TSPERF_JOB_NAME: jobName,
-            TSPERF_JOB_HOST: scenario.host,
-            TSPERF_JOB_SCENARIO: scenario.name,
-            TSPERF_JOB_ITERATIONS: scenario.iterations,
-            TSPERF_JOB_WARMUPS: scenario.warmups,
-        };
-        processKinds.add(scenario.kind);
-        let jobNames = jobNamesByKind.get(scenario.kind);
-        if (!jobNames) {
-            jobNamesByKind.set(scenario.kind, jobNames = []);
-        }
-        jobNames.push(jobName);
+        const baseJobName = `${scenario.kind}_${scenario.host}_${scenario.name}`;
+        for (let vm = 1; vm <= vmsPerScenario; vm++) {
+            const jobName = sanitizeJobName(vmsPerScenario === 1 ? baseJobName : `${baseJobName}_vm${vm}`);
+            matrix[agent][jobName] = {
+                TSPERF_JOB_KIND: scenario.kind,
+                TSPERF_JOB_NAME: jobName,
+                TSPERF_JOB_HOST: scenario.host,
+                TSPERF_JOB_SCENARIO: scenario.name,
+                TSPERF_JOB_ITERATIONS: scenario.iterations,
+                TSPERF_JOB_WARMUPS: scenario.warmups,
+            };
+            processKinds.add(scenario.kind);
+            let jobNames = jobNamesByKind.get(scenario.kind);
+            if (!jobNames) {
+                jobNamesByKind.set(scenario.kind, jobNames = []);
+            }
+            jobNames.push(jobName);
 
-        let cost = scenario.cost * (scenario.iterations + scenario.warmups) + jobOverhead;
-        if (!baselining) {
-            cost *= 2;
+            let cost = scenario.cost * (scenario.iterations + scenario.warmups) + jobOverhead;
+            if (!baselining) {
+                cost *= 2;
+            }
+            totalCost += cost;
+            maxCost = Math.max(maxCost, cost);
+            costPerAgent.set(agent, (costPerAgent.get(agent) ?? 0) + cost);
         }
-        totalCost += cost;
-        maxCost = Math.max(maxCost, cost);
-        costPerAgent.set(agent, (costPerAgent.get(agent) ?? 0) + cost);
     }
 
     matrix = sortKeys(matrix, { deep: true });
@@ -691,6 +702,7 @@ async function main() {
     const input = getNonEmptyEnv("TSPERF_PRESET");
     const baselining = parseBoolean(process.env.USE_BASELINE_MACHINE, false);
     const isPr = parseBoolean(process.env.IS_PR, false);
+    const vmsPerScenario = Number(process.env.TSPERF_VMS_PER_SCENARIO || "1");
     const typescriptDir = getNonEmptyEnv("TYPESCRIPT_DIR");
     const implementation = detectTypeScriptImplementation(typescriptDir);
     assert(implementation, `Expected ${typescriptDir} to contain a TypeScript repository`);
@@ -701,6 +713,7 @@ async function main() {
         isPr,
         implementation,
         shouldLog: true,
+        vmsPerScenario,
         gitParseRev,
     });
     await fs.writeFile(getNonEmptyEnv("TSPERF_VARIABLES_FILE"), JSON.stringify(outputVariables), { flag: "wx" });
