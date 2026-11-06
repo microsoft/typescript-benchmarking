@@ -80,3 +80,33 @@ test("comparisons with a failed side pivot to a single failed row", () => {
     expect(formatComparisonCurrent(pivot)).toBe("failed");
     expect(failed.pivot().map(pivot => pivot.failed)).toEqual([true]);
 });
+
+test("normalizing times removes per-machine offsets but keeps other metrics", () => {
+    const host = HostSpecifier.create({ name: "node", version: "v24.21.0" });
+    const machine = (time: number[], memory: number[]) =>
+        report().with({
+            measurements: [
+                new Measurement("test", 1, host, 1, {
+                    totalTime: computeMetrics(time, "Total time", "s", 4),
+                    memoryUsed: computeMetrics(memory, "Memory used", "k", 0),
+                }),
+            ],
+        });
+    const [fast, slow] = Benchmark.normalizeTimes([machine([1, 1.2], [10, 20]), machine([2, 2.4], [30, 40])]);
+
+    for (const benchmark of [fast, slow]) {
+        const samples = benchmark.measurements[0].values!.totalTime!.samples;
+        expect(samples[0]).toBeCloseTo(1.5);
+        expect(samples[1]).toBeCloseTo(1.8);
+    }
+    expect(fast.measurements[0].values?.memoryUsed?.samples).toEqual([10, 20]);
+
+    const merged = fast.merge(slow).measurements[0].values!.totalTime!;
+    expect(merged.mean).toBeCloseTo(1.65);
+    expect(merged.relativeMarginOfError).toBeLessThan(
+        machine([1, 1.2, 2, 2.4], [0]).measurements[0].values!.totalTime!.relativeMarginOfError,
+    );
+
+    const [alone] = Benchmark.normalizeTimes([machine([1, 1.2], [10, 20])]);
+    expect(alone.measurements[0].values?.totalTime?.samples).toEqual([1, 1.2]);
+});

@@ -13,8 +13,19 @@ import { HostPattern } from "./hostPattern";
 import { Measurement, MeasurementComponents } from "./measurement";
 import { Repository, RepositoryComponents } from "./repository";
 import { Scenario, ScenarioComponents } from "./scenario";
+import { computeMetrics, Value } from "./value";
 
 const blobPrefixRegExp = /^blob:/i;
+
+const timeUnits: ReadonlySet<string> = new Set(["s", "ms"]);
+
+function* timeValues(measurement: Measurement): Iterable<[key: string, value: Value]> {
+    for (const [key, value] of Object.entries(measurement.values ?? {})) {
+        if (value && timeUnits.has(value.unit) && value.mean > 0) {
+            yield [key, value];
+        }
+    }
+}
 
 export interface BenchmarkComponents {
     date?: string;
@@ -238,6 +249,50 @@ export class Benchmark {
                 return true;
             }
         }
+    }
+
+    /**
+     * Rescales time samples so that, for each measurement found in more than one
+     * benchmark, every benchmark's mean equals the average of those means. Results
+     * from different machines can then be merged without the speed differences
+     * between machines counting as sample noise.
+     */
+    public static normalizeTimes(benchmarks: readonly Benchmark[]): Benchmark[] {
+        const means = new Map<string, number[]>();
+        for (const benchmark of benchmarks) {
+            for (const measurement of benchmark.measurements) {
+                for (const [key, value] of timeValues(measurement)) {
+                    const id = `${measurement.name}\0${key}`;
+                    let list = means.get(id);
+                    if (!list) {
+                        means.set(id, list = []);
+                    }
+                    list.push(value.mean);
+                }
+            }
+        }
+
+        return benchmarks.map(benchmark =>
+            benchmark.with({
+                measurements: benchmark.measurements.map(measurement => {
+                    const values: Partial<Record<string, Value>> = {};
+                    for (const [key, value] of timeValues(measurement)) {
+                        const list = means.get(`${measurement.name}\0${key}`)!;
+                        if (list.length < 2) {
+                            continue;
+                        }
+                        const scale = list.reduce((a, b) => a + b) / list.length / value.mean;
+                        values[key] = computeMetrics(
+                            value.samples.map(x => x * scale),
+                            value.metric,
+                            value.unit,
+                            value.precision,
+                        ) ?? value;
+                    }
+                    return measurement.with(values as MeasurementComponents);
+                }),
+            })
+        );
     }
 
     public static diff(benchmark: Benchmark | undefined, baseline: Benchmark | undefined, midline?: Benchmark) {

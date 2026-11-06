@@ -5,6 +5,7 @@ export interface MergeOptions {
     files: string[];
     output: string;
     iterations?: number;
+    normalize?: boolean;
 }
 
 export async function merge(options: MergeOptions) {
@@ -18,6 +19,10 @@ export async function merge(options: MergeOptions) {
 
     if (benchmarks.length < 1) {
         throw new Error(`Expected at least one benchmark file`);
+    }
+
+    if (options.normalize) {
+        benchmarks = Benchmark.normalizeTimes(benchmarks);
     }
 
     try {
@@ -61,6 +66,11 @@ const command: Command<MergeOptions> = {
                     throw new CommandLineParseError(`Option '${arg}' expects a positive integer.`, /*help*/ true);
                 }
             },
+        },
+        normalize: {
+            type: "boolean",
+            description:
+                "Rescales time samples so each file has the same mean for measurements found in several files, such as when merging results from different machines.",
         },
     },
     exec: ({ options }) => merge(options),
