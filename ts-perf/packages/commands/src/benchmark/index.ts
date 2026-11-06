@@ -34,6 +34,7 @@ export interface BenchmarkOptions extends AzureStorageOptions, CommonOptions {
     baselineName?: string;
     midline?: string;
     midlineName?: string;
+    paired?: boolean;
     benchmarkName?: string;
     warmups?: number;
     iterations?: number;
@@ -109,7 +110,7 @@ export async function benchmark(tsoptions: TSOptions, host: HostContext) {
 
         const errors: MeasurementComparison[] = [];
         if (baseline || midline) {
-            const comparison = benchmark.diff(baseline, midline)!;
+            const comparison = benchmark.diff(baseline, midline, options.paired)!;
             printComparison(comparison, options, outputStream || host.outputStream!);
             if (options.errorOutOfRange) {
                 for (const measurement of comparison.measurements) {
@@ -226,6 +227,11 @@ const command: Command<BenchmarkOptions> = {
             param: "file",
             description: "Compares the benchmark to a midline from <file>.",
             validate: validatePath,
+        },
+        paired: {
+            type: "boolean",
+            description:
+                "Treats samples with the same index in each file as measured together, such as in alternating rounds on one machine, and compares them as pairs.",
         },
         hosts: {
             type: "string",

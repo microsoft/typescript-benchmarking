@@ -181,12 +181,16 @@ function formatMean(measurement: Value | MeasurementPivot) {
 
 function formatComparisonBaselineDelta(comparison: MeasurementComparisonPivot) {
     if (comparison.failed) return "";
-    return formatDelta(comparison.benchmark, comparison.baseline!, comparison.baselineRelativeIsSignificant);
+    return formatDelta(
+        comparison.baselineRelativeDelta,
+        comparison.baseline!,
+        comparison.baselineRelativeIsSignificant,
+    );
 }
 
 function formatComparisonMidlineDelta(comparison: MeasurementComparisonPivot) {
     if (comparison.failed) return "";
-    return formatDelta(comparison.benchmark, comparison.midline!, comparison.midlineRelativeIsSignificant);
+    return formatDelta(comparison.midlineRelativeDelta, comparison.midline!, comparison.midlineRelativeIsSignificant);
 }
 
 export function formatComparisonBaselinePValue(comparison: MeasurementComparisonPivot) {
@@ -205,14 +209,13 @@ export function formatPValue(p: number, current: Value | MeasurementPivot, basel
     return `p=${p.toFixed(3)} n=${n1 === n2 ? n1 : `${n1}+${n2}`}`;
 }
 
-function formatDelta(current: Value | MeasurementPivot, baseline: Value | MeasurementPivot, isSignificant: boolean) {
+function formatDelta(relativeDelta: number, baseline: Value | MeasurementPivot, isSignificant: boolean) {
     if (!isSignificant) {
         return "~";
     }
 
-    const delta = current.mean - baseline.mean;
-    const relativeDelta = delta / baseline.mean;
-    return markdown`${formatUnit(delta, current, /*sign*/ true)}<br /><sup>${
+    const delta = relativeDelta * baseline.mean;
+    return markdown`${formatUnit(delta, baseline, /*sign*/ true)}<br /><sup>${
         formatPercent(relativeDelta, /*sign*/ true)
     }</sup>`;
 }

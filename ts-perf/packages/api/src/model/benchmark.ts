@@ -320,12 +320,22 @@ export class Benchmark {
         );
     }
 
-    public static diff(benchmark: Benchmark | undefined, baseline: Benchmark | undefined, midline?: Benchmark) {
-        return benchmark && benchmark.diff(baseline, midline);
+    /**
+     * Compares `benchmark` to `baseline` and `midline`. With `paired`, sample i of each
+     * was measured together, such as in alternating rounds on one machine, and deltas
+     * come from the ratios of those pairs.
+     */
+    public static diff(
+        benchmark: Benchmark | undefined,
+        baseline: Benchmark | undefined,
+        midline?: Benchmark,
+        paired?: boolean,
+    ) {
+        return benchmark && benchmark.diff(baseline, midline, paired);
     }
 
-    public diff(baseline: Benchmark | undefined, midline?: Benchmark) {
-        return baseline || midline ? new BenchmarkComparison(this, baseline, midline) : undefined;
+    public diff(baseline: Benchmark | undefined, midline?: Benchmark, paired?: boolean) {
+        return baseline || midline ? new BenchmarkComparison(this, baseline, midline, paired) : undefined;
     }
 
     public filter(scenarios: string[], hosts: string[]) {

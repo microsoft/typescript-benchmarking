@@ -1,5 +1,6 @@
 import { describe, expect, test } from "vitest";
 
+import { hodgesLehmann, signedRankTest } from "../src/signedRank.js";
 import { uDistributionCdf } from "../src/uDistribution.js";
 import { utest } from "../src/utest.js";
 
@@ -68,5 +69,31 @@ describe("utest", () => {
     test("treats samples where all values are equal as non-significant", () => {
         expect(utest([2, 2, 2, 2], [2, 2, 2, 2])).toBe(1);
         expect(utest(Array(26).fill(2), Array(26).fill(2))).toBe(1);
+    });
+});
+
+describe("signedRankTest", () => {
+    test.each([
+        [[1, 2, 3, 4, 5], 0.0625],
+        [[1, -2, 3, 4, -5, 6, 7, 8], 0.1484375],
+        [[1, -2, 3, 4, -5, 6, 7, 8, 9, 10, -11, 12], 0.10986328125],
+    ])("matches SciPy's exact p-value for %#", (x, expected) => {
+        expect(signedRankTest(x)).toBeCloseTo(expected, 15);
+    });
+
+    test("matches SciPy's corrected normal approximation with ties", () => {
+        expect(signedRankTest([1, 1, -2, 3, 3, 4, 5, -6, 7, 8, 8, 9])).toBeCloseTo(0.03079040406881276, 12);
+    });
+
+    test("drops zeros", () => {
+        expect(signedRankTest([0, 0, 1, 2, 3, 4, 5])).toBe(signedRankTest([1, 2, 3, 4, 5]));
+        expect(signedRankTest([0, 0])).toBe(1);
+    });
+});
+
+describe("hodgesLehmann", () => {
+    test("is the median of the pairwise averages", () => {
+        expect(hodgesLehmann([1, 2, 3, 10])).toBe(2.75);
+        expect(hodgesLehmann([4])).toBe(4);
     });
 });

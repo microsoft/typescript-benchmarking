@@ -112,12 +112,12 @@ export class Value {
         });
     }
 
-    public static diff(benchmark: Value | undefined, baseline: Value | undefined, midline?: Value) {
-        return benchmark && benchmark.diff(baseline, midline);
+    public static diff(benchmark: Value | undefined, baseline: Value | undefined, midline?: Value, paired?: boolean) {
+        return benchmark && benchmark.diff(baseline, midline, paired);
     }
 
-    public diff(baseline: Value | undefined, midline?: Value) {
-        return baseline || midline ? new ValueComparison(this, baseline, midline) : undefined;
+    public diff(baseline: Value | undefined, midline?: Value, paired?: boolean) {
+        return baseline || midline ? new ValueComparison(this, baseline, midline, paired) : undefined;
     }
 
     public toJSON(): any {
