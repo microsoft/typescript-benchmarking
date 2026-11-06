@@ -256,32 +256,57 @@ export class Benchmark {
      * benchmark, every benchmark's mean equals the average of those means. Results
      * from different machines can then be merged without the speed differences
      * between machines counting as sample noise.
+     *
+     * When `partners` is given, `partners[i]` ran on the same machine as
+     * `benchmarks[i]`, and each machine's speed is taken from both. Normalizing
+     * the partners with `benchmarks` as their partners then applies the same scale
+     * to both sides, which keeps the ratios between paired samples unchanged.
      */
-    public static normalizeTimes(benchmarks: readonly Benchmark[]): Benchmark[] {
-        const means = new Map<string, number[]>();
-        for (const benchmark of benchmarks) {
+    public static normalizeTimes(benchmarks: readonly Benchmark[], partners?: readonly Benchmark[]): Benchmark[] {
+        if (partners && partners.length !== benchmarks.length) {
+            throw new Error("Expected one partner benchmark for each benchmark.");
+        }
+
+        const speeds = benchmarks.map((benchmark, i) => {
+            const partnerMeans = new Map<string, number>();
+            for (const measurement of partners?.[i].measurements ?? []) {
+                for (const [key, value] of timeValues(measurement)) {
+                    partnerMeans.set(`${measurement.name}\0${key}`, value.mean);
+                }
+            }
+            const speeds = new Map<string, number>();
             for (const measurement of benchmark.measurements) {
                 for (const [key, value] of timeValues(measurement)) {
                     const id = `${measurement.name}\0${key}`;
-                    let list = means.get(id);
-                    if (!list) {
-                        means.set(id, list = []);
-                    }
-                    list.push(value.mean);
+                    const partnerMean = partnerMeans.get(id);
+                    speeds.set(id, partnerMean === undefined ? value.mean : (value.mean + partnerMean) / 2);
                 }
+            }
+            return speeds;
+        });
+
+        const all = new Map<string, number[]>();
+        for (const machine of speeds) {
+            for (const [id, speed] of machine) {
+                let list = all.get(id);
+                if (!list) {
+                    all.set(id, list = []);
+                }
+                list.push(speed);
             }
         }
 
-        return benchmarks.map(benchmark =>
+        return benchmarks.map((benchmark, i) =>
             benchmark.with({
                 measurements: benchmark.measurements.map(measurement => {
                     const values: Partial<Record<string, Value>> = {};
                     for (const [key, value] of timeValues(measurement)) {
-                        const list = means.get(`${measurement.name}\0${key}`)!;
+                        const id = `${measurement.name}\0${key}`;
+                        const list = all.get(id)!;
                         if (list.length < 2) {
                             continue;
                         }
-                        const scale = list.reduce((a, b) => a + b) / list.length / value.mean;
+                        const scale = list.reduce((a, b) => a + b) / list.length / speeds[i].get(id)!;
                         values[key] = computeMetrics(
                             value.samples.map(x => x * scale),
                             value.metric,

@@ -933,16 +933,26 @@ jobs:
 
             BASELINE_FILES=()
             NEW_FILES=()
+            BASELINE_PARTNER_ARGS=()
+            NEW_PARTNER_ARGS=()
             for JOB_NAME in ${JOB_NAMES}; do
               BASELINE_FILES+=("$(BENCHMARKS_DIR)/baseline_${JOB_NAME}.${KIND}.benchmark")
               NEW_FILES+=("$(BENCHMARKS_DIR)/new_${JOB_NAME}.${KIND}.benchmark")
+              if [[ $(TSPERF_IS_COMPARISON) == "true" ]]; then
+                BASELINE_PARTNER_ARGS+=(--normalizeWith "$(BENCHMARKS_DIR)/new_${JOB_NAME}.${KIND}.benchmark")
+                NEW_PARTNER_ARGS+=(--normalizeWith "$(BENCHMARKS_DIR)/baseline_${JOB_NAME}.${KIND}.benchmark")
+              fi
             done
 
             # A scenario run on several machines has one file per machine; normalize their speeds.
-            node $(TSPERF_EXE) merge --normalize --output $(MERGED_DIR)/baseline.${KIND}.benchmark "${BASELINE_FILES[@]}"
+            # Both sides of a comparison ran on the same machines, so each machine gets one scale
+            # from both sides, which leaves the ratios between the sides unchanged.
+            node $(TSPERF_EXE) merge --normalize "${BASELINE_PARTNER_ARGS[@]}" \
+              --output $(MERGED_DIR)/baseline.${KIND}.benchmark "${BASELINE_FILES[@]}"
 
             if [[ $(TSPERF_IS_COMPARISON) == "true" ]]; then
-              node $(TSPERF_EXE) merge --normalize --output $(MERGED_DIR)/new.${KIND}.benchmark "${NEW_FILES[@]}"
+              node $(TSPERF_EXE) merge --normalize "${NEW_PARTNER_ARGS[@]}" \
+                --output $(MERGED_DIR)/new.${KIND}.benchmark "${NEW_FILES[@]}"
 
               # Print summary for logs
               node $(BENCH_SCRIPTS)/runTsPerf.js benchmark-${KIND} \

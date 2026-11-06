@@ -6,6 +6,7 @@ export interface MergeOptions {
     output: string;
     iterations?: number;
     normalize?: boolean;
+    normalizeWith?: string[];
 }
 
 export async function merge(options: MergeOptions) {
@@ -21,8 +22,21 @@ export async function merge(options: MergeOptions) {
         throw new Error(`Expected at least one benchmark file`);
     }
 
+    if (options.normalizeWith && !options.normalize) {
+        throw new Error(`Option '--normalizeWith' requires '--normalize'`);
+    }
+
     if (options.normalize) {
-        benchmarks = Benchmark.normalizeTimes(benchmarks);
+        let partners;
+        if (options.normalizeWith) {
+            try {
+                partners = await Promise.all(options.normalizeWith.map(file => Benchmark.loadAsync(file)));
+            }
+            catch (e) {
+                throw new Error(`Failed to load benchmark files`, { cause: e });
+            }
+        }
+        benchmarks = Benchmark.normalizeTimes(benchmarks, partners);
     }
 
     try {
@@ -71,6 +85,13 @@ const command: Command<MergeOptions> = {
             type: "boolean",
             description:
                 "Rescales time samples so each file has the same mean for measurements found in several files, such as when merging results from different machines.",
+        },
+        normalizeWith: {
+            type: "string",
+            multiple: true,
+            param: "file",
+            description:
+                "With '--normalize', the files measured on the same machines as the merged files, in the same order, such as the other side of an interleaved comparison. Each machine's speed is taken from both, so both sides get the same scale.",
         },
     },
     exec: ({ options }) => merge(options),

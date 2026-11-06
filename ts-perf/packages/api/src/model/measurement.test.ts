@@ -111,6 +111,27 @@ test("normalizing times removes per-machine offsets but keeps other metrics", ()
     expect(alone.measurements[0].values?.totalTime?.samples).toEqual([1, 1.2]);
 });
 
+test("normalizing with partners keeps the ratios between paired samples", () => {
+    const host = HostSpecifier.create({ name: "node", version: "v24.21.0" });
+    const machine = (time: number[]) =>
+        report().with({
+            measurements: [new Measurement("test", 1, host, 1, { totalTime: computeMetrics(time, "Total time", "s", 4) })],
+        });
+    const baselines = [machine([1, 1]), machine([2, 2])];
+    const news = [machine([1.1, 1.1]), machine([1.8, 1.8])];
+    const normalizedBaselines = Benchmark.normalizeTimes(baselines, news);
+    const normalizedNews = Benchmark.normalizeTimes(news, baselines);
+
+    for (let i = 0; i < 2; i++) {
+        const baseline = normalizedBaselines[i].measurements[0].values!.totalTime!.samples[0];
+        const current = normalizedNews[i].measurements[0].values!.totalTime!.samples[0];
+        const original = news[i].measurements[0].values!.totalTime!.samples[0]
+            / baselines[i].measurements[0].values!.totalTime!.samples[0];
+        expect(current / baseline).toBeCloseTo(original);
+    }
+    expect(() => Benchmark.normalizeTimes(baselines, [news[0]])).toThrow();
+});
+
 test("large samples use the normal critical value", () => {
     const samples = Array.from({ length: 40 }, (_, i) => 1 + (i % 2) / 10);
     const value = computeMetrics(samples, "Total time", "s", 4)!;
