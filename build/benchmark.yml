@@ -421,7 +421,11 @@ jobs:
 
   - ${{ each agent in split(parameters.AGENTS, ',') }}:
       - job: Benchmark_${{ replace(agent, '-', '_') }}
-        timeoutInMinutes: 360
+        # Hosted VMs that go offline are only abandoned at the job timeout.
+        ${{ if and(parameters.USE_HOSTED_RUNNERS, ne(parameters.HOSTED_POOL, '')) }}:
+          timeoutInMinutes: 60
+        ${{ else }}:
+          timeoutInMinutes: 360
         dependsOn: Setup
         condition: and(succeeded(), not(eq(dependencies.Setup.outputs['setupPipeline.MATRIX_${{ replace(agent, '-', '_') }}'], '{}')))
         pool:
