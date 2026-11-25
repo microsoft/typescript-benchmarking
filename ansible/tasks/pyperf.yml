@@ -21,6 +21,7 @@
   become: yes
 
 - name: Install pyperf python package
+  when: not (ansible_check_mode and pyperf_venv_check.rc != 0)
   ansible.builtin.pip:
     name: pyperf
     virtualenv: /opt/pyperf
