@@ -3,10 +3,11 @@
   ansible.builtin.apt:
     pkg:
       - python3-venv
+      - python3-setuptools
   become: yes
 
 - name: Check pyperf virtualenv
-  ansible.builtin.command: /opt/pyperf/bin/pyperf --version
+  ansible.builtin.command: /opt/pyperf/bin/pyperf --help
   register: pyperf_venv_check
   failed_when: false
   changed_when: false

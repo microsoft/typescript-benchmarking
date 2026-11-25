@@ -58,9 +58,40 @@
       }}
   become: yes
 
+- name: Probe bubblewrap user namespaces
+  ansible.builtin.command: bwrap --ro-bind / / --unshare-user --cap-drop ALL true
+  register: bwrap_probe
+  failed_when: false
+  changed_when: false
+  check_mode: no
+
+- name: Check AppArmor unprivileged user namespace restriction
+  when: bwrap_probe.rc != 0
+  ansible.builtin.slurp:
+    src: /proc/sys/kernel/apparmor_restrict_unprivileged_userns
+  register: apparmor_restrict_userns
+  failed_when: false
+  check_mode: no
+
+- name: Set bubblewrap AppArmor configuration fact
+  ansible.builtin.set_fact:
+    needs_bwrap_apparmor_profile: >-
+      {{
+        bwrap_probe.rc != 0
+        and apparmor_restrict_userns.content is defined
+        and (apparmor_restrict_userns.content | b64decode | trim) == '1'
+      }}
+
+- name: Install AppArmor tools for bubblewrap profile
+  when: needs_bwrap_apparmor_profile
+  ansible.builtin.apt:
+    pkg:
+      - apparmor
+  become: yes
+
 # Ubuntu 24.04 restricts unprivileged user namespaces via AppArmor; allow them for bubblewrap.
 - name: Install AppArmor profile for bubblewrap
-  when: ansible_distribution_version is version('24.04', '>=')
+  when: needs_bwrap_apparmor_profile
   ansible.builtin.copy:
     dest: /etc/apparmor.d/bwrap
     owner: root
@@ -74,9 +105,8 @@
         userns,
       }
   become: yes
-  register: bwrap_apparmor_profile
 
 - name: Load AppArmor profile for bubblewrap
-  when: bwrap_apparmor_profile.changed
+  when: needs_bwrap_apparmor_profile
   ansible.builtin.command: apparmor_parser -r /etc/apparmor.d/bwrap
   become: yes
