@@ -5,15 +5,15 @@
       - python3-venv
   become: yes
 
-- name: Check pyperf virtualenv python
-  ansible.builtin.command: /opt/pyperf/bin/python3 --version
-  register: pyperf_venv_python
+- name: Check pyperf virtualenv
+  ansible.builtin.command: /opt/pyperf/bin/pyperf --version
+  register: pyperf_venv_check
   failed_when: false
   changed_when: false
   check_mode: no
 
 - name: Remove broken pyperf virtualenv
-  when: pyperf_venv_python.rc != 0
+  when: pyperf_venv_check.rc != 0
   ansible.builtin.file:
     path: /opt/pyperf
     state: absent
