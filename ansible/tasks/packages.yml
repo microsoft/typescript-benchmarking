@@ -74,32 +74,13 @@
   failed_when: false
   check_mode: no
 
-- name: Check if AppArmor profile directory exists
-  when: ansible_distribution_version is version('24.04', '>=')
-  ansible.builtin.stat:
-    path: /etc/apparmor.d
-  register: apparmor_d_dir
-  check_mode: no
-
-- name: Set bubblewrap AppArmor configuration facts
+- name: Set bubblewrap AppArmor configuration fact
   ansible.builtin.set_fact:
     needs_bwrap_apparmor_profile: >-
       {{
         bwrap_probe.rc != 0
         and apparmor_restrict_userns.content is defined
         and (apparmor_restrict_userns.content | b64decode | trim) == '1'
-      }}
-    install_bwrap_apparmor_profile: >-
-      {{
-        (
-          bwrap_probe.rc != 0
-          and apparmor_restrict_userns.content is defined
-          and (apparmor_restrict_userns.content | b64decode | trim) == '1'
-        )
-        or (
-          ansible_distribution_version is version('24.04', '>=')
-          and (apparmor_d_dir.stat.isdir | default(false))
-        )
       }}
 
 - name: Install AppArmor tools for bubblewrap profile
@@ -111,7 +92,7 @@
 
 # Ubuntu 24.04 restricts unprivileged user namespaces via AppArmor; allow them for bubblewrap.
 - name: Install AppArmor profile for bubblewrap
-  when: install_bwrap_apparmor_profile
+  when: needs_bwrap_apparmor_profile
   ansible.builtin.copy:
     dest: /etc/apparmor.d/bwrap
     owner: root
@@ -132,7 +113,7 @@
   become: yes
 
 - name: Verify bubblewrap user namespaces
-  when: not ansible_check_mode
+  when: install_agent and not ansible_check_mode
   ansible.builtin.command: runuser -u nobody -- bwrap --ro-bind / / --unshare-user --cap-drop ALL true
   become: yes
   changed_when: false
