@@ -20,7 +20,8 @@ steps:
 
       # Ubuntu 24.04 blocks unprivileged user namespaces unless an AppArmor profile
       # allows them. Allow them for bubblewrap only, like Ubuntu's browser profiles.
-      if [ "$(cat /proc/sys/kernel/apparmor_restrict_unprivileged_userns 2>/dev/null)" = "1" ]; then
+      if ! bwrap --ro-bind / / --unshare-user --cap-drop ALL true 2>/dev/null \
+        && [ "$(cat /proc/sys/kernel/apparmor_restrict_unprivileged_userns 2>/dev/null)" = "1" ]; then
         sudo tee /etc/apparmor.d/bwrap > /dev/null << 'EOF'
       abi <abi/4.0>,
       include <tunables/global>

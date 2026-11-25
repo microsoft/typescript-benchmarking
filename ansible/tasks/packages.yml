@@ -1,39 +1,82 @@
 ---
+# bubblewrap sandboxes the compiler under test; see build/benchmark.yml.
+# Desktop libraries follow VS Code's Linux dependencies:
+# https://github.com/microsoft/vscode/blob/08631fab3a63e8439bec69dce08aa5cf95360d48/resources/linux/snap/snapcraft.yaml#L22
 - name: Install packages
   ansible.builtin.apt:
-    pkg:
-      - ripgrep
-      - unzip
-      # Used to sandbox the compiler under test; see build/benchmark.yml.
-      - bubblewrap
-      # https://github.com/microsoft/vscode/blob/08631fab3a63e8439bec69dce08aa5cf95360d48/resources/linux/snap/snapcraft.yaml#L22
-      - ca-certificates
-      - libasound2
-      - libatk-bridge2.0-0
-      - libatk1.0-0
-      - libatspi2.0-0
-      - libcairo2
-      - libcanberra-gtk3-module
-      - libcurl3-gnutls
-      - libcurl3-nss
-      - libcurl4
-      - libdrm2
-      - libgbm1
-      - libgl1
-      - libglib2.0-0
-      - libgtk-3-0
-      - libibus-1.0-5
-      - libnss3
-      - libpango-1.0-0
-      - libsecret-1-0
-      - libxcomposite1
-      - libxdamage1
-      - libxfixes3
-      - libxkbcommon0
-      - libxkbfile1
-      - libxrandr2
-      - libxss1
-      - locales-all
-      - packagekit-gtk3-module
-      - xdg-utils
+    pkg: >-
+      {{
+        [
+          'ripgrep',
+          'unzip',
+          'bubblewrap',
+          'ca-certificates',
+          'libcairo2',
+          'libcanberra-gtk3-module',
+          'libdrm2',
+          'libgbm1',
+          'libgl1',
+          'libibus-1.0-5',
+          'libnss3',
+          'libpango-1.0-0',
+          'libsecret-1-0',
+          'libxcomposite1',
+          'libxdamage1',
+          'libxfixes3',
+          'libxkbcommon0',
+          'libxkbfile1',
+          'libxrandr2',
+          'libxss1',
+          'locales-all',
+          'packagekit-gtk3-module',
+          'xdg-utils',
+        ]
+        + (
+          [
+            'libasound2t64',
+            'libatk-bridge2.0-0t64',
+            'libatk1.0-0t64',
+            'libatspi2.0-0t64',
+            'libcurl3t64-gnutls',
+            'libcurl4t64',
+            'libglib2.0-0t64',
+            'libgtk-3-0t64',
+          ]
+          if ansible_distribution_version is version('24.04', '>=')
+          else [
+            'libasound2',
+            'libatk-bridge2.0-0',
+            'libatk1.0-0',
+            'libatspi2.0-0',
+            'libcurl3-gnutls',
+            'libcurl3-nss',
+            'libcurl4',
+            'libglib2.0-0',
+            'libgtk-3-0',
+          ]
+        )
+      }}
+  become: yes
+
+# Ubuntu 24.04 restricts unprivileged user namespaces via AppArmor; allow them for bubblewrap.
+- name: Install AppArmor profile for bubblewrap
+  when: ansible_distribution_version is version('24.04', '>=')
+  ansible.builtin.copy:
+    dest: /etc/apparmor.d/bwrap
+    owner: root
+    group: root
+    mode: '0644'
+    content: |
+      abi <abi/4.0>,
+      include <tunables/global>
+
+      profile bwrap /usr/bin/bwrap flags=(unconfined) {
+        userns,
+      }
+  become: yes
+  register: bwrap_apparmor_profile
+
+- name: Load AppArmor profile for bubblewrap
+  when: bwrap_apparmor_profile.changed
+  ansible.builtin.command: apparmor_parser -r /etc/apparmor.d/bwrap
   become: yes
